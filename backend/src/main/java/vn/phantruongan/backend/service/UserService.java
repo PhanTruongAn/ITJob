@@ -22,8 +22,14 @@ public class UserService {
     }
 
     public boolean deleteUserById(long id) {
-        userRepository.deleteById(id);
-        return true;
+        Optional<User> op = userRepository.findById(id);
+        if (op.isPresent()) {
+            userRepository.deleteById(op.get().getId());
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     public User getUserById(long id) {
@@ -45,7 +51,8 @@ public class UserService {
             userUpdate.setEmail(user.getEmail());
             userUpdate.setPassword((user.getPassword()));
             userUpdate = userRepository.save(userUpdate);
+            return userUpdate;
         }
-        return userUpdate;
+        return userRepository.save(user);
     }
 }
