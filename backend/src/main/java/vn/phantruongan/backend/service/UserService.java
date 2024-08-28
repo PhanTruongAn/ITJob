@@ -26,9 +26,8 @@ public class UserService {
         if (op.isPresent()) {
             userRepository.deleteById(op.get().getId());
             return true;
-        } else {
-            return false;
         }
+        return false;
 
     }
 
@@ -54,5 +53,10 @@ public class UserService {
             return userUpdate;
         }
         return userRepository.save(user);
+    }
+
+    public User findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+
     }
 }

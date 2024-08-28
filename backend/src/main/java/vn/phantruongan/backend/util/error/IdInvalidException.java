@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.service.error;
+package vn.phantruongan.backend.util.error;
 
 public class IdInvalidException extends Exception {
 
