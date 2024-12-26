@@ -10,7 +10,7 @@ public class HelloController {
     @GetMapping("/")
     public String getHelloWorld() throws IdInvalidException {
         if (true)
-            throw new IdInvalidException("Check error from home!");
+            throw new IdInvalidException("Check error vsbfjdf!");
         return "Hello World";
     }
 }
