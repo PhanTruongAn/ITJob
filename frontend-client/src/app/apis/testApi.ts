@@ -1,8 +1,9 @@
 import { IBackendRes } from "../types/backend";
 import axiosInstance from "../configs/axiosInstance";
 
-class AuthService {
+export class AuthService {
   static async getHelloWorld(): Promise<IBackendRes<string>> {
-    return await axiosInstance.get<IBackendRes<string>>("/");
+    const response = await axiosInstance.get<IBackendRes<string>>("/");
+    return response.data;
   }
 }

@@ -50,8 +50,12 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public ResponseEntity<?> getUserById(@PathVariable("id") long id) {
+        User user = userService.getUserById(id);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found!");
+        }
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/users")
