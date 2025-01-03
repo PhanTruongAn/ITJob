@@ -1,5 +1,3 @@
-"use client";
-import Image from "next/image";
 import * as React from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import Divider from "@mui/material/Divider";
@@ -13,7 +11,8 @@ import Testimonials from "./components/Testimonials";
 import FAQ from "./components/FAQ";
 import Footer from "./components/Footer";
 import AppTheme from "./shared-theme/AppTheme";
-export default function Home(props: { disableCustomTheme?: boolean }) {
+
+export default function MarketingPage(props: { disableCustomTheme?: boolean }) {
   return (
     <AppTheme {...props}>
       <CssBaseline enableColorScheme />
