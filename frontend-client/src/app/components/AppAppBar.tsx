@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import { alpha, styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -13,7 +14,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import Sitemark from "./SitemarkIcon";
 import ColorModeIconDropdown from "../shared-theme/ColorModeIconDropdown";
-
+import { useRouter } from "next/navigation";
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -30,7 +31,7 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 
 export default function AppAppBar() {
   const [open, setOpen] = React.useState(false);
-
+  const router = useRouter();
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
@@ -43,7 +44,7 @@ export default function AppAppBar() {
         boxShadow: 0,
         bgcolor: "transparent",
         backgroundImage: "none",
-        mt: "calc(var(--template-frame-height, 0px) + 28px)",
+        mt: "calc(var(--template-frame-height, 0px) + 15px)",
       }}
     >
       <Container maxWidth="lg">
@@ -52,34 +53,13 @@ export default function AppAppBar() {
             sx={{ flexGrow: 1, display: "flex", alignItems: "center", px: 0 }}
           >
             <Sitemark />
+
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
               <Button variant="text" color="info" size="small">
-                Features
+                Công việc
               </Button>
               <Button variant="text" color="info" size="small">
-                Testimonials
-              </Button>
-              <Button variant="text" color="info" size="small">
-                Highlights
-              </Button>
-              <Button variant="text" color="info" size="small">
-                Pricing
-              </Button>
-              <Button
-                variant="text"
-                color="info"
-                size="small"
-                sx={{ minWidth: 0 }}
-              >
-                FAQ
-              </Button>
-              <Button
-                variant="text"
-                color="info"
-                size="small"
-                sx={{ minWidth: 0 }}
-              >
-                Blog
+                Công ty
               </Button>
             </Box>
           </Box>
@@ -91,10 +71,18 @@ export default function AppAppBar() {
             }}
           >
             <Button color="primary" variant="text" size="small">
-              Sign in
+              Nhà tuyển dụng
+            </Button>
+            <Button
+              color="primary"
+              variant="text"
+              size="small"
+              onClick={() => router.push("/signin")}
+            >
+              Đăng nhập
             </Button>
             <Button color="primary" variant="contained" size="small">
-              Sign up
+              Đăng ký
             </Button>
             <ColorModeIconDropdown />
           </Box>
@@ -125,21 +113,18 @@ export default function AppAppBar() {
                   </IconButton>
                 </Box>
 
-                <MenuItem>Features</MenuItem>
-                <MenuItem>Testimonials</MenuItem>
-                <MenuItem>Highlights</MenuItem>
-                <MenuItem>Pricing</MenuItem>
-                <MenuItem>FAQ</MenuItem>
-                <MenuItem>Blog</MenuItem>
+                <MenuItem>Công việc</MenuItem>
+                <MenuItem>Công ty</MenuItem>
+
                 <Divider sx={{ my: 3 }} />
                 <MenuItem>
                   <Button color="primary" variant="contained" fullWidth>
-                    Sign up
+                    Đăng ký
                   </Button>
                 </MenuItem>
                 <MenuItem>
                   <Button color="primary" variant="outlined" fullWidth>
-                    Sign in
+                    Đăng nhập
                   </Button>
                 </MenuItem>
               </Box>

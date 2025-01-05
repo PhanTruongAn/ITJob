@@ -1,5 +1,5 @@
 "use client";
-import { AuthService } from "../apis/testApi";
+import { AuthService } from "../../apis/testApi";
 import { useState, useEffect } from "react";
 export default function Page() {
   const [data, setData] = useState<string | undefined>(undefined);
@@ -11,5 +11,5 @@ export default function Page() {
 
     fetchData();
   }, []);
-  return <p>{data}</p>;
+  return <p>{data} bhuib</p>;
 }
