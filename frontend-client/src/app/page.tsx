@@ -19,7 +19,7 @@ export default function Home(props: { disableCustomTheme?: boolean }) {
       <AppAppBar />
       <Hero />
       <div>
-        <LogoCollection />
+        {/* <LogoCollection />
         <Features />
         <Divider />
         <Testimonials />
@@ -29,7 +29,7 @@ export default function Home(props: { disableCustomTheme?: boolean }) {
         <Pricing />
         <Divider />
         <FAQ />
-        <Divider />
+        <Divider /> */}
         <Footer />
       </div>
     </AppTheme>

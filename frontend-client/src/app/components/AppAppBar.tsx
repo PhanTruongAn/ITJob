@@ -15,6 +15,7 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import Sitemark from "./SitemarkIcon";
 import ColorModeIconDropdown from "../shared-theme/ColorModeIconDropdown";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -77,12 +78,17 @@ export default function AppAppBar() {
               color="primary"
               variant="text"
               size="small"
-              onClick={() => router.push("/signin")}
+              // onClick={() => router.push("/signin")}
             >
-              Đăng nhập
+              <Link href="/signin">Đăng nhập</Link>
             </Button>
-            <Button color="primary" variant="contained" size="small">
-              Đăng ký
+            <Button
+              color="primary"
+              variant="contained"
+              size="small"
+              // onClick={() => router.push("/signup")}
+            >
+              <Link href="/signup">Đăng ký</Link>
             </Button>
             <ColorModeIconDropdown />
           </Box>
@@ -119,12 +125,12 @@ export default function AppAppBar() {
                 <Divider sx={{ my: 3 }} />
                 <MenuItem>
                   <Button color="primary" variant="contained" fullWidth>
-                    Đăng ký
+                    <Link href="/signup">Đăng ký</Link>
                   </Button>
                 </MenuItem>
                 <MenuItem>
                   <Button color="primary" variant="outlined" fullWidth>
-                    Đăng nhập
+                    <Link href="/signin">Đăng nhập</Link>
                   </Button>
                 </MenuItem>
               </Box>
