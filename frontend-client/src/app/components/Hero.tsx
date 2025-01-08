@@ -6,11 +6,11 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import SearchIcon from "@mui/icons-material/Search";
-import { styled } from "@mui/material/styles";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Chip from "@mui/material/Chip";
+import InputLabel from "@mui/material/InputLabel";
 // const StyledBox = styled("div")(({ theme }) => ({
 //   alignSelf: "center",
 //   width: "100%",
@@ -41,7 +41,7 @@ import Chip from "@mui/material/Chip";
 // }));
 
 export default function Hero() {
-  const [cities, setCities] = React.useState("Tất cả các thành phố");
+  const [cities, setCities] = React.useState("");
   const [chipSelected, setChipSelected] = React.useState("");
   const vietnam_cities = ["Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Other"];
   const chip_data = [
@@ -128,10 +128,13 @@ export default function Hero() {
             sx={{ pt: 2, width: { xs: "100%", sm: "800px" } }}
           >
             <FormControl sx={{ minWidth: 200 }}>
+              <InputLabel id="select-city">Chọn thành phố</InputLabel>
               <Select
+                labelId="select-city"
                 value={cities}
                 onChange={handleChange}
                 sx={{ height: "50px", fontSize: "15px" }}
+                variant="outlined"
               >
                 <MenuItem value="Tất cả các thành phố">
                   Tất cả các thành phố

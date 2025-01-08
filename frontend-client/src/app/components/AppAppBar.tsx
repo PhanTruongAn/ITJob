@@ -56,10 +56,10 @@ export default function AppAppBar() {
             <Sitemark />
 
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
-              <Button variant="text" color="info" size="small">
+              <Button variant="text" color="info" size="medium">
                 Công việc
               </Button>
-              <Button variant="text" color="info" size="small">
+              <Button variant="text" color="info" size="medium">
                 Công ty
               </Button>
             </Box>
@@ -67,17 +67,17 @@ export default function AppAppBar() {
           <Box
             sx={{
               display: { xs: "none", md: "flex" },
-              gap: 1,
+              gap: 2,
               alignItems: "center",
             }}
           >
-            <Button color="primary" variant="text" size="small">
+            <Button color="primary" variant="text" size="medium">
               Nhà tuyển dụng
             </Button>
             <Button
               color="primary"
               variant="text"
-              size="small"
+              size="medium"
               // onClick={() => router.push("/signin")}
             >
               <Link href="/signin">Đăng nhập</Link>
@@ -85,7 +85,7 @@ export default function AppAppBar() {
             <Button
               color="primary"
               variant="contained"
-              size="small"
+              size="medium"
               // onClick={() => router.push("/signup")}
             >
               <Link href="/signup">Đăng ký</Link>

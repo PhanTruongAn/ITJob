@@ -164,7 +164,7 @@ export default function SignInCard() {
           variant="contained"
           onClick={validateInputs}
         >
-          Sign in
+          Đăng nhập
         </Button>
         <Typography sx={{ textAlign: "center" }}>
           Chưa có tài khoản?{" "}
