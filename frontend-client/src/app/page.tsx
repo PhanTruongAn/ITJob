@@ -11,6 +11,7 @@ import Testimonials from "./components/Testimonials";
 import FAQ from "./components/FAQ";
 import Footer from "./components/Footer";
 import AppTheme from "./shared-theme/AppTheme";
+import MainLayout from "./pages/layout";
 
 export default function Home(props: { disableCustomTheme?: boolean }) {
   return (
@@ -25,7 +26,7 @@ export default function Home(props: { disableCustomTheme?: boolean }) {
         <Divider />
         <Testimonials />
         <Divider />
-       
+
         <Divider />
         <Pricing />
         <Divider />
@@ -36,3 +37,4 @@ export default function Home(props: { disableCustomTheme?: boolean }) {
     </AppTheme>
   );
 }
+Home.getLayout = (page: React.ReactNode) => <MainLayout>{page}</MainLayout>;

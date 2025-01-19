@@ -13,7 +13,7 @@ import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded";
 import ThumbUpAltRoundedIcon from "@mui/icons-material/ThumbUpAltRounded";
 import Chip from "@mui/material/Chip";
 import Image from "next/image";
-
+import backgroundImage from "../assets/bg-company.png";
 const items = [
   {
     icon: <SettingsSuggestRoundedIcon />,
@@ -159,23 +159,38 @@ export default function Highlights() {
                   cursor: "pointer",
                   p: 3,
                   height: "100%",
-                  borderColor: "hsla(220, 25%, 25%, 0.3)",
-                  backgroundColor: "hsla(218, 12.80%, 38.20%, 0.18)",
+                  position: "relative",
+                  // borderColor: "hsla(220, 25%, 25%, 0.3)",
+                  backgroundColor: "hsla(240, 13.00%, 86.50%, 0.18)",
                 }}
               >
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "120px",
+                    zIndex: 1,
+                  }}
+                >
+                  <Image src={backgroundImage} alt="Background" />
+                </div>
                 <Box
                   sx={{
                     display: "flex",
                     justifyContent: "center",
+                    zIndex: 2,
                   }}
                 >
                   <Image
                     src={item.url}
                     width={170}
                     height={170}
-                    alt="Screenshots of the dashboard project showing desktop version"
+                    alt={item.title}
                     style={{
                       borderRadius: "10px",
+                      boxShadow: "0px 4px 15px rgba(50, 49, 49, 0.2)",
                     }}
                   />
                 </Box>
