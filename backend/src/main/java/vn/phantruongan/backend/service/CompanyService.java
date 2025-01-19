@@ -1,11 +1,11 @@
 package vn.phantruongan.backend.service;
 
-import java.util.List;
-import java.util.Optional;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import vn.phantruongan.backend.domain.Company;
+import vn.phantruongan.backend.dto.ResultPaginationDTO;
 import vn.phantruongan.backend.repository.CompanyRepository;
 
 @Service
@@ -24,8 +24,19 @@ public class CompanyService {
         return companyRepository.findById(id).orElse(null);
     }
 
-    public List<Company> getAllCompanies() {
-        return companyRepository.findAll();
+    public ResultPaginationDTO getAllCompanies(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
+        Page<Company> page = companyRepository.findAll(pageable);
+        ResultPaginationDTO result = new ResultPaginationDTO();
+        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
+        meta.setPageNumber(page.getNumber() + 1);
+        meta.setPageSize(page.getSize());
+        meta.setPages(page.getTotalPages());
+        meta.setTotal(page.getTotalElements());
+
+        result.setMeta(meta);
+        result.setResult(page.getContent());
+        return result;
     }
 
     public boolean deleteCompanyById(long id) {
