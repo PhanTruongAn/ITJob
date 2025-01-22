@@ -1,11 +1,14 @@
 package vn.phantruongan.backend.service;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import vn.phantruongan.backend.domain.User;
+import vn.phantruongan.backend.dto.ResultPaginationDTO;
 import vn.phantruongan.backend.repository.UserRepository;
 
 @Service
@@ -39,8 +42,18 @@ public class UserService {
         return null;
     }
 
-    public List<User> getAllUser() {
-        return userRepository.findAll();
+    public ResultPaginationDTO getAllUser(Specification<User> spec, Pageable pageable) {
+        Page<User> page = userRepository.findAll(spec, pageable);
+        ResultPaginationDTO result = new ResultPaginationDTO();
+        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
+        meta.setPageNumber(pageable.getPageNumber() + 1);
+        meta.setPageSize(pageable.getPageSize());
+        meta.setPages(page.getTotalPages());
+        meta.setTotal(page.getTotalElements());
+
+        result.setMeta(meta);
+        result.setResult(page.getContent());
+        return result;
     }
 
     public User updateUserById(User user) {

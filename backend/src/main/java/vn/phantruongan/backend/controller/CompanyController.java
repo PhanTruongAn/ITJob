@@ -1,11 +1,17 @@
 package vn.phantruongan.backend.controller;
 
 import org.springframework.web.bind.annotation.RestController;
+
+import com.turkraft.springfilter.boot.Filter;
+
 import vn.phantruongan.backend.domain.Company;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
 import vn.phantruongan.backend.service.CompanyService;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,15 +49,8 @@ public class CompanyController {
     }
 
     @GetMapping("/companies")
-    public ResponseEntity<ResultPaginationDTO> getAllCompanies(
-            @RequestParam("pageNumber") Optional<String> pageNumberOptional,
-            @RequestParam("pageSize") Optional<String> pageSizOptional) {
-
-        String sPageNumber = pageNumberOptional.isPresent() ? pageNumberOptional.get() : "";
-        String sPageSize = pageSizOptional.isPresent() ? pageSizOptional.get() : "";
-        int pageNumber = Integer.parseInt(sPageNumber);
-        int pageSize = Integer.parseInt(sPageSize);
-        return ResponseEntity.ok(companyService.getAllCompanies(pageNumber, pageSize));
+    public ResponseEntity<ResultPaginationDTO> getAllCompanies(@Filter Specification<Company> spec, Pageable pageable) {
+        return ResponseEntity.ok(companyService.getAllCompanies(spec, pageable));
     }
 
     @DeleteMapping("/companies/{id}")
@@ -69,4 +68,5 @@ public class CompanyController {
     public ResponseEntity<Company> updateCompany(@RequestBody Company company) {
         return ResponseEntity.ok(companyService.updateById(company));
     }
+
 }

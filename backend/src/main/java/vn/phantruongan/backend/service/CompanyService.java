@@ -1,8 +1,10 @@
 package vn.phantruongan.backend.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.phantruongan.backend.domain.Company;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
@@ -24,13 +26,12 @@ public class CompanyService {
         return companyRepository.findById(id).orElse(null);
     }
 
-    public ResultPaginationDTO getAllCompanies(int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
-        Page<Company> page = companyRepository.findAll(pageable);
+    public ResultPaginationDTO getAllCompanies(Specification<Company> spec, Pageable pageable) {
+        Page<Company> page = companyRepository.findAll(spec, pageable);
         ResultPaginationDTO result = new ResultPaginationDTO();
         ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
-        meta.setPageNumber(page.getNumber() + 1);
-        meta.setPageSize(page.getSize());
+        meta.setPageNumber(pageable.getPageNumber() + 1);
+        meta.setPageSize(pageable.getPageSize());
         meta.setPages(page.getTotalPages());
         meta.setTotal(page.getTotalElements());
 
@@ -58,5 +59,14 @@ public class CompanyService {
             return currentCompany;
         }
         return companyRepository.save(company);
+    }
+
+    public ResultPaginationDTO filterCompanies(Specification<Company> specification) {
+        List<Company> companies = companyRepository.findAll(specification);
+        ResultPaginationDTO result = new ResultPaginationDTO();
+        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
+        result.setMeta(meta);
+        result.setResult(companies);
+        return result;
     }
 }
