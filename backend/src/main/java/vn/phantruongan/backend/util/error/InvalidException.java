@@ -1,9 +1,9 @@
 package vn.phantruongan.backend.util.error;
 
-public class IdInvalidException extends Exception {
+public class InvalidException extends Exception {
 
     // Constructor that accepts a message
-    public IdInvalidException(String message) {
+    public InvalidException(String message) {
         super(message);
 
     }

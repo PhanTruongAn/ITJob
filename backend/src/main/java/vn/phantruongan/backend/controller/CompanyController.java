@@ -7,8 +7,7 @@ import com.turkraft.springfilter.boot.Filter;
 import vn.phantruongan.backend.domain.Company;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
 import vn.phantruongan.backend.service.CompanyService;
-import java.util.List;
-import java.util.Optional;
+import vn.phantruongan.backend.util.annotation.ApiMessage;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -16,14 +15,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
-// @RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class CompanyController {
 
     private final CompanyService companyService;
@@ -33,6 +32,7 @@ public class CompanyController {
     }
 
     @PostMapping("/companies")
+    @ApiMessage("Create new company")
     public ResponseEntity<Company> createCompany(@RequestBody Company company) {
         // TODO: process POST request
         Company newCompany = companyService.createCompany(company);
@@ -40,6 +40,7 @@ public class CompanyController {
     }
 
     @GetMapping("/companies/{id}")
+    @ApiMessage("Get company by id")
     public ResponseEntity<?> findCompanyById(@PathVariable("id") long id) {
         Company company = companyService.findById(id);
         if (company == null) {
@@ -49,6 +50,7 @@ public class CompanyController {
     }
 
     @GetMapping("/companies")
+    @ApiMessage("Fetch all companies")
     public ResponseEntity<ResultPaginationDTO> getAllCompanies(@Filter Specification<Company> spec, Pageable pageable) {
         return ResponseEntity.ok(companyService.getAllCompanies(spec, pageable));
     }
@@ -65,6 +67,7 @@ public class CompanyController {
     }
 
     @PutMapping("/companies")
+    @ApiMessage("Update company by id")
     public ResponseEntity<Company> updateCompany(@RequestBody Company company) {
         return ResponseEntity.ok(companyService.updateById(company));
     }

@@ -11,6 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import jakarta.servlet.http.HttpServletResponse;
 import vn.phantruongan.backend.domain.RestResponse;
+import vn.phantruongan.backend.util.annotation.ApiMessage;
 
 @ControllerAdvice
 public class FormatRestResponse implements ResponseBodyAdvice<Object> {
@@ -33,18 +34,18 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
 
         RestResponse<Object> res = new RestResponse<Object>();
         res.setStatusCode(status);
-
+        ApiMessage message = returnType.getMethodAnnotation(ApiMessage.class);
         // if (body instanceof String) {
         // return body;
         // }
         if (status >= 400 || body instanceof String) {
             // case error
-            // res.setError(body.toString());
             return body;
 
         } else {
             // case success
-            res.setMessage("Call api success!");
+
+            res.setMessage(message != null ? message.value() + " " + "successful!" : "Call api successful!");
             res.setData(body);
         }
         // return body;
