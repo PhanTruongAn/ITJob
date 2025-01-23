@@ -1,6 +1,8 @@
 package vn.phantruongan.backend.service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,7 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import vn.phantruongan.backend.domain.User;
-import vn.phantruongan.backend.dto.CreateUserDTO;
+import vn.phantruongan.backend.dto.ResCreateUserDTO;
+import vn.phantruongan.backend.dto.ResUpdateUserDTO;
+import vn.phantruongan.backend.dto.ResUserDTO;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
 import vn.phantruongan.backend.repository.UserRepository;
 
@@ -30,8 +34,8 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public CreateUserDTO responseCreateUser(User user) {
-        CreateUserDTO dto = new CreateUserDTO();
+    public ResCreateUserDTO responseCreateUser(User user) {
+        ResCreateUserDTO dto = new ResCreateUserDTO();
         dto.setEmail(user.getEmail());
         dto.setName(user.getName());
         dto.setAddress(user.getAddress());
@@ -68,23 +72,34 @@ public class UserService {
         meta.setPages(page.getTotalPages());
         meta.setTotal(page.getTotalElements());
 
+        List<ResUserDTO> dto = page.getContent().stream()
+                .map(item -> new ResUserDTO(item.getId(), item.getName(), item.getEmail(),
+                        item.getDob(), item.getGender(), item.getAddress(), item.getCreatedAt(), item.getUpdatedAt())
+
+                ).collect(Collectors.toList());
         result.setMeta(meta);
-        result.setResult(page.getContent());
+        result.setResult(dto);
         return result;
     }
 
-    public User updateUserById(User user) {
+    public ResUpdateUserDTO updateUserById(User user) {
         User userUpdate = getUserById(user.getId());
+        ResUpdateUserDTO dto = new ResUpdateUserDTO();
         if (userUpdate != null) {
             userUpdate.setName(user.getName());
-            userUpdate.setEmail(user.getEmail());
             userUpdate.setAddress(user.getAddress());
             userUpdate.setDob(user.getDob());
             userUpdate.setGender(user.getGender());
-            userUpdate = userRepository.save(userUpdate);
-            return userUpdate;
+            userRepository.save(userUpdate);
+            dto.setId(user.getId());
+            dto.setName(user.getName());
+            dto.setGender(user.getGender());
+            dto.setAddress(user.getAddress());
+            dto.setDob(user.getDob());
+            dto.setUpdatedAt(userUpdate.getUpdatedAt());
         }
-        return userRepository.save(user);
+        return dto;
+
     }
 
     public User findUserByEmail(String email) {
@@ -93,5 +108,13 @@ public class UserService {
 
     public boolean existUserByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    public void updateRefreshToken(String email, String refreshToken) {
+        User user = findUserByEmail(email);
+        if (user != null) {
+            user.setRefreshToken(refreshToken);
+            userRepository.save(user);
+        }
     }
 }

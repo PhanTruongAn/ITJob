@@ -4,8 +4,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.turkraft.springfilter.boot.Filter;
 
+import jakarta.validation.Valid;
 import vn.phantruongan.backend.domain.User;
-import vn.phantruongan.backend.dto.CreateUserDTO;
+import vn.phantruongan.backend.dto.ResCreateUserDTO;
+import vn.phantruongan.backend.dto.ResUpdateUserDTO;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
 import vn.phantruongan.backend.service.UserService;
 import vn.phantruongan.backend.util.annotation.ApiMessage;
@@ -36,7 +38,7 @@ public class UserController {
 
     @PostMapping("/users")
     @ApiMessage("Create new user")
-    public ResponseEntity<CreateUserDTO> createNewUser(@RequestBody User user) throws InvalidException {
+    public ResponseEntity<ResCreateUserDTO> createNewUser(@Valid @RequestBody User user) throws InvalidException {
         if (userService.existUserByEmail(user.getEmail())) {
             throw new InvalidException(
                     "Email này đã tồn tại, vui lòng sử dụng email khác");
@@ -60,10 +62,10 @@ public class UserController {
 
     @GetMapping("/users/{id}")
     @ApiMessage("Get user by id")
-    public ResponseEntity<?> getUserById(@PathVariable("id") long id) {
+    public ResponseEntity<?> getUserById(@PathVariable("id") long id) throws InvalidException {
         User user = userService.getUserById(id);
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found!");
+            throw new InvalidException("Không tìm thấy người dùng!");
         }
         return ResponseEntity.ok(user);
     }
@@ -76,8 +78,8 @@ public class UserController {
 
     @PutMapping("/users")
     @ApiMessage("Update user by id")
-    public ResponseEntity<User> putMethodName(@RequestBody User user) {
-        User userUpdate = userService.updateUserById(user);
+    public ResponseEntity<ResUpdateUserDTO> putMethodName(@RequestBody User user) {
+        ResUpdateUserDTO userUpdate = userService.updateUserById(user);
         return ResponseEntity.ok(userUpdate);
     }
 }

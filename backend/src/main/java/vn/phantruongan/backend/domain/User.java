@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -14,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -31,13 +33,16 @@ public class User {
     private long id;
 
     private String name;
+    @NotBlank(message = "Email không được để trống!")
     private String email;
+    @NotBlank(message = "Mật khẩu không được để trống!")
     private String password;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate dob;
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
     private String address;
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
     private Instant createdAt;
     private Instant updatedAt;
