@@ -1,9 +1,8 @@
 package vn.phantruongan.backend.domain;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
@@ -16,44 +15,51 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-import vn.phantruongan.backend.util.enums.GenderEnum;
+import vn.phantruongan.backend.util.enums.LevelEnum;
 
 @Entity
-@Table(name = "users")
+@Table(name = "jobs")
 @Getter
 @Setter
-@ToString
-public class User extends Auditable {
+public class Job extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @NotBlank(message = "Tên việc làm không được để trống!")
     private String name;
-    @NotBlank(message = "Email không được để trống!")
-    private String email;
-    @NotBlank(message = "Mật khẩu không được để trống!")
-    private String password;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-    private LocalDate dob;
-    @Enumerated(EnumType.STRING)
-    private GenderEnum gender;
-    private String address;
+    private String location;
     @Column(columnDefinition = "MEDIUMTEXT")
-    private String refreshToken;
+    private String description;
+    private int quantity;
+    private Double salary;
+
+    @Enumerated(EnumType.STRING)
+    private LevelEnum level;
+
+    private Instant startDate;
+    private Instant endDate;
+    private boolean isActive;
 
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "job_skill", joinColumns = @JoinColumn(name = "job_id"), inverseJoinColumns = @JoinColumn(name = "skill_id"))
+    private List<Skill> skills;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "job", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Resume> resumes;
 
 }
