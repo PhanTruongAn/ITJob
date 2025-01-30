@@ -1,6 +1,6 @@
 "use client";
 import { IBackendRes } from "@/app/types/backend";
-import { AuthService } from "../../apis/testApi";
+import { AuthService } from "../../apis/authApi";
 import { useState, useEffect } from "react";
 export default function Page() {
   const [data, setData] = useState<IBackendRes<any> | undefined>();

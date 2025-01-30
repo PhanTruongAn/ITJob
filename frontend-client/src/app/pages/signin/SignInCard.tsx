@@ -10,6 +10,8 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Link from "@mui/material/Link";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import Alert from "@mui/material/Alert";
+import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
 import { styled } from "@mui/material/styles";
 import ForgotPassword from "./ForgotPassword";
 import {
@@ -17,7 +19,8 @@ import {
   FacebookIcon,
   SitemarkIcon,
 } from "../../components/CustomIcons";
-
+import { AuthService } from "@/app/apis/authApi";
+import { useRouter } from "next/navigation";
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -37,11 +40,17 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }));
 
 export default function SignInCard() {
+  const router = useRouter();
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
   const [open, setOpen] = React.useState(false);
+  const [openAlert, setOpenAlert] = React.useState(false);
+  const [alertMessage, setAlertMessage] = React.useState("");
+  const [alertStatus, setAlertStatus] = React.useState<"success" | "error">(
+    "success"
+  );
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -51,16 +60,37 @@ export default function SignInCard() {
     setOpen(false);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    if (emailError || passwordError) {
-      event.preventDefault();
+  const handleCloseAlert = (
+    event?: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") {
       return;
     }
+
+    setOpenAlert(false);
+  };
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (emailError || passwordError) return;
+
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    const res = await AuthService.login(
+      data.get("email") as string,
+      data.get("password") as string
+    );
+    if (res.statusCode === 200) {
+      setAlertMessage("Đăng nhập thành công!");
+      setAlertStatus("success");
+      setTimeout(() => {
+        router.push("/");
+      }, 2000);
+    } else {
+      setAlertMessage("Đăng nhập thất bại. Vui lòng kiểm tra lại.");
+      setAlertStatus("error");
+    }
+    setOpenAlert(true);
   };
 
   const validateInputs = () => {
@@ -78,9 +108,9 @@ export default function SignInCard() {
       setEmailErrorMessage("");
     }
 
-    if (!password.value || password.value.length < 6) {
+    if (!password.value || password.value.length < 3) {
       setPasswordError(true);
-      setPasswordErrorMessage("Password must be at least 6 characters long.");
+      setPasswordErrorMessage("Password must be at least 3 characters long.");
       isValid = false;
     } else {
       setPasswordError(false);
@@ -92,6 +122,21 @@ export default function SignInCard() {
 
   return (
     <Card variant="outlined">
+      <Snackbar
+        open={openAlert}
+        autoHideDuration={2000}
+        onClose={handleCloseAlert}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseAlert}
+          severity={alertStatus}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {alertMessage}
+        </Alert>
+      </Snackbar>
       <Box sx={{ display: { xs: "flex", md: "none" } }}>
         <SitemarkIcon />
       </Box>
