@@ -20,7 +20,7 @@ const LayoutAdmin: React.FC = () => {
   const [activeMenu, setActiveMenu] = useState<string>("");
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { colorBgContainer },
   } = theme.useToken();
 
   useEffect(() => {
@@ -110,11 +110,8 @@ const LayoutAdmin: React.FC = () => {
         </Header>
         <Content
           style={{
-            margin: "24px 16px",
-            padding: 24,
+            margin: "13px 16px",
             minHeight: 280,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
           }}
         >
           <Outlet />

@@ -84,7 +84,7 @@ export default function SignInCard() {
       setAlertMessage("Đăng nhập thành công!");
       setAlertStatus("success");
       setTimeout(() => {
-        router.push("/");
+        router.push(`${process.env.NEXT_PUBLIC_FE_ADMIN_URL}/admin`);
       }, 2000);
     } else {
       setAlertMessage("Đăng nhập thất bại. Vui lòng kiểm tra lại.");
