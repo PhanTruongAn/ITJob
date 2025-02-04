@@ -1,123 +1,116 @@
-import { PlusOutlined } from "@ant-design/icons";
-import type { ActionType, ProColumns } from "@ant-design/pro-components";
-import { TableDropdown } from "@ant-design/pro-components";
-import { Button } from "antd";
-import { useRef } from "react";
-import DataTable from "../../components/table";
-export const waitTimePromise = async (time: number = 100) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, time);
-  });
-};
+import React, { useState } from "react";
+import { Button, Col, Form, Input, Row, Space, Table, theme } from "antd";
+import "./style.css";
+import { columns, data, IDataType } from "./table";
+import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
+const AdvancedSearchForm = () => {
+  const { token } = theme.useToken();
+  const [form] = Form.useForm();
 
-export const waitTime = async (time: number = 100) => {
-  await waitTimePromise(time);
-};
+  const formStyle: React.CSSProperties = {
+    maxWidth: "none",
+    background: token.colorBgContainer,
+    borderRadius: token.borderRadiusLG,
+    padding: 24,
+    height: 80,
+  };
 
-type User = {
-  id: number;
-  name: string;
-  address: string;
-  created_at: Date;
-  updated_at: Date;
-};
-
-const columns: ProColumns<User>[] = [
-  {
-    title: "Id",
-    dataIndex: "id",
-    valueType: "indexBorder",
-    width: 48,
-    hideInSearch: true,
-  },
-  {
-    title: "Name",
-    dataIndex: "name",
-    copyable: true,
-    ellipsis: true,
-  },
-  {
-    title: "Address",
-    dataIndex: "address",
-    copyable: true,
-    ellipsis: true,
-  },
-  {
-    title: "CreatedAt",
-    dataIndex: "created_at",
-    copyable: true,
-    ellipsis: true,
-    hideInSearch: true,
-  },
-  {
-    title: "UpdatedAt",
-    dataIndex: "updated_at",
-    copyable: true,
-    ellipsis: true,
-    hideInSearch: true,
-  },
-  {
-    title: "Option",
-    valueType: "option",
-    key: "option",
-    render: (text, record, _, action) => [
-      <a
-        key="editable"
-        onClick={() => {
-          action?.startEditable?.(record.id);
-        }}
-      >
-        Edit
-      </a>,
-
-      <TableDropdown
-        key="actionGroup"
-        onSelect={() => action?.reload()}
-        menus={[
-          { key: "copy", name: "Copy" },
-          { key: "delete", name: "Delete" },
-        ]}
-      />,
-    ],
-  },
-];
-
-const User: React.FC = () => {
-  const actionRef = useRef<ActionType>();
+  const onFinish = (values: any) => {
+    console.log("Received values of form: ", values);
+  };
 
   return (
-    <DataTable<User>
-      columns={columns}
-      actionRef={actionRef}
-      cardBordered
-      // editable={{
-      //   type: "multiple",
-      // }}
-      scroll={{ x: true }}
-      rowKey="id"
-      options={{
-        setting: {
-          listsHeight: 400,
-        },
-      }}
-      pagination={{
-        pageSize: 5,
-        onChange: (page) => console.log(page),
-      }}
-      headerTitle="List User"
-      toolBarRender={() => [
-        <Button
-          key="button"
-          icon={<PlusOutlined />}
-          type="primary"
-          style={{ outline: "none" }}
-        >
-          Add new
-        </Button>,
-      ]}
-    />
+    <Form
+      form={form}
+      name="advanced_search"
+      style={formStyle}
+      onFinish={onFinish}
+    >
+      <Row gutter={24}>
+        <Col span={8}>
+          <Form.Item name="name" label="Name">
+            <Input placeholder="Input full name" />
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item name="address" label="Adress">
+            <Input placeholder="Input address" />
+          </Form.Item>
+        </Col>
+        <Col span={8} style={{ textAlign: "right" }}>
+          <Form.Item label={null}>
+            <Space size="small" className="search-button-group">
+              <Button type="primary" htmlType="submit">
+                Search
+              </Button>
+              <Button
+                onClick={() => {
+                  form.resetFields();
+                }}
+              >
+                Clear
+              </Button>
+            </Space>
+          </Form.Item>
+        </Col>
+      </Row>
+    </Form>
   );
 };
+
+const User: React.FC = () => {
+  const { token } = theme.useToken();
+  const [pageSize, setPageSize] = useState<number>(5);
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+  };
+  const listStyle: React.CSSProperties = {
+    display: "flex",
+    background: token.colorBgContainer,
+    borderRadius: token.borderRadiusLG,
+    marginTop: 13,
+    flexDirection: "column",
+  };
+
+  return (
+    <div className="container">
+      <AdvancedSearchForm />
+      <div style={listStyle}>
+        <div className="header-container">
+          List users
+          <Space className="table-button-group">
+            <Button
+              type="primary"
+              icon={<PlusOutlined style={{ fontSize: "16px" }} />}
+            >
+              Add User
+            </Button>
+            <Button
+              color="cyan"
+              variant="outlined"
+              icon={<ReloadOutlined style={{ fontSize: "16px" }} />}
+            >
+              Refresh
+            </Button>
+          </Space>
+        </div>
+        <div className="table-container">
+          <Table<IDataType>
+            columns={columns}
+            dataSource={data}
+            size="middle"
+            pagination={{
+              showSizeChanger: true,
+              pageSizeOptions: ["5", "10", "20"],
+              onShowSizeChange: (current, size) => handlePageSizeChange(size),
+              pageSize: pageSize,
+              responsive: true,
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default User;

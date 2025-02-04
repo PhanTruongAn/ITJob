@@ -57,8 +57,8 @@ const LayoutAdmin: React.FC = () => {
           items={[
             {
               icon: <AreaChartOutlined />,
-              label: <Link to="/admin">Dashboard</Link>,
-              key: "/admin",
+              label: <Link to="/admin/dashboard">Dashboard</Link>,
+              key: "/admin/dashboard",
             },
             {
               icon: <UserOutlined />,

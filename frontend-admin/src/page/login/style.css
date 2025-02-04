@@ -1,0 +1,51 @@
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
+  background-image: radial-gradient(
+    ellipse at 50% 50%,
+    hsl(0, 0%, 100%),
+    hsl(213, 71%, 72%)
+  );
+}
+.left-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  float: left;
+  border: none;
+  width: 50%;
+  height: 100%;
+}
+.right-form {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.login-form {
+  width: 480px;
+  height: 500px;
+  background-color: white;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  .title-2 {
+    font-size: 22px;
+    font-weight: 650;
+    text-align: center;
+  }
+}
+.header-title {
+  margin: 30px;
+  cursor: pointer;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  .title {
+    margin-left: 20px;
+    padding-top: 8px;
+    font-size: 15px;
+    font-weight: 650;
+  }
+}

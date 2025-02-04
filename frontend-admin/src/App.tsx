@@ -9,8 +9,13 @@ import User from "./page/user";
 import Resume from "./page/resume";
 import Role from "./page/role";
 import Permission from "./page/permission";
+import Login from "./page/login";
 function App() {
   const router = createBrowserRouter([
+    {
+      path: "/customer/login",
+      element: <Login />,
+    },
     {
       path: "/admin",
       element: <LayoutAdmin />,
@@ -18,6 +23,7 @@ function App() {
       children: [
         {
           index: true,
+          path: "dashboard",
           element: <Dashboard />,
         },
         {
