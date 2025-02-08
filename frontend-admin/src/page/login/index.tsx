@@ -1,14 +1,52 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./style.css";
-import { Button, Col, Form, Image, Input, Row, Space } from "antd";
+import { Button, Form, Image, Input, message, notification } from "antd";
 import backgroundImage from "../../assets/background-login.webp";
 import logo from "../../assets/logo.png";
+import { useLocation, useNavigate } from "react-router-dom";
+import { login } from "../../apis/authModule";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { setUserLoginInfo } from "../../redux/slice/accountSlice";
 type FieldType = {
   email?: string;
   password?: string;
 };
+
 const Login: React.FC = () => {
+  const navigate = useNavigate();
   const [form] = Form.useForm();
+  const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector(
+    (state) => state.account.isAuthenticated
+  );
+
+  let location = useLocation();
+  let params = new URLSearchParams(location.search);
+  const callback = params?.get("callback");
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/admin");
+    }
+  }, [isAuthenticated]);
+
+  const onFinish = async (values: any) => {
+    const { email, password } = values;
+    const res = await login(email, password);
+    if (res && res.data) {
+      localStorage.setItem("access_token", res.data.access_token);
+      dispatch(setUserLoginInfo(res.data.user));
+      message.success("Đăng nhập tài khoản thành công!");
+      navigate(callback ? callback : "/customer/login");
+    } else {
+      notification.error({
+        message: "Có lỗi xảy ra",
+        description: Array.isArray(res.message) ? res.message[0] : res.message,
+        duration: 5,
+      });
+    }
+  };
+
   return (
     <div className="container">
       <div className="left-logo">
@@ -26,6 +64,7 @@ const Login: React.FC = () => {
             style={{ padding: "30px" }}
             initialValues={{ remember: true }}
             autoComplete="off"
+            onFinish={onFinish}
           >
             <Form.Item<FieldType>
               label={null}
