@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { fetchAccount } from "../../apis/authModule";
 export const getAccount = createAsyncThunk("account/fetchAccount", async () => {
   const response = await fetchAccount();
-  console.log("Check: ", response.data);
   return response.data;
 });
 

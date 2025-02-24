@@ -77,6 +77,7 @@ instance.interceptors.response.use(
       error.config.url === "/api/v1/auth/refresh" &&
       location.pathname.startsWith("/admin")
     ) {
+      console.log("Checkaxisos:", location.pathname);
       const message =
         error?.response?.data?.error ??
         "Có lỗi xảy ra, vui lòng đăng nhập lại.";

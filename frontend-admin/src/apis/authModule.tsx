@@ -15,6 +15,5 @@ export async function fetchAccount(): Promise<IBackendRes<IGetAccount>> {
   const response = await axios.get<IBackendRes<IGetAccount>>(
     "/api/v1/auth/account"
   );
-  console.log("Check: ", response.data);
   return response.data;
 }

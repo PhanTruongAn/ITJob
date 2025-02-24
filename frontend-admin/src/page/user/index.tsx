@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Col, Form, Input, Row, Space, Table, theme } from "antd";
 import "./style.css";
 import { columns, data, IDataType } from "./table";
@@ -18,6 +18,9 @@ const AdvancedSearchForm = () => {
   const onFinish = (values: any) => {
     console.log("Received values of form: ", values);
   };
+  useEffect(() => {
+    console.log("Current path:", location.pathname);
+  }, [location]);
 
   return (
     <Form

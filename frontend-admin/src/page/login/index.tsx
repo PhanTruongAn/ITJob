@@ -26,7 +26,7 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/admin");
+      navigate("/admin/dashboard");
     }
   }, [isAuthenticated]);
 
@@ -48,7 +48,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="container">
+    <div className="container-login">
       <div className="left-logo">
         <Image width={635} height={480} src={backgroundImage} preview={false} />
       </div>
