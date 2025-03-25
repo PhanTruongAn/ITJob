@@ -18,7 +18,7 @@ import {
   GoogleIcon,
   FacebookIcon,
   SitemarkIcon,
-} from "../../components/CustomIcons";
+} from "../components/CustomIcons";
 import { AuthService } from "@/app/apis/authApi";
 import { useRouter } from "next/navigation";
 const Card = styled(MuiCard)(({ theme }) => ({
