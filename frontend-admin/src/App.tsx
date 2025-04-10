@@ -10,6 +10,7 @@ import Resume from "./page/resume";
 import Role from "./page/role";
 import Permission from "./page/permission";
 import Login from "./page/login";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 function App() {
   const router = createBrowserRouter([
     {
@@ -53,9 +54,12 @@ function App() {
       ],
     },
   ]);
+  const queryClient = new QueryClient();
   return (
     <>
-      <RouterProvider router={router} />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
     </>
   );
 }

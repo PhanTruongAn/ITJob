@@ -7,6 +7,7 @@ import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import vn.phantruongan.backend.domain.User;
 import vn.phantruongan.backend.dto.ResCreateUserDTO;
+import vn.phantruongan.backend.dto.ResDeleteUserDTO;
 import vn.phantruongan.backend.dto.ResUpdateUserDTO;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
 import vn.phantruongan.backend.service.UserService;
@@ -48,15 +49,15 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deleteUserById(@PathVariable("id") long id) throws InvalidException {
+    public ResponseEntity<ResDeleteUserDTO> deleteUserById(@PathVariable("id") long id) throws InvalidException {
         if (id <= 0) {
             throw new InvalidException("Id must be a positive number!");
         }
-        Boolean user = userService.deleteUserById(id);
-        if (user) {
-            return ResponseEntity.ok("Delete user successfully!");
+        ResDeleteUserDTO user = userService.deleteUserById(id);
+        if (user.isSuccess()) {
+            return ResponseEntity.ok(user);
         }
-        return ResponseEntity.ok("Delete user failed!");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(user);
 
     }
 
