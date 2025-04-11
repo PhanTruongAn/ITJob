@@ -7,11 +7,12 @@ import { createUser, deleteUser, fetchUsers } from "../../apis/userModule";
 import { useUserListState } from "./common/hooks";
 import CustomHooks from "../../common/hooks/CustomHooks";
 import { IBackendRes, IUser } from "../../types/backend";
-import { UserListHeaderToolbar } from "./components/UserListHeaderToolbar";
+import { UserListHeaderToolbar } from "./components/UserListToolbar";
 import CreateUserModal from "./components/create/CreateUserModal";
 import { ICreateUser } from "./common/interface";
 import CustomGlobalTable from "../../components/table";
 import ConfirmModal from "../../components/modal/ConfirmModal";
+import UserListHeader from "./components/UserListHeader";
 
 const User: React.FC = () => {
   const { token } = theme.useToken();
@@ -90,6 +91,11 @@ const User: React.FC = () => {
   };
   return (
     <div className="container">
+      <UserListHeader
+        onAddUser={() => updateState({ visibleCreateModal: true })}
+        onRefresh={handleRefresh}
+        loading={loading}
+      />
       <CreateUserModal
         open={state.visibleCreateModal}
         onSubmit={handleOk}
@@ -105,27 +111,7 @@ const User: React.FC = () => {
       />
       <UserListHeaderToolbar />
       <div style={listStyle}>
-        <div className="header-container">
-          List users
-          <Space className="table-button-group">
-            <Button
-              type="primary"
-              icon={<PlusOutlined style={{ fontSize: "16px" }} />}
-              onClick={() => updateState({ visibleCreateModal: true })}
-            >
-              Add User
-            </Button>
-            <Button
-              color="cyan"
-              variant="outlined"
-              onClick={handleRefresh}
-              loading={loading}
-              icon={<ReloadOutlined style={{ fontSize: "16px" }} />}
-            >
-              Refresh
-            </Button>
-          </Space>
-        </div>
+        <div className="header-container"></div>
         <div className="table-container">
           <CustomGlobalTable<IUser>
             columns={userColumns({

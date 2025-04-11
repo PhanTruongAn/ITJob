@@ -27,7 +27,7 @@ const LayoutAdmin: React.FC = () => {
     setActiveMenu(location.pathname);
   }, [location]);
   return (
-    <Layout style={{ padding: 0, height: "100vh", display: "flex" }}>
+    <Layout style={{ padding: 0, height: "100%", display: "flex" }}>
       <Sider trigger={null} collapsible collapsed={collapsed} theme="light">
         <div
           style={{
