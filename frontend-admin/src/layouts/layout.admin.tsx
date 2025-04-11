@@ -12,7 +12,7 @@ import {
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme } from "antd";
 import { Outlet, Link, useLocation } from "react-router-dom";
-
+import navItems from "./dashboard/navbar/NavItem";
 const { Header, Sider, Content } = Layout;
 
 const LayoutAdmin: React.FC = () => {
@@ -54,43 +54,7 @@ const LayoutAdmin: React.FC = () => {
           mode="inline"
           selectedKeys={[activeMenu]}
           onClick={(e) => setActiveMenu(e.key)}
-          items={[
-            {
-              icon: <AreaChartOutlined />,
-              label: <Link to="/admin/dashboard">Dashboard</Link>,
-              key: "/admin/dashboard",
-            },
-            {
-              icon: <UserOutlined />,
-              label: <Link to="/admin/user">User</Link>,
-              key: "/admin/user",
-            },
-            {
-              icon: <BankOutlined />,
-              label: <Link to="/admin/company">Company</Link>,
-              key: "/admin/company",
-            },
-            {
-              icon: <ScheduleOutlined />,
-              label: <Link to="/admin/job">Job</Link>,
-              key: "/admin/job",
-            },
-            {
-              icon: <ContactsOutlined />,
-              label: <Link to="/admin/resume">Resume</Link>,
-              key: "/admin/resume",
-            },
-            {
-              icon: <DeploymentUnitOutlined />,
-              label: <Link to="/admin/role">Role</Link>,
-              key: "/admin/role",
-            },
-            {
-              icon: <ApiOutlined />,
-              label: <Link to="/admin/permission">Permission</Link>,
-              key: "/admin/permission",
-            },
-          ]}
+          items={navItems}
         />
       </Sider>
       <Layout>

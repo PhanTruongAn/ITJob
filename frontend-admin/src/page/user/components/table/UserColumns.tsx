@@ -97,7 +97,11 @@ export const userColumns = ({
 
       return (
         <Dropdown menu={menu} trigger={["click"]}>
-          <Button shape="circle" icon={<EllipsisOutlined />} />
+          <Button
+            shape="circle"
+            icon={<EllipsisOutlined />}
+            style={{ border: "none", outline: "none" }}
+          />
         </Dropdown>
       );
     },

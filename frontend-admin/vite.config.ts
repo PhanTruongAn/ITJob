@@ -5,6 +5,6 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3100,
-    open: "/customer/login",
+    open: "/auth/customer/login",
   },
 });

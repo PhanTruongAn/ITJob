@@ -1,6 +1,10 @@
 import "./styles/App.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import LayoutAdmin from "./page/layout.admin";
+import {
+  BrowserRouter,
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+import LayoutAdmin from "./layouts/layout.admin";
 import NotFound from "./page/404";
 import Dashboard from "./page/dashboard";
 import Company from "./page/company";
@@ -11,55 +15,31 @@ import Role from "./page/role";
 import Permission from "./page/permission";
 import Login from "./page/login";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { CACHE_TIME } from "./common/constants";
+import MotionLazyContainer from "./components/animate/MotionLazyContainer";
+import Router from "./routes";
+import { ConfigProvider } from "antd";
+import { theme } from "./config/theme";
 function App() {
-  const router = createBrowserRouter([
-    {
-      path: "/customer/login",
-      element: <Login />,
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        gcTime: CACHE_TIME,
+      },
     },
-    {
-      path: "/admin",
-      element: <LayoutAdmin />,
-      errorElement: <NotFound />,
-      children: [
-        {
-          index: true,
-          path: "dashboard",
-          element: <Dashboard />,
-        },
-        {
-          path: "company",
-          element: <Company />,
-        },
-        {
-          path: "job",
-          element: <Job />,
-        },
-        {
-          path: "user",
-          element: <User />,
-        },
-        {
-          path: "role",
-          element: <Role />,
-        },
-        {
-          path: "resume",
-          element: <Resume />,
-        },
-        {
-          path: "permission",
-          element: <Permission />,
-        },
-      ],
-    },
-  ]);
-  const queryClient = new QueryClient();
+  });
   return (
     <>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
+      <MotionLazyContainer>
+        <QueryClientProvider client={queryClient}>
+          <ConfigProvider theme={theme}>
+            <BrowserRouter>
+              <Router />
+            </BrowserRouter>
+          </ConfigProvider>
+        </QueryClientProvider>
+      </MotionLazyContainer>
     </>
   );
 }

@@ -4,13 +4,20 @@ export interface IBackendRes<T> {
   message: string;
   data: {
     meta: {
-      pageNumber: number;
-      pageSize: number;
-      pages: number;
-      total: number;
+      pageNumber?: number;
+      pageSize?: number;
+      pages?: number;
+      total?: number;
     };
     result: T;
   };
+}
+
+export interface IBackendLoginRes<T> {
+  statusCode: number;
+  error: any;
+  message: string;
+  data: T;
 }
 export interface IFetchDataParams {
   page: number;

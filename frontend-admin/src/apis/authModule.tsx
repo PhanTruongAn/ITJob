@@ -1,10 +1,15 @@
 import axios from "../config/axios";
-import { IAccount, IBackendRes, IGetAccount } from "../types/backend";
+import {
+  IAccount,
+  IBackendRes,
+  IGetAccount,
+  IBackendLoginRes,
+} from "../types/backend";
 export async function login(
   username: string,
   password: string
-): Promise<IBackendRes<IAccount>> {
-  const response = await axios.post<IBackendRes<IAccount>>(
+): Promise<IBackendLoginRes<IAccount>> {
+  const response = await axios.post<IBackendLoginRes<IAccount>>(
     "/api/v1/auth/login",
     { username, password }
   );

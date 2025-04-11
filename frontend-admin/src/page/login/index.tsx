@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { login } from "../../apis/authModule";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setUserLoginInfo } from "../../redux/slice/accountSlice";
+import { PATH_DASHBOARD } from "../../routes/paths";
 type FieldType = {
   email?: string;
   password?: string;
@@ -26,21 +27,22 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/admin/dashboard");
+      navigate(PATH_DASHBOARD.userManage.list);
     }
   }, [isAuthenticated]);
 
   const onFinish = async (values: any) => {
     const { email, password } = values;
     const res = await login(email, password);
+    console.log("Check res: ", res);
     if (res && res.data) {
       localStorage.setItem("access_token", res.data.access_token);
       dispatch(setUserLoginInfo(res.data.user));
-      message.success("Đăng nhập tài khoản thành công!");
-      navigate(callback ? callback : "/customer/login");
+      message.success("Login successfully!");
+      navigate(callback ? callback : "/auth/customer/login");
     } else {
       notification.error({
-        message: "Có lỗi xảy ra",
+        message: res.message,
         description: Array.isArray(res.message) ? res.message[0] : res.message,
         duration: 5,
       });
