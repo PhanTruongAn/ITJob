@@ -40,6 +40,7 @@ public class User extends Auditable {
     private String email;
     @NotBlank(message = "Mật khẩu không được để trống!")
     private String password;
+    private String phone;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate dob;
     @Enumerated(EnumType.STRING)

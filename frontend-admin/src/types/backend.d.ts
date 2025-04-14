@@ -1,4 +1,4 @@
-export interface IBackendRes<T> {
+export interface IBackendPaginateRes<T> {
   statusCode: number;
   error: any;
   message: string;
@@ -13,7 +13,7 @@ export interface IBackendRes<T> {
   };
 }
 
-export interface IBackendLoginRes<T> {
+export interface IBackendRes<T> {
   statusCode: number;
   error: any;
   message: string;
@@ -39,6 +39,8 @@ export interface IUser {
   email: string;
   address: string;
   phone: string;
+  gender: GenderEnum;
+  dob: Date;
   createdAt: Date;
   updatedAt: Date;
 }

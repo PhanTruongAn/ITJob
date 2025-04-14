@@ -4,10 +4,16 @@ import "./styles/index.css";
 import App from "./App.tsx";
 import { Provider } from "react-redux";
 import { store } from "./redux/store.ts";
+import { ConfigProvider, App as AntdApp } from "antd";
+import { theme } from "./config/theme.ts";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      <App />
+      <ConfigProvider theme={theme}>
+        <AntdApp>
+          <App />
+        </AntdApp>
+      </ConfigProvider>
     </Provider>
   </StrictMode>
 );

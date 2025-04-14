@@ -1,17 +1,7 @@
 import React, { useState, useEffect } from "react";
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  AreaChartOutlined,
-  BankOutlined,
-  UserOutlined,
-  ApiOutlined,
-  ContactsOutlined,
-  ScheduleOutlined,
-  DeploymentUnitOutlined,
-} from "@ant-design/icons";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { Button, Layout, Menu, theme } from "antd";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import navItems from "./dashboard/navbar/NavItem";
 const { Header, Sider, Content } = Layout;
 
@@ -19,6 +9,7 @@ const LayoutAdmin: React.FC = () => {
   const location = useLocation();
   const [activeMenu, setActiveMenu] = useState<string>("");
   const [collapsed, setCollapsed] = useState<boolean>(false);
+  const navigate = useNavigate();
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -26,6 +17,11 @@ const LayoutAdmin: React.FC = () => {
   useEffect(() => {
     setActiveMenu(location.pathname);
   }, [location]);
+
+  const handleNavigate = ({ key }: { key: string }) => {
+    setActiveMenu(key);
+    navigate(key);
+  };
   return (
     <Layout style={{ padding: 0, height: "100%", display: "flex" }}>
       <Sider trigger={null} collapsible collapsed={collapsed} theme="light">
@@ -53,7 +49,7 @@ const LayoutAdmin: React.FC = () => {
           theme="light"
           mode="inline"
           selectedKeys={[activeMenu]}
-          onClick={(e) => setActiveMenu(e.key)}
+          onClick={(key) => handleNavigate(key)}
           items={navItems}
         />
       </Sider>

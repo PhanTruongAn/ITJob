@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useUpdateState } from "../../../util/hooks";
+import { IUser } from "../../../types/backend";
 export interface UserListState {
   page: number;
   pageSize: number;
@@ -9,7 +10,10 @@ export interface UserListState {
   sortBy?: string;
   visibleDeleteModal: boolean;
   visibleCreateModal: boolean;
+  visibleEditModal: boolean;
+  selectedUser: IUser | undefined;
   selectedUserId?: number | null;
+  typeModal: "view" | "edit";
 }
 
 export const useUserListState = () => {
@@ -22,7 +26,10 @@ export const useUserListState = () => {
     searchText: undefined,
     visibleDeleteModal: false,
     visibleCreateModal: false,
+    visibleEditModal: false,
+    selectedUser: undefined,
     selectedUserId: null,
+    typeModal: "view",
   });
 
   const updateState = useUpdateState(setState);

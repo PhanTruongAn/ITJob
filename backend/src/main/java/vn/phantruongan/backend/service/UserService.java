@@ -11,11 +11,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import vn.phantruongan.backend.domain.User;
-import vn.phantruongan.backend.dto.ResCreateUserDTO;
-import vn.phantruongan.backend.dto.ResDeleteUserDTO;
-import vn.phantruongan.backend.dto.ResUpdateUserDTO;
-import vn.phantruongan.backend.dto.ResUserDTO;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
+import vn.phantruongan.backend.dto.user.ResCreateUserDTO;
+import vn.phantruongan.backend.dto.user.ResDeleteUserDTO;
+import vn.phantruongan.backend.dto.user.ResUpdateUserDTO;
+import vn.phantruongan.backend.dto.user.ResUserDTO;
 import vn.phantruongan.backend.repository.UserRepository;
 
 @Service
@@ -38,6 +38,7 @@ public class UserService {
     public ResCreateUserDTO responseCreateUser(User user) {
         ResCreateUserDTO dto = new ResCreateUserDTO();
         dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhone());
         dto.setName(user.getName());
         dto.setAddress(user.getAddress());
         dto.setDob(user.getDob());
@@ -62,10 +63,20 @@ public class UserService {
         return dto;
     }
 
-    public User getUserById(long id) {
+    public ResUserDTO getUserById(long id) {
         Optional<User> op = userRepository.findById(id);
         if (op.isPresent()) {
-            return op.get();
+            ResUserDTO dto = new ResUserDTO();
+            dto.setId(op.get().getId());
+            dto.setEmail(op.get().getEmail());
+            dto.setName(op.get().getName());
+            dto.setPhone(op.get().getPhone());
+            dto.setAddress(op.get().getAddress());
+            dto.setDob(op.get().getDob());
+            dto.setGender(op.get().getGender());
+            dto.setCreatedAt(op.get().getCreatedAt());
+            dto.setUpdatedAt(op.get().getUpdatedAt());
+            return dto;
         }
         return null;
     }
@@ -80,7 +91,7 @@ public class UserService {
         meta.setTotal(page.getTotalElements());
 
         List<ResUserDTO> dto = page.getContent().stream()
-                .map(item -> new ResUserDTO(item.getId(), item.getName(), item.getEmail(),
+                .map(item -> new ResUserDTO(item.getId(), item.getName(), item.getPhone(), item.getEmail(),
                         item.getDob(), item.getGender(), item.getAddress(), item.getCreatedAt(), item.getUpdatedAt())
 
                 ).collect(Collectors.toList());
@@ -90,23 +101,28 @@ public class UserService {
     }
 
     public ResUpdateUserDTO updateUserById(User user) {
-        User userUpdate = getUserById(user.getId());
+        Optional<User> op = userRepository.findById(user.getId());
+        if (!op.isPresent()) {
+            return null;
+        }
+        User userUpdate = op.get();
         ResUpdateUserDTO dto = new ResUpdateUserDTO();
         if (userUpdate != null) {
             userUpdate.setName(user.getName());
+            userUpdate.setPhone(user.getPhone());
             userUpdate.setAddress(user.getAddress());
             userUpdate.setDob(user.getDob());
             userUpdate.setGender(user.getGender());
             userRepository.save(userUpdate);
             dto.setId(user.getId());
             dto.setName(user.getName());
+            dto.setPhone(user.getPhone());
             dto.setGender(user.getGender());
             dto.setAddress(user.getAddress());
             dto.setDob(user.getDob());
             dto.setUpdatedAt(userUpdate.getUpdatedAt());
         }
         return dto;
-
     }
 
     public User findUserByEmail(String email) {

@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.dto;
+package vn.phantruongan.backend.dto.user;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -9,12 +9,12 @@ import vn.phantruongan.backend.util.enums.GenderEnum;
 
 @Getter
 @Setter
-public class ResCreateUserDTO {
+public class ResUpdateUserDTO {
+    private long id;
     private String name;
-    private String email;
+    private String phone;
     private GenderEnum gender;
     private String address;
     private LocalDate dob;
-    private Instant createdAt;
-
+    private Instant updatedAt;
 }

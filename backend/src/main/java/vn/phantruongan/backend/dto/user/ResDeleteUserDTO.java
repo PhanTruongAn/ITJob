@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.dto;
+package vn.phantruongan.backend.dto.user;
 
 import lombok.Getter;
 import lombok.Setter;

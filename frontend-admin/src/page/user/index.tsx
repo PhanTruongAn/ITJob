@@ -1,23 +1,29 @@
 import React, { useState } from "react";
-import { Button, message, Space, Table, theme } from "antd";
+import { message, theme } from "antd";
 import "./style.css";
 import { userColumns } from "./components/table/UserColumns";
-import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
-import { createUser, deleteUser, fetchUsers } from "../../apis/userModule";
+
+import {
+  createUser,
+  deleteUser,
+  editUser,
+  fetchUsers,
+  getUserById,
+} from "../../apis/userModule";
 import { useUserListState } from "./common/hooks";
 import CustomHooks from "../../common/hooks/CustomHooks";
-import { IBackendRes, IUser } from "../../types/backend";
+import { IBackendPaginateRes, IBackendRes, IUser } from "../../types/backend";
 import { UserListHeaderToolbar } from "./components/UserListToolbar";
 import CreateUserModal from "./components/create/CreateUserModal";
-import { ICreateUser } from "./common/interface";
+import { ICreateUser, IEditUser } from "./common/interface";
 import CustomGlobalTable from "../../components/table";
 import ConfirmModal from "../../components/modal/ConfirmModal";
 import UserListHeader from "./components/UserListHeader";
+import EditUserModal from "./components/edit/EditUserModal";
 
 const User: React.FC = () => {
   const { token } = theme.useToken();
   const { state, updateState } = useUserListState();
-
   const [loading, setLoading] = useState(false);
 
   const handleOk = async (values: ICreateUser) => {
@@ -30,22 +36,37 @@ const User: React.FC = () => {
       updateState({ visibleCreateModal: false });
     }
   };
+  const handleSubmitEditUser = async (values: IEditUser) => {
+    const result = await editUser(values);
+    if (result?.statusCode !== 200) {
+      message.error(result.error);
+    } else {
+      refetch();
+      message.success(result.message);
+      updateState({ visibleEditModal: false, selectedUser: undefined });
+    }
+  };
   const handleDelete = async () => {
     const result = await deleteUser({ id: state.selectedUserId! });
     if (result?.statusCode !== 200) {
-      message.error("Lỗi khi xóa người dùng");
+      message.error("Failed to delete user");
     } else {
-      refetch();
-      message.success("Xóa người dùng thành công");
-      updateState({ visibleCreateModal: false });
+      const updatedData = await refetch();
+      const resultLength = updatedData?.data?.data?.result?.length ?? 0;
+
+      if (resultLength === 0 && state.page > 1) {
+        updateState({ page: state.page - 1 });
+      }
+      message.success("User deleted successfully");
     }
+
     updateState({
       visibleDeleteModal: false,
       selectedUserId: null,
     });
   };
 
-  const fetchDataUser = async (): Promise<IBackendRes<IUser[]>> => {
+  const fetchDataUser = async (): Promise<IBackendPaginateRes<IUser[]>> => {
     const res = await fetchUsers({
       page: state.page,
       pageSize: state.pageSize,
@@ -59,7 +80,7 @@ const User: React.FC = () => {
     return res;
   };
 
-  const { data, refetch } = CustomHooks.useQuery<IBackendRes<IUser[]>>(
+  const { data, refetch } = CustomHooks.useQuery<IBackendPaginateRes<IUser[]>>(
     ["users", state.page, state.pageSize, state.sortBy],
     fetchDataUser
   );
@@ -82,6 +103,25 @@ const User: React.FC = () => {
   const confirmDeleteUser = (id: number) => {
     updateState({ visibleDeleteModal: true, selectedUserId: id });
   };
+
+  const handleViewUser = (record: IUser) => {
+    updateState({
+      visibleEditModal: true,
+      selectedUser: record,
+      typeModal: "view",
+    });
+  };
+  const handleEditUser = async (record: IUser) => {
+    const result = await getUserById({ id: record.id });
+    if (result?.statusCode !== 200) {
+      message.error(result.message);
+    }
+    updateState({
+      visibleEditModal: true,
+      selectedUser: result.data,
+      typeModal: "edit",
+    });
+  };
   const listStyle: React.CSSProperties = {
     display: "flex",
     background: token.colorBgContainer,
@@ -95,6 +135,15 @@ const User: React.FC = () => {
         onAddUser={() => updateState({ visibleCreateModal: true })}
         onRefresh={handleRefresh}
         loading={loading}
+      />
+      <EditUserModal
+        onSubmit={handleSubmitEditUser}
+        open={state.visibleEditModal}
+        option={state.typeModal}
+        record={state.selectedUser}
+        onCancel={() =>
+          updateState({ visibleEditModal: false, selectedUser: undefined })
+        }
       />
       <CreateUserModal
         open={state.visibleCreateModal}
@@ -116,10 +165,10 @@ const User: React.FC = () => {
           <CustomGlobalTable<IUser>
             columns={userColumns({
               onView: (record) => {
-                console.log("View", record);
+                handleViewUser(record);
               },
               onEdit: (record) => {
-                console.log("Edit", record);
+                handleEditUser(record);
               },
               onDelete: (record) => {
                 confirmDeleteUser(record);

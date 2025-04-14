@@ -6,37 +6,43 @@ import {
   ScheduleOutlined,
   DeploymentUnitOutlined,
 } from "@ant-design/icons";
-import { Link } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../../routes/paths";
+import { BREADCRUMB } from "../../../constants/Breadcrumb";
 const navItems: any = [
   {
     icon: <UserOutlined />,
-    label: <Link to={PATH_DASHBOARD.userManage.list}>User</Link>,
-    key: PATH_DASHBOARD.userManage.list,
+    label: BREADCRUMB.USER,
+    children: [
+      {
+        icon: <UserOutlined />,
+        label: BREADCRUMB.LIST_USER,
+        key: PATH_DASHBOARD.userManage.list,
+      },
+    ],
   },
   {
     icon: <BankOutlined />,
-    label: <Link to={PATH_DASHBOARD.companyManage.list}>Company</Link>,
+    label: BREADCRUMB.COMPANY,
     key: PATH_DASHBOARD.companyManage.list,
   },
   {
     icon: <ScheduleOutlined />,
-    label: <Link to={PATH_DASHBOARD.jobManage.list}>Job</Link>,
+    label: BREADCRUMB.JOB,
     key: PATH_DASHBOARD.jobManage.list,
   },
   {
     icon: <ContactsOutlined />,
-    label: <Link to={PATH_DASHBOARD.resumeManage.list}>Resume</Link>,
+    label: BREADCRUMB.RESUME,
     key: PATH_DASHBOARD.resumeManage.list,
   },
   {
     icon: <DeploymentUnitOutlined />,
-    label: <Link to={PATH_DASHBOARD.roleManage.list}>Role</Link>,
+    label: BREADCRUMB.ROLE,
     key: PATH_DASHBOARD.roleManage.list,
   },
   {
     icon: <ApiOutlined />,
-    label: <Link to={PATH_DASHBOARD.permissionManage.list}>Permission</Link>,
+    label: BREADCRUMB.PERMISSION,
     key: PATH_DASHBOARD.permissionManage.list,
   },
 ];

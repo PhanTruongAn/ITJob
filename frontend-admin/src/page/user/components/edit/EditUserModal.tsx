@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Modal, Form, Input, DatePicker, Select, Row, Col } from "antd";
+import { IUser } from "../../../../types/backend";
+import dayjs from "dayjs";
 
-interface CreateUserModalProps {
+interface UserModalProps {
+  record?: IUser;
+  option?: "edit" | "view";
   open: boolean;
   onCancel: () => void;
   onSubmit: (values: any) => void;
@@ -9,13 +13,15 @@ interface CreateUserModalProps {
 
 const { Option } = Select;
 
-const CreateUserModal: React.FC<CreateUserModalProps> = ({
+const EditUserModal: React.FC<UserModalProps> = ({
   open,
   onCancel,
   onSubmit,
+  option,
+  record,
 }) => {
   const [form] = Form.useForm();
-
+  const isViewDetail = option === "view" ? true : false;
   const handleOk = () => {
     form
       .validateFields()
@@ -28,11 +34,19 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
         console.log("Validation Failed:", info);
       });
   };
-
+  useEffect(() => {
+    if (record && open) {
+      const { dob, ...rest } = record;
+      form.setFieldsValue({
+        ...rest,
+        dob: dob ? dayjs(dob) : null,
+      });
+    }
+  }, [record, open]);
   return (
     <Modal
       open={open}
-      title="Add New User"
+      title={isViewDetail ? "User Detail" : "Edit User"}
       okText="Submit"
       cancelText="Cancel"
       onCancel={onCancel}
@@ -40,57 +54,42 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
     >
       <Form form={form} layout="vertical">
         <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              name="email"
-              label="Email"
-              rules={[
-                { required: true, message: "Please enter email" },
-                { type: "email", message: "Email is not valid" },
-              ]}
-            >
-              <Input placeholder="johndoe@example.com" />
+          <Col span={5}>
+            <Form.Item name="id" label="Id">
+              <Input disabled />
+            </Form.Item>
+          </Col>
+          <Col span={19}>
+            <Form.Item name="email" label="Email">
+              <Input disabled />
             </Form.Item>
           </Col>
 
           <Col span={12}>
-            <Form.Item
-              name="password"
-              label="Password"
-              rules={[
-                { required: true, message: "Please enter password" },
-                { min: 6, message: "Password must be at least 6 characters" },
-              ]}
-            >
-              <Input.Password placeholder="******" />
+            <Form.Item name="phone" label="Phone">
+              <Input disabled={isViewDetail} />
             </Form.Item>
           </Col>
-
           <Col span={12}>
             <Form.Item
               name="name"
               label="Full Name"
               rules={[{ required: true, message: "Please enter full name" }]}
             >
-              <Input placeholder="John Doe" />
+              <Input placeholder="John Doe" disabled={isViewDetail} />
             </Form.Item>
           </Col>
-          <Col span={12}>
-            <Form.Item
-              name="phone"
-              label="Phone"
-              rules={[{ required: true, message: "Please enter phone number" }]}
-            >
-              <Input placeholder="0xxxxxxxxxx" />
-            </Form.Item>
-          </Col>
+
           <Col span={24}>
             <Form.Item
               name="address"
               label="Address"
               rules={[{ required: true, message: "Please enter address" }]}
             >
-              <Input placeholder="123 Main St, Cityville" />
+              <Input
+                placeholder="123 Main St, Cityville"
+                disabled={isViewDetail}
+              />
             </Form.Item>
           </Col>
 
@@ -102,7 +101,11 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 { required: true, message: "Please select date of birth" },
               ]}
             >
-              <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
+              <DatePicker
+                format="DD/MM/YYYY"
+                style={{ width: "100%" }}
+                disabled={isViewDetail}
+              />
             </Form.Item>
           </Col>
 
@@ -112,7 +115,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
               label="Gender"
               rules={[{ required: true, message: "Please select gender" }]}
             >
-              <Select placeholder="Select gender">
+              <Select placeholder="Select gender" disabled={isViewDetail}>
                 <Option value="MALE">Male</Option>
                 <Option value="FEMALE">Female</Option>
                 <Option value="OTHER">Other</Option>
@@ -125,4 +128,4 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
   );
 };
 
-export default CreateUserModal;
+export default EditUserModal;

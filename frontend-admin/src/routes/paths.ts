@@ -9,6 +9,7 @@ export const PATH_AUTH = {
 export const PATH_DASHBOARD = {
   root: "/dashboard/users",
   userManage: {
+    root: path(ROOT_DASHBOARD, "/"),
     list: path(ROOT_DASHBOARD, "/users"),
   },
   companyManage: {

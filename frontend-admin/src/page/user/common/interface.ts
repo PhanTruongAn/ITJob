@@ -7,3 +7,12 @@ export interface ICreateUser {
   dob: Date;
   gender: GenderEnum;
 }
+
+export interface IEditUser {
+  id: number;
+  name: string;
+  phone: string;
+  address: string;
+  dob: Date;
+  gender: GenderEnum;
+}

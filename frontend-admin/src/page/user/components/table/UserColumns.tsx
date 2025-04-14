@@ -33,9 +33,9 @@ export const userColumns = ({
     sorter: true,
   },
   {
-    title: "Email",
-    dataIndex: "email",
-    width: "20%",
+    title: "Phone",
+    dataIndex: "phone",
+    width: "10%",
     ellipsis: true,
     sorter: true,
   },
@@ -43,6 +43,14 @@ export const userColumns = ({
     title: "Address",
     dataIndex: "address",
     ellipsis: true,
+  },
+  {
+    title: "Dob",
+    dataIndex: "dob",
+    width: "10%",
+    ellipsis: true,
+    render: (text: string | null) =>
+      text ? dayjs(text).format("DD/MM/YYYY") : "",
   },
   {
     title: "Gender",
