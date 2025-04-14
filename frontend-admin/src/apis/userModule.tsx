@@ -1,23 +1,26 @@
 import axios from "../config/axios";
-import { ICreateUser, IEditUser } from "../page/user/common/interface";
 import {
-  IBackendRes,
-  IFetchDataParams,
-  IUser,
-  IBackendPaginateRes,
-} from "../types/backend";
+  ICreateUser,
+  IEditUser,
+  IFilterUser,
+} from "../page/user/common/interface";
+import { IBackendRes, IUser, IBackendPaginateRes } from "../types/backend";
 
 export async function fetchUsers({
   page,
   pageSize,
   sort,
-}: IFetchDataParams): Promise<IBackendPaginateRes<IUser[]>> {
+  phone,
+  name,
+}: IFilterUser): Promise<IBackendPaginateRes<IUser[]>> {
   const response = await axios.get<IBackendPaginateRes<IUser[]>>(
-    "/api/v1/users",
+    "/api/v1/users/filter",
     {
       params: {
         page,
         size: pageSize,
+        phone,
+        name,
         ...(sort && { sort }),
       },
     }

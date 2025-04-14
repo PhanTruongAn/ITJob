@@ -16,3 +16,11 @@ export interface IEditUser {
   dob: Date;
   gender: GenderEnum;
 }
+
+export interface IFilterUser {
+  page: number;
+  pageSize: number;
+  sort?: string;
+  name?: string | null;
+  phone?: string | null;
+}

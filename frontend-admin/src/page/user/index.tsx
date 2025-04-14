@@ -65,12 +65,28 @@ const User: React.FC = () => {
       selectedUserId: null,
     });
   };
+  const handleFilter = (filters: { name?: string; phone?: string }) => {
+    updateState({
+      filterName: filters.name || null,
+      filterPhone: filters.phone || null,
+      page: 1,
+    });
+  };
 
+  const handleClearFilter = () => {
+    updateState({
+      filterName: null,
+      filterPhone: null,
+      page: 1,
+    });
+  };
   const fetchDataUser = async (): Promise<IBackendPaginateRes<IUser[]>> => {
     const res = await fetchUsers({
       page: state.page,
       pageSize: state.pageSize,
       sort: state.sortBy,
+      phone: state.filterPhone || null,
+      name: state.filterName || null,
     });
     if (res?.statusCode !== 200) {
       message.error(res?.message || "Lỗi khi lấy danh sách người dùng");
@@ -79,9 +95,15 @@ const User: React.FC = () => {
     }
     return res;
   };
-
   const { data, refetch } = CustomHooks.useQuery<IBackendPaginateRes<IUser[]>>(
-    ["users", state.page, state.pageSize, state.sortBy],
+    [
+      "users",
+      state.page,
+      state.pageSize,
+      state.sortBy,
+      state.filterName,
+      state.filterPhone,
+    ],
     fetchDataUser
   );
 
@@ -158,7 +180,10 @@ const User: React.FC = () => {
         onCancel={() => updateState({ visibleDeleteModal: false })}
         title="Confirm user deletion"
       />
-      <UserListHeaderToolbar />
+      <UserListHeaderToolbar
+        onFilter={handleFilter}
+        onClear={handleClearFilter}
+      />
       <div style={listStyle}>
         <div className="header-container"></div>
         <div className="table-container">

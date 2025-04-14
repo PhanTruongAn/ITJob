@@ -1,7 +1,15 @@
 import { Button, Col, Form, Input, Row, Space, theme } from "antd";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
+import { SearchOutlined, ClearOutlined } from "@ant-design/icons";
+export interface UserFilterProps {
+  onFilter: (filters: { name?: string; phone?: string }) => void;
+  onClear: () => void;
+}
 
-export const UserListHeaderToolbar = () => {
+export const UserListHeaderToolbar: React.FC<UserFilterProps> = ({
+  onFilter,
+  onClear,
+}) => {
   const { token } = theme.useToken();
   const [form] = Form.useForm();
 
@@ -14,7 +22,8 @@ export const UserListHeaderToolbar = () => {
   };
 
   const onFinish = (values: any) => {
-    console.log("Received values of form: ", values);
+    const { phone, name } = values;
+    onFilter({ name, phone });
   };
   useEffect(() => {
     console.log("Current path:", location.pathname);
@@ -34,20 +43,26 @@ export const UserListHeaderToolbar = () => {
           </Form.Item>
         </Col>
         <Col span={8}>
-          <Form.Item name="address" label="Adress">
-            <Input placeholder="Input address" />
+          <Form.Item name="phone" label="Phone">
+            <Input placeholder="Input phone" />
           </Form.Item>
         </Col>
         <Col span={8} style={{ textAlign: "right" }}>
           <Form.Item label={null}>
             <Space size="small" className="search-button-group">
-              <Button type="primary" htmlType="submit">
+              <Button
+                type="primary"
+                htmlType="submit"
+                icon={<SearchOutlined />}
+              >
                 Search
               </Button>
               <Button
                 onClick={() => {
                   form.resetFields();
+                  onClear();
                 }}
+                icon={<ClearOutlined />}
               >
                 Clear
               </Button>

@@ -6,7 +6,8 @@ export interface UserListState {
   pageSize: number;
   total: number;
   loading: boolean;
-  searchText?: string;
+  filterPhone?: string | null;
+  filterName?: string | null;
   sortBy?: string;
   visibleDeleteModal: boolean;
   visibleCreateModal: boolean;
@@ -23,7 +24,8 @@ export const useUserListState = () => {
     total: 0,
     sortBy: undefined,
     loading: true,
-    searchText: undefined,
+    filterPhone: null,
+    filterName: null,
     visibleDeleteModal: false,
     visibleCreateModal: false,
     visibleEditModal: false,

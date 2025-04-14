@@ -12,11 +12,13 @@ import org.springframework.stereotype.Service;
 
 import vn.phantruongan.backend.domain.User;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
+import vn.phantruongan.backend.dto.filter.user.UserFilter;
 import vn.phantruongan.backend.dto.user.ResCreateUserDTO;
 import vn.phantruongan.backend.dto.user.ResDeleteUserDTO;
 import vn.phantruongan.backend.dto.user.ResUpdateUserDTO;
 import vn.phantruongan.backend.dto.user.ResUserDTO;
 import vn.phantruongan.backend.repository.UserRepository;
+import vn.phantruongan.backend.specification.user.UserSpecification;
 
 @Service
 public class UserService {
@@ -82,6 +84,27 @@ public class UserService {
     }
 
     public ResultPaginationDTO getAllUser(Specification<User> spec, Pageable pageable) {
+        Page<User> page = userRepository.findAll(spec, pageable);
+        ResultPaginationDTO result = new ResultPaginationDTO();
+        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
+        meta.setPageNumber(pageable.getPageNumber() + 1);
+        meta.setPageSize(pageable.getPageSize());
+        meta.setPages(page.getTotalPages());
+        meta.setTotal(page.getTotalElements());
+
+        List<ResUserDTO> dto = page.getContent().stream()
+                .map(item -> new ResUserDTO(item.getId(), item.getName(), item.getPhone(), item.getEmail(),
+                        item.getDob(), item.getGender(), item.getAddress(), item.getCreatedAt(), item.getUpdatedAt())
+
+                ).collect(Collectors.toList());
+        result.setMeta(meta);
+        result.setResult(dto);
+        return result;
+    }
+
+    // Filter user
+    public ResultPaginationDTO filterUser(UserFilter filter, Pageable pageable) {
+        Specification<User> spec = new UserSpecification(filter);
         Page<User> page = userRepository.findAll(spec, pageable);
         ResultPaginationDTO result = new ResultPaginationDTO();
         ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();

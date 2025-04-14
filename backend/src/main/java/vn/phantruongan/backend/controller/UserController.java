@@ -7,6 +7,7 @@ import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import vn.phantruongan.backend.domain.User;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
+import vn.phantruongan.backend.dto.filter.user.UserFilter;
 import vn.phantruongan.backend.dto.user.ResCreateUserDTO;
 import vn.phantruongan.backend.dto.user.ResDeleteUserDTO;
 import vn.phantruongan.backend.dto.user.ResUpdateUserDTO;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -76,6 +78,14 @@ public class UserController {
     @ApiMessage("Fetch all users")
     public ResponseEntity<ResultPaginationDTO> getAllUser(@Filter Specification<User> spec, Pageable pageable) {
         return ResponseEntity.ok(userService.getAllUser(spec, pageable));
+    }
+
+    @GetMapping("/users/filter")
+    @ApiMessage("Filter user")
+    public ResponseEntity<ResultPaginationDTO> filterUser(@RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "phone", required = false) String phone, Pageable pageable) {
+        UserFilter filter = new UserFilter(name, phone);
+        return ResponseEntity.ok(userService.filterUser(filter, pageable));
     }
 
     @PutMapping("/users")
