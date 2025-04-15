@@ -3,7 +3,6 @@ import { Navigate, useLocation, useRoutes } from "react-router-dom";
 import LoadingScreen from "../components/LoadingScreen";
 import { PATH_AUTH, PATH_DASHBOARD, ROOT_DASHBOARD } from "./paths";
 import LayoutAdmin from "../layouts/layout.admin";
-import NotFound from "../page/404";
 
 const Loadable = (Component: ElementType) => (props: any) => {
   const { pathname } = useLocation();
@@ -116,3 +115,4 @@ const JobManageList = Loadable(lazy(() => import("../page/job")));
 const RoleManageList = Loadable(lazy(() => import("../page/role")));
 const ResumeManageList = Loadable(lazy(() => import("../page/resume")));
 const PermissionManageList = Loadable(lazy(() => import("../page/permission")));
+const NotFound = Loadable(lazy(() => import("../page/404")));

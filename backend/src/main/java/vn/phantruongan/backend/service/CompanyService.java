@@ -1,6 +1,7 @@
 package vn.phantruongan.backend.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.phantruongan.backend.domain.Company;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
+import vn.phantruongan.backend.dto.common.ResDeleteDTO;
 import vn.phantruongan.backend.repository.CompanyRepository;
 
 @Service
@@ -16,6 +18,13 @@ public class CompanyService {
 
     public CompanyService(CompanyRepository companyRepository) {
         this.companyRepository = companyRepository;
+    }
+
+    public boolean isExistCompany(String name, long countryId) {
+        if (companyRepository.existsByNameAndCountry_Id(name, countryId)) {
+            return true;
+        }
+        return false;
     }
 
     public Company createCompany(Company company) {
@@ -41,11 +50,12 @@ public class CompanyService {
     }
 
     public boolean deleteCompanyById(long id) {
-        return companyRepository.findById(id)
-                .map(company -> {
-                    companyRepository.deleteById(company.getId());
-                    return true;
-                }).orElse(false);
+        Optional<Company> op = companyRepository.findById(id);
+        if (op.isPresent()) {
+            companyRepository.deleteById(op.get().getId());
+            return true;
+        }
+        return false;
     }
 
     public Company updateById(Company company) {
@@ -55,18 +65,24 @@ public class CompanyService {
             currentCompany.setAddress(company.getAddress());
             currentCompany.setDescription(company.getDescription());
             currentCompany.setLogo(company.getLogo());
-            currentCompany = companyRepository.save(currentCompany);
-            return currentCompany;
+            currentCompany.setOvertime(company.isOvertime());
+            currentCompany.setCompanySize(company.getCompanySize());
+            currentCompany.setCompanyType(company.getCompanyType());
+            currentCompany.setIndustry(company.getIndustry());
+
+            return companyRepository.save(currentCompany);
         }
-        return companyRepository.save(company);
+        return null;
+
     }
 
-    public ResultPaginationDTO filterCompanies(Specification<Company> specification) {
-        List<Company> companies = companyRepository.findAll(specification);
-        ResultPaginationDTO result = new ResultPaginationDTO();
-        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
-        result.setMeta(meta);
-        result.setResult(companies);
-        return result;
-    }
+    // public ResultPaginationDTO filterCompanies(Specification<Company>
+    // specification) {
+    // List<Company> companies = companyRepository.findAll(specification);
+    // ResultPaginationDTO result = new ResultPaginationDTO();
+    // ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
+    // result.setMeta(meta);
+    // result.setResult(companies);
+    // return result;
+    // }
 }

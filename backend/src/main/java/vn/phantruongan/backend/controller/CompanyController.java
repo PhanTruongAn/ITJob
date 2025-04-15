@@ -6,9 +6,11 @@ import com.turkraft.springfilter.boot.Filter;
 
 import vn.phantruongan.backend.domain.Company;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
+import vn.phantruongan.backend.dto.common.ResDeleteDTO;
+import vn.phantruongan.backend.repository.CompanyRepository;
 import vn.phantruongan.backend.service.CompanyService;
 import vn.phantruongan.backend.util.annotation.ApiMessage;
-
+import vn.phantruongan.backend.util.error.InvalidException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -25,16 +27,23 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RequestMapping("/api/v1")
 public class CompanyController {
 
+    private final CompanyRepository companyRepository;
+
     private final CompanyService companyService;
 
-    public CompanyController(CompanyService companyService) {
+    public CompanyController(CompanyService companyService, CompanyRepository companyRepository) {
         this.companyService = companyService;
+        this.companyRepository = companyRepository;
     }
 
     @PostMapping("/companies")
     @ApiMessage("Create new company")
-    public ResponseEntity<Company> createCompany(@RequestBody Company company) {
-        // TODO: process POST request
+    public ResponseEntity<Company> createCompany(@RequestBody Company company) throws InvalidException {
+        boolean isExistCompany = companyService.isExistCompany(company.getName(), company.getCountry().getId());
+        if (isExistCompany) {
+            throw new InvalidException(
+                    "The company already exists in this country!");
+        }
         Company newCompany = companyService.createCompany(company);
         return ResponseEntity.status(HttpStatus.CREATED).body(newCompany);
     }
@@ -56,20 +65,26 @@ public class CompanyController {
     }
 
     @DeleteMapping("/companies/{id}")
-    public ResponseEntity<String> deleteCompany(@PathVariable("id") long id) {
+    public ResponseEntity<?> deleteCompany(@PathVariable("id") long id) throws InvalidException {
         boolean isDelete = companyService.deleteCompanyById(id);
         if (isDelete) {
-            return ResponseEntity.ok("Delete successfully!");
+            return ResponseEntity.ok(isDelete);
         } else {
-            return ResponseEntity.badRequest().body("Delete fail!");
+            throw new InvalidException(
+                    "Delete company failed, company not founded!");
         }
 
     }
 
     @PutMapping("/companies")
-    @ApiMessage("Update company by id")
-    public ResponseEntity<Company> updateCompany(@RequestBody Company company) {
-        return ResponseEntity.ok(companyService.updateById(company));
+    @ApiMessage("Update company")
+    public ResponseEntity<Company> updateCompany(@RequestBody Company company) throws InvalidException {
+        Company companyUpdated = companyService.updateById(company);
+        if (companyUpdated == null) {
+            throw new InvalidException(
+                    "Update company failed, company not founded!");
+        }
+        return ResponseEntity.ok(companyUpdated);
     }
 
 }

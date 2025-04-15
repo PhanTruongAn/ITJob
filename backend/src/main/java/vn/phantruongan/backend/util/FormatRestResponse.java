@@ -40,8 +40,10 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
         // }
         if (status >= 400 || body instanceof String) {
             // case error
+            // res.setMessage(message != null ? message.value() + " " + "failed!" : "Call
+            // api failed!");
+            // res.setData(body);
             return body;
-
         } else {
             // case success
 

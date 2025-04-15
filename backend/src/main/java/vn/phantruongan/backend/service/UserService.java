@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 
 import vn.phantruongan.backend.domain.User;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
+import vn.phantruongan.backend.dto.common.ResDeleteDTO;
 import vn.phantruongan.backend.dto.filter.user.UserFilter;
 import vn.phantruongan.backend.dto.user.ResCreateUserDTO;
-import vn.phantruongan.backend.dto.user.ResDeleteUserDTO;
 import vn.phantruongan.backend.dto.user.ResUpdateUserDTO;
 import vn.phantruongan.backend.dto.user.ResUserDTO;
 import vn.phantruongan.backend.repository.UserRepository;
@@ -49,20 +49,14 @@ public class UserService {
         return dto;
     }
 
-    public ResDeleteUserDTO deleteUserById(long id) {
+    public boolean deleteUserById(long id) {
         Optional<User> op = userRepository.findById(id);
-        ResDeleteUserDTO dto = new ResDeleteUserDTO();
         if (op.isPresent()) {
             userRepository.deleteById(op.get().getId());
+            return true;
 
-            dto.setMessage("Delete user successfully!");
-            dto.setSuccess(true);
-
-        } else {
-            dto.setMessage("Delete user failed, user not found!");
-            dto.setSuccess(false);
         }
-        return dto;
+        return false;
     }
 
     public ResUserDTO getUserById(long id) {
