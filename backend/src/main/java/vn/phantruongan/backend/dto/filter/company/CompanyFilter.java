@@ -13,5 +13,5 @@ public class CompanyFilter {
     private String address;
     private CompanyType companyType;
     private String companySize;
-    private long countryId;
+    private Long countryId;
 }

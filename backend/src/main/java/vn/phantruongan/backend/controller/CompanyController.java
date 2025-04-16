@@ -7,9 +7,11 @@ import com.turkraft.springfilter.boot.Filter;
 import vn.phantruongan.backend.domain.Company;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
 import vn.phantruongan.backend.dto.common.ResDeleteDTO;
+import vn.phantruongan.backend.dto.filter.company.CompanyFilter;
 import vn.phantruongan.backend.repository.CompanyRepository;
 import vn.phantruongan.backend.service.CompanyService;
 import vn.phantruongan.backend.util.annotation.ApiMessage;
+import vn.phantruongan.backend.util.enums.CompanyType;
 import vn.phantruongan.backend.util.error.InvalidException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,8 +63,23 @@ public class CompanyController {
 
     @GetMapping("/companies")
     @ApiMessage("Fetch all companies")
-    public ResponseEntity<ResultPaginationDTO> getAllCompanies(@Filter Specification<Company> spec, Pageable pageable) {
-        return ResponseEntity.ok(companyService.getAllCompanies(spec, pageable));
+    public ResponseEntity<ResultPaginationDTO> getAllCompanies(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "address", required = false) String address,
+            @RequestParam(value = "companySize", required = false) String companySize,
+            @RequestParam(value = "companyType", required = false) String companyType,
+            @RequestParam(value = "countryId", required = false) Long countryId,
+            Pageable pageable) throws InvalidException {
+        CompanyType companyTypeEnum = null;
+        if (companyType != null && !companyType.isBlank()) {
+            try {
+                companyTypeEnum = CompanyType.fromDisplayName(companyType);
+            } catch (IllegalArgumentException ex) {
+                throw new InvalidException("Company type is invalid!");
+            }
+        }
+        CompanyFilter filter = new CompanyFilter(name, address, companyTypeEnum, companySize, countryId);
+        return ResponseEntity.ok(companyService.getAllCompanies(filter, pageable));
     }
 
     @DeleteMapping("/companies/{id}")

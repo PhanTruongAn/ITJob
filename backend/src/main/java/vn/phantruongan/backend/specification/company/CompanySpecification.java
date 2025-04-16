@@ -9,9 +9,11 @@ import org.springframework.lang.Nullable;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import vn.phantruongan.backend.domain.Company;
+import vn.phantruongan.backend.domain.Country;
 import vn.phantruongan.backend.dto.filter.company.CompanyFilter;
 
 public class CompanySpecification implements Specification<Company> {
@@ -30,6 +32,23 @@ public class CompanySpecification implements Specification<Company> {
 
         if (filter.getName() != null) {
             predicates.add(cb.like(cb.lower(root.get("name")), "%" + filter.getName().toLowerCase() + "%"));
+        }
+
+        if (filter.getAddress() != null) {
+            predicates.add(cb.like(cb.lower(root.get("address")), "%" + filter.getAddress().toLowerCase() + "%"));
+        }
+
+        if (filter.getCompanySize() != null) {
+            predicates
+                    .add(cb.like(cb.lower(root.get("companySize")), "%" + filter.getCompanySize().toLowerCase() + "%"));
+        }
+
+        if (filter.getCompanyType() != null) {
+            predicates.add(cb.equal(root.get("companyType"), filter.getCompanyType()));
+        }
+        if (filter.getCountryId() != null) {
+            Join<Company, Country> countryJoin = root.join("country");
+            predicates.add(cb.equal(countryJoin.get("id"), filter.getCountryId()));
         }
         return cb.and(predicates.toArray(new Predicate[0]));
     }

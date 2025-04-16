@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import vn.phantruongan.backend.domain.Company;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
 import vn.phantruongan.backend.dto.common.ResDeleteDTO;
+import vn.phantruongan.backend.dto.filter.company.CompanyFilter;
 import vn.phantruongan.backend.repository.CompanyRepository;
+import vn.phantruongan.backend.specification.company.CompanySpecification;
 
 @Service
 public class CompanyService {
@@ -35,7 +37,8 @@ public class CompanyService {
         return companyRepository.findById(id).orElse(null);
     }
 
-    public ResultPaginationDTO getAllCompanies(Specification<Company> spec, Pageable pageable) {
+    public ResultPaginationDTO getAllCompanies(CompanyFilter filter, Pageable pageable) {
+        Specification<Company> spec = new CompanySpecification(filter);
         Page<Company> page = companyRepository.findAll(spec, pageable);
         ResultPaginationDTO result = new ResultPaginationDTO();
         ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
