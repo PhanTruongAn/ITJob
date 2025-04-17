@@ -19,8 +19,6 @@ const CustomHooks = {
       queryKey,
       queryFn,
       placeholderData: keepPreviousData,
-      refetchOnWindowFocus: false,
-      staleTime: 1000,
       ...options,
     });
   },

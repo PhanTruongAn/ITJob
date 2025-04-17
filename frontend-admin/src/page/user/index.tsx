@@ -212,7 +212,6 @@ const User: React.FC = () => {
         onClear={handleClearFilter}
       />
       <div style={listStyle}>
-        <div className="header-container"></div>
         <div className="table-container">
           <CustomGlobalTable<IUser>
             columns={userColumns({

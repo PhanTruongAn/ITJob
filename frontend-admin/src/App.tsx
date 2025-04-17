@@ -1,7 +1,7 @@
 import "./styles/App.css";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { CACHE_TIME } from "./common/constants";
+import { CACHE_TIME, STALE_TIME } from "./common/constants";
 import MotionLazyContainer from "./components/animate/MotionLazyContainer";
 import Router from "./routes";
 function App() {
@@ -10,6 +10,7 @@ function App() {
       queries: {
         refetchOnWindowFocus: false,
         gcTime: CACHE_TIME,
+        staleTime: STALE_TIME,
       },
     },
   });

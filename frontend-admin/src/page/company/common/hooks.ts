@@ -1,13 +1,18 @@
 import { useState } from "react";
 import { useUpdateState } from "../../../util/hooks";
 import { ICompany } from "../../../types/backend";
+import { ECompanyType } from "../../../types/enum";
 export interface CompanyState {
   page: number;
   pageSize: number;
   total: number;
   loading: boolean;
-  filterName?: string | null;
-  sortBy?: string;
+  name?: string | null;
+  address?: string | null;
+  companySize?: string | null;
+  companyType?: ECompanyType | null;
+  countryId?: number | null;
+  sort?: string;
   visibleDeleteModal: boolean;
   visibleCreateModal: boolean;
   visibleEditModal: boolean;
@@ -21,9 +26,13 @@ export const useCompanyState = () => {
     page: 1,
     pageSize: 5,
     total: 0,
-    sortBy: undefined,
+    sort: undefined,
     loading: false,
-    filterName: null,
+    name: null,
+    address: null,
+    companySize: null,
+    companyType: null,
+    countryId: null,
     visibleDeleteModal: false,
     visibleCreateModal: false,
     visibleEditModal: false,

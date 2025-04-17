@@ -1,4 +1,4 @@
-import { GenderEnum } from "./enums";
+import { GenderEnum } from "../../../types/enum";
 
 export interface ICreateUser {
   email: string;

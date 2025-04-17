@@ -39,8 +39,7 @@ public class CompanySpecification implements Specification<Company> {
         }
 
         if (filter.getCompanySize() != null) {
-            predicates
-                    .add(cb.like(cb.lower(root.get("companySize")), "%" + filter.getCompanySize().toLowerCase() + "%"));
+            predicates.add(cb.equal(root.get("companySize"), filter.getCompanySize()));
         }
 
         if (filter.getCompanyType() != null) {

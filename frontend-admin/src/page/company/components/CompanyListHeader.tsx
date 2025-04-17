@@ -48,9 +48,10 @@ const CompanyListHeader: React.FC<Props> = ({
         ]}
       />
 
-      <Space className="table-button-group">
+      <Space>
         <Button
           type="primary"
+          style={{ outline: "none" }}
           icon={<PlusOutlined style={{ fontSize: "16px" }} />}
           onClick={onAddCompany}
         >
@@ -61,7 +62,10 @@ const CompanyListHeader: React.FC<Props> = ({
           variant="outlined"
           onClick={onRefresh}
           loading={loading}
-          icon={<ReloadOutlined style={{ fontSize: "16px" }} />}
+          style={{ outline: "none" }}
+          icon={
+            <ReloadOutlined style={{ fontSize: "16px", outline: "none" }} />
+          }
         >
           Refresh
         </Button>

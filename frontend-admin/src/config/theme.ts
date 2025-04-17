@@ -1,5 +1,3 @@
-import { Button } from "antd";
-
 export const theme = {
   token: {
     // colorPrimary: "#1DA57A",

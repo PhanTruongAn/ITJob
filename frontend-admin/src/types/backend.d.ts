@@ -1,3 +1,5 @@
+import { ECompany, GenderEnum } from "./enum";
+
 export type DayOfWeek =
   | "MONDAY"
   | "TUESDAY"
@@ -60,11 +62,7 @@ export interface ICountry {
   name: string;
 }
 // Company
-export enum ECompany {
-  IT_OUTSOURCING = "IT Outsourcing",
-  IT_PRODUCT = "IT Product",
-  IT_SERVICE_AND_CONSULTING = "IT Service and IT Consulting",
-}
+
 export interface ICompany {
   id: number;
   name: string;

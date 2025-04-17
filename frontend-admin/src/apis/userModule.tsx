@@ -22,7 +22,7 @@ export async function fetchUsers({
         size: pageSize,
         phone,
         name,
-        ...(sort && { sort }),
+        ...(sort && { sort: sort }),
       },
     }
   );
