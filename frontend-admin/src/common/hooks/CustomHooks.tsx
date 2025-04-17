@@ -3,6 +3,10 @@ import {
   QueryKey,
   UseQueryOptions,
   UseQueryResult,
+  keepPreviousData,
+  useMutation,
+  UseMutationOptions,
+  UseMutationResult,
 } from "@tanstack/react-query";
 
 const CustomHooks = {
@@ -14,8 +18,19 @@ const CustomHooks = {
     return useReactQuery<TData>({
       queryKey,
       queryFn,
+      placeholderData: keepPreviousData,
       refetchOnWindowFocus: false,
       staleTime: 1000,
+      ...options,
+    });
+  },
+
+  useMutation<TData, TError = unknown, TVariables = void, TContext = unknown>(
+    mutationFn: (variables: TVariables) => Promise<TData>,
+    options?: UseMutationOptions<TData, TError, TVariables, TContext>
+  ): UseMutationResult<TData, TError, TVariables, TContext> {
+    return useMutation<TData, TError, TVariables, TContext>({
+      mutationFn,
       ...options,
     });
   },

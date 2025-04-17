@@ -23,7 +23,13 @@ const navItems: any = [
   {
     icon: <BankOutlined />,
     label: BREADCRUMB.COMPANY,
-    key: PATH_DASHBOARD.companyManage.list,
+    children: [
+      {
+        icon: <BankOutlined />,
+        label: BREADCRUMB.LIST_COMPANY,
+        key: PATH_DASHBOARD.companyManage.list,
+      },
+    ],
   },
   {
     icon: <ScheduleOutlined />,

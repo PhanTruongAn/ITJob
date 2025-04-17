@@ -41,17 +41,18 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    @ApiMessage("Create new user")
+    @ApiMessage("User created")
     public ResponseEntity<ResCreateUserDTO> createNewUser(@Valid @RequestBody User user) throws InvalidException {
         if (userService.existUserByEmail(user.getEmail())) {
             throw new InvalidException(
-                    "Email này đã tồn tại, vui lòng sử dụng email khác");
+                    "This email already exists, please use a different one.");
         }
         User dataUser = userService.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.responseCreateUser(dataUser));
     }
 
     @DeleteMapping("/users/{id}")
+    @ApiMessage("User deleted")
     public ResponseEntity<?> deleteUserById(@PathVariable("id") long id) throws InvalidException {
         if (id <= 0) {
             throw new InvalidException("Id must be a positive number!");
@@ -76,13 +77,13 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    @ApiMessage("Fetch all users")
+    @ApiMessage("Get all users")
     public ResponseEntity<ResultPaginationDTO> getAllUser(@Filter Specification<User> spec, Pageable pageable) {
         return ResponseEntity.ok(userService.getAllUser(spec, pageable));
     }
 
     @GetMapping("/users/filter")
-    @ApiMessage("Filter user")
+    @ApiMessage("User filtered")
     public ResponseEntity<ResultPaginationDTO> filterUser(@RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "phone", required = false) String phone, Pageable pageable) {
         UserFilter filter = new UserFilter(name, phone);
@@ -90,7 +91,7 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    @ApiMessage("Update user")
+    @ApiMessage("User updated")
     public ResponseEntity<ResUpdateUserDTO> putMethodName(@RequestBody User user) throws InvalidException {
         ResUserDTO op = userService.getUserById(user.getId());
         if (op == null) {

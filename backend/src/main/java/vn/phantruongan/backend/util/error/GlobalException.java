@@ -35,10 +35,19 @@ public class GlobalException {
     })
     public ResponseEntity<RestResponse<Object>> handleIdException(Exception ex) {
         RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        res.setMessage("An exception occurred!");
+        if (ex instanceof UsernameNotFoundException || ex instanceof BadCredentialsException) {
+            res.setStatusCode(HttpStatus.UNAUTHORIZED.value());
+            res.setMessage("The username or password you entered is incorrect.");
+        } else if (ex instanceof InvalidException) {
+            res.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            res.setMessage("Something went wrong. Please check your input and try again.");
+        } else {
+            res.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            res.setMessage("Sorry, your request couldn't be processed.");
+        }
+
         res.setError(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+        return ResponseEntity.status(res.getStatusCode()).body(res);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -42,7 +42,7 @@ const Login: React.FC = () => {
       navigate(callback ? callback : "/auth/customer/login");
     } else {
       notification.error({
-        message: res.message,
+        message: "Login failed!",
         description: Array.isArray(res.message) ? res.message[0] : res.message,
         duration: 5,
       });

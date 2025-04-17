@@ -4,7 +4,6 @@ import "./style.css";
 import { userColumns } from "./components/table/UserColumns";
 
 import {
-  createUser,
   deleteUser,
   editUser,
   fetchUsers,
@@ -12,7 +11,7 @@ import {
 } from "../../apis/userModule";
 import { useUserListState } from "./common/hooks";
 import CustomHooks from "../../common/hooks/CustomHooks";
-import { IBackendPaginateRes, IBackendRes, IUser } from "../../types/backend";
+import { IBackendPaginateRes, IUser } from "../../types/backend";
 import { UserListHeaderToolbar } from "./components/UserListToolbar";
 import CreateUserModal from "./components/create/CreateUserModal";
 import { ICreateUser, IEditUser } from "./common/interface";
@@ -20,51 +19,76 @@ import CustomGlobalTable from "../../components/table";
 import ConfirmModal from "../../components/modal/ConfirmModal";
 import UserListHeader from "./components/UserListHeader";
 import EditUserModal from "./components/edit/EditUserModal";
+import { useCreateUser, useDeleteUser, useEditUser } from "./common/services";
 
 const User: React.FC = () => {
   const { token } = theme.useToken();
   const { state, updateState } = useUserListState();
   const [loading, setLoading] = useState(false);
-
-  const handleOk = async (values: ICreateUser) => {
-    const result = await createUser(values);
-    if (result?.statusCode !== 201) {
-      message.error("Lỗi khi tạo người dùng");
-    } else {
-      refetch();
-      message.success("Tạo người dùng thành công");
-      updateState({ visibleCreateModal: false });
-    }
-  };
-  const handleSubmitEditUser = async (values: IEditUser) => {
-    const result = await editUser(values);
-    if (result?.statusCode !== 200) {
-      message.error(result.error);
-    } else {
-      refetch();
-      message.success(result.message);
-      updateState({ visibleEditModal: false, selectedUser: undefined });
-    }
-  };
-  const handleDelete = async () => {
-    const result = await deleteUser({ id: state.selectedUserId! });
-    if (result?.statusCode !== 200) {
-      message.error("Failed to delete user");
-    } else {
-      const updatedData = await refetch();
-      const resultLength = updatedData?.data?.data?.result?.length ?? 0;
-
-      if (resultLength === 0 && state.page > 1) {
-        updateState({ page: state.page - 1 });
-      }
-      message.success("User deleted successfully");
-    }
-
-    updateState({
-      visibleDeleteModal: false,
-      selectedUserId: null,
+  const { mutate: createMutate, isPending: isCreate } = useCreateUser();
+  const { mutate: deleteMutate, isPending: isDelete } = useDeleteUser();
+  const { mutate: editMutate, isPending: isEdit } = useEditUser();
+  const handleOk = (values: ICreateUser) => {
+    createMutate(values, {
+      onSuccess: (res) => {
+        if (res.statusCode >= 400) {
+          message.error(res.error);
+        } else {
+          refetch();
+          message.success(res.message);
+          updateState({ visibleCreateModal: false });
+        }
+      },
+      onError: () => {
+        message.error("Error when create user");
+      },
     });
   };
+  const handleSubmitEditUser = (values: IEditUser) => {
+    editMutate(values, {
+      onSuccess: (res) => {
+        if (res?.statusCode >= 400) {
+          message.error(res.error);
+        } else {
+          refetch();
+          message.success(res.message);
+          updateState({ visibleEditModal: false, selectedUser: undefined });
+        }
+      },
+      onError: () => {
+        message.error("Error when edit user");
+      },
+    });
+  };
+  const handleDelete = () => {
+    deleteMutate(
+      { id: state.selectedUserId! },
+      {
+        onSuccess: async (result) => {
+          const updatedData = await refetch();
+          const resultLength = updatedData?.data?.data?.result?.length ?? 0;
+
+          if (resultLength === 0 && state.page > 1) {
+            updateState({ page: state.page - 1 });
+          }
+
+          message.success(result.message);
+          updateState({
+            visibleDeleteModal: false,
+            selectedUserId: null,
+          });
+        },
+        onError: () => {
+          message.error("Error when deleted user");
+          updateState({
+            visibleDeleteModal: false,
+            selectedUserId: null,
+          });
+        },
+      }
+    );
+  };
+
   const handleFilter = (filters: { name?: string; phone?: string }) => {
     updateState({
       filterName: filters.name || null,
@@ -88,8 +112,8 @@ const User: React.FC = () => {
       phone: state.filterPhone || null,
       name: state.filterName || null,
     });
-    if (res?.statusCode !== 200) {
-      message.error(res?.message || "Lỗi khi lấy danh sách người dùng");
+    if (res?.statusCode >= 400) {
+      message.error(res?.error);
     } else {
       updateState({ total: res.data.meta.total });
     }
@@ -159,6 +183,7 @@ const User: React.FC = () => {
         loading={loading}
       />
       <EditUserModal
+        loading={isEdit}
         onSubmit={handleSubmitEditUser}
         open={state.visibleEditModal}
         option={state.typeModal}
@@ -168,6 +193,7 @@ const User: React.FC = () => {
         }
       />
       <CreateUserModal
+        loading={isCreate}
         open={state.visibleCreateModal}
         onSubmit={handleOk}
         onCancel={() => updateState({ visibleCreateModal: false })}
@@ -177,6 +203,7 @@ const User: React.FC = () => {
         visible={state.visibleDeleteModal}
         type="warning"
         onOk={handleDelete}
+        loading={isDelete}
         onCancel={() => updateState({ visibleDeleteModal: false })}
         title="Confirm user deletion"
       />

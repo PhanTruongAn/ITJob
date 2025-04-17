@@ -2,6 +2,7 @@ import React from "react";
 import { Modal, Form, Input, DatePicker, Select, Row, Col } from "antd";
 
 interface CreateUserModalProps {
+  loading: boolean;
   open: boolean;
   onCancel: () => void;
   onSubmit: (values: any) => void;
@@ -10,6 +11,7 @@ interface CreateUserModalProps {
 const { Option } = Select;
 
 const CreateUserModal: React.FC<CreateUserModalProps> = ({
+  loading,
   open,
   onCancel,
   onSubmit,
@@ -37,6 +39,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
       cancelText="Cancel"
       onCancel={onCancel}
       onOk={handleOk}
+      loading={loading}
     >
       <Form form={form} layout="vertical">
         <Row gutter={16}>

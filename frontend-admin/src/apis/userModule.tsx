@@ -5,6 +5,7 @@ import {
   IFilterUser,
 } from "../page/user/common/interface";
 import { IBackendRes, IUser, IBackendPaginateRes } from "../types/backend";
+import { PATH_API } from "./constants/apiPath";
 
 export async function fetchUsers({
   page,
@@ -14,7 +15,7 @@ export async function fetchUsers({
   name,
 }: IFilterUser): Promise<IBackendPaginateRes<IUser[]>> {
   const response = await axios.get<IBackendPaginateRes<IUser[]>>(
-    "/api/v1/users/filter",
+    `${PATH_API.user.filter}`,
     {
       params: {
         page,
@@ -31,7 +32,10 @@ export async function fetchUsers({
 export async function createUser(
   data: ICreateUser
 ): Promise<IBackendRes<IUser>> {
-  const response = await axios.post<IBackendRes<IUser>>("/api/v1/users", data);
+  const response = await axios.post<IBackendRes<IUser>>(
+    `${PATH_API.user.root}`,
+    data
+  );
   return response.data;
 }
 
@@ -41,7 +45,7 @@ export async function deleteUser({
   id: number;
 }): Promise<IBackendRes<IUser>> {
   const response = await axios.delete<IBackendRes<IUser>>(
-    `/api/v1/users/${id}`
+    `${PATH_API.user.root}/${id}`
   );
   return response.data;
 }
@@ -51,11 +55,16 @@ export async function getUserById({
 }: {
   id: number;
 }): Promise<IBackendRes<IUser>> {
-  const response = await axios.get<IBackendRes<IUser>>(`/api/v1/users/${id}`);
+  const response = await axios.get<IBackendRes<IUser>>(
+    `${PATH_API.user.root}/${id}`
+  );
   return response.data;
 }
 
 export async function editUser(data: IEditUser): Promise<IBackendRes<IUser>> {
-  const response = await axios.put<IBackendRes<IUser>>("/api/v1/users", data);
+  const response = await axios.put<IBackendRes<IUser>>(
+    `${PATH_API.user.root}`,
+    data
+  );
   return response.data;
 }

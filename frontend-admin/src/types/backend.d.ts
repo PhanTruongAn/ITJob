@@ -1,3 +1,11 @@
+export type DayOfWeek =
+  | "MONDAY"
+  | "TUESDAY"
+  | "WEDNESDAY"
+  | "THURSDAY"
+  | "FRIDAY"
+  | "SATURDAY"
+  | "SUNDAY";
 export interface IBackendPaginateRes<T> {
   statusCode: number;
   error: any;
@@ -43,6 +51,32 @@ export interface IUser {
   dob: Date;
   createdAt: Date;
   updatedAt: Date;
+}
+
+// Country
+export interface ICountry {
+  id: number;
+  code: string;
+  name: string;
+}
+// Company
+export enum ECompany {
+  IT_OUTSOURCING = "IT Outsourcing",
+  IT_PRODUCT = "IT Product",
+  IT_SERVICE_AND_CONSULTING = "IT Service and IT Consulting",
+}
+export interface ICompany {
+  id: number;
+  name: string;
+  address: string;
+  companyType: ECompany;
+  companySize: string;
+  industry: string;
+  overtime: boolean;
+  description: string;
+  logo: string;
+  workingDays: DayOfWeek[];
+  country: ICountry;
 }
 // IGetAccount inherits from IAccount but excludes access_token
 export interface IGetAccount extends Omit<IAccount, "access_token"> {}

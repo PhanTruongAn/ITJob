@@ -4,6 +4,7 @@ import { IUser } from "../../../../types/backend";
 import dayjs from "dayjs";
 
 interface UserModalProps {
+  loading: boolean;
   record?: IUser;
   option?: "edit" | "view";
   open: boolean;
@@ -14,6 +15,7 @@ interface UserModalProps {
 const { Option } = Select;
 
 const EditUserModal: React.FC<UserModalProps> = ({
+  loading,
   open,
   onCancel,
   onSubmit,
@@ -51,6 +53,7 @@ const EditUserModal: React.FC<UserModalProps> = ({
       cancelText="Cancel"
       onCancel={onCancel}
       onOk={handleOk}
+      loading={loading}
     >
       <Form form={form} layout="vertical">
         <Row gutter={16}>

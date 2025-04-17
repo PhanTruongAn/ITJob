@@ -1,8 +1,10 @@
 import React from "react";
-import { Modal } from "antd";
+import { Modal, Button } from "antd";
 import {
   CheckCircleOutlined,
+  CheckOutlined,
   CloseCircleOutlined,
+  CloseOutlined,
   ExclamationCircleTwoTone,
 } from "@ant-design/icons";
 
@@ -10,11 +12,13 @@ type ModalType = "success" | "error" | "warning";
 
 interface ConfirmModalProps {
   visible: boolean;
+  loading?: boolean;
   type?: ModalType;
   title?: string;
   content: string;
-  onOk: (data?: any) => void;
-  onCancel: () => void;
+  onOk?: (data?: any) => void;
+  onCancel?: () => void;
+  customFooter?: React.ReactNode;
 }
 
 const iconMap = {
@@ -25,11 +29,13 @@ const iconMap = {
 
 const ConfirmModal: React.FC<ConfirmModalProps> = ({
   visible,
+  loading = false,
   type = "warning",
   title = "Confirm",
   content,
   onOk,
   onCancel,
+  customFooter,
 }) => {
   return (
     <Modal
@@ -39,10 +45,23 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
           {iconMap[type]} <span style={{ marginLeft: 8 }}>{title}</span>
         </span>
       }
-      onOk={onOk}
       onCancel={onCancel}
-      okText="Yes"
-      cancelText="No"
+      footer={
+        customFooter ?? [
+          <Button key="cancel" onClick={onCancel} icon={<CloseOutlined />}>
+            No
+          </Button>,
+          <Button
+            key="ok"
+            type="primary"
+            loading={loading}
+            onClick={onOk}
+            icon={<CheckOutlined />}
+          >
+            Yes
+          </Button>,
+        ]
+      }
     >
       <p>{content}</p>
     </Modal>
