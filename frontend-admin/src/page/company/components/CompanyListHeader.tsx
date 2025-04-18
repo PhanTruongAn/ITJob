@@ -25,7 +25,7 @@ const CompanyListHeader: React.FC<Props> = ({
     <div
       style={{
         background: "#fff",
-        padding: "16px",
+        padding: "12px",
         borderRadius: "8px",
         marginBottom: "16px",
         display: "flex",
@@ -52,7 +52,7 @@ const CompanyListHeader: React.FC<Props> = ({
         <Button
           type="primary"
           style={{ outline: "none" }}
-          icon={<PlusOutlined style={{ fontSize: "16px" }} />}
+          icon={<PlusOutlined />}
           onClick={onAddCompany}
         >
           Add Company
@@ -63,9 +63,7 @@ const CompanyListHeader: React.FC<Props> = ({
           onClick={onRefresh}
           loading={loading}
           style={{ outline: "none" }}
-          icon={
-            <ReloadOutlined style={{ fontSize: "16px", outline: "none" }} />
-          }
+          icon={<ReloadOutlined style={{ outline: "none" }} />}
         >
           Refresh
         </Button>

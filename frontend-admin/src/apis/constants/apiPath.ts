@@ -13,4 +13,8 @@ export const PATH_API = {
   country: {
     root: path(ROOT_API, "/countries"),
   },
+  file: {
+    root: path(ROOT_API, "/file"),
+    sign: path(ROOT_API, "/file/signed"),
+  },
 };

@@ -24,7 +24,19 @@ const LayoutAdmin: React.FC = () => {
   };
   return (
     <Layout style={{ padding: 0, height: "100%", display: "flex" }}>
-      <Sider trigger={null} collapsible collapsed={collapsed} theme="light">
+      <Sider
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
+        theme="light"
+        style={{
+          position: "fixed",
+          left: 0,
+          top: 0,
+          height: "100vh",
+          zIndex: 100,
+        }}
+      >
         <div
           style={{
             display: "flex",
@@ -53,7 +65,9 @@ const LayoutAdmin: React.FC = () => {
           items={navItems}
         />
       </Sider>
-      <Layout>
+      <Layout
+        style={{ marginLeft: collapsed ? 80 : 200, transition: "all 0.2s" }}
+      >
         <Header style={{ padding: 0, background: colorBgContainer }}>
           <Button
             type="text"

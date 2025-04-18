@@ -10,7 +10,10 @@ import { fetchCompanies } from "../../apis/companyModule";
 import CustomHooks from "../../common/hooks/CustomHooks";
 import { IFilterCompany } from "./common/interface";
 import { DEFAULT_STATE } from "./common/constants";
+import { useNavigate } from "react-router-dom";
+import { PATH_DASHBOARD } from "../../routes/paths";
 const Company: React.FC = () => {
+  const navigate = useNavigate();
   const { state, updateState } = useCompanyState();
   const { token } = theme.useToken();
   const handleFilter = ({
@@ -27,7 +30,9 @@ const Company: React.FC = () => {
   };
   const handleRefresh = () => {};
 
-  const handleAddCompany = () => {};
+  const handleAddCompany = () => {
+    navigate(PATH_DASHBOARD.companyManage.create);
+  };
   const handleTableChange = (page: number, pageSize: number, sort?: string) => {
     updateState({ page, pageSize, sort });
   };

@@ -20,6 +20,7 @@ import ConfirmModal from "../../components/modal/ConfirmModal";
 import UserListHeader from "./components/UserListHeader";
 import EditUserModal from "./components/edit/EditUserModal";
 import { useCreateUser, useDeleteUser, useEditUser } from "./common/services";
+import { QUERY_KEYS } from "../../common/queryKeys";
 
 const User: React.FC = () => {
   const { token } = theme.useToken();
@@ -121,7 +122,7 @@ const User: React.FC = () => {
   };
   const { data, refetch } = CustomHooks.useQuery<IBackendPaginateRes<IUser[]>>(
     [
-      "users",
+      QUERY_KEYS.USER_MODULE,
       state.page,
       state.pageSize,
       state.sortBy,

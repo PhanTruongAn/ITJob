@@ -11,7 +11,14 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+.ant-btn:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+.ant-btn:active,
+.ant-btn:hover {
+  outline: none !important;
+}
 a {
   font-weight: 500;
   color: #646cff;

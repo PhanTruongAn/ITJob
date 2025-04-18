@@ -21,7 +21,7 @@ const UserListHeader: React.FC<Props> = ({ onAddUser, onRefresh, loading }) => {
     <div
       style={{
         background: "#fff",
-        padding: "16px",
+        padding: "12px",
         borderRadius: "8px",
         marginBottom: "16px",
         display: "flex",
@@ -45,11 +45,7 @@ const UserListHeader: React.FC<Props> = ({ onAddUser, onRefresh, loading }) => {
       />
 
       <Space className="table-button-group">
-        <Button
-          type="primary"
-          icon={<PlusOutlined style={{ fontSize: "16px" }} />}
-          onClick={onAddUser}
-        >
+        <Button type="primary" icon={<PlusOutlined />} onClick={onAddUser}>
           Add User
         </Button>
         <Button
@@ -57,7 +53,7 @@ const UserListHeader: React.FC<Props> = ({ onAddUser, onRefresh, loading }) => {
           variant="outlined"
           onClick={onRefresh}
           loading={loading}
-          icon={<ReloadOutlined style={{ fontSize: "16px" }} />}
+          icon={<ReloadOutlined />}
         >
           Refresh
         </Button>

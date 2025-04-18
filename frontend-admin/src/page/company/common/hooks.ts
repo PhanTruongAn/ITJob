@@ -14,7 +14,6 @@ export interface CompanyState {
   countryId?: number | null;
   sort?: string;
   visibleDeleteModal: boolean;
-  visibleCreateModal: boolean;
   visibleEditModal: boolean;
   selectedCompany: ICompany | undefined;
   selectedCompanyId?: number | null;
@@ -34,7 +33,6 @@ export const useCompanyState = () => {
     companyType: null,
     countryId: null,
     visibleDeleteModal: false,
-    visibleCreateModal: false,
     visibleEditModal: false,
     selectedCompany: undefined,
     selectedCompanyId: null,

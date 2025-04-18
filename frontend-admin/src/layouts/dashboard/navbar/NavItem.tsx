@@ -29,6 +29,11 @@ const navItems: any = [
         label: BREADCRUMB.LIST_COMPANY,
         key: PATH_DASHBOARD.companyManage.list,
       },
+      {
+        icon: <BankOutlined />,
+        label: BREADCRUMB.CREATE_COMPANY,
+        key: PATH_DASHBOARD.companyManage.create,
+      },
     ],
   },
   {
