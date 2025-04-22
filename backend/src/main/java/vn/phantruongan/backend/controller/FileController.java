@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudinary.Cloudinary;
 
+import vn.phantruongan.backend.util.annotation.ApiMessage;
+
 @RestController
 @RequestMapping("/api/v1")
 public class FileController {
@@ -25,6 +27,7 @@ public class FileController {
     private String uploadPreset;
 
     @GetMapping("/file/signed")
+    @ApiMessage("File signed")
     public Map<String, Object> getSignature() {
         long timestamp = System.currentTimeMillis() / 1000L;
 

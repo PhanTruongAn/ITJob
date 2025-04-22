@@ -29,3 +29,4 @@ export async function fetchCompanies({
   );
   return response.data;
 }
+export async function signUploadLogo({});

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Modal,
   Form,
   Input,
   Select,
@@ -10,18 +9,16 @@ import {
   message,
   Row,
   Col,
+  Space,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import MDEditor from "@uiw/react-md-editor";
 import { ECompanyType } from "../../../../../types/enum";
 import { COMPANY_SIZE } from "../../../common/constants";
-import { useGetCountries } from "../../../common/services";
-import {
-  CLOUDINARY_CLOUD_NAME,
-  CLOUDINARY_UPLOAD_PRESET,
-} from "../../../../../common/constants";
-import axios from "axios";
-
+import { useGetCountries, usePresignImage } from "../../../common/services";
+import { useNavigate } from "react-router-dom";
+import { PATH_DASHBOARD } from "../../../../../routes/paths";
+import { useWatch } from "antd/es/form/Form";
 const { Option } = Select;
 
 interface CreateCompanyForm {
@@ -39,8 +36,10 @@ interface CreateCompanyForm {
 
 const CreateCompanyForm: React.FC = ({}) => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const description = useWatch("description", form);
+  const { handleUpload, isUploading } = usePresignImage();
   const handleUploadChange = (info: any) => {
     const file = info.file.originFileObj;
     const reader = new FileReader();
@@ -66,42 +65,16 @@ const CreateCompanyForm: React.FC = ({}) => {
     form
       .validateFields()
       .then(async (values) => {
-        let logoUrl = logoPreview; // Lấy URL của ảnh từ state
-
-        // Nếu có logo, ta sẽ upload ảnh lên Cloudinary
-        if (logoPreview) {
-          setUploading(true);
-          const formData = new FormData();
-          const file = values.logo[0].originFileObj;
-          formData.append("file", file);
-          formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-          formData.append("folder", "Company");
-
-          try {
-            const response = await axios.post(
-              `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-              formData
-            );
-            if (response.status === 200) {
-              logoUrl = response.data.secure_url; // Lấy URL ảnh sau khi upload thành công
-            } else {
-              message.error("Upload to Cloudinary failed");
-            }
-          } catch (error) {
-            message.error(
-              "Upload failed. Please check your network and try again."
-            );
-            console.error(error);
-          } finally {
-            setUploading(false);
-          }
+        const file = values.logo[0].originFileObj;
+        const imageUrl = await handleUpload(file);
+        if (imageUrl) {
+          message.success("Upload image success!");
         }
-
-        console.log("Check data: ", values);
         form.resetFields();
-        setLogoPreview(null); // Reset logoPreview
+        setLogoPreview(null);
       })
       .catch((info) => {
+        message.error(info);
         console.log("Validate Failed:", info);
       });
   };
@@ -227,7 +200,7 @@ const CreateCompanyForm: React.FC = ({}) => {
             rules={[{ required: true, message: "Please enter description" }]}
           >
             <MDEditor
-              value={form.getFieldValue("description") || ""}
+              value={description || ""}
               onChange={(value) => form.setFieldsValue({ description: value })}
               height={300} // Tăng chiều cao để lớn hơn
             />
@@ -248,7 +221,7 @@ const CreateCompanyForm: React.FC = ({}) => {
               name="logo"
               listType="picture"
               maxCount={1}
-              // beforeUpload={() => false} // Ngăn tải lên server, xử lý local
+              beforeUpload={() => false} // Ngăn tải lên server, xử lý local
               onChange={handleUploadChange}
             >
               <Button icon={<UploadOutlined />}>Upload Logo</Button>
@@ -265,6 +238,27 @@ const CreateCompanyForm: React.FC = ({}) => {
               />
             )}
           </Form.Item>
+        </Col>
+      </Row>
+      <Row gutter={[16, 16]}>
+        <Col span={24} style={{ textAlign: "right" }}>
+          <Space>
+            <Button
+              loading={isUploading}
+              variant="outlined"
+              type="primary"
+              onClick={handleOk}
+            >
+              Submit
+            </Button>
+            <Button
+              onClick={() => {
+                navigate(PATH_DASHBOARD.companyManage.list);
+              }}
+            >
+              Cancel
+            </Button>
+          </Space>
         </Col>
       </Row>
     </Form>

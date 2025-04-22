@@ -76,5 +76,14 @@ export interface ICompany {
   workingDays: DayOfWeek[];
   country: ICountry;
 }
+
+export interface ICloud {
+  timestamp: number;
+  cloudName: string;
+  apiKey: string;
+  signature: string;
+  uploadUrl: string;
+  uploadPreset: string;
+}
 // IGetAccount inherits from IAccount but excludes access_token
 export interface IGetAccount extends Omit<IAccount, "access_token"> {}
