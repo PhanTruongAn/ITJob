@@ -3,13 +3,13 @@ import { message, theme } from "antd";
 import "./style.css";
 import { userColumns } from "./components/table/UserColumns";
 
+import { fetchUsers, getUserById } from "../../apis/userModule";
 import {
-  deleteUser,
-  editUser,
-  fetchUsers,
-  getUserById,
-} from "../../apis/userModule";
-import { useUserListState } from "./common/hooks";
+  useCreateUser,
+  useDeleteUser,
+  useEditUser,
+  useUserListState,
+} from "./common/hooks";
 import CustomHooks from "../../common/hooks/CustomHooks";
 import { IBackendPaginateRes, IUser } from "../../types/backend";
 import { UserListHeaderToolbar } from "./components/UserListToolbar";
@@ -19,7 +19,7 @@ import CustomGlobalTable from "../../components/table";
 import ConfirmModal from "../../components/modal/ConfirmModal";
 import UserListHeader from "./components/UserListHeader";
 import EditUserModal from "./components/edit/EditUserModal";
-import { useCreateUser, useDeleteUser, useEditUser } from "./common/services";
+
 import { QUERY_KEYS } from "../../common/queryKeys";
 
 const User: React.FC = () => {
@@ -228,7 +228,7 @@ const User: React.FC = () => {
             })}
             data={data?.data?.result || []}
             loading={loading}
-            total={state.total}
+            total={data?.data?.meta?.total || 0}
             page={state.page}
             pageSize={state.pageSize}
             onTableChange={handleTableChange}

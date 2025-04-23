@@ -83,6 +83,7 @@ public class CompanyController {
     }
 
     @DeleteMapping("/companies/{id}")
+    @ApiMessage("Company deleted")
     public ResponseEntity<?> deleteCompany(@PathVariable("id") long id) throws InvalidException {
         boolean isDelete = companyService.deleteCompanyById(id);
         if (isDelete) {
@@ -95,7 +96,7 @@ public class CompanyController {
     }
 
     @PutMapping("/companies")
-    @ApiMessage("Update company")
+    @ApiMessage("Company updated")
     public ResponseEntity<Company> updateCompany(@RequestBody Company company) throws InvalidException {
         Company companyUpdated = companyService.updateById(company);
         if (companyUpdated == null) {

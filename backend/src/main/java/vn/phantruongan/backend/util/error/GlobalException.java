@@ -3,6 +3,7 @@ package vn.phantruongan.backend.util.error;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.util.InternalException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -12,6 +13,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpServerErrorException.InternalServerError;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import vn.phantruongan.backend.domain.RestResponse;
@@ -31,7 +33,7 @@ public class GlobalException {
     @ExceptionHandler(value = {
             UsernameNotFoundException.class,
             BadCredentialsException.class,
-            InvalidException.class
+            InvalidException.class,
     })
     public ResponseEntity<RestResponse<Object>> handleIdException(Exception ex) {
         RestResponse<Object> res = new RestResponse<Object>();
@@ -42,8 +44,9 @@ public class GlobalException {
             res.setStatusCode(HttpStatus.BAD_REQUEST.value());
             res.setMessage("Something went wrong. Please check your input and try again.");
         } else {
-            res.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            res.setMessage("Sorry, your request couldn't be processed.");
+            // Fallback cho các lỗi không xác định
+            res.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            res.setMessage("Sorry, an unexpected error occurred.");
         }
 
         res.setError(ex.getMessage());
@@ -64,4 +67,15 @@ public class GlobalException {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<RestResponse<Object>> handleGeneralException(Exception ex) {
+        RestResponse<Object> res = new RestResponse<>();
+        res.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        res.setMessage("An internal server error occurred. Please try again later.");
+        res.setError(ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(res);
+    }
+
 }

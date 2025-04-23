@@ -1,21 +1,8 @@
 import { useState } from "react";
 import { useUpdateState } from "../../../util/hooks";
-import { IUser } from "../../../types/backend";
-export interface UserListState {
-  page: number;
-  pageSize: number;
-  total: number;
-  loading: boolean;
-  filterPhone?: string | null;
-  filterName?: string | null;
-  sortBy?: string;
-  visibleDeleteModal: boolean;
-  visibleCreateModal: boolean;
-  visibleEditModal: boolean;
-  selectedUser: IUser | undefined;
-  selectedUserId?: number | null;
-  typeModal: "view" | "edit";
-}
+import CustomHooks from "../../../common/hooks/CustomHooks";
+import { createUser, deleteUser, editUser } from "../../../apis/userModule";
+import { UserListState } from "./interface";
 
 export const useUserListState = () => {
   const [state, setState] = useState<UserListState>({
@@ -37,4 +24,16 @@ export const useUserListState = () => {
   const updateState = useUpdateState(setState);
 
   return { state, updateState };
+};
+
+export const useCreateUser = () => {
+  return CustomHooks.useMutation(createUser);
+};
+
+export const useDeleteUser = () => {
+  return CustomHooks.useMutation(deleteUser);
+};
+
+export const useEditUser = () => {
+  return CustomHooks.useMutation(editUser);
 };

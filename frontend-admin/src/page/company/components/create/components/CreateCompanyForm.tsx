@@ -15,10 +15,14 @@ import { UploadOutlined } from "@ant-design/icons";
 import MDEditor from "@uiw/react-md-editor";
 import { ECompanyType } from "../../../../../types/enum";
 import { COMPANY_SIZE } from "../../../common/constants";
-import { useGetCountries, usePresignImage } from "../../../common/services";
 import { useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
 import { useWatch } from "antd/es/form/Form";
+import {
+  useCreateCompany,
+  useGetCountries,
+  usePresignImage,
+} from "../../../common/hooks";
 const { Option } = Select;
 
 interface CreateCompanyForm {
@@ -40,6 +44,7 @@ const CreateCompanyForm: React.FC = ({}) => {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const description = useWatch("description", form);
   const { handleUpload, isUploading } = usePresignImage();
+  const { mutate, isPending } = useCreateCompany();
   const handleUploadChange = (info: any) => {
     const file = info.file.originFileObj;
     const reader = new FileReader();
@@ -62,23 +67,39 @@ const CreateCompanyForm: React.FC = ({}) => {
   };
 
   const handleOk = async () => {
-    form
-      .validateFields()
-      .then(async (values) => {
-        const file = values.logo[0].originFileObj;
-        const imageUrl = await handleUpload(file);
-        if (imageUrl) {
-          message.success("Upload image success!");
+    try {
+      const values = await form.validateFields();
+      const file = values.logo[0]?.originFileObj as File;
+
+      const imageUrl = await handleUpload(file);
+
+      if (!imageUrl) {
+        message.error("Failed to upload logo");
+        return;
+      }
+
+      mutate(
+        { ...values, logo: imageUrl, country: { id: values.countryId } },
+        {
+          onSuccess: (res) => {
+            if (res.statusCode >= 400) {
+              message.error(res.message);
+            } else {
+              message.success(res.message);
+              form.resetFields();
+              setLogoPreview(null);
+            }
+          },
+          onError: () => {
+            message.error("Error when creating company!");
+          },
         }
-        form.resetFields();
-        setLogoPreview(null);
-      })
-      .catch((info) => {
-        message.error(info);
-        console.log("Validate Failed:", info);
-      });
+      );
+    } catch (error) {
+      console.log("Validate Failed:", error);
+    }
   };
-  const { data } = useGetCountries();
+  const { data: countriesData } = useGetCountries();
   return (
     <Form form={form} layout="vertical" name="add_company_form">
       <Row gutter={[16, 16]}>
@@ -97,8 +118,12 @@ const CreateCompanyForm: React.FC = ({}) => {
             label="Country"
             rules={[{ required: true, message: "Please select a country" }]}
           >
-            <Select placeholder="Select a country">
-              {data?.data.map((item) => (
+            <Select
+              placeholder="Select a country"
+              optionFilterProp="children"
+              showSearch
+            >
+              {countriesData?.data.map((item) => (
                 <Select.Option key={item.id} value={item.id}>
                   {item.name}
                 </Select.Option>
@@ -202,7 +227,7 @@ const CreateCompanyForm: React.FC = ({}) => {
             <MDEditor
               value={description || ""}
               onChange={(value) => form.setFieldsValue({ description: value })}
-              height={300} // Tăng chiều cao để lớn hơn
+              height={300}
             />
           </Form.Item>
         </Col>

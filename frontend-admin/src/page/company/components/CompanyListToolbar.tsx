@@ -3,8 +3,8 @@ import React from "react";
 import { SearchOutlined, ClearOutlined } from "@ant-design/icons";
 import { ECompanyType } from "../../../types/enum";
 import { COMPANY_SIZE } from "../common/constants";
-import { useGetCountries } from "../common/services";
 import { IFilterCompany } from "../common/interface";
+import { useGetCountries } from "../common/hooks";
 
 export interface UserFilterProps {
   onFilter: ({

@@ -16,6 +16,7 @@ type FieldType = {
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(
     (state) => state.account.isAuthenticated
@@ -32,15 +33,18 @@ const Login: React.FC = () => {
   }, [isAuthenticated]);
 
   const onFinish = async (values: any) => {
+    setLoading(true);
     const { email, password } = values;
     const res = await login(email, password);
     console.log("Check res: ", res);
-    if (res && res.data) {
+    if (res && res.data && res.statusCode === 200) {
       localStorage.setItem("access_token", res.data.access_token);
       dispatch(setUserLoginInfo(res.data.user));
       message.success("Login successfully!");
+      setLoading(false);
       navigate(callback ? callback : "/auth/customer/login");
     } else {
+      setLoading(false);
       notification.error({
         message: "Login failed!",
         description: Array.isArray(res.message) ? res.message[0] : res.message,
@@ -92,6 +96,7 @@ const Login: React.FC = () => {
                 type="primary"
                 htmlType="submit"
                 style={{ outline: "none", width: "100%" }}
+                loading={loading}
               >
                 Sign in
               </Button>

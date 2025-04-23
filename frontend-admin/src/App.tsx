@@ -4,6 +4,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CACHE_TIME, STALE_TIME } from "./common/constants";
 import MotionLazyContainer from "./components/animate/MotionLazyContainer";
 import Router from "./routes";
+import { useEffect } from "react";
+import { message } from "antd";
+
 function App() {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -14,6 +17,13 @@ function App() {
       },
     },
   });
+  useEffect(() => {
+    message.config({
+      top: 50,
+      duration: 2,
+      maxCount: 3,
+    });
+  }, []);
   return (
     <>
       <MotionLazyContainer>

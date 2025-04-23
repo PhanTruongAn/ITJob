@@ -87,3 +87,5 @@ export interface ICloud {
 }
 // IGetAccount inherits from IAccount but excludes access_token
 export interface IGetAccount extends Omit<IAccount, "access_token"> {}
+
+export interface ICreateCompanyDTO extends Omit<ICompany, "id"> {}

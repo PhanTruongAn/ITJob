@@ -64,7 +64,7 @@ export const companyColumns = ({
   {
     title: "Company Size",
     dataIndex: "companySize",
-    width: "15%",
+    width: "13%",
     ellipsis: true,
     render: (size: string) => {
       const company = COMPANY_SIZE.find((item) => item.value === size);

@@ -1,6 +1,7 @@
 import { Table } from "antd";
 
 import type { ColumnsType } from "antd/es/table";
+import EmptyData from "../empty/EmptyData";
 
 interface CustomTableProps<T> {
   columns: ColumnsType<T>;
@@ -48,6 +49,9 @@ const CustomGlobalTable = <T extends { id: string | number }>({
         current: page,
         pageSize,
         responsive: true,
+      }}
+      locale={{
+        emptyText: <EmptyData />,
       }}
     />
   );

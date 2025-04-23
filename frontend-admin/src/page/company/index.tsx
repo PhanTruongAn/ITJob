@@ -1,7 +1,7 @@
 import React from "react";
 import CompanyListHeader from "./components/CompanyListHeader";
 import { CompanyListHeaderToolbar } from "./components/CompanyListToolbar";
-import { useCompanyState } from "./common/hooks";
+import { useCompanyState, useDeleteCompany } from "./common/hooks";
 import CustomGlobalTable from "../../components/table";
 import { IBackendPaginateRes, ICompany } from "../../types/backend";
 import { companyColumns } from "./components/table/CompanyComlumns";
@@ -12,9 +12,12 @@ import { IFilterCompany } from "./common/interface";
 import { DEFAULT_STATE } from "./common/constants";
 import { useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../routes/paths";
+import { QUERY_KEYS } from "../../common/queryKeys";
+import ConfirmModal from "../../components/modal/ConfirmModal";
 const Company: React.FC = () => {
   const navigate = useNavigate();
   const { state, updateState } = useCompanyState();
+  const { mutate: deleteMutate, isPending: isDelete } = useDeleteCompany();
   const { token } = theme.useToken();
   const handleFilter = ({
     name,
@@ -61,7 +64,7 @@ const Company: React.FC = () => {
     IBackendPaginateRes<ICompany[]>
   >(
     [
-      "users",
+      QUERY_KEYS.COMPANY_MODULE,
       state.page,
       state.pageSize,
       state.sort,
@@ -80,6 +83,37 @@ const Company: React.FC = () => {
     marginTop: 13,
     flexDirection: "column",
   };
+  const confirmDeleteCompany = (id: number) => {
+    updateState({ visibleDeleteModal: true, selectedCompanyId: id });
+  };
+  const handleDelete = () => {
+    deleteMutate(
+      { id: state.selectedCompanyId! },
+      {
+        onSuccess: async (result) => {
+          const updatedData = await refetch();
+          const resultLength = updatedData?.data?.data?.result?.length ?? 0;
+
+          if (resultLength === 0 && state.page > 1) {
+            updateState({ page: state.page - 1 });
+          }
+
+          message.success(result.message);
+          updateState({
+            visibleDeleteModal: false,
+            selectedCompanyId: null,
+          });
+        },
+        onError: () => {
+          message.error("Error when deleted company");
+          updateState({
+            visibleDeleteModal: false,
+            selectedCompanyId: null,
+          });
+        },
+      }
+    );
+  };
   return (
     <div>
       <CompanyListHeader
@@ -90,6 +124,15 @@ const Company: React.FC = () => {
       <CompanyListHeaderToolbar
         onClear={handleClearFilter}
         onFilter={handleFilter}
+      />
+      <ConfirmModal
+        content="Are you sure you want to delete this company?"
+        visible={state.visibleDeleteModal}
+        type="warning"
+        onOk={handleDelete}
+        loading={isDelete}
+        onCancel={() => updateState({ visibleDeleteModal: false })}
+        title="Confirm company deletion"
       />
       <div style={listStyle}>
         <div className="table-container">
@@ -102,12 +145,12 @@ const Company: React.FC = () => {
                 // handleEditUser(record);
               },
               onDelete: (record) => {
-                // confirmDeleteUser(record);
+                confirmDeleteCompany(record);
               },
             })}
             data={data?.data?.result || []}
             loading={state.loading}
-            total={state.total}
+            total={data?.data?.meta?.total || 0}
             page={state.page}
             pageSize={state.pageSize}
             onTableChange={handleTableChange}
