@@ -3,6 +3,7 @@ import { Navigate, useLocation, useRoutes } from "react-router-dom";
 import LoadingScreen from "../components/LoadingScreen";
 import { PATH_AUTH, PATH_DASHBOARD, ROOT_DASHBOARD } from "./paths";
 import LayoutAdmin from "../layouts/layout.admin";
+import AuthGuard from "../guards/AuthGuard";
 
 const Loadable = (Component: ElementType) => (props: any) => {
   const { pathname } = useLocation();
@@ -23,7 +24,12 @@ export default function Router() {
     },
     {
       path: ROOT_DASHBOARD,
-      element: <LayoutAdmin />,
+      element: (
+        // <AuthGuard>
+        //   <LayoutAdmin />
+        // </AuthGuard>
+        <LayoutAdmin />
+      ),
       errorElement: <NotFound />,
       children: [
         {

@@ -110,7 +110,7 @@ public class AuthController {
             throws InvalidException {
 
         if (refresh_token.equals("none")) {
-            throw new InvalidException("Cookies không có refresh token!");
+            throw new InvalidException("No refresh token found in cookies.");
         }
         // Check valid refresh token
         Jwt decodedToken = securityService.checkRefreshToken(refresh_token);
@@ -119,7 +119,7 @@ public class AuthController {
         // Check user by refresh token and email
         User user = userService.getUserByRefreshTokenAndEmail(refresh_token, emailUser);
         if (user == null) {
-            throw new InvalidException("Refresh token không hợp lệ!");
+            throw new InvalidException("Invalid refresh token.");
         }
         ResLoginDTO res = new ResLoginDTO();
         User userInDB = userService.findUserByEmail(emailUser);
@@ -155,7 +155,7 @@ public class AuthController {
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
         if (email == "") {
-            throw new InvalidException("Người dùng không hợp lệ hoặc chưa xác thực!");
+            throw new InvalidException("Invalid or unauthenticated user.");
         } else {
             userService.updateRefreshToken(null, email);
             ResponseCookie responseCookie = ResponseCookie

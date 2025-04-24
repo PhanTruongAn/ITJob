@@ -40,7 +40,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                 .orElse(authException.getMessage());
         res.setStatusCode(HttpStatus.UNAUTHORIZED.value());
         res.setError(errorMessage);
-        res.setMessage("Token không hợp lệ (Không đúng định dạng, hết hạn,...)");
+        res.setMessage("Invalid token (incorrect format, expired, etc.)");
         mapper.writeValue(response.getWriter(), res);
     }
 

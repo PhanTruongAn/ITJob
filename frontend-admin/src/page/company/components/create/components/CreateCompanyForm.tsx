@@ -23,6 +23,7 @@ import {
   useGetCountries,
   usePresignImage,
 } from "../../../common/hooks";
+
 const { Option } = Select;
 
 interface CreateCompanyForm {
@@ -41,23 +42,10 @@ interface CreateCompanyForm {
 const CreateCompanyForm: React.FC = ({}) => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const description = useWatch("description", form);
   const { handleUpload, isUploading } = usePresignImage();
-  const { mutate, isPending } = useCreateCompany();
-  const handleUploadChange = (info: any) => {
-    const file = info.file.originFileObj;
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      // Lưu ảnh tạm thời trên local
-      setLogoPreview(reader.result as string);
-    };
-
-    if (file) {
-      reader.readAsDataURL(file);
-    }
-  };
+  const { mutate } = useCreateCompany();
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const normFile = (e: any) => {
     if (Array.isArray(e)) {
@@ -87,7 +75,7 @@ const CreateCompanyForm: React.FC = ({}) => {
             } else {
               message.success(res.message);
               form.resetFields();
-              setLogoPreview(null);
+              setPreviewImage(null);
             }
           },
           onError: () => {
@@ -99,86 +87,152 @@ const CreateCompanyForm: React.FC = ({}) => {
       console.log("Validate Failed:", error);
     }
   };
+
   const { data: countriesData } = useGetCountries();
+
+  const handlePreview = (file: any) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <Form form={form} layout="vertical" name="add_company_form">
       <Row gutter={[16, 16]}>
-        <Col span={12}>
-          <Form.Item
-            name="name"
-            label="Company Name"
-            rules={[{ required: true, message: "Please enter company name" }]}
-          >
-            <Input placeholder="Enter company name" />
-          </Form.Item>
+        <Col span={18}>
+          <Row gutter={[16, 16]}>
+            <Col span={12}>
+              <Form.Item
+                name="name"
+                label="Company Name"
+                rules={[
+                  { required: true, message: "Please enter company name" },
+                ]}
+              >
+                <Input placeholder="Enter company name" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="countryId"
+                label="Country"
+                rules={[{ required: true, message: "Please select a country" }]}
+              >
+                <Select
+                  placeholder="Select a country"
+                  optionFilterProp="children"
+                  showSearch
+                >
+                  {countriesData?.data.map((item) => (
+                    <Select.Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={[16, 16]}>
+            <Col span={12}>
+              <Form.Item
+                name="industry"
+                label="Industry"
+                rules={[{ required: true, message: "Please enter industry" }]}
+              >
+                <Input placeholder="Enter industry (e.g., Banking)" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="companyType"
+                label="Company Type"
+                rules={[
+                  { required: true, message: "Please select company type" },
+                ]}
+              >
+                <Select placeholder="Select company type">
+                  {Object.keys(ECompanyType).map((key) => (
+                    <Option key={key} value={key}>
+                      {ECompanyType[key as keyof typeof ECompanyType]}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={[16, 16]}>
+            <Col span={12}>
+              <Form.Item
+                name="companySize"
+                label="Company Size"
+                rules={[
+                  { required: true, message: "Please select company size" },
+                ]}
+              >
+                <Select placeholder="Select company size">
+                  {COMPANY_SIZE.map((size) => (
+                    <Option key={size.value} value={size.value}>
+                      {size.label}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="overtime"
+                label="Overtime"
+                valuePropName="checked"
+              >
+                <Checkbox>Allow Overtime</Checkbox>
+              </Form.Item>
+            </Col>
+          </Row>
         </Col>
-        <Col span={12}>
+
+        <Col span={6}>
           <Form.Item
-            name="countryId"
-            label="Country"
-            rules={[{ required: true, message: "Please select a country" }]}
+            name="logo"
+            label="Logo"
+            valuePropName="fileList"
+            getValueFromEvent={normFile}
+            rules={[{ required: true, message: "Please upload a logo" }]}
           >
-            <Select
-              placeholder="Select a country"
-              optionFilterProp="children"
-              showSearch
+            <Upload.Dragger
+              name="logo"
+              listType="picture"
+              maxCount={1}
+              beforeUpload={(file) => {
+                handlePreview(file);
+                return false;
+              }}
+              showUploadList={{
+                showPreviewIcon: true,
+                showRemoveIcon: true,
+              }}
+              onRemove={() => {
+                setPreviewImage(null);
+                form.setFieldsValue({ logo: null });
+              }}
+              style={{ height: "200px", textAlign: "center" }}
             >
-              {countriesData?.data.map((item) => (
-                <Select.Option key={item.id} value={item.id}>
-                  {item.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <Row gutter={[16, 16]}>
-        <Col span={12}>
-          <Form.Item
-            name="industry"
-            label="Industry"
-            rules={[{ required: true, message: "Please enter industry" }]}
-          >
-            <Input placeholder="Enter industry (e.g., Banking)" />
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item
-            name="companyType"
-            label="Company Type"
-            rules={[{ required: true, message: "Please select company type" }]}
-          >
-            <Select placeholder="Select company type">
-              {Object.keys(ECompanyType).map((key) => (
-                <Option key={key} value={key}>
-                  {ECompanyType[key as keyof typeof ECompanyType]}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <Row gutter={[16, 16]}>
-        <Col span={12}>
-          <Form.Item
-            name="companySize"
-            label="Company Size"
-            rules={[{ required: true, message: "Please select company size" }]}
-          >
-            <Select placeholder="Select company size">
-              {COMPANY_SIZE.map((size) => (
-                <Option key={size.value} value={size.value}>
-                  {size.label}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item name="overtime" label="Overtime" valuePropName="checked">
-            <Checkbox>Allow Overtime</Checkbox>
+              {previewImage ? (
+                <img
+                  src={previewImage}
+                  alt="Preview"
+                  style={{ maxWidth: "100%" }}
+                />
+              ) : (
+                <div>
+                  <UploadOutlined style={{ fontSize: "24px" }} />
+                  <p>Drag & Drop or Click to Upload Logo</p>
+                </div>
+              )}
+            </Upload.Dragger>
           </Form.Item>
         </Col>
       </Row>
@@ -233,38 +287,6 @@ const CreateCompanyForm: React.FC = ({}) => {
         </Col>
       </Row>
 
-      <Row gutter={[16, 16]}>
-        <Col span={24}>
-          <Form.Item
-            name="logo"
-            label="Logo"
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
-            rules={[{ required: true, message: "Please upload a logo" }]}
-          >
-            <Upload
-              name="logo"
-              listType="picture"
-              maxCount={1}
-              beforeUpload={() => false} // Ngăn tải lên server, xử lý local
-              onChange={handleUploadChange}
-            >
-              <Button icon={<UploadOutlined />}>Upload Logo</Button>
-            </Upload>
-            {logoPreview && (
-              <img
-                src={logoPreview}
-                alt="Logo Preview"
-                style={{
-                  width: "100%",
-                  maxWidth: "200px",
-                  marginTop: "10px",
-                }}
-              />
-            )}
-          </Form.Item>
-        </Col>
-      </Row>
       <Row gutter={[16, 16]}>
         <Col span={24} style={{ textAlign: "right" }}>
           <Space>

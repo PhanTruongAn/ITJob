@@ -1,16 +1,18 @@
+import axiosClient from "axios";
 import { IBackendRes } from "../types/backend";
 import { Mutex } from "async-mutex";
-import axiosClient from "axios";
+import { message, notification } from "antd";
+import { PATH_AUTH } from "../routes/paths";
 import { store } from "../redux/store";
-import { setRefreshTokenAction } from "../redux/slice/accountSlice";
-import { notification } from "antd";
-interface AccessTokenResponse {
+import { setUserLoginInfo } from "../redux/slice/accountSlice";
+interface IAccount {
   access_token: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+  };
 }
-
-/**
- * Creates an initial 'axios' instance with custom settings.
- */
 
 const instance = axiosClient.create({
   baseURL: import.meta.env.VITE_BACKEND_URL as string,
@@ -20,13 +22,26 @@ const instance = axiosClient.create({
 const mutex = new Mutex();
 const NO_RETRY_HEADER = "x-no-retry";
 
-const handleRefreshToken = async (): Promise<string | null> => {
+const handleRefreshToken = async (): Promise<IAccount | null> => {
   return await mutex.runExclusive(async () => {
-    const res = await instance.get<IBackendRes<AccessTokenResponse>>(
-      "/api/v1/auth/refresh"
-    );
-    if (res && res.data) return res.data.data?.access_token || null;
-    else return null;
+    try {
+      const res = await instance.get<IBackendRes<IAccount>>(
+        "/api/v1/auth/refresh"
+      );
+      if (res && res.data && res.data.statusCode === 200) {
+        const { access_token, user } = res.data.data;
+        return { access_token, user };
+      }
+      return null;
+    } catch (error: any) {
+      // Xử lý lỗi khi refresh token thất bại
+      const status = error.response?.status;
+      if (status === 400 || status === 401) {
+        return null;
+      }
+      // Lỗi khác (mạng, server, v.v.)
+      return null;
+    }
   });
 };
 
@@ -47,63 +62,57 @@ instance.interceptors.request.use(function (config) {
   return config;
 });
 
-/**
- * Handle all responses. It is possible to add handlers
- * for requests, but it is omitted here for brevity.
- */
 instance.interceptors.response.use(
   (res) => res,
   async (error) => {
+    const status = error.response?.status;
+    const url = error.config?.url;
+
     if (
       error.config &&
-      error.response &&
-      +error.response.status === 401 &&
-      error.config.url !== "/api/v1/auth/login" &&
+      status === 401 &&
+      url !== "/api/v1/auth/login" &&
       !error.config.headers[NO_RETRY_HEADER]
     ) {
-      const access_token = await handleRefreshToken();
+      const authData = await handleRefreshToken();
       error.config.headers[NO_RETRY_HEADER] = "true";
-      if (access_token) {
-        error.config.headers["Authorization"] = `Bearer ${access_token}`;
+
+      if (authData && authData.access_token) {
+        const { access_token, user } = authData;
         localStorage.setItem("access_token", access_token);
+        error.config.headers["Authorization"] = `Bearer ${access_token}`;
+        store.dispatch(setUserLoginInfo(user));
         return instance.request(error.config);
+      } else {
+        // Xóa access_token và chuyển hướng đến login
+        localStorage.removeItem("access_token");
+        window.location.href = PATH_AUTH.login;
+        return Promise.reject(error);
       }
     }
 
     if (
       error.config &&
-      error.response &&
-      +error.response.status === 400 &&
-      error.config.url === "/api/v1/auth/refresh" &&
-      location.pathname.startsWith("/admin")
+      status === 400 &&
+      url === "/api/v1/auth/refresh" &&
+      location.pathname.startsWith("/dashboard")
     ) {
-      console.log("Checkaxisos:", location.pathname);
-      const message =
-        error?.response?.data?.error ??
-        "Có lỗi xảy ra, vui lòng đăng nhập lại.";
-      store.dispatch(setRefreshTokenAction({ status: true, message }));
+      // Xóa access_token và chuyển hướng đến login
+      localStorage.removeItem("access_token");
+      window.location.href = PATH_AUTH.login;
+      message.error("Your session has expired. Please log in again.");
+      return Promise.reject(error);
     }
 
-    if (+error.response.status === 403) {
+    if (status === 403) {
       notification.error({
-        message: error?.response?.data?.message ?? "",
-        description: error?.response?.data?.error ?? "",
+        message: error?.response?.data?.error ?? "",
+        description: error?.response?.data?.message ?? "",
       });
     }
 
     return error?.response ?? Promise.reject(error);
   }
 );
-
-/**
- * Replaces main `axios` instance with the custom-one.
- *
- * @param cfg - Axios configuration object.
- * @returns A promise object of a response of the HTTP request with the 'data' object already
- * destructured.
- */
-// const axios = <T>(cfg: AxiosRequestConfig) => instance.request<any, T>(cfg);
-
-// export default axios;
 
 export default instance;

@@ -1,9 +1,17 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { fetchAccount } from "../../apis/authModule";
-export const getAccount = createAsyncThunk("account/fetchAccount", async () => {
-  const response = await fetchAccount();
-  return response.data;
-});
+
+export const getAccount = createAsyncThunk(
+  "account/fetchAccount",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await fetchAccount();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
+  }
+);
 
 interface IState {
   isAuthenticated: boolean;
@@ -29,25 +37,19 @@ const initialState: IState = {
   },
 };
 
-export const accountSlide = createSlice({
+const accountSlice = createSlice({
   name: "account",
   initialState,
   reducers: {
     setUserLoginInfo: (state, action) => {
       state.isAuthenticated = true;
       state.isLoading = false;
-      state.user.id = action?.payload?.id;
-      state.user.email = action.payload.email;
-      state.user.name = action.payload.name;
+      state.user = action.payload;
     },
-    setLogoutAction: (state, action) => {
+    setLogoutAction: (state) => {
       localStorage.removeItem("access_token");
       state.isAuthenticated = false;
-      state.user = {
-        id: "",
-        email: "",
-        name: "",
-      };
+      state.user = { id: "", email: "", name: "" };
     },
     setRefreshTokenAction: (state, action) => {
       state.isRefreshToken = action.payload?.status ?? false;
@@ -55,33 +57,23 @@ export const accountSlide = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(getAccount.pending, (state, action) => {
-      if (action.payload) {
-        state.isAuthenticated = false;
+    builder
+      .addCase(getAccount.pending, (state) => {
         state.isLoading = true;
-      }
-    });
-
-    builder.addCase(getAccount.fulfilled, (state, action) => {
-      if (action.payload) {
+      })
+      .addCase(getAccount.fulfilled, (state, action) => {
         state.isAuthenticated = true;
         state.isLoading = false;
-        state.user.id = action?.payload?.user?.id;
-        state.user.email = action.payload.user?.email;
-        state.user.name = action.payload.user?.name;
-      }
-    });
-
-    builder.addCase(getAccount.rejected, (state, action) => {
-      if (action.payload) {
+        state.user = action.payload.user;
+      })
+      .addCase(getAccount.rejected, (state, action) => {
         state.isAuthenticated = false;
         state.isLoading = false;
-      }
-    });
+      });
   },
 });
 
 export const { setUserLoginInfo, setLogoutAction, setRefreshTokenAction } =
-  accountSlide.actions;
+  accountSlice.actions;
 
-export default accountSlide.reducer;
+export default accountSlice.reducer;
