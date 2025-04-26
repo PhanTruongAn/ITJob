@@ -210,10 +210,10 @@ const CreateCompanyForm: React.FC = ({}) => {
                 handlePreview(file);
                 return false;
               }}
-              showUploadList={{
-                showPreviewIcon: true,
-                showRemoveIcon: true,
-              }}
+              // showUploadList={{
+              //   showPreviewIcon: true,
+              //   showRemoveIcon: true,
+              // }}
               onRemove={() => {
                 setPreviewImage(null);
                 form.setFieldsValue({ logo: null });

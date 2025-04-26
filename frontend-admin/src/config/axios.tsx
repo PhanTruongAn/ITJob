@@ -3,8 +3,6 @@ import { IBackendRes } from "../types/backend";
 import { Mutex } from "async-mutex";
 import { message, notification } from "antd";
 import { PATH_AUTH } from "../routes/paths";
-import { store } from "../redux/store";
-import { setUserLoginInfo } from "../redux/slice/accountSlice";
 interface IAccount {
   access_token: string;
   user: {
@@ -26,36 +24,34 @@ const handleRefreshToken = async (): Promise<IAccount | null> => {
   return await mutex.runExclusive(async () => {
     try {
       const res = await instance.get<IBackendRes<IAccount>>(
-        "/api/v1/auth/refresh"
+        "/api/v1/auth/refresh",
+        { headers: { [NO_RETRY_HEADER]: "true" } }
       );
       if (res && res.data && res.data.statusCode === 200) {
         const { access_token, user } = res.data.data;
+        localStorage.setItem("access_token", access_token);
         return { access_token, user };
       }
-      return null;
+      throw new Error("Refresh token failed");
     } catch (error: any) {
-      // Xử lý lỗi khi refresh token thất bại
-      const status = error.response?.status;
-      if (status === 400 || status === 401) {
-        return null;
-      }
-      // Lỗi khác (mạng, server, v.v.)
+      localStorage.removeItem("access_token");
+      // Hiển thị thông báo lỗi
+      message.error("Your session has expired. Please log in again.");
+      // Trì hoãn 2 giây để người dùng thấy thông báo
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      window.location.href = PATH_AUTH.login;
       return null;
     }
   });
 };
 
 instance.interceptors.request.use(function (config) {
-  if (
-    typeof window !== "undefined" &&
-    window &&
-    window.localStorage &&
-    window.localStorage.getItem("access_token")
-  ) {
-    config.headers.Authorization =
-      "Bearer " + window.localStorage.getItem("access_token");
+  const access_token = localStorage.getItem("access_token");
+  if (access_token && config.url !== "/api/v1/auth/login") {
+    config.headers.Authorization = `Bearer ${access_token}`;
   }
-  if (!config.headers.Accept && config.headers["Content-Type"]) {
+  if (!config.headers.Accept || !config.headers["Content-Type"]) {
     config.headers.Accept = "application/json";
     config.headers["Content-Type"] = "application/json; charset=utf-8";
   }
@@ -75,32 +71,13 @@ instance.interceptors.response.use(
       !error.config.headers[NO_RETRY_HEADER]
     ) {
       const authData = await handleRefreshToken();
-      error.config.headers[NO_RETRY_HEADER] = "true";
-
       if (authData && authData.access_token) {
-        const { access_token, user } = authData;
-        localStorage.setItem("access_token", access_token);
-        error.config.headers["Authorization"] = `Bearer ${access_token}`;
-        store.dispatch(setUserLoginInfo(user));
+        error.config.headers[NO_RETRY_HEADER] = "true";
+        error.config.headers[
+          "Authorization"
+        ] = `Bearer ${authData.access_token}`;
         return instance.request(error.config);
-      } else {
-        // Xóa access_token và chuyển hướng đến login
-        localStorage.removeItem("access_token");
-        window.location.href = PATH_AUTH.login;
-        return Promise.reject(error);
       }
-    }
-
-    if (
-      error.config &&
-      status === 400 &&
-      url === "/api/v1/auth/refresh" &&
-      location.pathname.startsWith("/dashboard")
-    ) {
-      // Xóa access_token và chuyển hướng đến login
-      localStorage.removeItem("access_token");
-      window.location.href = PATH_AUTH.login;
-      message.error("Your session has expired. Please log in again.");
       return Promise.reject(error);
     }
 

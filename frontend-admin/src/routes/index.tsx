@@ -7,7 +7,6 @@ import AuthGuard from "../guards/AuthGuard";
 
 const Loadable = (Component: ElementType) => (props: any) => {
   const { pathname } = useLocation();
-
   const isDashboard = pathname.includes("/dashboard");
 
   return (
@@ -16,6 +15,7 @@ const Loadable = (Component: ElementType) => (props: any) => {
     </Suspense>
   );
 };
+
 export default function Router() {
   return useRoutes([
     {
@@ -25,10 +25,10 @@ export default function Router() {
     {
       path: ROOT_DASHBOARD,
       element: (
-        // <AuthGuard>
-        //   <LayoutAdmin />
-        // </AuthGuard>
-        <LayoutAdmin />
+        <AuthGuard>
+          <LayoutAdmin />
+        </AuthGuard>
+        // <LayoutAdmin />
       ),
       errorElement: <NotFound />,
       children: [
@@ -36,7 +36,7 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to="/" replace />,
+              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
               index: true,
             },
             {
@@ -49,7 +49,7 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to="/" replace />,
+              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
               index: true,
             },
             {
@@ -66,7 +66,7 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to="/" replace />,
+              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
               index: true,
             },
             {
@@ -79,7 +79,7 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to="/" replace />,
+              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
               index: true,
             },
             {
@@ -92,7 +92,7 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to="/" replace />,
+              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
               index: true,
             },
             {
@@ -105,7 +105,7 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to="/" replace />,
+              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
               index: true,
             },
             {
@@ -116,21 +116,22 @@ export default function Router() {
         },
       ],
     },
+    // Thêm route catch-all cho các URL không khớp
+    {
+      path: "*",
+      element: <NotFound />,
+    },
   ]);
 }
+
 const Login = Loadable(lazy(() => import("../page/login")));
-
 const UserManageList = Loadable(lazy(() => import("../page/user")));
-
 const CompanyManageList = Loadable(lazy(() => import("../page/company")));
 const CompanyManageCreate = Loadable(
   lazy(() => import("../page/company/components/create"))
 );
 const JobManageList = Loadable(lazy(() => import("../page/job")));
-
 const RoleManageList = Loadable(lazy(() => import("../page/role")));
-
 const ResumeManageList = Loadable(lazy(() => import("../page/resume")));
-
 const PermissionManageList = Loadable(lazy(() => import("../page/permission")));
-const NotFound = Loadable(lazy(() => import("../page/404")));
+const NotFound = Loadable(lazy(() => import("../page/404/index")));

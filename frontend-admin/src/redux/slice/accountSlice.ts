@@ -17,7 +17,7 @@ interface IState {
   isAuthenticated: boolean;
   isLoading: boolean;
   isRefreshToken: boolean;
-  errorRefreshToken: string;
+  errorRefreshToken: string | null;
   user: {
     id: string;
     email: string;
@@ -29,7 +29,7 @@ const initialState: IState = {
   isAuthenticated: false,
   isLoading: true,
   isRefreshToken: false,
-  errorRefreshToken: "",
+  errorRefreshToken: null,
   user: {
     id: "",
     email: "",
