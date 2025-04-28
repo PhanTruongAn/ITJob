@@ -86,6 +86,11 @@ export interface ICloud {
   uploadPreset: string;
 }
 // IGetAccount inherits from IAccount but excludes access_token
+
+export interface IParamLogin {
+  email: string;
+  password: string;
+}
 export interface IGetAccount extends Omit<IAccount, "access_token"> {}
 
 export interface ICreateCompanyDTO extends Omit<ICompany, "id"> {}

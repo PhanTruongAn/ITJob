@@ -16,8 +16,8 @@ export const getAccount = createAsyncThunk(
 interface IState {
   isAuthenticated: boolean;
   isLoading: boolean;
-  isRefreshToken: boolean;
-  errorRefreshToken: string | null;
+  // isRefreshToken: boolean;
+  // errorRefreshToken: string | null;
   user: {
     id: string;
     email: string;
@@ -28,8 +28,8 @@ interface IState {
 const initialState: IState = {
   isAuthenticated: false,
   isLoading: true,
-  isRefreshToken: false,
-  errorRefreshToken: null,
+  // isRefreshToken: false,
+  // errorRefreshToken: null,
   user: {
     id: "",
     email: "",
@@ -51,10 +51,10 @@ const accountSlice = createSlice({
       state.isAuthenticated = false;
       state.user = { id: "", email: "", name: "" };
     },
-    setRefreshTokenAction: (state, action) => {
-      state.isRefreshToken = action.payload?.status ?? false;
-      state.errorRefreshToken = action.payload?.message ?? "";
-    },
+    // setRefreshTokenAction: (state, action) => {
+    //   state.isRefreshToken = action.payload?.status ?? false;
+    //   state.errorRefreshToken = action.payload?.message ?? "";
+    // },
   },
   extraReducers: (builder) => {
     builder
@@ -73,7 +73,6 @@ const accountSlice = createSlice({
   },
 });
 
-export const { setUserLoginInfo, setLogoutAction, setRefreshTokenAction } =
-  accountSlice.actions;
+export const { setUserLoginInfo, setLogoutAction } = accountSlice.actions;
 
 export default accountSlice.reducer;

@@ -35,6 +35,7 @@ const handleRefreshToken = async (): Promise<IAccount | null> => {
       throw new Error("Refresh token failed");
     } catch (error: any) {
       localStorage.removeItem("access_token");
+      localStorage.removeItem("session");
       // Hiển thị thông báo lỗi
       message.error("Your session has expired. Please log in again.");
       // Trì hoãn 2 giây để người dùng thấy thông báo
