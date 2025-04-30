@@ -1,19 +1,43 @@
 import React, { useState, useEffect } from "react";
-import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
-import { Button, Layout, Menu, theme } from "antd";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Layout,
+  Menu,
+  Space,
+  theme,
+  Tooltip,
+  Typography,
+} from "antd";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import navItems from "./dashboard/navbar/NavItem";
+import {
+  UserOutlined,
+  NotificationOutlined,
+  CaretDownFilled,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+} from "@ant-design/icons";
+import { useAppSelector } from "../redux/hooks";
+import CustomDropdown from "../components/CustomDropdown";
+import { getDropdownItems } from "./constants";
+import { useLogout } from "./hooks";
+import { UseMutateFunction } from "@tanstack/react-query";
+import { IBackendRes } from "../types/backend";
+
 const { Header, Sider, Content } = Layout;
 
 const LayoutAdmin: React.FC = () => {
   const location = useLocation();
   const [activeMenu, setActiveMenu] = useState<string>("");
   const [collapsed, setCollapsed] = useState<boolean>(false);
+  const userData = useAppSelector((state) => state.account.user);
   const navigate = useNavigate();
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-
+  const { mutate } = useLogout();
   useEffect(() => {
     setActiveMenu(location.pathname);
   }, [location]);
@@ -22,8 +46,20 @@ const LayoutAdmin: React.FC = () => {
     setActiveMenu(key);
     navigate(key);
   };
+  const handleLogout = () => {
+    mutate();
+  };
+
+  const items = getDropdownItems(undefined, undefined, handleLogout);
   return (
-    <Layout style={{ padding: 0, height: "100%", display: "flex" }}>
+    <Layout
+      style={{
+        padding: 0,
+        height: "100%",
+        display: "flex",
+        overflowX: "hidden",
+      }}
+    >
       <Sider
         trigger={null}
         collapsible
@@ -66,9 +102,21 @@ const LayoutAdmin: React.FC = () => {
         />
       </Sider>
       <Layout
-        style={{ marginLeft: collapsed ? 80 : 200, transition: "all 0.2s" }}
+        style={{
+          marginLeft: collapsed ? 80 : 200,
+          transition: "all 0.2s",
+          minWidth: 0,
+        }}
       >
-        <Header style={{ padding: 0, background: colorBgContainer }}>
+        <Header
+          style={{
+            padding: 0,
+            background: colorBgContainer,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -81,6 +129,31 @@ const LayoutAdmin: React.FC = () => {
               outline: "none",
             }}
           />
+
+          <div style={{ marginRight: 30 }}>
+            <Space size="middle">
+              <Badge count={1} color="#ff686b" dot>
+                <NotificationOutlined style={{ fontSize: 20 }} />
+              </Badge>
+
+              <Tooltip>
+                <CustomDropdown
+                  items={items}
+                  triggerNode={
+                    <Avatar
+                      src={userData?.avatar}
+                      style={{ backgroundColor: "#00b4d8", cursor: "pointer" }}
+                      size="large"
+                      shape="circle"
+                      onClick={() => {
+                        console.log("Avatar clicked");
+                      }}
+                    />
+                  }
+                />
+              </Tooltip>
+            </Space>
+          </div>
         </Header>
         <Content
           style={{
@@ -96,3 +169,8 @@ const LayoutAdmin: React.FC = () => {
 };
 
 export default LayoutAdmin;
+function onLogout(
+  mutate: UseMutateFunction<IBackendRes<null>, unknown, void, unknown>
+): (() => void) | undefined {
+  throw new Error("Function not implemented.");
+}

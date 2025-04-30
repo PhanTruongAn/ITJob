@@ -46,6 +46,7 @@ public class User extends Auditable {
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
     private String address;
+    private String avatar;
     @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
 

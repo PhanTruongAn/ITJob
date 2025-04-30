@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import vn.phantruongan.backend.domain.User;
 import vn.phantruongan.backend.dto.ResultPaginationDTO;
-import vn.phantruongan.backend.dto.common.ResDeleteDTO;
 import vn.phantruongan.backend.dto.filter.user.UserFilter;
 import vn.phantruongan.backend.dto.user.ResCreateUserDTO;
 import vn.phantruongan.backend.dto.user.ResUpdateUserDTO;
@@ -143,6 +142,7 @@ public class UserService {
     }
 
     public User findUserByEmail(String email) {
+
         return userRepository.findByEmail(email);
     }
 

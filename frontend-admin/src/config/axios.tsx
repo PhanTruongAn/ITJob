@@ -19,7 +19,11 @@ const instance = axiosClient.create({
 
 const mutex = new Mutex();
 const NO_RETRY_HEADER = "x-no-retry";
-
+const whiteList: string[] = [
+  "/api/v1/auth/login",
+  "/api/v1/auth/refresh",
+  "/api/v1/auth/logout",
+];
 const handleRefreshToken = async (): Promise<IAccount | null> => {
   return await mutex.runExclusive(async () => {
     try {
@@ -31,17 +35,16 @@ const handleRefreshToken = async (): Promise<IAccount | null> => {
         const { access_token, user } = res.data.data;
         localStorage.setItem("access_token", access_token);
         return { access_token, user };
+      } else {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("session");
+        message.error("Your session has expired. Please log in again.");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        window.location.href = PATH_AUTH.login;
       }
       throw new Error("Refresh token failed");
     } catch (error: any) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("session");
-      // Hiển thị thông báo lỗi
-      message.error("Your session has expired. Please log in again.");
-      // Trì hoãn 2 giây để người dùng thấy thông báo
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      window.location.href = PATH_AUTH.login;
+      console.log("Error: ", error);
       return null;
     }
   });
@@ -49,7 +52,7 @@ const handleRefreshToken = async (): Promise<IAccount | null> => {
 
 instance.interceptors.request.use(function (config) {
   const access_token = localStorage.getItem("access_token");
-  if (access_token && config.url !== "/api/v1/auth/login") {
+  if (access_token && config.url && !whiteList.includes(config.url)) {
     config.headers.Authorization = `Bearer ${access_token}`;
   }
   if (!config.headers.Accept || !config.headers["Content-Type"]) {
@@ -82,14 +85,21 @@ instance.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    if (error.config && status === 400 && url === "/api/v1/auth/refresh") {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("session");
+      message.error("Refresh token is invalid. Please log in again.");
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      window.location.href = PATH_AUTH.login;
+      return Promise.reject(error);
+    }
+
     if (status === 403) {
       notification.error({
         message: error?.response?.data?.error ?? "",
         description: error?.response?.data?.message ?? "",
       });
     }
-
-    return error?.response ?? Promise.reject(error);
   }
 );
 

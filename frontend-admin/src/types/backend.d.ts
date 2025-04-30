@@ -39,6 +39,7 @@ export interface IAccount {
     id: string;
     email: string;
     name: string;
+    avatar?: string;
   };
   access_token: string;
 }

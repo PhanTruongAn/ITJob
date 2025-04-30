@@ -65,6 +65,7 @@ public class AuthController {
             userLogin.setId(userInDB.getId());
             userLogin.setEmail(userInDB.getEmail());
             userLogin.setName(userInDB.getName());
+            userLogin.setAvatar(userInDB.getAvatar());
             res.setUser(userLogin);
         }
         // Create access token
@@ -98,7 +99,7 @@ public class AuthController {
             userLogin.setId(userInDB.getId());
             userLogin.setEmail(userInDB.getEmail());
             userLogin.setName(userInDB.getName());
-
+            userLogin.setAvatar(userInDB.getAvatar());
         }
         return ResponseEntity.ok().body(userLogin);
     }

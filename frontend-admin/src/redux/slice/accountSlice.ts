@@ -22,6 +22,7 @@ interface IState {
     id: string;
     email: string;
     name: string;
+    avatar?: string;
   };
 }
 
@@ -34,6 +35,7 @@ const initialState: IState = {
     id: "",
     email: "",
     name: "",
+    avatar: "",
   },
 };
 
@@ -49,7 +51,7 @@ const accountSlice = createSlice({
     setLogoutAction: (state) => {
       localStorage.removeItem("access_token");
       state.isAuthenticated = false;
-      state.user = { id: "", email: "", name: "" };
+      state.user = { id: "", email: "", name: "", avatar: "" };
     },
     // setRefreshTokenAction: (state, action) => {
     //   state.isRefreshToken = action.payload?.status ?? false;

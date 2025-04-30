@@ -17,3 +17,8 @@ export async function fetchAccount(): Promise<IBackendRes<IGetAccount>> {
   );
   return response.data;
 }
+
+export async function logout(): Promise<IBackendRes<null>> {
+  const response = await axios.post<IBackendRes<null>>("/api/v1/auth/logout");
+  return response.data;
+}
