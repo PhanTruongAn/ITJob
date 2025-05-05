@@ -8,14 +8,11 @@ import {
   Space,
   theme,
   Tooltip,
-  Typography,
 } from "antd";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import navItems from "./dashboard/navbar/NavItem";
 import {
-  UserOutlined,
   NotificationOutlined,
-  CaretDownFilled,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
@@ -23,8 +20,6 @@ import { useAppSelector } from "../redux/hooks";
 import CustomDropdown from "../components/CustomDropdown";
 import { getDropdownItems } from "./constants";
 import { useLogout } from "./hooks";
-import { UseMutateFunction } from "@tanstack/react-query";
-import { IBackendRes } from "../types/backend";
 
 const { Header, Sider, Content } = Layout;
 
@@ -169,8 +164,3 @@ const LayoutAdmin: React.FC = () => {
 };
 
 export default LayoutAdmin;
-function onLogout(
-  mutate: UseMutateFunction<IBackendRes<null>, unknown, void, unknown>
-): (() => void) | undefined {
-  throw new Error("Function not implemented.");
-}

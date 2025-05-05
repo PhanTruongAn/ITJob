@@ -29,7 +29,7 @@ export const CompanyListHeaderToolbar: React.FC<UserFilterProps> = ({
     background: token.colorBgContainer,
     borderRadius: token.borderRadiusLG,
     padding: 16,
-    paddingBottom: 8,
+    paddingBottom: 5,
   };
 
   const onFinish = (values: any) => {

@@ -34,7 +34,7 @@ export const companyColumns = ({
   {
     title: "Name",
     dataIndex: "name",
-    width: "10%",
+    // width: "15%",
     ellipsis: true,
     sorter: true,
   },
@@ -73,15 +73,15 @@ export const companyColumns = ({
       return <Tag color={color}>{displayLabel}</Tag>;
     },
   },
-  {
-    title: "CreatedAt",
-    dataIndex: "createdAt",
-    width: "10%",
-    sorter: true,
-    ellipsis: true,
-    render: (text: string | null) =>
-      text ? dayjs(text).format("DD/MM/YYYY") : "",
-  },
+  // {
+  //   title: "CreatedAt",
+  //   dataIndex: "createdAt",
+  //   width: "10%",
+  //   sorter: true,
+  //   ellipsis: true,
+  //   render: (text: string | null) =>
+  //     text ? dayjs(text).format("DD/MM/YYYY") : "",
+  // },
   {
     title: "Option",
     width: 80,
