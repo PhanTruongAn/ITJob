@@ -3,6 +3,7 @@ import {
   IBackendRes,
   ICompany,
   ICreateCompanyDTO,
+  IEditCompanyDTO,
 } from "../types/backend";
 import axiosInstance from "../config/axios";
 import { PATH_API } from "./constants/apiPath";
@@ -51,6 +52,25 @@ export async function deleteCompany({
 }): Promise<IBackendRes<ICompany>> {
   const response = await axiosInstance.delete<IBackendRes<ICompany>>(
     `${PATH_API.company.root}/${id}`
+  );
+  return response.data;
+}
+
+export async function getCompanyById(
+  id: number
+): Promise<IBackendRes<ICompany>> {
+  const response = await axiosInstance.get<IBackendRes<ICompany>>(
+    `${PATH_API.company.root}/${id}`
+  );
+  return response.data;
+}
+
+export async function editCompany(
+  data: IEditCompanyDTO
+): Promise<IBackendRes<ICompany>> {
+  const response = await axiosInstance.put<IBackendRes<ICompany>>(
+    `${PATH_API.company.root}`,
+    data
   );
   return response.data;
 }

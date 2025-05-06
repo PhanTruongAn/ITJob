@@ -6,7 +6,12 @@ import { fetchCountries } from "../../../apis/countryModule";
 import { signedUploadLogo } from "../../../apis/fileModule";
 import { message } from "antd";
 import axios from "axios";
-import { createCompany, deleteCompany } from "../../../apis/companyModule";
+import {
+  createCompany,
+  deleteCompany,
+  editCompany,
+  getCompanyById,
+} from "../../../apis/companyModule";
 import {
   IBackendRes,
   ICompany,
@@ -90,4 +95,18 @@ export const useCreateCompany = () => {
 
 export const useDeleteCompany = () => {
   return CustomHooks.useMutation(deleteCompany);
+};
+
+export const useGetCompanyById = (id: number) => {
+  return CustomHooks.useQuery([QUERY_KEYS.COMPANY_MODULE, id], () =>
+    getCompanyById(id)
+  );
+};
+export const useEditCompany = () => {
+  const queryClient = useQueryClient();
+  return CustomHooks.useMutation(editCompany, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COMPANY_MODULE] });
+    },
+  });
 };

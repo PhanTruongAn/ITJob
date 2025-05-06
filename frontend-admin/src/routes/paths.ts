@@ -15,6 +15,7 @@ export const PATH_DASHBOARD = {
   companyManage: {
     list: path(ROOT_DASHBOARD, "/companies"),
     create: path(ROOT_DASHBOARD, "/companies/create"),
+    edit: path(ROOT_DASHBOARD, "/companies/edit/:id"),
   },
   jobManage: {
     list: path(ROOT_DASHBOARD, "/jobs"),

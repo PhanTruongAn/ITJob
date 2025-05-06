@@ -9,6 +9,7 @@ export const BREADCRUMB = {
   COMPANY: "Company",
   LIST_COMPANY: "List company",
   CREATE_COMPANY: "Create company",
+  EDIT_COMPANY: "Edit company",
   //Job
   JOB: "Job",
   LIST_JOB: "List job",

@@ -100,6 +100,7 @@ instance.interceptors.response.use(
         description: error?.response?.data?.message ?? "",
       });
     }
+    return Promise.reject(error);
   }
 );
 

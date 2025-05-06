@@ -60,6 +60,10 @@ export default function Router() {
               path: PATH_DASHBOARD.companyManage.create,
               element: <CompanyManageCreate />,
             },
+            {
+              path: PATH_DASHBOARD.companyManage.edit,
+              element: <CompanyManageEdit />,
+            },
           ],
         },
         {
@@ -130,6 +134,10 @@ const CompanyManageList = Loadable(lazy(() => import("../page/company")));
 const CompanyManageCreate = Loadable(
   lazy(() => import("../page/company/components/create"))
 );
+const CompanyManageEdit = Loadable(
+  lazy(() => import("../page/company/components/edit"))
+);
+
 const JobManageList = Loadable(lazy(() => import("../page/job")));
 const RoleManageList = Loadable(lazy(() => import("../page/role")));
 const ResumeManageList = Loadable(lazy(() => import("../page/resume")));

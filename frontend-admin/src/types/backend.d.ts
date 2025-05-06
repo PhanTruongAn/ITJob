@@ -95,3 +95,4 @@ export interface IParamLogin {
 export interface IGetAccount extends Omit<IAccount, "access_token"> {}
 
 export interface ICreateCompanyDTO extends Omit<ICompany, "id"> {}
+export interface IEditCompanyDTO extends Omit<ICompany, "country"> {}

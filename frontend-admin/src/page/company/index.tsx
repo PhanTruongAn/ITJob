@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../routes/paths";
 import { QUERY_KEYS } from "../../common/queryKeys";
 import ConfirmModal from "../../components/modal/ConfirmModal";
+import { replacePathParamsWithQuery } from "../../common/utils/replaceParams";
 const Company: React.FC = () => {
   const navigate = useNavigate();
   const { state, updateState } = useCompanyState();
@@ -114,6 +115,14 @@ const Company: React.FC = () => {
       }
     );
   };
+  const handleEditUser = (record: ICompany) => {
+    navigate(
+      replacePathParamsWithQuery(PATH_DASHBOARD.companyManage.edit, {
+        id: record.id,
+      })
+    );
+  };
+
   return (
     <div>
       <CompanyListHeader
@@ -142,7 +151,7 @@ const Company: React.FC = () => {
                 // handleViewUser(record);
               },
               onEdit: (record) => {
-                // handleEditUser(record);
+                handleEditUser(record);
               },
               onDelete: (record) => {
                 confirmDeleteCompany(record);

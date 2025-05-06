@@ -72,7 +72,7 @@ public class CompanyService {
             currentCompany.setCompanySize(company.getCompanySize());
             currentCompany.setCompanyType(company.getCompanyType());
             currentCompany.setIndustry(company.getIndustry());
-
+            currentCompany.setWorkingDays(company.getWorkingDays());
             return companyRepository.save(currentCompany);
         }
         return null;

@@ -8,6 +8,8 @@ import {
   UseMutationOptions,
   UseMutationResult,
 } from "@tanstack/react-query";
+import { message } from "antd";
+import axios from "axios";
 
 const CustomHooks = {
   useQuery<TData>(
@@ -30,6 +32,13 @@ const CustomHooks = {
     return useMutation<TData, TError, TVariables, TContext>({
       mutationFn,
       ...options,
+      onError: (error, variables, context) => {
+        if (axios.isAxiosError(error)) {
+          const resData = error.response?.data;
+          message.error(resData?.error || resData?.message);
+        }
+        options?.onError?.(error, variables, context);
+      },
     });
   },
 };

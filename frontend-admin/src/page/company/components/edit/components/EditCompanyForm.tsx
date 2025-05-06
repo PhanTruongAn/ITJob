@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -15,18 +15,20 @@ import { UploadOutlined } from "@ant-design/icons";
 import MDEditor from "@uiw/react-md-editor";
 import { ECompanyType } from "../../../../../types/enum";
 import { COMPANY_SIZE } from "../../../common/constants";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
 import { useWatch } from "antd/es/form/Form";
 import {
   useCreateCompany,
+  useEditCompany,
+  useGetCompanyById,
   useGetCountries,
   usePresignImage,
 } from "../../../common/hooks";
 
 const { Option } = Select;
 
-interface CreateCompanyForm {
+interface EditCompanyForm {
   name: string;
   countryId: number;
   industry: string;
@@ -39,53 +41,70 @@ interface CreateCompanyForm {
   logo: string;
 }
 
-const CreateCompanyForm: React.FC = ({}) => {
+const EditCompanyForm: React.FC = ({}) => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const description = useWatch("description", form);
   const { handleUpload, isUploading } = usePresignImage();
-  const { mutate } = useCreateCompany();
+  const { id } = useParams();
+  const { data: companyData } = useGetCompanyById(Number(id));
+  const { mutate } = useEditCompany();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null); // State mới để lưu URL ảnh đã upload
-  const [selectedFile, setSelectedFile] = useState<File | null>(null); // State để lưu file đã chọn
+
   const normFile = (e: any) => {
     if (Array.isArray(e)) {
       return e;
     }
     return e && e.fileList;
   };
+  useEffect(() => {
+    if (companyData?.data) {
+      const { country, logo, ...rest } = companyData.data;
+      const fileList = logo
+        ? [
+            {
+              uid: "-1",
+              name: "logo.png",
+              status: "done",
+              url: logo,
+            },
+          ]
+        : [];
 
-  const handleOk = async () => {
+      form.setFieldsValue({ ...rest, logo: fileList, countryId: country.id });
+      setPreviewImage(logo);
+    }
+  }, [companyData]);
+
+  const handleUpdate = async () => {
     try {
       const values = await form.validateFields();
-      const file = values.logo[0]?.originFileObj as File;
+      const file = values.logo?.[0];
+      let imageUrl = "";
 
-      let imageUrl = uploadedImageUrl;
+      if (file) {
+        if (file.originFileObj) {
+          // Người dùng chọn ảnh mới → upload ảnh
+          const uploadedUrl = await handleUpload(file.originFileObj as File);
 
-      // Chỉ upload nếu có file mới được chọn và file này khác với file đã upload trước đó
-      if (file && file !== selectedFile) {
-        imageUrl = await handleUpload(file);
+          if (!uploadedUrl) {
+            message.error("Failed to upload logo");
+            return;
+          }
 
-        if (!imageUrl) {
-          message.error("Failed to upload logo");
-          return;
+          imageUrl = uploadedUrl;
+        } else if (file.url) {
+          // Người dùng không thay ảnh → dùng lại ảnh cũ
+          imageUrl = file.url;
         }
-
-        // Lưu file đã chọn và URL ảnh
-        setSelectedFile(file);
-        setUploadedImageUrl(imageUrl);
-      } else if (!imageUrl) {
-        // Nếu không có file mới và không có URL cũ, báo lỗi
-        message.error("No logo uploaded");
-        return;
       }
 
       mutate(
-        { ...values, logo: imageUrl, country: { id: values.countryId } },
+        { ...values, logo: imageUrl, id: Number(id) },
         {
           onSuccess: (res) => {
             message.success(res.message);
-            form.resetFields();
+            //   form.resetFields();
             setPreviewImage(null);
           },
         }
@@ -131,6 +150,7 @@ const CreateCompanyForm: React.FC = ({}) => {
                   placeholder="Select a country"
                   optionFilterProp="children"
                   showSearch
+                  disabled
                 >
                   {countriesData?.data.map((item) => (
                     <Select.Option key={item.id} value={item.id}>
@@ -301,7 +321,7 @@ const CreateCompanyForm: React.FC = ({}) => {
               loading={isUploading}
               variant="outlined"
               type="primary"
-              onClick={handleOk}
+              onClick={handleUpdate}
             >
               Submit
             </Button>
@@ -319,4 +339,4 @@ const CreateCompanyForm: React.FC = ({}) => {
   );
 };
 
-export default CreateCompanyForm;
+export default EditCompanyForm;
