@@ -1,31 +1,32 @@
-import React, { useState } from "react";
 import { message, theme } from "antd";
-import "./style.css";
+import React from "react";
 import { userColumns } from "./components/table/UserColumns";
+import "./style.css";
 
 import { fetchUsers, getUserById } from "../../apis/userModule";
+import CustomHooks from "../../common/hooks/CustomHooks";
+import ConfirmModal from "../../components/modal/ConfirmModal";
+import CustomGlobalTable from "../../components/table";
+import { IBackendPaginateRes, IUser } from "../../types/backend";
 import {
   useCreateUser,
   useDeleteUser,
   useEditUser,
   useUserListState,
 } from "./common/hooks";
-import CustomHooks from "../../common/hooks/CustomHooks";
-import { IBackendPaginateRes, IUser } from "../../types/backend";
+import { ICreateUser, IEditUser } from "./common/interface";
+import UserListHeader from "./components/UserListHeader";
 import { UserListHeaderToolbar } from "./components/UserListToolbar";
 import CreateUserModal from "./components/create/CreateUserModal";
-import { ICreateUser, IEditUser } from "./common/interface";
-import CustomGlobalTable from "../../components/table";
-import ConfirmModal from "../../components/modal/ConfirmModal";
-import UserListHeader from "./components/UserListHeader";
 import EditUserModal from "./components/edit/EditUserModal";
 
+import useRefresh from "../../common/hooks/useRefresh";
 import { QUERY_KEYS } from "../../common/queryKeys";
 
 const User: React.FC = () => {
   const { token } = theme.useToken();
   const { state, updateState } = useUserListState();
-  const [loading, setLoading] = useState(false);
+
   const { mutate: createMutate, isPending: isCreate } = useCreateUser();
   const { mutate: deleteMutate, isPending: isDelete } = useDeleteUser();
   const { mutate: editMutate, isPending: isEdit } = useEditUser();
@@ -120,7 +121,12 @@ const User: React.FC = () => {
     }
     return res;
   };
-  const { data, refetch } = CustomHooks.useQuery<IBackendPaginateRes<IUser[]>>(
+
+  const {
+    data,
+    refetch,
+    isLoading: isLoadingData,
+  } = CustomHooks.useQuery<IBackendPaginateRes<IUser[]>>(
     [
       QUERY_KEYS.USER_MODULE,
       state.page,
@@ -131,15 +137,8 @@ const User: React.FC = () => {
     ],
     fetchDataUser
   );
+  const { isLoading, handleRefresh } = useRefresh(refetch);
 
-  const handleRefresh = async () => {
-    refetch();
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      message.success("Refresh success");
-    }, 1000);
-  };
   const handleTableChange = (
     page: number,
     pageSize: number,
@@ -181,7 +180,7 @@ const User: React.FC = () => {
       <UserListHeader
         onAddUser={() => updateState({ visibleCreateModal: true })}
         onRefresh={handleRefresh}
-        loading={loading}
+        loading={isLoading}
       />
       <EditUserModal
         loading={isEdit}
@@ -227,7 +226,7 @@ const User: React.FC = () => {
               },
             })}
             data={data?.data?.result || []}
-            loading={loading}
+            loading={isLoadingData}
             total={data?.data?.meta?.total || 0}
             page={state.page}
             pageSize={state.pageSize}

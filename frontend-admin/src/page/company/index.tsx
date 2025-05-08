@@ -1,20 +1,21 @@
-import React from "react";
-import CompanyListHeader from "./components/CompanyListHeader";
-import { CompanyListHeaderToolbar } from "./components/CompanyListToolbar";
-import { useCompanyState, useDeleteCompany } from "./common/hooks";
-import CustomGlobalTable from "../../components/table";
-import { IBackendPaginateRes, ICompany } from "../../types/backend";
-import { companyColumns } from "./components/table/CompanyComlumns";
 import { message, theme } from "antd";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchCompanies } from "../../apis/companyModule";
 import CustomHooks from "../../common/hooks/CustomHooks";
-import { IFilterCompany } from "./common/interface";
-import { DEFAULT_STATE } from "./common/constants";
-import { useNavigate } from "react-router-dom";
-import { PATH_DASHBOARD } from "../../routes/paths";
+import useRefresh from "../../common/hooks/useRefresh";
 import { QUERY_KEYS } from "../../common/queryKeys";
-import ConfirmModal from "../../components/modal/ConfirmModal";
 import { replacePathParamsWithQuery } from "../../common/utils/replaceParams";
+import ConfirmModal from "../../components/modal/ConfirmModal";
+import CustomGlobalTable from "../../components/table";
+import { PATH_DASHBOARD } from "../../routes/paths";
+import { IBackendPaginateRes, ICompany } from "../../types/backend";
+import { DEFAULT_STATE } from "./common/constants";
+import { useCompanyState, useDeleteCompany } from "./common/hooks";
+import { IFilterCompany } from "./common/interface";
+import CompanyListHeader from "./components/CompanyListHeader";
+import { CompanyListHeaderToolbar } from "./components/CompanyListToolbar";
+import { companyColumns } from "./components/table/CompanyComlumns";
 const Company: React.FC = () => {
   const navigate = useNavigate();
   const { state, updateState } = useCompanyState();
@@ -32,7 +33,6 @@ const Company: React.FC = () => {
   const handleClearFilter = () => {
     updateState(DEFAULT_STATE);
   };
-  const handleRefresh = () => {};
 
   const handleAddCompany = () => {
     navigate(PATH_DASHBOARD.companyManage.create);
@@ -61,9 +61,11 @@ const Company: React.FC = () => {
     }
     return res;
   };
-  const { data, refetch } = CustomHooks.useQuery<
-    IBackendPaginateRes<ICompany[]>
-  >(
+  const {
+    data,
+    refetch,
+    isLoading: isLoadingCompany,
+  } = CustomHooks.useQuery<IBackendPaginateRes<ICompany[]>>(
     [
       QUERY_KEYS.COMPANY_MODULE,
       state.page,
@@ -77,6 +79,7 @@ const Company: React.FC = () => {
     ],
     fetchDataCompanies
   );
+  const { isLoading, handleRefresh } = useRefresh(refetch);
   const listStyle: React.CSSProperties = {
     display: "flex",
     background: token.colorBgContainer,
@@ -128,7 +131,7 @@ const Company: React.FC = () => {
       <CompanyListHeader
         onAddCompany={handleAddCompany}
         onRefresh={handleRefresh}
-        loading={state.loading}
+        loading={isLoading}
       />
       <CompanyListHeaderToolbar
         onClear={handleClearFilter}
@@ -158,7 +161,7 @@ const Company: React.FC = () => {
               },
             })}
             data={data?.data?.result || []}
-            loading={state.loading}
+            loading={isLoadingCompany}
             total={data?.data?.meta?.total || 0}
             page={state.page}
             pageSize={state.pageSize}

@@ -1,23 +1,23 @@
-import React, { useState } from "react";
-import {
-  Form,
-  Input,
-  Select,
-  Checkbox,
-  Upload,
-  Button,
-  message,
-  Row,
-  Col,
-  Space,
-} from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import MDEditor from "@uiw/react-md-editor";
-import { ECompanyType } from "../../../../../types/enum";
-import { COMPANY_SIZE } from "../../../common/constants";
+import {
+  Button,
+  Checkbox,
+  Col,
+  Form,
+  Input,
+  message,
+  Row,
+  Select,
+  Space,
+  Upload,
+} from "antd";
+import { useWatch } from "antd/es/form/Form";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
-import { useWatch } from "antd/es/form/Form";
+import { ECompanyType } from "../../../../../types/enum";
+import { COMPANY_SIZE } from "../../../common/constants";
 import {
   useCreateCompany,
   useGetCountries,
@@ -46,8 +46,6 @@ const CreateCompanyForm: React.FC = ({}) => {
   const { handleUpload, isUploading } = usePresignImage();
   const { mutate } = useCreateCompany();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null); // State mới để lưu URL ảnh đã upload
-  const [selectedFile, setSelectedFile] = useState<File | null>(null); // State để lưu file đã chọn
   const normFile = (e: any) => {
     if (Array.isArray(e)) {
       return e;
@@ -60,22 +58,8 @@ const CreateCompanyForm: React.FC = ({}) => {
       const values = await form.validateFields();
       const file = values.logo[0]?.originFileObj as File;
 
-      let imageUrl = uploadedImageUrl;
-
-      // Chỉ upload nếu có file mới được chọn và file này khác với file đã upload trước đó
-      if (file && file !== selectedFile) {
-        imageUrl = await handleUpload(file);
-
-        if (!imageUrl) {
-          message.error("Failed to upload logo");
-          return;
-        }
-
-        // Lưu file đã chọn và URL ảnh
-        setSelectedFile(file);
-        setUploadedImageUrl(imageUrl);
-      } else if (!imageUrl) {
-        // Nếu không có file mới và không có URL cũ, báo lỗi
+      const imageUrl = await handleUpload(file);
+      if (!imageUrl) {
         message.error("No logo uploaded");
         return;
       }

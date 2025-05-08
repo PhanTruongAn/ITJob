@@ -1,13 +1,13 @@
 import {
-  BankOutlined,
-  UserOutlined,
   ApiOutlined,
+  BankOutlined,
   ContactsOutlined,
-  ScheduleOutlined,
   DeploymentUnitOutlined,
+  ScheduleOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
-import { PATH_DASHBOARD } from "../../../routes/paths";
 import { BREADCRUMB } from "../../../constants/Breadcrumb";
+import { PATH_DASHBOARD } from "../../../routes/paths";
 const navItems: any = [
   {
     icon: <UserOutlined />,
@@ -28,11 +28,6 @@ const navItems: any = [
         icon: <BankOutlined />,
         label: BREADCRUMB.LIST_COMPANY,
         key: PATH_DASHBOARD.companyManage.list,
-      },
-      {
-        icon: <BankOutlined />,
-        label: BREADCRUMB.CREATE_COMPANY,
-        key: PATH_DASHBOARD.companyManage.create,
       },
     ],
   },

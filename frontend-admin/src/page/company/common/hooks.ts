@@ -1,24 +1,19 @@
-import { useState } from "react";
-import { useUpdateState } from "../../../util/hooks";
-import { CompanyState } from "./interface";
-import CustomHooks from "../../../common/hooks/CustomHooks";
-import { fetchCountries } from "../../../apis/countryModule";
-import { signedUploadLogo } from "../../../apis/fileModule";
+import { useQueryClient } from "@tanstack/react-query";
 import { message } from "antd";
 import axios from "axios";
+import { useState } from "react";
 import {
   createCompany,
   deleteCompany,
   editCompany,
   getCompanyById,
 } from "../../../apis/companyModule";
-import {
-  IBackendRes,
-  ICompany,
-  ICreateCompanyDTO,
-} from "../../../types/backend";
-import { useQueryClient } from "@tanstack/react-query";
+import { fetchCountries } from "../../../apis/countryModule";
+import { signedUploadLogo } from "../../../apis/fileModule";
+import CustomHooks from "../../../common/hooks/CustomHooks";
 import { QUERY_KEYS } from "../../../common/queryKeys";
+import { useUpdateState } from "../../../util/hooks";
+import { CompanyState } from "./interface";
 
 export const useCompanyState = () => {
   const [state, setState] = useState<CompanyState>({
@@ -46,9 +41,11 @@ export const useCompanyState = () => {
 
 export const usePresignImage = () => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadImageUrl, setUploadImageUrl] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const handleUpload = async (file: File) => {
     setIsUploading(true);
-    let imageURL;
+    let imageURL = uploadImageUrl;
     const signResult = await signedUploadLogo();
     if (signResult.statusCode >= 400) {
       message.error("File/Image signed fail!");
@@ -56,7 +53,8 @@ export const usePresignImage = () => {
     if (!file) {
       message.error("The file/image is empty or invalid.");
     }
-    try {
+
+    if (file && file !== selectedFile) {
       const { apiKey, signature, timestamp, uploadUrl, uploadPreset } =
         signResult.data;
       const formData = new FormData();
@@ -69,9 +67,9 @@ export const usePresignImage = () => {
       if (dataUpload.status !== 200) {
         message.error("Upload file/image failed!");
       }
-      imageURL = dataUpload.data.secure_url;
-    } catch (error) {
-      message.error("Upload file/image failed!");
+      setUploadImageUrl(dataUpload.data.secure_url);
+      setSelectedFile(file);
+      // imageURL = dataUpload.data.secure_url;
     }
 
     setIsUploading(false);

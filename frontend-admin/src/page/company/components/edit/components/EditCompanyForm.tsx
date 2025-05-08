@@ -1,25 +1,24 @@
-import React, { useEffect, useState } from "react";
-import {
-  Form,
-  Input,
-  Select,
-  Checkbox,
-  Upload,
-  Button,
-  message,
-  Row,
-  Col,
-  Space,
-} from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import MDEditor from "@uiw/react-md-editor";
-import { ECompanyType } from "../../../../../types/enum";
-import { COMPANY_SIZE } from "../../../common/constants";
+import {
+  Button,
+  Checkbox,
+  Col,
+  Form,
+  Input,
+  message,
+  Row,
+  Select,
+  Space,
+  Upload,
+} from "antd";
+import { useWatch } from "antd/es/form/Form";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
-import { useWatch } from "antd/es/form/Form";
+import { ECompanyType } from "../../../../../types/enum";
+import { COMPANY_SIZE } from "../../../common/constants";
 import {
-  useCreateCompany,
   useEditCompany,
   useGetCompanyById,
   useGetCountries,
@@ -84,7 +83,7 @@ const EditCompanyForm: React.FC = ({}) => {
 
       if (file) {
         if (file.originFileObj) {
-          // Người dùng chọn ảnh mới → upload ảnh
+          // Người dùng chọn ảnh mới thì upload ảnh mới
           const uploadedUrl = await handleUpload(file.originFileObj as File);
 
           if (!uploadedUrl) {
@@ -94,7 +93,7 @@ const EditCompanyForm: React.FC = ({}) => {
 
           imageUrl = uploadedUrl;
         } else if (file.url) {
-          // Người dùng không thay ảnh → dùng lại ảnh cũ
+          // Người dùng không thay ảnh thì dùng lại ảnh cũ
           imageUrl = file.url;
         }
       }
