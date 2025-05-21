@@ -1,8 +1,8 @@
-import axiosClient from "axios";
-import { IBackendRes } from "../types/backend";
+import { message } from "antd";
 import { Mutex } from "async-mutex";
-import { message, notification } from "antd";
+import axiosClient from "axios";
 import { PATH_AUTH } from "../routes/paths";
+import { IBackendRes } from "../types/backend";
 interface IAccount {
   access_token: string;
   user: {
@@ -71,7 +71,7 @@ instance.interceptors.response.use(
     if (
       error.config &&
       status === 401 &&
-      url !== "/api/v1/auth/login" &&
+      !whiteList.includes(url) &&
       !error.config.headers[NO_RETRY_HEADER]
     ) {
       const authData = await handleRefreshToken();
@@ -82,7 +82,6 @@ instance.interceptors.response.use(
         ] = `Bearer ${authData.access_token}`;
         return instance.request(error.config);
       }
-      return Promise.reject(error);
     }
 
     if (error.config && status === 400 && url === "/api/v1/auth/refresh") {
@@ -95,12 +94,10 @@ instance.interceptors.response.use(
     }
 
     if (status === 403) {
-      notification.error({
-        message: error?.response?.data?.error ?? "",
-        description: error?.response?.data?.message ?? "",
-      });
+      message.error(error?.response?.data?.message ?? "");
     }
-    return Promise.reject(error);
+
+    return Promise.reject(error?.response?.data?.message);
   }
 );
 

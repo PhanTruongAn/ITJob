@@ -32,7 +32,6 @@ export default tseslint.config(
       "@typescript-eslint/no-empty-object-type": "off",
       "no-constant-binary-expression": "off",
       "@typescript-eslint/ban-ts-comment": "off",
-      "import/no-unresolved": ["error", { caseSensitive: true }],
     },
   }
 );

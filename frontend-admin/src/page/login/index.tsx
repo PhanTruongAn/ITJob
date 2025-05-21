@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
-import "./style.css";
-import { Button, Form, Image, Input, message, notification } from "antd";
+import { Button, Form, Image, Input } from "antd";
+import React, { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import backgroundImage from "../../assets/background-login.webp";
 import logo from "../../assets/logo.png";
-import { useLocation, useNavigate } from "react-router-dom";
-import { login } from "../../apis/authModule";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { setUserLoginInfo } from "../../redux/slice/accountSlice";
+import { useAppSelector } from "../../redux/hooks";
 import { PATH_DASHBOARD } from "../../routes/paths";
 import { useAuthLogin } from "./common/hooks";
+import "./style.css";
 type FieldType = {
   email?: string;
   password?: string;
@@ -21,8 +19,8 @@ const Login: React.FC = () => {
     (state) => state.account.isAuthenticated
   );
   const { mutate, isPending } = useAuthLogin();
-  let location = useLocation();
-  let params = new URLSearchParams(location.search);
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
   const callback = params?.get("callback");
 
   useEffect(() => {

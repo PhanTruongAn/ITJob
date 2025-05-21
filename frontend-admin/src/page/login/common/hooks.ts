@@ -1,9 +1,8 @@
+import { message } from "antd";
 import { useNavigate } from "react-router-dom";
-import CustomHooks from "../../../common/hooks/CustomHooks";
 import { login } from "../../../apis/authModule";
-import { PATH_AUTH } from "../../../routes/paths";
+import CustomHooks from "../../../common/hooks/CustomHooks";
 import { useAppDispatch } from "../../../redux/hooks";
-import { message, notification } from "antd";
 import { setUserLoginInfo } from "../../../redux/slice/accountSlice";
 
 export const useAuthLogin = () => {
@@ -24,20 +23,11 @@ export const useAuthLogin = () => {
               })
             );
             dispatch(setUserLoginInfo(res.data.user));
-            message.success("Login successfully!");
-          } else {
-            notification.error({
-              message: "Login failed!",
-              description: Array.isArray(res.message)
-                ? res.message[0]
-                : res.message,
-              duration: 5,
-            });
+            message.success(res.message);
           }
         },
-        onError: (error) => {
-          console.error("Login error: ", error);
-          navigate(PATH_AUTH.login, { replace: true });
+        onError: (error: any) => {
+          message.error(error);
         },
       }
     ),
