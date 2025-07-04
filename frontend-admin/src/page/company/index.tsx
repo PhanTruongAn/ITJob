@@ -19,6 +19,7 @@ import { companyColumns } from "./components/table/CompanyComlumns";
 const Company: React.FC = () => {
   const navigate = useNavigate();
   const { state, updateState } = useCompanyState();
+
   const { mutate: deleteMutate, isPending: isDelete } = useDeleteCompany();
   const { token } = theme.useToken();
   const handleFilter = ({
@@ -125,7 +126,16 @@ const Company: React.FC = () => {
       })
     );
   };
-
+  const handleViewUser = (record: ICompany) => {
+    navigate(
+      replacePathParamsWithQuery(PATH_DASHBOARD.companyManage.edit, {
+        id: record.id,
+      }),
+      {
+        state: { isView: true },
+      }
+    );
+  };
   return (
     <div>
       <CompanyListHeader
@@ -151,7 +161,7 @@ const Company: React.FC = () => {
           <CustomGlobalTable<ICompany>
             columns={companyColumns({
               onView: (record) => {
-                // handleViewUser(record);
+                handleViewUser(record);
               },
               onEdit: (record) => {
                 handleEditUser(record);

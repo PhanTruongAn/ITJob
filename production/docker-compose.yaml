@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  job-backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - job-network
+    depends_on:
+      - job-db
+
+  job-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: jobhunter
+      MYSQL_ROOT_PASSWORD: 123456
+    ports:
+      - "3307:3306"
+    networks:
+      - job-network
+
+networks:
+  job-network:
+    driver: bridge

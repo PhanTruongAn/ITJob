@@ -45,7 +45,7 @@ export const usePresignImage = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const handleUpload = async (file: File) => {
     setIsUploading(true);
-    let imageURL = uploadImageUrl;
+    const imageURL = uploadImageUrl;
     const signResult = await signedUploadLogo();
     if (signResult.statusCode >= 400) {
       message.error("File/Image signed fail!");

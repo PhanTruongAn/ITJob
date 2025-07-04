@@ -14,7 +14,7 @@ import {
 } from "antd";
 import { useWatch } from "antd/es/form/Form";
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
 import { ECompanyType } from "../../../../../types/enum";
 import { COMPANY_SIZE } from "../../../common/constants";
@@ -40,12 +40,15 @@ interface EditCompanyForm {
   logo: string;
 }
 
-const EditCompanyForm: React.FC = ({}) => {
+const EditCompanyForm: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const description = useWatch("description", form);
   const { handleUpload, isUploading } = usePresignImage();
   const { id } = useParams();
+  const location = useLocation();
+  const isViewed = location.state?.isView;
+
   const { data: companyData } = useGetCompanyById(Number(id));
   const { mutate } = useEditCompany();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -136,7 +139,7 @@ const EditCompanyForm: React.FC = ({}) => {
                   { required: true, message: "Please enter company name" },
                 ]}
               >
-                <Input placeholder="Enter company name" />
+                <Input placeholder="Enter company name" disabled={isViewed} />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -168,7 +171,10 @@ const EditCompanyForm: React.FC = ({}) => {
                 label="Industry"
                 rules={[{ required: true, message: "Please enter industry" }]}
               >
-                <Input placeholder="Enter industry (e.g., Banking)" />
+                <Input
+                  placeholder="Enter industry (e.g., Banking)"
+                  disabled={isViewed}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -179,7 +185,7 @@ const EditCompanyForm: React.FC = ({}) => {
                   { required: true, message: "Please select company type" },
                 ]}
               >
-                <Select placeholder="Select company type">
+                <Select placeholder="Select company type" disabled={isViewed}>
                   {Object.keys(ECompanyType).map((key) => (
                     <Option key={key} value={key}>
                       {ECompanyType[key as keyof typeof ECompanyType]}
@@ -199,7 +205,7 @@ const EditCompanyForm: React.FC = ({}) => {
                   { required: true, message: "Please select company size" },
                 ]}
               >
-                <Select placeholder="Select company size">
+                <Select placeholder="Select company size" disabled={isViewed}>
                   {COMPANY_SIZE.map((size) => (
                     <Option key={size.value} value={size.value}>
                       {size.label}
@@ -214,7 +220,7 @@ const EditCompanyForm: React.FC = ({}) => {
                 label="Overtime"
                 valuePropName="checked"
               >
-                <Checkbox>Allow Overtime</Checkbox>
+                <Checkbox disabled={isViewed}>Allow Overtime</Checkbox>
               </Form.Item>
             </Col>
           </Row>
@@ -229,6 +235,7 @@ const EditCompanyForm: React.FC = ({}) => {
             rules={[{ required: true, message: "Please upload a logo" }]}
           >
             <Upload.Dragger
+              disabled={isViewed}
               name="logo"
               listType="picture"
               maxCount={1}
@@ -276,7 +283,11 @@ const EditCompanyForm: React.FC = ({}) => {
                 "Saturday",
                 "Sunday",
               ].map((day) => (
-                <Checkbox key={day} value={day.toUpperCase()}>
+                <Checkbox
+                  key={day}
+                  value={day.toUpperCase()}
+                  disabled={isViewed}
+                >
                   {day}
                 </Checkbox>
               ))}
@@ -292,7 +303,7 @@ const EditCompanyForm: React.FC = ({}) => {
             label="Address"
             rules={[{ required: true, message: "Please enter address" }]}
           >
-            <Input placeholder="Enter address" />
+            <Input placeholder="Enter address" disabled={isViewed} />
           </Form.Item>
         </Col>
       </Row>
@@ -308,6 +319,8 @@ const EditCompanyForm: React.FC = ({}) => {
               value={description || ""}
               onChange={(value) => form.setFieldsValue({ description: value })}
               height={300}
+              preview="preview"
+              hideToolbar={isViewed}
             />
           </Form.Item>
         </Col>
@@ -321,6 +334,7 @@ const EditCompanyForm: React.FC = ({}) => {
               variant="outlined"
               type="primary"
               onClick={handleUpdate}
+              disabled={isViewed}
             >
               Submit
             </Button>

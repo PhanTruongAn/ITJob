@@ -1,13 +1,11 @@
 import React from "react";
 
-import { HomeOutlined, BankOutlined, EditOutlined } from "@ant-design/icons";
+import { BankOutlined, EditOutlined, HomeOutlined } from "@ant-design/icons";
 import CustomBreadcrumbs from "../../../../../components/CustomBreadScrumb";
 import { BREADCRUMB } from "../../../../../constants/Breadcrumb";
 import { PATH_DASHBOARD } from "../../../../../routes/paths";
 
-type Props = {};
-
-const EditCompanyHeader: React.FC<Props> = ({}) => {
+const EditCompanyHeader: React.FC = () => {
   return (
     <div
       style={{
