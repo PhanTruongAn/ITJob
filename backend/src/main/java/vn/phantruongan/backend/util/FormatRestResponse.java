@@ -7,6 +7,8 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,7 +20,17 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class converterType) {
-        return true;
+        try {
+            String uri = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                    .getRequest()
+                    .getRequestURI();
+            return !(uri.startsWith("/v3/api-docs") ||
+                    uri.startsWith("/swagger-ui") ||
+                    uri.startsWith("/swagger-resources") ||
+                    uri.startsWith("/webjars"));
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     @Override

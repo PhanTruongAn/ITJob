@@ -76,24 +76,27 @@ public class UserService {
         return null;
     }
 
-    public ResultPaginationDTO getAllUser(Specification<User> spec, Pageable pageable) {
-        Page<User> page = userRepository.findAll(spec, pageable);
-        ResultPaginationDTO result = new ResultPaginationDTO();
-        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
-        meta.setPageNumber(pageable.getPageNumber() + 1);
-        meta.setPageSize(pageable.getPageSize());
-        meta.setPages(page.getTotalPages());
-        meta.setTotal(page.getTotalElements());
+    // public ResultPaginationDTO getAllUser(Specification<User> spec, Pageable
+    // pageable) {
+    // Page<User> page = userRepository.findAll(spec, pageable);
+    // ResultPaginationDTO result = new ResultPaginationDTO();
+    // ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
+    // meta.setPageNumber(pageable.getPageNumber() + 1);
+    // meta.setPageSize(pageable.getPageSize());
+    // meta.setPages(page.getTotalPages());
+    // meta.setTotal(page.getTotalElements());
 
-        List<ResUserDTO> dto = page.getContent().stream()
-                .map(item -> new ResUserDTO(item.getId(), item.getName(), item.getPhone(), item.getEmail(),
-                        item.getDob(), item.getGender(), item.getAddress(), item.getCreatedAt(), item.getUpdatedAt())
+    // List<ResUserDTO> dto = page.getContent().stream()
+    // .map(item -> new ResUserDTO(item.getId(), item.getName(), item.getPhone(),
+    // item.getEmail(),
+    // item.getDob(), item.getGender(), item.getAddress(), item.getCreatedAt(),
+    // item.getUpdatedAt())
 
-                ).collect(Collectors.toList());
-        result.setMeta(meta);
-        result.setResult(dto);
-        return result;
-    }
+    // ).collect(Collectors.toList());
+    // result.setMeta(meta);
+    // result.setResult(dto);
+    // return result;
+    // }
 
     // Filter user
     public ResultPaginationDTO filterUser(UserFilter filter, Pageable pageable) {
