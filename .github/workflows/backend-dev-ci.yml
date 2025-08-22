@@ -1,0 +1,38 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - "backend/**"
+
+jobs:
+  backend-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
+
+      - name: Build backend Docker image
+        run: docker build -t myusername/backend:latest ./backend
+
+      - name: Push backend Docker image
+        run: docker push myusername/backend:latest
+
+      - name: Send Email Notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "Backend Build Result"
+          to: "yourmail@example.com"
+          from: "CI/CD Bot <yourmail@example.com>"
+          body: |
+            ✅ Backend đã build & push Docker image thành công!
+            📦 Image: myusername/backend:latest

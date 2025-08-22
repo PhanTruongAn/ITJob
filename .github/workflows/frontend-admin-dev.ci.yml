@@ -1,0 +1,23 @@
+name: Frontend Admin CI/CD
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - "frontend-admin/**"
+
+jobs:
+  frontend-admin-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
+
+      - name: Build frontend-admin Docker image
+        run: docker build -t myusername/frontend-admin:latest ./frontend-admin
+
+      - name: Push frontend-admin Docker image
+        run: docker push myusername/frontend-admin:latest
