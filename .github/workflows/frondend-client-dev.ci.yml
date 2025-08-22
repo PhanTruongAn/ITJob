@@ -17,7 +17,7 @@ jobs:
         run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
 
       - name: Build frontend-client Docker image
-        run: docker build -t myusername/frontend-client:latest ./frontend-client
+        run: docker build -t phantruongan2611/itjob-frontend-client:latest ./frontend-client
 
       - name: Push frontend-client Docker image
-        run: docker push myusername/frontend-client:latest
+        run: docker push phantruongan2611/itjob-frontend-client:latest
