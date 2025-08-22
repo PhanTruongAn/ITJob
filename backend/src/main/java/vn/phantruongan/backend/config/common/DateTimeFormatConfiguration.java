@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.config.utils;
+package vn.phantruongan.backend.config.common;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
