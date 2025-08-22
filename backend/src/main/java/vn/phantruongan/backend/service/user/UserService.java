@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.service;
+package vn.phantruongan.backend.service.user;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,12 +11,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import vn.phantruongan.backend.domain.User;
-import vn.phantruongan.backend.dto.ResultPaginationDTO;
+import vn.phantruongan.backend.dto.common.ResultPaginationDTO;
 import vn.phantruongan.backend.dto.filter.user.UserFilter;
 import vn.phantruongan.backend.dto.user.ResCreateUserDTO;
 import vn.phantruongan.backend.dto.user.ResUpdateUserDTO;
 import vn.phantruongan.backend.dto.user.ResUserDTO;
-import vn.phantruongan.backend.repository.UserRepository;
+import vn.phantruongan.backend.repository.user.UserRepository;
 import vn.phantruongan.backend.specification.user.UserSpecification;
 
 @Service

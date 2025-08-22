@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.config;
+package vn.phantruongan.backend.config.common;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.controller;
+package vn.phantruongan.backend.controller.company;
 
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import vn.phantruongan.backend.domain.Company;
-import vn.phantruongan.backend.dto.ResultPaginationDTO;
+import vn.phantruongan.backend.dto.common.ResultPaginationDTO;
 import vn.phantruongan.backend.dto.filter.company.CompanyFilter;
-import vn.phantruongan.backend.repository.CompanyRepository;
-import vn.phantruongan.backend.service.CompanyService;
+import vn.phantruongan.backend.repository.company.CompanyRepository;
+import vn.phantruongan.backend.service.company.CompanyService;
 import vn.phantruongan.backend.util.annotation.ApiMessage;
 import vn.phantruongan.backend.util.enums.CompanyType;
 import vn.phantruongan.backend.util.error.InvalidException;

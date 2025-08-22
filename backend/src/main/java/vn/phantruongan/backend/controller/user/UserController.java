@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.controller;
+package vn.phantruongan.backend.controller.user;
 
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import vn.phantruongan.backend.domain.User;
-import vn.phantruongan.backend.dto.ResultPaginationDTO;
+import vn.phantruongan.backend.dto.common.ResultPaginationDTO;
 import vn.phantruongan.backend.dto.filter.user.UserFilter;
 import vn.phantruongan.backend.dto.user.ResCreateUserDTO;
 import vn.phantruongan.backend.dto.user.ResUpdateUserDTO;
 import vn.phantruongan.backend.dto.user.ResUserDTO;
-import vn.phantruongan.backend.service.UserService;
+import vn.phantruongan.backend.service.user.UserService;
 import vn.phantruongan.backend.util.annotation.ApiMessage;
 import vn.phantruongan.backend.util.error.InvalidException;
 

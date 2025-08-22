@@ -5,10 +5,9 @@ import java.util.Locale;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 
 import vn.phantruongan.backend.domain.Country;
-import vn.phantruongan.backend.repository.CountryRepository;
+import vn.phantruongan.backend.repository.company.CountryRepository;
 
 //disable security
 // @SpringBootApplication(exclude = {
