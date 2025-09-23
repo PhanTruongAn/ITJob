@@ -1,5 +1,5 @@
-import { UploadOutlined } from "@ant-design/icons";
-import MDEditor from "@uiw/react-md-editor";
+import { UploadOutlined } from "@ant-design/icons"
+import MDEditor from "@uiw/react-md-editor"
 import {
   Button,
   Checkbox,
@@ -11,57 +11,57 @@ import {
   Select,
   Space,
   Upload,
-} from "antd";
-import { useWatch } from "antd/es/form/Form";
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { PATH_DASHBOARD } from "../../../../../routes/paths";
-import { ECompanyType } from "../../../../../types/enum";
-import { COMPANY_SIZE } from "../../../common/constants";
+} from "antd"
+import { useWatch } from "antd/es/form/Form"
+import React, { useEffect, useState } from "react"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
+import { PATH_DASHBOARD } from "../../../../../routes/paths"
+import { ECompanyType } from "../../../../../types/enum"
+import { COMPANY_SIZE } from "../../../common/constants"
 import {
   useEditCompany,
   useGetCompanyById,
   useGetCountries,
   usePresignImage,
-} from "../../../common/hooks";
+} from "../../../common/hooks"
 
-const { Option } = Select;
+const { Option } = Select
 
 interface EditCompanyForm {
-  name: string;
-  countryId: number;
-  industry: string;
-  companyType: string;
-  companySize: string;
-  overtime: boolean;
-  workingDays: string[];
-  description: string;
-  address: string;
-  logo: string;
+  name: string
+  countryId: number
+  industry: string
+  companyType: string
+  companySize: string
+  overtime: boolean
+  workingDays: string[]
+  description: string
+  address: string
+  logo: string
 }
 
 const EditCompanyForm: React.FC = () => {
-  const [form] = Form.useForm();
-  const navigate = useNavigate();
-  const description = useWatch("description", form);
-  const { handleUpload, isUploading } = usePresignImage();
-  const { id } = useParams();
-  const location = useLocation();
-  const isViewed = location.state?.isView;
+  const [form] = Form.useForm()
+  const navigate = useNavigate()
+  const description = useWatch("description", form)
+  const { handleUpload, isUploading } = usePresignImage()
+  const { id } = useParams()
+  const location = useLocation()
+  const isViewed = location.state?.isView
 
-  const { data: companyData } = useGetCompanyById(Number(id));
-  const { mutate } = useEditCompany();
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const { data: companyData } = useGetCompanyById(Number(id))
+  const { mutate } = useEditCompany()
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
 
   const normFile = (e: any) => {
     if (Array.isArray(e)) {
-      return e;
+      return e
     }
-    return e && e.fileList;
-  };
+    return e && e.fileList
+  }
   useEffect(() => {
     if (companyData?.data) {
-      const { country, logo, ...rest } = companyData.data;
+      const { country, logo, ...rest } = companyData.data
       const fileList = logo
         ? [
             {
@@ -71,33 +71,33 @@ const EditCompanyForm: React.FC = () => {
               url: logo,
             },
           ]
-        : [];
+        : []
 
-      form.setFieldsValue({ ...rest, logo: fileList, countryId: country.id });
-      setPreviewImage(logo);
+      form.setFieldsValue({ ...rest, logo: fileList, countryId: country.id })
+      setPreviewImage(logo)
     }
-  }, [companyData]);
+  }, [companyData])
 
   const handleUpdate = async () => {
     try {
-      const values = await form.validateFields();
-      const file = values.logo?.[0];
-      let imageUrl = "";
+      const values = await form.validateFields()
+      const file = values.logo?.[0]
+      let imageUrl = ""
 
       if (file) {
         if (file.originFileObj) {
           // Người dùng chọn ảnh mới thì upload ảnh mới
-          const uploadedUrl = await handleUpload(file.originFileObj as File);
+          const uploadedUrl = await handleUpload(file.originFileObj as File)
 
           if (!uploadedUrl) {
-            message.error("Failed to upload logo");
-            return;
+            message.error("Failed to upload logo")
+            return
           }
 
-          imageUrl = uploadedUrl;
+          imageUrl = uploadedUrl
         } else if (file.url) {
           // Người dùng không thay ảnh thì dùng lại ảnh cũ
-          imageUrl = file.url;
+          imageUrl = file.url
         }
       }
 
@@ -105,26 +105,26 @@ const EditCompanyForm: React.FC = () => {
         { ...values, logo: imageUrl, id: Number(id) },
         {
           onSuccess: (res) => {
-            message.success(res.message);
+            message.success(res.message)
             //   form.resetFields();
-            setPreviewImage(null);
+            setPreviewImage(null)
           },
         }
-      );
+      )
     } catch (error) {
-      console.log("Validate Failed:", error);
+      console.log("Validate Failed:", error)
     }
-  };
+  }
 
-  const { data: countriesData } = useGetCountries();
+  const { data: countriesData } = useGetCountries()
 
   const handlePreview = (file: any) => {
-    const reader = new FileReader();
+    const reader = new FileReader()
     reader.onloadend = () => {
-      setPreviewImage(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-  };
+      setPreviewImage(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
 
   return (
     <Form form={form} layout="vertical" name="add_company_form">
@@ -240,16 +240,16 @@ const EditCompanyForm: React.FC = () => {
               listType="picture"
               maxCount={1}
               beforeUpload={(file) => {
-                handlePreview(file);
-                return false;
+                handlePreview(file)
+                return false
               }}
               // showUploadList={{
               //   showPreviewIcon: true,
               //   showRemoveIcon: true,
               // }}
               onRemove={() => {
-                setPreviewImage(null);
-                form.setFieldsValue({ logo: null });
+                setPreviewImage(null)
+                form.setFieldsValue({ logo: null })
               }}
               style={{ height: "200px", textAlign: "center" }}
             >
@@ -318,7 +318,7 @@ const EditCompanyForm: React.FC = () => {
             <MDEditor
               value={description || ""}
               onChange={(value) => form.setFieldsValue({ description: value })}
-              height={300}
+              height={400}
               preview="preview"
               hideToolbar={isViewed}
             />
@@ -340,7 +340,7 @@ const EditCompanyForm: React.FC = () => {
             </Button>
             <Button
               onClick={() => {
-                navigate(PATH_DASHBOARD.companyManage.list);
+                navigate(PATH_DASHBOARD.companyManage.list)
               }}
             >
               Cancel
@@ -349,7 +349,7 @@ const EditCompanyForm: React.FC = () => {
         </Col>
       </Row>
     </Form>
-  );
-};
+  )
+}
 
-export default EditCompanyForm;
+export default EditCompanyForm

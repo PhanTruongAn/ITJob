@@ -1,5 +1,6 @@
 package vn.phantruongan.backend.controller.auth;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,8 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import vn.phantruongan.backend.domain.User;
-import vn.phantruongan.backend.dto.auth.LoginDTO;
-import vn.phantruongan.backend.dto.auth.ResLoginDTO;
+import vn.phantruongan.backend.dto.auth.login.LoginDTO;
+import vn.phantruongan.backend.dto.auth.login.ResLoginDTO;
+import vn.phantruongan.backend.dto.auth.register.RegisterReqDTO;
+import vn.phantruongan.backend.dto.auth.register.RegisterResDTO;
+import vn.phantruongan.backend.service.auth.AuthService;
 import vn.phantruongan.backend.service.user.UserService;
 import vn.phantruongan.backend.util.SecurityUtil;
 import vn.phantruongan.backend.util.annotation.ApiMessage;
@@ -32,16 +36,18 @@ public class AuthController {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final SecurityUtil securityService;
+    private final AuthService authService;
     private final UserService userService;
 
     @Value("${jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
     public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityService,
-            UserService userService) {
+            UserService userService, AuthService authService) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityService = securityService;
         this.userService = userService;
+        this.authService = authService;
     }
 
     @PostMapping("/auth/login")
@@ -100,6 +106,13 @@ public class AuthController {
             userLogin.setAvatar(userInDB.getAvatar());
         }
         return ResponseEntity.ok().body(userLogin);
+    }
+
+    @PostMapping("/auth/register")
+    @ApiMessage("Register new user")
+    public ResponseEntity<RegisterResDTO> register(@Valid @RequestBody RegisterReqDTO dto) throws BadRequestException {
+        RegisterResDTO res = authService.register(dto);
+        return ResponseEntity.ok(res);
     }
 
     @GetMapping("/auth/refresh")
