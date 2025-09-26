@@ -1,26 +1,26 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import MuiCard from "@mui/material/Card";
-import Checkbox from "@mui/material/Checkbox";
-import Divider from "@mui/material/Divider";
-import FormLabel from "@mui/material/FormLabel";
-import FormControl from "@mui/material/FormControl";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Link from "@mui/material/Link";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import Alert from "@mui/material/Alert";
-import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
-import { styled } from "@mui/material/styles";
-import ForgotPassword from "./ForgotPassword";
+import { AuthService } from "@/app/apis/authApi"
+import Alert from "@mui/material/Alert"
+import Box from "@mui/material/Box"
+import Button from "@mui/material/Button"
+import MuiCard from "@mui/material/Card"
+import Checkbox from "@mui/material/Checkbox"
+import Divider from "@mui/material/Divider"
+import FormControl from "@mui/material/FormControl"
+import FormControlLabel from "@mui/material/FormControlLabel"
+import FormLabel from "@mui/material/FormLabel"
+import Link from "@mui/material/Link"
+import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar"
+import { styled } from "@mui/material/styles"
+import TextField from "@mui/material/TextField"
+import Typography from "@mui/material/Typography"
+import { useRouter } from "next/navigation"
+import * as React from "react"
 import {
-  GoogleIcon,
   FacebookIcon,
+  GoogleIcon,
   SitemarkIcon,
-} from "../components/CustomIcons";
-import { AuthService } from "@/app/apis/authApi";
-import { useRouter } from "next/navigation";
+} from "../components/CustomIcons"
+import ForgotPassword from "./ForgotPassword"
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -37,88 +37,88 @@ const Card = styled(MuiCard)(({ theme }) => ({
     boxShadow:
       "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
   }),
-}));
+}))
 
 export default function SignInCard() {
-  const router = useRouter();
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const [open, setOpen] = React.useState(false);
-  const [openAlert, setOpenAlert] = React.useState(false);
-  const [alertMessage, setAlertMessage] = React.useState("");
+  const router = useRouter()
+  const [emailError, setEmailError] = React.useState(false)
+  const [emailErrorMessage, setEmailErrorMessage] = React.useState("")
+  const [passwordError, setPasswordError] = React.useState(false)
+  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("")
+  const [open, setOpen] = React.useState(false)
+  const [openAlert, setOpenAlert] = React.useState(false)
+  const [alertMessage, setAlertMessage] = React.useState("")
   const [alertStatus, setAlertStatus] = React.useState<"success" | "error">(
     "success"
-  );
+  )
 
   const handleClickOpen = () => {
-    setOpen(true);
-  };
+    setOpen(true)
+  }
 
   const handleClose = () => {
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   const handleCloseAlert = (
     event?: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason
   ) => {
     if (reason === "clickaway") {
-      return;
+      return
     }
 
-    setOpenAlert(false);
-  };
+    setOpenAlert(false)
+  }
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
 
-    if (emailError || passwordError) return;
+    if (emailError || passwordError) return
 
-    const data = new FormData(event.currentTarget);
+    const data = new FormData(event.currentTarget)
     const res = await AuthService.login(
       data.get("email") as string,
       data.get("password") as string
-    );
+    )
     if (res.statusCode === 200) {
-      setAlertMessage("Đăng nhập thành công!");
-      setAlertStatus("success");
+      setAlertMessage("Đăng nhập thành công!")
+      setAlertStatus("success")
       setTimeout(() => {
-        router.push(`${process.env.NEXT_PUBLIC_FE_ADMIN_URL}/admin`);
-      }, 2000);
+        router.push(`${process.env.NEXT_PUBLIC_FE_URL}`)
+      }, 2000)
     } else {
-      setAlertMessage("Đăng nhập thất bại. Vui lòng kiểm tra lại.");
-      setAlertStatus("error");
+      setAlertMessage("Đăng nhập thất bại. Vui lòng kiểm tra lại.")
+      setAlertStatus("error")
     }
-    setOpenAlert(true);
-  };
+    setOpenAlert(true)
+  }
 
   const validateInputs = () => {
-    const email = document.getElementById("email") as HTMLInputElement;
-    const password = document.getElementById("password") as HTMLInputElement;
+    const email = document.getElementById("email") as HTMLInputElement
+    const password = document.getElementById("password") as HTMLInputElement
 
-    let isValid = true;
+    let isValid = true
 
     if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage("Please enter a valid email address.");
-      isValid = false;
+      setEmailError(true)
+      setEmailErrorMessage("Please enter a valid email address.")
+      isValid = false
     } else {
-      setEmailError(false);
-      setEmailErrorMessage("");
+      setEmailError(false)
+      setEmailErrorMessage("")
     }
 
     if (!password.value || password.value.length < 3) {
-      setPasswordError(true);
-      setPasswordErrorMessage("Password must be at least 3 characters long.");
-      isValid = false;
+      setPasswordError(true)
+      setPasswordErrorMessage("Password must be at least 3 characters long.")
+      isValid = false
     } else {
-      setPasswordError(false);
-      setPasswordErrorMessage("");
+      setPasswordError(false)
+      setPasswordErrorMessage("")
     }
 
-    return isValid;
-  };
+    return isValid
+  }
 
   return (
     <Card variant="outlined">
@@ -230,5 +230,5 @@ export default function SignInCard() {
         </Button>
       </Box>
     </Card>
-  );
+  )
 }
