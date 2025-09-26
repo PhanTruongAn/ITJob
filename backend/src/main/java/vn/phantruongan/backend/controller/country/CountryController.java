@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import vn.phantruongan.backend.domain.Country;
+import vn.phantruongan.backend.domain.country.Country;
 import vn.phantruongan.backend.service.country.CountryService;
 import vn.phantruongan.backend.util.annotation.ApiMessage;
 

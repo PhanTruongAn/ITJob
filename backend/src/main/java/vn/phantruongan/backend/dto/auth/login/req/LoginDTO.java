@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.dto.auth.login;
+package vn.phantruongan.backend.dto.auth.login.req;
 
 import jakarta.validation.constraints.NotBlank;
 

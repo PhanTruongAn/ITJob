@@ -16,8 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import vn.phantruongan.backend.domain.User;
+import vn.phantruongan.backend.domain.user.entities.User;
 import vn.phantruongan.backend.dto.common.ResultPaginationDTO;
 import vn.phantruongan.backend.dto.filter.user.UserFilter;
 import vn.phantruongan.backend.dto.user.ResCreateUserDTO;
@@ -30,6 +31,7 @@ import vn.phantruongan.backend.util.error.InvalidException;
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "User Controller", description = "Quản lý người dùng")
 public class UserController {
     private final UserService userService;
 

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.util.Predicates;
 import org.springframework.lang.Nullable;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -12,8 +11,8 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import vn.phantruongan.backend.domain.Company;
-import vn.phantruongan.backend.domain.Country;
+import vn.phantruongan.backend.domain.company.entities.Company;
+import vn.phantruongan.backend.domain.country.Country;
 import vn.phantruongan.backend.dto.filter.company.CompanyFilter;
 
 public class CompanySpecification implements Specification<Company> {

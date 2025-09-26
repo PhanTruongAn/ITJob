@@ -1,13 +1,13 @@
-package vn.phantruongan.backend.util.enums;
+package vn.phantruongan.backend.domain.company.enums;
 
-public enum CompanyType {
+public enum CompanyTypeEnum {
     IT_OUTSOURCING("IT Outsourcing"),
     IT_PRODUCT("IT Product"),
     IT_SERVICE_AND_CONSULTING("IT Service and IT Consulting");
 
     private final String displayName;
 
-    CompanyType(String displayName) {
+    CompanyTypeEnum(String displayName) {
         this.displayName = displayName;
     }
 
@@ -15,8 +15,8 @@ public enum CompanyType {
         return displayName;
     }
 
-    public static CompanyType fromDisplayName(String displayName) {
-        for (CompanyType type : CompanyType.values()) {
+    public static CompanyTypeEnum fromDisplayName(String displayName) {
+        for (CompanyTypeEnum type : CompanyTypeEnum.values()) {
             if (type.displayName.equalsIgnoreCase(displayName)) {
                 return type;
             }

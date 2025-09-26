@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import vn.phantruongan.backend.domain.User;
+import vn.phantruongan.backend.domain.user.entities.User;
 import vn.phantruongan.backend.dto.common.ResultPaginationDTO;
 import vn.phantruongan.backend.dto.filter.user.UserFilter;
 import vn.phantruongan.backend.dto.user.ResCreateUserDTO;

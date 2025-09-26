@@ -3,7 +3,7 @@ package vn.phantruongan.backend.dto.filter.company;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import vn.phantruongan.backend.util.enums.CompanyType;
+import vn.phantruongan.backend.domain.company.enums.CompanyTypeEnum;
 
 @Getter
 @Setter
@@ -11,7 +11,7 @@ import vn.phantruongan.backend.util.enums.CompanyType;
 public class CompanyFilter {
     private String name;
     private String address;
-    private CompanyType companyType;
+    private CompanyTypeEnum companyType;
     private String companySize;
     private Long countryId;
 }

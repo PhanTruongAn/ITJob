@@ -4,7 +4,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import vn.phantruongan.backend.domain.User;
+import vn.phantruongan.backend.domain.user.entities.User;
 import vn.phantruongan.backend.dto.auth.register.RegisterReqDTO;
 import vn.phantruongan.backend.dto.auth.register.RegisterResDTO;
 import vn.phantruongan.backend.repository.user.UserRepository;

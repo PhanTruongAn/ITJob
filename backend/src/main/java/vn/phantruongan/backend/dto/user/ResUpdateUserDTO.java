@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 import lombok.Getter;
 import lombok.Setter;
-import vn.phantruongan.backend.util.enums.GenderEnum;
+import vn.phantruongan.backend.domain.user.enums.GenderEnum;
 
 @Getter
 @Setter

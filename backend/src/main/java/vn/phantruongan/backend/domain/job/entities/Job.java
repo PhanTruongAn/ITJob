@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.domain;
+package vn.phantruongan.backend.domain.job.entities;
 
 import java.time.Instant;
 import java.util.List;
@@ -10,20 +10,20 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
-import vn.phantruongan.backend.util.enums.LevelEnum;
+import vn.phantruongan.backend.domain.common.Auditable;
+import vn.phantruongan.backend.domain.company.entities.Company;
+import vn.phantruongan.backend.domain.job.enums.LevelEnum;
+import vn.phantruongan.backend.domain.resume.entities.Resume;
 
 @Entity
 @Table(name = "jobs")
@@ -54,12 +54,11 @@ public class Job extends Auditable {
     private Company company;
 
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "job_skill", joinColumns = @JoinColumn(name = "job_id"), inverseJoinColumns = @JoinColumn(name = "skill_id"))
-    private List<Skill> skills;
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<JobSkill> jobSkills;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "job", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Resume> resumes;
 
 }

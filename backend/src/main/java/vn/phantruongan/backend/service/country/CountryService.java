@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import vn.phantruongan.backend.domain.Country;
+import vn.phantruongan.backend.domain.country.Country;
 import vn.phantruongan.backend.repository.company.CountryRepository;
 
 @Service

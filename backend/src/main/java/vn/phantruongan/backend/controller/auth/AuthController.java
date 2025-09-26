@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import vn.phantruongan.backend.domain.User;
-import vn.phantruongan.backend.dto.auth.login.LoginDTO;
-import vn.phantruongan.backend.dto.auth.login.ResLoginDTO;
+import vn.phantruongan.backend.domain.user.entities.User;
+import vn.phantruongan.backend.dto.auth.login.req.LoginDTO;
+import vn.phantruongan.backend.dto.auth.login.res.GetAccountResDTO;
+import vn.phantruongan.backend.dto.auth.login.res.ResLoginDTO;
 import vn.phantruongan.backend.dto.auth.register.RegisterReqDTO;
 import vn.phantruongan.backend.dto.auth.register.RegisterResDTO;
 import vn.phantruongan.backend.service.auth.AuthService;
@@ -32,6 +34,7 @@ import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "Auth Controller", description = "Quản lý xác thực")
 public class AuthController {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -58,22 +61,12 @@ public class AuthController {
 
         // Xác thực người dùng => Cần viết hàm loadUserByUsername
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
         // Set thông tin người dùng đăng nhập vào context
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         ResLoginDTO res = new ResLoginDTO();
-        User userInDB = userService.findUserByEmail(loginDto.getUsername());
-        if (userInDB != null) {
-            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
-            userLogin.setId(userInDB.getId());
-            userLogin.setEmail(userInDB.getEmail());
-            userLogin.setName(userInDB.getName());
-            userLogin.setAvatar(userInDB.getAvatar());
-            res.setUser(userLogin);
-        }
         // Create access token
-        String access_token = securityService.createAccessToken(authentication.getName(), res.getUser());
+        String access_token = securityService.createAccessToken(authentication.getName());
         res.setAccessToken(access_token);
         // Create refresh token
         String refresh_token = securityService.createRefreshToken(loginDto.getUsername(), res);
@@ -92,13 +85,13 @@ public class AuthController {
 
     @GetMapping("/auth/account")
     @ApiMessage("Get account information")
-    public ResponseEntity<ResLoginDTO.UserLogin> getAccount() {
+    public ResponseEntity<GetAccountResDTO> getAccount() {
         String email = SecurityUtil.getCurrentUserLogin().isPresent()
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
 
         User userInDB = userService.findUserByEmail(email);
-        ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
+        GetAccountResDTO userLogin = new GetAccountResDTO();
         if (userInDB != null) {
             userLogin.setId(userInDB.getId());
             userLogin.setEmail(userInDB.getEmail());
@@ -135,15 +128,11 @@ public class AuthController {
         }
         ResLoginDTO res = new ResLoginDTO();
         User userInDB = userService.findUserByEmail(emailUser);
-        if (userInDB != null) {
-            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
-            userLogin.setId(userInDB.getId());
-            userLogin.setEmail(userInDB.getEmail());
-            userLogin.setName(userInDB.getName());
-            res.setUser(userLogin);
+        if (userInDB == null) {
+            throw new InvalidException("Người dùng không tồn tại!");
         }
         // Create access token
-        String access_token = securityService.createAccessToken(emailUser, res.getUser());
+        String access_token = securityService.createAccessToken(emailUser);
         res.setAccessToken(access_token);
         // Create refresh token
         String new_refresh_token = securityService.createRefreshToken(emailUser, res);

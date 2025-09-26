@@ -12,7 +12,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import jakarta.servlet.http.HttpServletResponse;
-import vn.phantruongan.backend.domain.RestResponse;
+import vn.phantruongan.backend.domain.common.RestResponse;
 import vn.phantruongan.backend.util.annotation.ApiMessage;
 
 @ControllerAdvice

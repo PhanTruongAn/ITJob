@@ -13,17 +13,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import vn.phantruongan.backend.domain.Company;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import vn.phantruongan.backend.domain.company.entities.Company;
+import vn.phantruongan.backend.domain.company.enums.CompanyTypeEnum;
 import vn.phantruongan.backend.dto.common.ResultPaginationDTO;
 import vn.phantruongan.backend.dto.filter.company.CompanyFilter;
 import vn.phantruongan.backend.repository.company.CompanyRepository;
 import vn.phantruongan.backend.service.company.CompanyService;
 import vn.phantruongan.backend.util.annotation.ApiMessage;
-import vn.phantruongan.backend.util.enums.CompanyType;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "Company Controller", description = "Quản lý công ty")
 public class CompanyController {
 
     private final CompanyRepository companyRepository;
@@ -62,11 +64,11 @@ public class CompanyController {
     public ResponseEntity<ResultPaginationDTO> getAllCompanies(
             @ParameterObject CompanyFilter filter,
             @ParameterObject Pageable pageable) throws InvalidException {
-        CompanyType companyTypeEnum = null;
+        CompanyTypeEnum companyTypeEnum = null;
         String companyType = filter.getCompanyType() != null ? filter.getCompanyType().getDisplayName() : null;
         if (companyType != null && !companyType.isBlank()) {
             try {
-                companyTypeEnum = CompanyType.fromDisplayName(companyType);
+                companyTypeEnum = CompanyTypeEnum.fromDisplayName(companyType);
             } catch (IllegalArgumentException ex) {
                 throw new InvalidException("Company type is invalid!");
             }

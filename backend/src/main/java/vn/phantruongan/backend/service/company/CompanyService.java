@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import vn.phantruongan.backend.domain.Company;
+import vn.phantruongan.backend.domain.company.entities.Company;
 import vn.phantruongan.backend.dto.common.ResultPaginationDTO;
 import vn.phantruongan.backend.dto.filter.company.CompanyFilter;
 import vn.phantruongan.backend.repository.company.CompanyRepository;

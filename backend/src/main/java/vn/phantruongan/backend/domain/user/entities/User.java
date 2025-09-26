@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.domain;
+package vn.phantruongan.backend.domain.user.entities;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,7 +11,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,7 +22,11 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import vn.phantruongan.backend.util.enums.GenderEnum;
+import vn.phantruongan.backend.domain.authorization.entities.Role;
+import vn.phantruongan.backend.domain.common.Auditable;
+import vn.phantruongan.backend.domain.company.entities.Company;
+import vn.phantruongan.backend.domain.resume.entities.Resume;
+import vn.phantruongan.backend.domain.user.enums.GenderEnum;
 
 @Entity
 @Table(name = "users")
@@ -55,7 +58,7 @@ public class User extends Auditable {
     private Company company;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Resume> resumes;
 
     @ManyToOne

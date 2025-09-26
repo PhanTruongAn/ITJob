@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.domain;
+package vn.phantruongan.backend.domain.country;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

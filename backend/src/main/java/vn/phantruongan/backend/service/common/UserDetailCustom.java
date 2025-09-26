@@ -22,11 +22,11 @@ public class UserDetailCustom implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        vn.phantruongan.backend.domain.User user = userService.findUserByEmail(username);
+        vn.phantruongan.backend.domain.user.entities.User user = userService.findUserByEmail(username);
         if (user == null) {
             throw new UsernameNotFoundException("Username/Password không hợp lệ!");
         }
         return new User(user.getEmail(), user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN")));
     }
 }

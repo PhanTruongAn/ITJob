@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.util.enums;
+package vn.phantruongan.backend.domain.user.enums;
 
 public enum GenderEnum {
     FEMALE, MALE, OTHER

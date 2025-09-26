@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.domain;
+package vn.phantruongan.backend.domain.common;
 
 import java.time.Instant;
 

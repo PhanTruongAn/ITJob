@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.domain;
+package vn.phantruongan.backend.domain.company.entities;
 
 import java.time.DayOfWeek;
 import java.util.List;
@@ -11,22 +11,24 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import vn.phantruongan.backend.domain.common.Auditable;
+import vn.phantruongan.backend.domain.company.enums.CompanyTypeEnum;
+import vn.phantruongan.backend.domain.country.Country;
+import vn.phantruongan.backend.domain.job.entities.Job;
+import vn.phantruongan.backend.domain.user.entities.User;
 import vn.phantruongan.backend.util.convert.DayOfWeekListConverter;
-import vn.phantruongan.backend.util.enums.CompanyType;
 
 @Entity
 @Table(name = "companies", uniqueConstraints = {
@@ -44,7 +46,7 @@ public class Company extends Auditable {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    private CompanyType companyType;
+    private CompanyTypeEnum companyType;
 
     private String companySize;
 
@@ -64,11 +66,11 @@ public class Company extends Auditable {
     private String logo;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
     private List<User> users;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
     private List<Job> jobs;
 
 }

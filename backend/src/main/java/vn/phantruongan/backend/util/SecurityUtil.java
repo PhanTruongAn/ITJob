@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 import com.nimbusds.jose.util.Base64;
 
-import vn.phantruongan.backend.dto.auth.login.ResLoginDTO;
+import vn.phantruongan.backend.dto.auth.login.res.ResLoginDTO;
 
 @Service
 public class SecurityUtil {
@@ -62,7 +62,7 @@ public class SecurityUtil {
     }
 
     // Create access-token
-    public String createAccessToken(String email, ResLoginDTO.UserLogin userLogin) {
+    public String createAccessToken(String email) {
         Instant now = Instant.now();
         Instant validity = now.plus(accessTokenExpiration, ChronoUnit.SECONDS);
 
@@ -71,7 +71,7 @@ public class SecurityUtil {
         .issuedAt(now)
         .expiresAt(validity)
         .subject(email)
-        .claim("user", userLogin)
+        // .claim("user", userLogin)
         .build();
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader,
@@ -88,7 +88,7 @@ public class SecurityUtil {
         .issuedAt(now)
         .expiresAt(validity)
         .subject(email)
-        .claim("user", dto.getUser())
+        // .claim("user", dto.getUser())
         .build();
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader,

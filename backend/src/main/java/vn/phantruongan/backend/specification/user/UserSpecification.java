@@ -10,7 +10,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import vn.phantruongan.backend.domain.User;
+import vn.phantruongan.backend.domain.user.entities.User;
 import vn.phantruongan.backend.dto.filter.user.UserFilter;
 
 public class UserSpecification implements Specification<User> {
