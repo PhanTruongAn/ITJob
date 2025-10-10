@@ -1,45 +1,38 @@
-import { ReactNode, useEffect, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import { PATH_AUTH } from "../routes/paths";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { setUserLoginInfo } from "../redux/slice/accountSlice";
-import Login from "../page/login";
+import { ReactNode, useState } from "react"
+import { Navigate, useLocation } from "react-router-dom"
+import LoadingScreen from "../components/LoadingScreen"
+import { useAppSelector } from "../redux/hooks"
+import { PATH_AUTH } from "../routes/paths"
 
 export interface AuthGuardProp {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export default function AuthGuard({ children }: AuthGuardProp) {
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const access_token = localStorage.getItem("access_token");
-  const sessionData = JSON.parse(localStorage.getItem("session") || "{}");
+  const { pathname } = useLocation()
+
   const [requestedLocation, setRequestedLocation] = useState<string | null>(
     null
-  );
-  const user = sessionData.user;
-  const isAuthenticated = useAppSelector(
-    (state) => state.account.isAuthenticated
-  );
-  useEffect(() => {
-    if (access_token && sessionData) {
-      dispatch(setUserLoginInfo(user));
-    } else {
-      navigate(PATH_AUTH.login, { replace: true, state: { from: pathname } });
-    }
-  }, []);
+  )
+
+  const { isAuthenticated, isLoading } = useAppSelector(
+    (state) => state.account
+  )
+  if (isLoading) {
+    return <LoadingScreen />
+  }
 
   if (!isAuthenticated) {
     if (pathname !== requestedLocation) {
-      setRequestedLocation(pathname);
+      setRequestedLocation(pathname)
     }
-    return <Login />;
+    return <Navigate to={PATH_AUTH.login} state={{ from: pathname }} replace />
   }
 
   if (requestedLocation && pathname !== requestedLocation) {
-    setRequestedLocation(null);
-    return <Navigate to={requestedLocation} />;
+    setRequestedLocation(null)
+    return <Navigate to={requestedLocation} />
   }
-  return <>{children}</>;
+
+  return <>{children}</>
 }

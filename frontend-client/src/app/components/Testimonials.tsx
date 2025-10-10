@@ -1,13 +1,13 @@
-import * as React from "react";
-import Card from "@mui/material/Card";
-import CardHeader from "@mui/material/CardHeader";
-import CardContent from "@mui/material/CardContent";
-import Avatar from "@mui/material/Avatar";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid2";
-import { useTheme } from "@mui/system";
+import Avatar from "@mui/material/Avatar"
+import Box from "@mui/material/Box"
+import Card from "@mui/material/Card"
+import CardContent from "@mui/material/CardContent"
+import CardHeader from "@mui/material/CardHeader"
+import Container from "@mui/material/Container"
+import Grid from "@mui/material/Grid2"
+import Typography from "@mui/material/Typography"
+import { useTheme } from "@mui/system"
+import Image from "next/image"
 
 const userTestimonials = [
   {
@@ -52,7 +52,7 @@ const userTestimonials = [
     testimonial:
       "The quality of this product exceeded my expectations. It's durable, well-designed, and built to last. Definitely worth the investment!",
   },
-];
+]
 
 const whiteLogos = [
   "https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/6560628e8573c43893fe0ace_Sydney-white.svg",
@@ -61,7 +61,7 @@ const whiteLogos = [
   "https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/61f12e891fa22f89efd7477a_TerraLight.svg",
   "https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/6560a09d1f6337b1dfed14ab_colorado-white.svg",
   "https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/655f5caa77bf7d69fb78792e_Ankara-white.svg",
-];
+]
 
 const darkLogos = [
   "https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/6560628889c3bdf1129952dc_Sydney-black.svg",
@@ -70,16 +70,16 @@ const darkLogos = [
   "https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/61f12e911fa22f2203d7514c_TerraDark.svg",
   "https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/6560a0990f3717787fd49245_colorado-black.svg",
   "https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/655f5ca4e548b0deb1041c33_Ankara-black.svg",
-];
+]
 
 const logoStyle = {
   width: "64px",
   opacity: 0.3,
-};
+}
 
 export default function Testimonials() {
-  const theme = useTheme();
-  const logos = theme.palette.mode === "light" ? darkLogos : whiteLogos;
+  const theme = useTheme()
+  const logos = theme.palette.mode === "light" ? darkLogos : whiteLogos
 
   return (
     <Container
@@ -151,7 +151,7 @@ export default function Testimonials() {
                   title={testimonial.name}
                   subheader={testimonial.occupation}
                 />
-                <img
+                <Image
                   src={logos[index]}
                   alt={`Logo ${index + 1}`}
                   style={logoStyle}
@@ -162,5 +162,5 @@ export default function Testimonials() {
         ))}
       </Grid>
     </Container>
-  );
+  )
 }

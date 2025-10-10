@@ -1,79 +1,79 @@
-"use client";
-import * as React from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import FormLabel from "@mui/material/FormLabel";
-import FormControl from "@mui/material/FormControl";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import AppTheme from "../shared-theme/AppTheme";
-import { SitemarkIcon } from "../components/CustomIcons";
-import AppAppBar from "@/app/components/AppAppBar";
-import { Card } from "./components/Card";
-import { Container } from "./components/Container";
+"use client"
+import AppAppBar from "@/app/components/AppAppBar"
+import Box from "@mui/material/Box"
+import Button from "@mui/material/Button"
+import CssBaseline from "@mui/material/CssBaseline"
+import FormControl from "@mui/material/FormControl"
+import FormLabel from "@mui/material/FormLabel"
+import TextField from "@mui/material/TextField"
+import Typography from "@mui/material/Typography"
+import * as React from "react"
+import { SitemarkIcon } from "../components/CustomIcons"
+import AppTheme from "../shared-theme/AppTheme"
+import { Card } from "./components/Card"
+import { Container } from "./components/Container"
 
-export default function SignUp(props: { disableCustomTheme?: boolean }) {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const [nameError, setNameError] = React.useState(false);
-  const [nameErrorMessage, setNameErrorMessage] = React.useState("");
+export default function SignUp() {
+  const [emailError, setEmailError] = React.useState(false)
+  const [emailErrorMessage, setEmailErrorMessage] = React.useState("")
+  const [passwordError, setPasswordError] = React.useState(false)
+  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("")
+  const [nameError, setNameError] = React.useState(false)
+  const [nameErrorMessage, setNameErrorMessage] = React.useState("")
 
   const validateInputs = () => {
-    const email = document.getElementById("email") as HTMLInputElement;
-    const password = document.getElementById("password") as HTMLInputElement;
-    const name = document.getElementById("name") as HTMLInputElement;
+    const email = document.getElementById("email") as HTMLInputElement
+    const password = document.getElementById("password") as HTMLInputElement
+    const name = document.getElementById("name") as HTMLInputElement
 
-    let isValid = true;
+    let isValid = true
 
     if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage("Please enter a valid email address.");
-      isValid = false;
+      setEmailError(true)
+      setEmailErrorMessage("Please enter a valid email address.")
+      isValid = false
     } else {
-      setEmailError(false);
-      setEmailErrorMessage("");
+      setEmailError(false)
+      setEmailErrorMessage("")
     }
 
     if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage("Password must be at least 6 characters long.");
-      isValid = false;
+      setPasswordError(true)
+      setPasswordErrorMessage("Password must be at least 6 characters long.")
+      isValid = false
     } else {
-      setPasswordError(false);
-      setPasswordErrorMessage("");
+      setPasswordError(false)
+      setPasswordErrorMessage("")
     }
 
     if (!name.value || name.value.length < 1) {
-      setNameError(true);
-      setNameErrorMessage("Name is required.");
-      isValid = false;
+      setNameError(true)
+      setNameErrorMessage("Name is required.")
+      isValid = false
     } else {
-      setNameError(false);
-      setNameErrorMessage("");
+      setNameError(false)
+      setNameErrorMessage("")
     }
 
-    return isValid;
-  };
+    return isValid
+  }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     if (nameError || emailError || passwordError) {
-      event.preventDefault();
-      return;
+      event.preventDefault()
+      return
     }
-    const data = new FormData(event.currentTarget);
+    const data = new FormData(event.currentTarget)
     console.log({
       name: data.get("name"),
       lastName: data.get("lastName"),
       email: data.get("email"),
       password: data.get("password"),
-    });
-  };
+    })
+  }
 
   return (
-    <AppTheme {...props}>
+    <AppTheme>
       <CssBaseline enableColorScheme />
       <AppAppBar />
       <Container direction="column" justifyContent="space-between">
@@ -149,5 +149,5 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         </Card>
       </Container>
     </AppTheme>
-  );
+  )
 }

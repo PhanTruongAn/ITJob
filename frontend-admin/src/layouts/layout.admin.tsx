@@ -1,4 +1,8 @@
-import React, { useState, useEffect } from "react";
+import {
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  NotificationOutlined,
+} from "@ant-design/icons"
 import {
   Avatar,
   Badge,
@@ -8,44 +12,40 @@ import {
   Space,
   theme,
   Tooltip,
-} from "antd";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import navItems from "./dashboard/navbar/NavItem";
-import {
-  NotificationOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-} from "@ant-design/icons";
-import { useAppSelector } from "../redux/hooks";
-import CustomDropdown from "../components/CustomDropdown";
-import { getDropdownItems } from "./constants";
-import { useLogout } from "./hooks";
+} from "antd"
+import React, { useEffect, useState } from "react"
+import { Outlet, useLocation, useNavigate } from "react-router-dom"
+import CustomDropdown from "../components/CustomDropdown"
+import { useAppSelector } from "../redux/hooks"
+import { getDropdownItems } from "./constants"
+import navItems from "./dashboard/navbar/NavItem"
+import { useLogout } from "./hooks"
 
-const { Header, Sider, Content } = Layout;
+const { Header, Sider, Content } = Layout
 
 const LayoutAdmin: React.FC = () => {
-  const location = useLocation();
-  const [activeMenu, setActiveMenu] = useState<string>("");
-  const [collapsed, setCollapsed] = useState<boolean>(false);
-  const userData = useAppSelector((state) => state.account.user);
-  const navigate = useNavigate();
+  const location = useLocation()
+  const [activeMenu, setActiveMenu] = useState<string>("")
+  const [collapsed, setCollapsed] = useState<boolean>(false)
+  const userData = useAppSelector((state) => state.account.user)
+  const navigate = useNavigate()
   const {
     token: { colorBgContainer },
-  } = theme.useToken();
-  const { mutate } = useLogout();
+  } = theme.useToken()
+  const { mutate } = useLogout()
   useEffect(() => {
-    setActiveMenu(location.pathname);
-  }, [location]);
+    setActiveMenu(location.pathname)
+  }, [location])
 
   const handleNavigate = ({ key }: { key: string }) => {
-    setActiveMenu(key);
-    navigate(key);
-  };
+    setActiveMenu(key)
+    navigate(key)
+  }
   const handleLogout = () => {
-    mutate();
-  };
+    mutate()
+  }
 
-  const items = getDropdownItems(undefined, undefined, handleLogout);
+  const items = getDropdownItems(undefined, undefined, handleLogout)
   return (
     <Layout
       style={{
@@ -141,7 +141,7 @@ const LayoutAdmin: React.FC = () => {
                       size="large"
                       shape="circle"
                       onClick={() => {
-                        console.log("Avatar clicked");
+                        console.log("Avatar clicked")
                       }}
                     />
                   }
@@ -160,7 +160,7 @@ const LayoutAdmin: React.FC = () => {
         </Content>
       </Layout>
     </Layout>
-  );
-};
+  )
+}
 
-export default LayoutAdmin;
+export default LayoutAdmin

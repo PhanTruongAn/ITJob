@@ -1,14 +1,14 @@
-"use client";
-import * as React from "react";
-import CssBaseline from "@mui/material/CssBaseline";
-import Stack from "@mui/material/Stack";
-import SignInCard from "./SignInCard";
-import Content from "./Content";
-import AppTheme from "../shared-theme/AppTheme";
-import AppAppBar from "@/app/components/AppAppBar";
-export default function SignInSide(props: { disableCustomTheme?: boolean }) {
+"use client"
+import AppAppBar from "@/app/components/AppAppBar"
+import CssBaseline from "@mui/material/CssBaseline"
+import Stack from "@mui/material/Stack"
+import AppTheme from "../shared-theme/AppTheme"
+import Content from "./Content"
+import SignInCard from "./SignInCard"
+// @ts-ignore
+export default function SignInSide() {
   return (
-    <AppTheme {...props}>
+    <AppTheme>
       <CssBaseline enableColorScheme />
       <AppAppBar />
       <Stack
@@ -63,5 +63,5 @@ export default function SignInSide(props: { disableCustomTheme?: boolean }) {
         </Stack>
       </Stack>
     </AppTheme>
-  );
+  )
 }

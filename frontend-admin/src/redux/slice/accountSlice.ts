@@ -1,29 +1,30 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchAccount } from "../../apis/authModule";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+import { fetchAccount } from "../../apis/authModule"
 
 export const getAccount = createAsyncThunk(
   "account/fetchAccount",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetchAccount();
-      return response.data;
+      const response = await fetchAccount()
+      console.log("fetchAccount response:", response)
+      return response.data
     } catch (error: any) {
-      return rejectWithValue(error);
+      return rejectWithValue(error)
     }
   }
-);
+)
 
 interface IState {
-  isAuthenticated: boolean;
-  isLoading: boolean;
+  isAuthenticated: boolean
+  isLoading: boolean
   // isRefreshToken: boolean;
   // errorRefreshToken: string | null;
   user: {
-    id: string;
-    email: string;
-    name: string;
-    avatar?: string;
-  };
+    id: number
+    email: string
+    name: string
+    avatar?: string
+  }
 }
 
 const initialState: IState = {
@@ -32,26 +33,26 @@ const initialState: IState = {
   // isRefreshToken: false,
   // errorRefreshToken: null,
   user: {
-    id: "",
+    id: 0,
     email: "",
     name: "",
     avatar: "",
   },
-};
+}
 
 const accountSlice = createSlice({
   name: "account",
   initialState,
   reducers: {
     setUserLoginInfo: (state, action) => {
-      state.isAuthenticated = true;
-      state.isLoading = false;
-      state.user = action.payload;
+      state.isAuthenticated = true
+      state.isLoading = false
+      state.user = action.payload
     },
     setLogoutAction: (state) => {
-      localStorage.removeItem("access_token");
-      state.isAuthenticated = false;
-      state.user = { id: "", email: "", name: "", avatar: "" };
+      localStorage.removeItem("access_token")
+      state.isAuthenticated = false
+      state.user = { id: 0, email: "", name: "", avatar: "" }
     },
     // setRefreshTokenAction: (state, action) => {
     //   state.isRefreshToken = action.payload?.status ?? false;
@@ -61,20 +62,20 @@ const accountSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getAccount.pending, (state) => {
-        state.isLoading = true;
+        state.isLoading = true
       })
       .addCase(getAccount.fulfilled, (state, action) => {
-        state.isAuthenticated = true;
-        state.isLoading = false;
-        state.user = action.payload.user;
+        state.isAuthenticated = true
+        state.isLoading = false
+        state.user = action.payload
       })
       .addCase(getAccount.rejected, (state, action) => {
-        state.isAuthenticated = false;
-        state.isLoading = false;
-      });
+        state.isAuthenticated = false
+        state.isLoading = false
+      })
   },
-});
+})
 
-export const { setUserLoginInfo, setLogoutAction } = accountSlice.actions;
+export const { setUserLoginInfo, setLogoutAction } = accountSlice.actions
 
-export default accountSlice.reducer;
+export default accountSlice.reducer

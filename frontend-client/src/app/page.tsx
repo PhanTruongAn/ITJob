@@ -1,21 +1,15 @@
-"use client";
-import CssBaseline from "@mui/material/CssBaseline";
-import Divider from "@mui/material/Divider";
-import AppAppBar from "./components/AppAppBar";
-import Hero from "./components/Hero";
-import LogoCollection from "./components/LogoCollection";
-import Highlights from "./components/Highlights";
-import Pricing from "./components/Pricing";
-import Features from "./components/Features";
-import Testimonials from "./components/Testimonials";
-import FAQ from "./components/FAQ";
-import Footer from "./components/Footer";
-import AppTheme from "./shared-theme/AppTheme";
-import MainLayout from "./pages/layout";
-
-export default function Home(props: { disableCustomTheme?: boolean }) {
+"use client"
+import CssBaseline from "@mui/material/CssBaseline"
+import Divider from "@mui/material/Divider"
+import AppAppBar from "./components/AppAppBar"
+import Footer from "./components/Footer"
+import Hero from "./components/Hero"
+import Highlights from "./components/Highlights"
+import AppTheme from "./shared-theme/AppTheme"
+// @ts-ignore
+export default function Home() {
   return (
-    <AppTheme {...props}>
+    <AppTheme>
       <CssBaseline enableColorScheme />
       <AppAppBar />
       <Hero />
@@ -35,6 +29,5 @@ export default function Home(props: { disableCustomTheme?: boolean }) {
         <Footer />
       </div>
     </AppTheme>
-  );
+  )
 }
-Home.getLayout = (page: React.ReactNode) => <MainLayout>{page}</MainLayout>;

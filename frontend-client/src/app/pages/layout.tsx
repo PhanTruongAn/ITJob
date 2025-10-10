@@ -1,18 +1,11 @@
-"use client";
-import CssBaseline from "@mui/material/CssBaseline";
-import AppTheme from "../shared-theme/AppTheme";
+"use client"
+import CssBaseline from "@mui/material/CssBaseline"
+import AppTheme from "../shared-theme/AppTheme"
 
-export default function MainLayout({
-  children,
-  disableCustomTheme,
-}: {
-  children: React.ReactNode;
-  disableCustomTheme?: boolean;
-}) {
+export default function MainLayout() {
   return (
-    <AppTheme disableCustomTheme={disableCustomTheme}>
+    <AppTheme>
       <CssBaseline enableColorScheme />
-      <main>{children}</main>
     </AppTheme>
-  );
+  )
 }
