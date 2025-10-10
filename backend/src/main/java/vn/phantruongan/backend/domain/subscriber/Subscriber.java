@@ -13,7 +13,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import vn.phantruongan.backend.domain.common.Auditable;
+import vn.phantruongan.backend.common.Auditable;
 
 @Entity
 @Table(name = "subscribers")

@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
-import vn.phantruongan.backend.domain.common.Auditable;
+import vn.phantruongan.backend.common.Auditable;
 import vn.phantruongan.backend.domain.job.entities.JobSkill;
 import vn.phantruongan.backend.domain.subscriber.SubscriberSkill;
 

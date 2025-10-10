@@ -1,8 +1,9 @@
-package vn.phantruongan.backend.domain.job.entities;
+package vn.phantruongan.backend.authentication.entities;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
@@ -20,45 +21,48 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import vn.phantruongan.backend.authentication.enums.GenderEnum;
+import vn.phantruongan.backend.authorization.entities.Role;
 import vn.phantruongan.backend.common.Auditable;
 import vn.phantruongan.backend.company.entities.Company;
-import vn.phantruongan.backend.domain.job.enums.LevelEnum;
 import vn.phantruongan.backend.domain.resume.entities.Resume;
 
 @Entity
-@Table(name = "jobs")
+@Table(name = "users")
 @Getter
 @Setter
-public class Job extends Auditable {
+@ToString
+public class User extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank(message = "Tên việc làm không được để trống!")
     private String name;
-    private String location;
-    @Column(columnDefinition = "MEDIUMTEXT")
-    private String description;
-    private int quantity;
-    private Double salary;
-
+    @NotBlank(message = "Email không được để trống!")
+    private String email;
+    @NotBlank(message = "Mật khẩu không được để trống!")
+    private String password;
+    private String phone;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+    private LocalDate dob;
     @Enumerated(EnumType.STRING)
-    private LevelEnum level;
-
-    private Instant startDate;
-    private Instant endDate;
-    private boolean isActive;
+    private GenderEnum gender;
+    private String address;
+    private String avatar;
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String refreshToken;
 
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<JobSkill> jobSkills;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Resume> resumes;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
 
 }

@@ -11,10 +11,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import vn.phantruongan.backend.domain.common.Auditable;
+import vn.phantruongan.backend.authentication.entities.User;
+import vn.phantruongan.backend.common.Auditable;
 import vn.phantruongan.backend.domain.job.entities.Job;
 import vn.phantruongan.backend.domain.resume.enums.ResumeEnum;
-import vn.phantruongan.backend.domain.user.entities.User;
 
 @Entity
 @Table(name = "resumes")

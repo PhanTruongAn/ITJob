@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 import com.nimbusds.jose.util.Base64;
 
-import vn.phantruongan.backend.dto.auth.login.res.ResLoginDTO;
+import vn.phantruongan.backend.authentication.dtos.login.res.ResLoginDTO;
 
 @Service
 public class SecurityUtil {
