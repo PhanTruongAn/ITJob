@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.domain.job.entities;
+package vn.phantruongan.backend.job.entities;
 
 import java.time.Instant;
 import java.util.List;
@@ -22,8 +22,8 @@ import lombok.Getter;
 import lombok.Setter;
 import vn.phantruongan.backend.common.Auditable;
 import vn.phantruongan.backend.company.entities.Company;
-import vn.phantruongan.backend.domain.job.enums.LevelEnum;
-import vn.phantruongan.backend.domain.resume.entities.Resume;
+import vn.phantruongan.backend.job.enums.LevelEnum;
+import vn.phantruongan.backend.resume.entities.Resume;
 
 @Entity
 @Table(name = "jobs")

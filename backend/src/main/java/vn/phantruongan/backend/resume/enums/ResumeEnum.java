@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.domain.resume.enums;
+package vn.phantruongan.backend.resume.enums;
 
 public enum ResumeEnum {
     PENDING, REVIEWING, APPROVED, REJECTED;

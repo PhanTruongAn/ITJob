@@ -10,14 +10,14 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import vn.phantruongan.backend.authentication.dtos.common.UserFilter;
+import vn.phantruongan.backend.authentication.dtos.req.GetListUserReqDTO;
 import vn.phantruongan.backend.authentication.entities.User;
 
 public class UserSpecification implements Specification<User> {
-    private final UserFilter filter;
+    private final GetListUserReqDTO dtoFilter;
 
-    public UserSpecification(UserFilter filter) {
-        this.filter = filter;
+    public UserSpecification(GetListUserReqDTO dtoFilter) {
+        this.dtoFilter = dtoFilter;
     }
 
     @Override
@@ -26,12 +26,21 @@ public class UserSpecification implements Specification<User> {
         // TODO Auto-generated method stub
         List<Predicate> predicates = new ArrayList<>();
 
-        if (filter.getName() != null) {
-            predicates.add(cb.like(cb.lower(root.get("name")), "%" + filter.getName().toLowerCase() + "%"));
+        if (dtoFilter.getName() != null) {
+            predicates.add(cb.like(cb.lower(root.get("name")), "%" + dtoFilter.getName().toLowerCase() + "%"));
         }
-        if (filter.getPhone() != null) {
-            predicates.add(cb.like(cb.lower(root.get("phone")), filter.getPhone().toLowerCase() + "%"));
+        if (dtoFilter.getPhone() != null) {
+            predicates.add(cb.like(cb.lower(root.get("phone")), dtoFilter.getPhone().toLowerCase() + "%"));
         }
+
+        if (dtoFilter.getEmail() != null) {
+            predicates.add(cb.like(cb.lower(root.get("email")), dtoFilter.getPhone().toLowerCase() + "%"));
+        }
+
+        if (dtoFilter.getGender() != null) {
+            predicates.add(cb.equal(root.get("gender"), dtoFilter.getGender()));
+        }
+
         return cb.and(predicates.toArray(new Predicate[0]));
     }
 

@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.domain.subscriber;
+package vn.phantruongan.backend.subscriber.entities;
 
 import java.util.List;
 

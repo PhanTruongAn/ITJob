@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.domain.skill;
+package vn.phantruongan.backend.subscriber.entities;
 
 import java.util.List;
 
@@ -15,8 +15,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import vn.phantruongan.backend.common.Auditable;
-import vn.phantruongan.backend.domain.job.entities.JobSkill;
-import vn.phantruongan.backend.domain.subscriber.SubscriberSkill;
+import vn.phantruongan.backend.job.entities.JobSkill;
 
 @Entity
 @Table(name = "skills")

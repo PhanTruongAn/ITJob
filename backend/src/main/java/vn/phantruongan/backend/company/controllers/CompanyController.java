@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import vn.phantruongan.backend.common.dtos.ResultPaginationDTO;
-import vn.phantruongan.backend.company.dtos.common.CompanyFilterDTO;
-import vn.phantruongan.backend.company.entities.Company;
-import vn.phantruongan.backend.company.enums.CompanyTypeEnum;
+import jakarta.validation.Valid;
+import vn.phantruongan.backend.common.dtos.PaginationResponse;
+import vn.phantruongan.backend.company.dtos.req.CreateCompanyReqDTO;
+import vn.phantruongan.backend.company.dtos.req.GetListCompanyReqDTO;
+import vn.phantruongan.backend.company.dtos.req.UpdateCompanyReqDTO;
+import vn.phantruongan.backend.company.dtos.res.CompanyResDTO;
 import vn.phantruongan.backend.company.repositories.CompanyRepository;
 import vn.phantruongan.backend.company.services.CompanyService;
 import vn.phantruongan.backend.util.annotation.ApiMessage;
@@ -37,49 +39,44 @@ public class CompanyController {
         this.companyRepository = companyRepository;
     }
 
+    @GetMapping("/companies")
+    @ApiMessage("Get list company with filter")
+    public ResponseEntity<PaginationResponse<CompanyResDTO>> getAllCompanies(
+            @ParameterObject GetListCompanyReqDTO dto,
+            @ParameterObject Pageable pageable) {
+
+        PaginationResponse<CompanyResDTO> result = companyService.getAllCompanies(dto, pageable);
+        return ResponseEntity.ok(result);
+    }
+
     @PostMapping("/companies")
     @ApiMessage("Create new company")
-    public ResponseEntity<Company> createCompany(@RequestBody Company company) throws InvalidException {
-        boolean isExistCompany = companyService.isExistCompany(company.getName(), company.getCountry().getId());
-        if (isExistCompany) {
-            throw new InvalidException(
-                    "The company already exists in this country!");
-        }
-        Company newCompany = companyService.createCompany(company);
+    public ResponseEntity<CompanyResDTO> createCompany(@Valid @RequestBody CreateCompanyReqDTO dto)
+            throws InvalidException {
+
+        CompanyResDTO newCompany = companyService.createCompany(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(newCompany);
+    }
+
+    @PutMapping("/companies")
+    @ApiMessage("Company updated")
+    public ResponseEntity<CompanyResDTO> updateCompany(@Valid @RequestBody UpdateCompanyReqDTO dto)
+            throws InvalidException {
+
+        CompanyResDTO companyUpdated = companyService.updateCompany(dto);
+        return ResponseEntity.ok(companyUpdated);
     }
 
     @GetMapping("/companies/{id}")
     @ApiMessage("Get company by id")
-    public ResponseEntity<?> findCompanyById(@PathVariable("id") long id) {
-        Company company = companyService.findById(id);
-        if (company == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Company not found");
-        }
+    public ResponseEntity<CompanyResDTO> findCompanyById(@PathVariable("id") long id) throws InvalidException {
+        CompanyResDTO company = companyService.findById(id);
         return ResponseEntity.ok(company);
-    }
-
-    @GetMapping("/companies")
-    @ApiMessage("Fetch all companies")
-    public ResponseEntity<ResultPaginationDTO> getAllCompanies(
-            @ParameterObject CompanyFilterDTO filter,
-            @ParameterObject Pageable pageable) throws InvalidException {
-        CompanyTypeEnum companyTypeEnum = null;
-        String companyType = filter.getCompanyType() != null ? filter.getCompanyType().getDisplayName() : null;
-        if (companyType != null && !companyType.isBlank()) {
-            try {
-                companyTypeEnum = CompanyTypeEnum.fromDisplayName(companyType);
-            } catch (IllegalArgumentException ex) {
-                throw new InvalidException("Company type is invalid!");
-            }
-        }
-
-        return ResponseEntity.ok(companyService.getAllCompanies(filter, pageable));
     }
 
     @DeleteMapping("/companies/{id}")
     @ApiMessage("Company deleted")
-    public ResponseEntity<?> deleteCompany(@PathVariable("id") long id) throws InvalidException {
+    public ResponseEntity<Boolean> deleteCompany(@PathVariable("id") long id) throws InvalidException {
         boolean isDelete = companyService.deleteCompanyById(id);
         if (isDelete) {
             return ResponseEntity.ok(isDelete);
@@ -88,17 +85,6 @@ public class CompanyController {
                     "Delete company failed, company not founded!");
         }
 
-    }
-
-    @PutMapping("/companies")
-    @ApiMessage("Company updated")
-    public ResponseEntity<Company> updateCompany(@RequestBody Company company) throws InvalidException {
-        Company companyUpdated = companyService.updateById(company);
-        if (companyUpdated == null) {
-            throw new InvalidException(
-                    "Update company failed, company not founded!");
-        }
-        return ResponseEntity.ok(companyUpdated);
     }
 
 }

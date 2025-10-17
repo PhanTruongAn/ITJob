@@ -1,7 +1,6 @@
 package vn.phantruongan.backend.authentication.services;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -10,138 +9,87 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import vn.phantruongan.backend.authentication.dtos.common.UserFilter;
-import vn.phantruongan.backend.authentication.dtos.res.ResCreateUserDTO;
-import vn.phantruongan.backend.authentication.dtos.res.ResUpdateUserDTO;
-import vn.phantruongan.backend.authentication.dtos.res.ResUserDTO;
+import vn.phantruongan.backend.authentication.dtos.req.CreateUserReqDTO;
+import vn.phantruongan.backend.authentication.dtos.req.GetListUserReqDTO;
+import vn.phantruongan.backend.authentication.dtos.req.UpdateUserReqDTO;
+import vn.phantruongan.backend.authentication.dtos.res.UserResDTO;
 import vn.phantruongan.backend.authentication.entities.User;
+import vn.phantruongan.backend.authentication.mappers.UserMapper;
 import vn.phantruongan.backend.authentication.repositories.UserRepository;
 import vn.phantruongan.backend.authentication.specification.UserSpecification;
-import vn.phantruongan.backend.common.dtos.ResultPaginationDTO;
+import vn.phantruongan.backend.common.dtos.PaginationResponse;
+import vn.phantruongan.backend.util.error.InvalidException;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
 
-    public User createUser(User user) {
-        String hashPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(hashPassword);
-        return userRepository.save(user);
-    }
-
-    public ResCreateUserDTO responseCreateUser(User user) {
-        ResCreateUserDTO dto = new ResCreateUserDTO();
-        dto.setEmail(user.getEmail());
-        dto.setPhone(user.getPhone());
-        dto.setName(user.getName());
-        dto.setAddress(user.getAddress());
-        dto.setDob(user.getDob());
-        dto.setGender(user.getGender());
-        dto.setCreatedAt(user.getCreatedAt());
-        return dto;
-    }
-
-    public boolean deleteUserById(long id) {
-        Optional<User> op = userRepository.findById(id);
-        if (op.isPresent()) {
-            userRepository.deleteById(op.get().getId());
-            return true;
-
+    public UserResDTO createUser(CreateUserReqDTO dto) throws InvalidException {
+        User user = userMapper.toEntity(dto);
+        if (existUserByEmail(dto.getEmail())) {
+            throw new InvalidException(
+                    "This email already exists, please use a different one.");
         }
-        return false;
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        User savedUser = userRepository.save(user);
+        return userMapper.toDto(savedUser);
     }
 
-    public ResUserDTO getUserById(long id) {
-        Optional<User> op = userRepository.findById(id);
-        if (op.isPresent()) {
-            ResUserDTO dto = new ResUserDTO();
-            dto.setId(op.get().getId());
-            dto.setEmail(op.get().getEmail());
-            dto.setName(op.get().getName());
-            dto.setPhone(op.get().getPhone());
-            dto.setAddress(op.get().getAddress());
-            dto.setDob(op.get().getDob());
-            dto.setGender(op.get().getGender());
-            dto.setCreatedAt(op.get().getCreatedAt());
-            dto.setUpdatedAt(op.get().getUpdatedAt());
-            return dto;
+    public UserResDTO updateUser(UpdateUserReqDTO dto) throws InvalidException {
+        User existingUser = userRepository.findById(dto.getId())
+                .orElseThrow(() -> new InvalidException("User not found"));
+
+        // Map các field từ DTO sang entity hiện tại
+        userMapper.updateEntityFromDto(dto, existingUser);
+
+        User updatedUser = userRepository.save(existingUser);
+        return userMapper.toDto(updatedUser);
+    }
+
+    public boolean deleteUserById(long id) throws InvalidException {
+        if (id <= 0) {
+            throw new InvalidException("User ID must be a positive number.");
         }
-        return null;
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new InvalidException("User not found."));
+
+        userRepository.delete(user);
+        return true;
     }
 
-    // public ResultPaginationDTO getAllUser(Specification<User> spec, Pageable
-    // pageable) {
-    // Page<User> page = userRepository.findAll(spec, pageable);
-    // ResultPaginationDTO result = new ResultPaginationDTO();
-    // ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
-    // meta.setPageNumber(pageable.getPageNumber() + 1);
-    // meta.setPageSize(pageable.getPageSize());
-    // meta.setPages(page.getTotalPages());
-    // meta.setTotal(page.getTotalElements());
+    public UserResDTO getUserById(long id) throws InvalidException {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new InvalidException("User not found with id: " + id));
 
-    // List<ResUserDTO> dto = page.getContent().stream()
-    // .map(item -> new ResUserDTO(item.getId(), item.getName(), item.getPhone(),
-    // item.getEmail(),
-    // item.getDob(), item.getGender(), item.getAddress(), item.getCreatedAt(),
-    // item.getUpdatedAt())
+        return userMapper.toDto(user);
+    }
 
-    // ).collect(Collectors.toList());
-    // result.setMeta(meta);
-    // result.setResult(dto);
-    // return result;
-    // }
-
-    // Filter user
-    public ResultPaginationDTO filterUser(UserFilter filter, Pageable pageable) {
-        Specification<User> spec = new UserSpecification(filter);
+    // Get list user with filter
+    public PaginationResponse<UserResDTO> getListUser(GetListUserReqDTO dto, Pageable pageable) {
+        Specification<User> spec = new UserSpecification(dto);
         Page<User> page = userRepository.findAll(spec, pageable);
-        ResultPaginationDTO result = new ResultPaginationDTO();
-        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
-        meta.setPageNumber(pageable.getPageNumber() + 1);
-        meta.setPageSize(pageable.getPageSize());
-        meta.setPages(page.getTotalPages());
-        meta.setTotal(page.getTotalElements());
 
-        List<ResUserDTO> dto = page.getContent().stream()
-                .map(item -> new ResUserDTO(item.getId(), item.getName(), item.getPhone(), item.getEmail(),
-                        item.getDob(), item.getGender(), item.getAddress(), item.getCreatedAt(), item.getUpdatedAt())
+        List<UserResDTO> list = page.getContent().stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
 
-                ).collect(Collectors.toList());
-        result.setMeta(meta);
-        result.setResult(dto);
-        return result;
-    }
+        PaginationResponse.Meta meta = new PaginationResponse.Meta(
+                page.getNumber() + 1,
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages());
 
-    public ResUpdateUserDTO updateUserById(User user) {
-        Optional<User> op = userRepository.findById(user.getId());
-        if (!op.isPresent()) {
-            return null;
-        }
-        User userUpdate = op.get();
-        ResUpdateUserDTO dto = new ResUpdateUserDTO();
-        if (userUpdate != null) {
-            userUpdate.setName(user.getName());
-            userUpdate.setPhone(user.getPhone());
-            userUpdate.setAddress(user.getAddress());
-            userUpdate.setDob(user.getDob());
-            userUpdate.setGender(user.getGender());
-            userRepository.save(userUpdate);
-            dto.setId(user.getId());
-            dto.setName(user.getName());
-            dto.setPhone(user.getPhone());
-            dto.setGender(user.getGender());
-            dto.setAddress(user.getAddress());
-            dto.setDob(user.getDob());
-            dto.setUpdatedAt(userUpdate.getUpdatedAt());
-        }
-        return dto;
+        return new PaginationResponse<>(list, meta);
     }
 
     public User findUserByEmail(String email) {

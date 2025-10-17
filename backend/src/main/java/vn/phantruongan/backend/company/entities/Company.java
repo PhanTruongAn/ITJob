@@ -26,7 +26,7 @@ import lombok.ToString;
 import vn.phantruongan.backend.authentication.entities.User;
 import vn.phantruongan.backend.common.Auditable;
 import vn.phantruongan.backend.company.enums.CompanyTypeEnum;
-import vn.phantruongan.backend.domain.job.entities.Job;
+import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.util.convert.DayOfWeekListConverter;
 
 @Entity

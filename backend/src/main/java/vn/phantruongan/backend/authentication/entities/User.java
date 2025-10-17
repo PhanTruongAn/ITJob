@@ -26,7 +26,7 @@ import vn.phantruongan.backend.authentication.enums.GenderEnum;
 import vn.phantruongan.backend.authorization.entities.Role;
 import vn.phantruongan.backend.common.Auditable;
 import vn.phantruongan.backend.company.entities.Company;
-import vn.phantruongan.backend.domain.resume.entities.Resume;
+import vn.phantruongan.backend.resume.entities.Resume;
 
 @Entity
 @Table(name = "users")

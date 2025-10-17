@@ -1,14 +1,14 @@
-package vn.phantruongan.backend.company.dtos.common;
+package vn.phantruongan.backend.company.dtos.req;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.phantruongan.backend.company.enums.CompanyTypeEnum;
 
 @Getter
 @Setter
-@AllArgsConstructor
-public class CompanyFilterDTO {
+@NoArgsConstructor
+public class GetListCompanyReqDTO {
     private String name;
     private String address;
     private CompanyTypeEnum companyType;

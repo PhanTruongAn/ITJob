@@ -1,6 +1,4 @@
-package vn.phantruongan.backend.domain.subscriber;
-
-import java.time.Instant;
+package vn.phantruongan.backend.job.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,24 +11,25 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import vn.phantruongan.backend.common.Auditable;
-import vn.phantruongan.backend.domain.skill.Skill;
+import vn.phantruongan.backend.subscriber.entities.Skill;
 
 @Entity
-@Table(name = "subscriber_skills")
+@Table(name = "job_skills")
 @Getter
 @Setter
-public class SubscriberSkill extends Auditable {
+public class JobSkill extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subscriber_id", nullable = false)
-    private Subscriber subscriber;
+    @JoinColumn(name = "job_id", nullable = false)
+    private Job job;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "skill_id", nullable = false)
     private Skill skill;
 
-    private Instant subscribedAt;
+    private boolean required;
+    private int priority;
 }

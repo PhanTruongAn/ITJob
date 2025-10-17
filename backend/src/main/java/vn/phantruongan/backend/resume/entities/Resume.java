@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.domain.resume.entities;
+package vn.phantruongan.backend.resume.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,8 +13,8 @@ import lombok.Getter;
 import lombok.Setter;
 import vn.phantruongan.backend.authentication.entities.User;
 import vn.phantruongan.backend.common.Auditable;
-import vn.phantruongan.backend.domain.job.entities.Job;
-import vn.phantruongan.backend.domain.resume.enums.ResumeEnum;
+import vn.phantruongan.backend.job.entities.Job;
+import vn.phantruongan.backend.resume.enums.ResumeEnum;
 
 @Entity
 @Table(name = "resumes")

@@ -11,15 +11,15 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import vn.phantruongan.backend.company.dtos.common.CompanyFilterDTO;
+import vn.phantruongan.backend.company.dtos.req.GetListCompanyReqDTO;
 import vn.phantruongan.backend.company.entities.Company;
 import vn.phantruongan.backend.company.entities.Country;
 
 public class CompanySpecification implements Specification<Company> {
-    private final CompanyFilterDTO filter;
+    private final GetListCompanyReqDTO dtoFilter;
 
-    public CompanySpecification(CompanyFilterDTO filter) {
-        this.filter = filter;
+    public CompanySpecification(GetListCompanyReqDTO dtoFilter) {
+        this.dtoFilter = dtoFilter;
     }
 
     @Override
@@ -29,24 +29,24 @@ public class CompanySpecification implements Specification<Company> {
 
         List<Predicate> predicates = new ArrayList<>();
 
-        if (filter.getName() != null) {
-            predicates.add(cb.like(cb.lower(root.get("name")), "%" + filter.getName().toLowerCase() + "%"));
+        if (dtoFilter.getName() != null) {
+            predicates.add(cb.like(cb.lower(root.get("name")), "%" + dtoFilter.getName().toLowerCase() + "%"));
         }
 
-        if (filter.getAddress() != null) {
-            predicates.add(cb.like(cb.lower(root.get("address")), "%" + filter.getAddress().toLowerCase() + "%"));
+        if (dtoFilter.getAddress() != null) {
+            predicates.add(cb.like(cb.lower(root.get("address")), "%" + dtoFilter.getAddress().toLowerCase() + "%"));
         }
 
-        if (filter.getCompanySize() != null) {
-            predicates.add(cb.equal(root.get("companySize"), filter.getCompanySize()));
+        if (dtoFilter.getCompanySize() != null) {
+            predicates.add(cb.equal(root.get("companySize"), dtoFilter.getCompanySize()));
         }
 
-        if (filter.getCompanyType() != null) {
-            predicates.add(cb.equal(root.get("companyType"), filter.getCompanyType()));
+        if (dtoFilter.getCompanyType() != null) {
+            predicates.add(cb.equal(root.get("companyType"), dtoFilter.getCompanyType()));
         }
-        if (filter.getCountryId() != null) {
+        if (dtoFilter.getCountryId() != null) {
             Join<Company, Country> countryJoin = root.join("country");
-            predicates.add(cb.equal(countryJoin.get("id"), filter.getCountryId()));
+            predicates.add(cb.equal(countryJoin.get("id"), dtoFilter.getCountryId()));
         }
         return cb.and(predicates.toArray(new Predicate[0]));
     }
