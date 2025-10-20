@@ -12,9 +12,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import vn.phantruongan.backend.authentication.entities.User;
 import vn.phantruongan.backend.common.Auditable;
 
@@ -22,20 +22,20 @@ import vn.phantruongan.backend.common.Auditable;
 @Table(name = "roles")
 @Getter
 @Setter
+@ToString
 public class Role extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Tên vai trò không được để trống!")
     @Column(nullable = false, unique = true)
     private String name;
 
     private String description;
 
-    @Column(nullable = false)
-    private boolean isActive = true;
+    @Column(nullable = false, name = "is_active")
+    private boolean active;
 
     @JsonIgnore
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)

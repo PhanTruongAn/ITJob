@@ -5,13 +5,13 @@ import lombok.Data;
 
 @Data
 public class RegisterReqDTO {
-    @NotBlank
+    @NotBlank(message = "Email must not be empty.")
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "Password must not be empty.")
     private String password;
 
-    @NotBlank
+    @NotBlank(message = "Name must not be empty.")
     private String name;
 
     private String avatar;

@@ -12,7 +12,6 @@ import vn.phantruongan.backend.company.enums.CompanyTypeEnum;
 @Getter
 @Setter
 @NoArgsConstructor
-
 public class CompanyResDTO {
     private long id;
     private String name;

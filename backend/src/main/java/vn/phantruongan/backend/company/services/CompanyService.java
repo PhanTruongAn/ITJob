@@ -56,7 +56,7 @@ public class CompanyService {
 
     public CompanyResDTO updateCompany(UpdateCompanyReqDTO dto) throws InvalidException {
         Company existingCompany = companyRepository.findById(dto.getId())
-                .orElseThrow(() -> new InvalidException("User not found"));
+                .orElseThrow(() -> new InvalidException("Company not found"));
 
         companyMapper.updateEntityFromDto(dto, existingCompany);
 

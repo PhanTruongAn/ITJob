@@ -78,12 +78,8 @@ public class CompanyController {
     @ApiMessage("Company deleted")
     public ResponseEntity<Boolean> deleteCompany(@PathVariable("id") long id) throws InvalidException {
         boolean isDelete = companyService.deleteCompanyById(id);
-        if (isDelete) {
-            return ResponseEntity.ok(isDelete);
-        } else {
-            throw new InvalidException(
-                    "Delete company failed, company not founded!");
-        }
+
+        return ResponseEntity.ok(isDelete);
 
     }
 

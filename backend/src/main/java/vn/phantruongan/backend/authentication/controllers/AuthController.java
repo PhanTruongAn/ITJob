@@ -76,7 +76,8 @@ public class AuthController {
         ResponseCookie cookies = ResponseCookie.from("refresh_token", refresh_token)
                 .httpOnly(true)
                 .secure(true)
-                .path("/")
+                // .path("/")
+                .path("/auth/refresh")
                 .maxAge(refreshTokenExpiration)
                 .build();
 

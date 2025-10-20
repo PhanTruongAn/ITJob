@@ -8,5 +8,5 @@ import vn.phantruongan.backend.authorization.entities.Role;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long>, JpaSpecificationExecutor<Role> {
-
+    public boolean existsByName(String name);
 }

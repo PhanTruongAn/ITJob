@@ -19,7 +19,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -31,7 +30,7 @@ import vn.phantruongan.backend.util.convert.DayOfWeekListConverter;
 
 @Entity
 @Table(name = "companies", uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "name", "country_id" })
+        @UniqueConstraint(columnNames = { "name" })
 })
 @Getter
 @Setter
@@ -40,8 +39,6 @@ public class Company extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    @NotBlank(message = "Company can not null!")
     private String name;
 
     @Enumerated(EnumType.STRING)

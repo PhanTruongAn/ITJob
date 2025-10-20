@@ -3,9 +3,9 @@ package vn.phantruongan.backend.authentication.dtos.login.req;
 import jakarta.validation.constraints.NotBlank;
 
 public class LoginDTO {
-    @NotBlank(message = "Username không được để trống")
+    @NotBlank(message = "User name must not be empty.")
     private String username;
-    @NotBlank(message = "Password không được để trống")
+    @NotBlank(message = "Password must not be empty.")
     private String password;
 
     public String getUsername() {
