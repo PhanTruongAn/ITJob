@@ -1,10 +1,10 @@
-import { Button, Col, Form, Input, Row, Select, Space, theme } from "antd";
-import React from "react";
-import { SearchOutlined, ClearOutlined } from "@ant-design/icons";
-import { ECompanyType } from "../../../types/enum";
-import { COMPANY_SIZE } from "../common/constants";
-import { IFilterCompany } from "../common/interface";
-import { useGetCountries } from "../common/hooks";
+import { ClearOutlined, SearchOutlined } from "@ant-design/icons"
+import { Button, Col, Form, Input, Row, Select, Space, theme } from "antd"
+import React from "react"
+import { ECompanyType } from "../../../types/enum"
+import { COMPANY_SIZE } from "../common/constants"
+import { useGetCountries } from "../common/hooks"
+import { IFilterCompany } from "../common/interface"
 
 export interface UserFilterProps {
   onFilter: ({
@@ -13,28 +13,28 @@ export interface UserFilterProps {
     companySize,
     companyType,
     countryId,
-  }: IFilterCompany) => void;
-  onClear: () => void;
+  }: IFilterCompany) => void
+  onClear: () => void
 }
 
 export const CompanyListHeaderToolbar: React.FC<UserFilterProps> = ({
   onFilter,
   onClear,
 }) => {
-  const { token } = theme.useToken();
-  const [form] = Form.useForm();
-  const { data } = useGetCountries();
+  const { token } = theme.useToken()
+  const [form] = Form.useForm()
+  const { data } = useGetCountries()
   const formStyle: React.CSSProperties = {
     maxWidth: "none",
     background: token.colorBgContainer,
     borderRadius: token.borderRadiusLG,
     padding: 16,
     paddingBottom: 5,
-  };
+  }
 
   const onFinish = (values: any) => {
-    onFilter(values);
-  };
+    onFilter(values)
+  }
 
   return (
     <Form
@@ -79,7 +79,7 @@ export const CompanyListHeaderToolbar: React.FC<UserFilterProps> = ({
               showSearch
             >
               {Object.entries(ECompanyType).map(([key, value]) => (
-                <Select.Option key={key} value={value}>
+                <Select.Option key={key} value={key}>
                   {value}
                 </Select.Option>
               ))}
@@ -116,8 +116,8 @@ export const CompanyListHeaderToolbar: React.FC<UserFilterProps> = ({
               </Button>
               <Button
                 onClick={() => {
-                  form.resetFields();
-                  onClear();
+                  form.resetFields()
+                  onClear()
                 }}
                 icon={<ClearOutlined />}
                 size="middle"
@@ -130,5 +130,5 @@ export const CompanyListHeaderToolbar: React.FC<UserFilterProps> = ({
         </Col>
       </Row>
     </Form>
-  );
-};
+  )
+}

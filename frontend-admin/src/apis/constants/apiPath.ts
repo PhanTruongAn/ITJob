@@ -1,11 +1,11 @@
 function path(root: string, subApi: string) {
-  return `${root}${subApi}`;
+  return `${root}${subApi}`
 }
-export const ROOT_API = "/api/v1";
+export const ROOT_API = "/api/v1"
 export const PATH_API = {
   user: {
     root: path(ROOT_API, "/users"),
-    filter: path(ROOT_API, "/users/filter"),
+    filter: path(ROOT_API, "/users"),
   },
   company: {
     root: path(ROOT_API, "/companies"),
@@ -17,4 +17,4 @@ export const PATH_API = {
     root: path(ROOT_API, "/file"),
     sign: path(ROOT_API, "/file/signed"),
   },
-};
+}
