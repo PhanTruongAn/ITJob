@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.authorization.dtos.req;
+package vn.phantruongan.backend.authorization.dtos.req.role;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

@@ -8,9 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import vn.phantruongan.backend.authorization.dtos.req.CreateRoleReqDTO;
-import vn.phantruongan.backend.authorization.dtos.req.GetListRoleReqDTO;
-import vn.phantruongan.backend.authorization.dtos.req.UpdateRoleReqDTO;
+import vn.phantruongan.backend.authorization.dtos.req.role.CreateRoleReqDTO;
+import vn.phantruongan.backend.authorization.dtos.req.role.GetListRoleReqDTO;
+import vn.phantruongan.backend.authorization.dtos.req.role.UpdateRoleReqDTO;
 import vn.phantruongan.backend.authorization.dtos.res.RoleResDTO;
 import vn.phantruongan.backend.authorization.entities.Role;
 import vn.phantruongan.backend.authorization.mappers.RoleMapper;
@@ -61,8 +61,8 @@ public class RoleService {
 
         roleMapper.updateEntityFromDto(dto, existingRole);
 
-        Role companyUpdated = roleRepository.save(existingRole);
-        return roleMapper.toDto(companyUpdated);
+        Role roleUpdated = roleRepository.save(existingRole);
+        return roleMapper.toDto(roleUpdated);
     }
 
     public RoleResDTO findById(long id) throws InvalidException {

@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.authorization.dtos.req;
+package vn.phantruongan.backend.authorization.dtos.req.role;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

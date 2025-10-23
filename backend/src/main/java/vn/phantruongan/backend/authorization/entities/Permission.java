@@ -14,9 +14,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import vn.phantruongan.backend.authorization.enums.ActionEnum;
 import vn.phantruongan.backend.authorization.enums.MethodEnum;
 import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 import vn.phantruongan.backend.common.Auditable;
@@ -30,10 +30,8 @@ public class Permission extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Tên quyền hạn không được để trống!")
     private String name;
 
-    @NotBlank(message = "ApiPath không được để trống!")
     private String apiPath;
 
     // Method của API: GET, POST, PUT, DELETE...
@@ -42,8 +40,9 @@ public class Permission extends Auditable {
     private MethodEnum method;
 
     // Action: CREATE, READ, UPDATE, DELETE, APPLY...
-    @NotBlank(message = "Action không được để trống!")
-    private String action;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ActionEnum action;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

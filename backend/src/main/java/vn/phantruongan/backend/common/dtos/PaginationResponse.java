@@ -17,9 +17,9 @@ public class PaginationResponse<T> {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Meta {
-        private int page;
-        private int size;
-        private long totalElements;
-        private int totalPages;
+        private int pageNumber;
+        private int pageSize;
+        private long total;
+        private int pages;
     }
 }

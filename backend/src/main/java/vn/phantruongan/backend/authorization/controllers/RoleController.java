@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import vn.phantruongan.backend.authorization.dtos.req.CreateRoleReqDTO;
-import vn.phantruongan.backend.authorization.dtos.req.GetListRoleReqDTO;
-import vn.phantruongan.backend.authorization.dtos.req.UpdateRoleReqDTO;
+import vn.phantruongan.backend.authorization.dtos.req.role.CreateRoleReqDTO;
+import vn.phantruongan.backend.authorization.dtos.req.role.GetListRoleReqDTO;
+import vn.phantruongan.backend.authorization.dtos.req.role.UpdateRoleReqDTO;
 import vn.phantruongan.backend.authorization.dtos.res.RoleResDTO;
 import vn.phantruongan.backend.authorization.repositories.RoleRepository;
 import vn.phantruongan.backend.authorization.services.RoleService;
@@ -53,13 +53,12 @@ public class RoleController {
     @ApiMessage("Create new role")
     public ResponseEntity<RoleResDTO> createCompany(@Valid @RequestBody CreateRoleReqDTO dto)
             throws InvalidException {
-        System.err.println("Check: " + dto);
         RoleResDTO newRole = roleService.createRole(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(newRole);
     }
 
     @PutMapping("/roles")
-    @ApiMessage("Company updated")
+    @ApiMessage("Role updated")
     public ResponseEntity<RoleResDTO> updateCompany(@Valid @RequestBody UpdateRoleReqDTO dto)
             throws InvalidException {
 

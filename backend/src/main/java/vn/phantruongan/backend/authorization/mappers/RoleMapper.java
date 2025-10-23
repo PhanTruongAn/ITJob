@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import vn.phantruongan.backend.authorization.dtos.req.CreateRoleReqDTO;
-import vn.phantruongan.backend.authorization.dtos.req.UpdateRoleReqDTO;
+import vn.phantruongan.backend.authorization.dtos.req.role.CreateRoleReqDTO;
+import vn.phantruongan.backend.authorization.dtos.req.role.UpdateRoleReqDTO;
 import vn.phantruongan.backend.authorization.dtos.res.RoleResDTO;
 import vn.phantruongan.backend.authorization.entities.Role;
 import vn.phantruongan.backend.common.BaseMapper;

@@ -10,7 +10,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import vn.phantruongan.backend.authorization.dtos.req.GetListRoleReqDTO;
+import vn.phantruongan.backend.authorization.dtos.req.role.GetListRoleReqDTO;
 import vn.phantruongan.backend.authorization.entities.Role;
 
 public class RoleSpecification implements Specification<Role> {
