@@ -1,5 +1,7 @@
 package vn.phantruongan.backend.authorization.controllers;
 
+import java.util.Map;
+
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import vn.phantruongan.backend.authorization.dtos.req.role.AssignPermissionsReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.role.CreateRoleReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.role.GetListRoleReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.role.UpdateRoleReqDTO;
@@ -80,6 +83,15 @@ public class RoleController {
 
         return ResponseEntity.ok(isDelete);
 
+    }
+
+    @PostMapping("/roles/assign-permissions")
+    @ApiMessage("Assign permissions to role")
+    public ResponseEntity<Map<String, Integer>> assignPermissionsToRole(
+            @Valid @RequestBody AssignPermissionsReqDTO dto) throws InvalidException {
+
+        Map<String, Integer> result = roleService.assignPermissionsToRole(dto);
+        return ResponseEntity.ok(result);
     }
 
 }

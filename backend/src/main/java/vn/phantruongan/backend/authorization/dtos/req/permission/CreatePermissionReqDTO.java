@@ -1,6 +1,7 @@
 package vn.phantruongan.backend.authorization.dtos.req.permission;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,13 +19,13 @@ public class CreatePermissionReqDTO {
 
     private String apiPath;
 
-    @NotBlank(message = "Method must not be blank!")
+    @NotNull(message = "Method must not be null!")
     private MethodEnum method;
 
-    @NotBlank(message = "Action must not be blank!")
+    @NotNull(message = "Action must not be null!")
     private ActionEnum action;
 
-    @NotBlank(message = "Resource must not be blank!")
+    @NotNull(message = "Resource must not be null!")
     private ResourceEnum resource;
 
 }
