@@ -17,7 +17,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import vn.phantruongan.backend.common.Auditable;
@@ -33,8 +32,6 @@ public class Job extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    @NotBlank(message = "Tên việc làm không được để trống!")
     private String name;
     private String location;
     @Column(columnDefinition = "MEDIUMTEXT")

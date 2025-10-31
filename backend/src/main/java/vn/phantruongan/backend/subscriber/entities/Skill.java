@@ -11,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import vn.phantruongan.backend.common.Auditable;
@@ -26,8 +25,8 @@ public class Skill extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank(message = "Tên kĩ năng không được để trống!")
     private String name;
+    private String description;
 
     @JsonIgnore
     @OneToMany(mappedBy = "skill", cascade = CascadeType.ALL, orphanRemoval = true)

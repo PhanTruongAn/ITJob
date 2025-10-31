@@ -25,6 +25,9 @@ public class Resume extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    private String candidateName;
+    private String phoneNumber;
+    private String note;
     private String email;
     private String url;
 
