@@ -9,4 +9,6 @@ import vn.phantruongan.backend.company.entities.Company;
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, Long>, JpaSpecificationExecutor<Company> {
     public boolean existsByNameAndCountry_Id(String name, long countryId);
+
+    public boolean existsById(Long id);
 }
