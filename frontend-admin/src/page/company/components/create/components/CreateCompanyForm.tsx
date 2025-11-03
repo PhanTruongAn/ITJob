@@ -26,19 +26,6 @@ import {
 
 const { Option } = Select
 
-interface CreateCompanyForm {
-  name: string
-  countryId: number
-  industry: string
-  companyType: string
-  companySize: string
-  overtime: boolean
-  workingDays: string[]
-  description: string
-  address: string
-  logo: string
-}
-
 const CreateCompanyForm: React.FC = ({}) => {
   const [form] = Form.useForm()
   const navigate = useNavigate()
@@ -65,7 +52,7 @@ const CreateCompanyForm: React.FC = ({}) => {
       }
 
       mutate(
-        { ...values, logo: imageUrl, country: { id: values.countryId } },
+        { ...values, logo: imageUrl, countryId: values.countryId },
         {
           onSuccess: (res) => {
             message.success(res.message)

@@ -14,6 +14,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -28,7 +29,10 @@ import vn.phantruongan.backend.company.entities.Company;
 import vn.phantruongan.backend.resume.entities.Resume;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+        @Index(name = "idx_user_email", columnList = "email", unique = true),
+        @Index(name = "idx_user_phone", columnList = "phone", unique = true)
+})
 @Getter
 @Setter
 @ToString
@@ -36,7 +40,6 @@ public class User extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
     private String name;
     private String email;
     private String password;

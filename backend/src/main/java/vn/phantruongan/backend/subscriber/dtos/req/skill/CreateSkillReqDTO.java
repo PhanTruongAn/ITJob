@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 public class CreateSkillReqDTO {
     @NotBlank(message = "Skill name must not be blank!")
     private String name;
+    private String description;
 }

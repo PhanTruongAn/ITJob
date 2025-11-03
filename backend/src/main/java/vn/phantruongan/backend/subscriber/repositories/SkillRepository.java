@@ -8,5 +8,5 @@ import vn.phantruongan.backend.subscriber.entities.Skill;
 
 @Repository
 public interface SkillRepository extends JpaRepository<Skill, Long>, JpaSpecificationExecutor<Skill> {
-
+    public boolean existsByName(String name);
 }

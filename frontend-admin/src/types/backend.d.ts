@@ -79,6 +79,19 @@ export interface ICompany {
   country: ICountry
 }
 
+export interface ICreateCompanyDTO {
+  name: string
+  address: string
+  companyType: ECompany
+  companySize: string
+  industry: string
+  overtime: boolean
+  description: string
+  logo: string
+  workingDays: DayOfWeek[]
+  countryId: number
+}
+
 export interface ICloud {
   timestamp: number
   cloudName: string
@@ -94,6 +107,4 @@ export interface IParamLogin {
   password: string
 }
 export interface IGetAccount extends Omit<IAccount, "access_token"> {}
-
-export interface ICreateCompanyDTO extends Omit<ICompany, "id"> {}
 export interface IEditCompanyDTO extends Omit<ICompany, "country"> {}

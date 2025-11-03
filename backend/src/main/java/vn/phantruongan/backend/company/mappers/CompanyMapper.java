@@ -11,8 +11,9 @@ import vn.phantruongan.backend.company.dtos.res.CompanyResDTO;
 import vn.phantruongan.backend.company.entities.Company;
 import vn.phantruongan.backend.config.common.GlobalMapperConfig;
 
-@Mapper(config = GlobalMapperConfig.class)
+@Mapper(config = GlobalMapperConfig.class, uses = { CountryMapper.class })
 public interface CompanyMapper extends BaseMapper<CompanyResDTO, Company> {
+
     Company toEntity(CreateCompanyReqDTO dto);
 
     CompanyResDTO toDto(Company entity);

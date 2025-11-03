@@ -13,6 +13,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -25,7 +26,9 @@ import vn.phantruongan.backend.job.enums.LevelEnum;
 import vn.phantruongan.backend.resume.entities.Resume;
 
 @Entity
-@Table(name = "jobs")
+@Table(name = "jobs", indexes = {
+        @Index(name = "idx_job_level", columnList = "level")
+})
 @Getter
 @Setter
 public class Job extends Auditable {

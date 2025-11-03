@@ -14,18 +14,23 @@ import vn.phantruongan.backend.company.dtos.req.GetListCompanyReqDTO;
 import vn.phantruongan.backend.company.dtos.req.UpdateCompanyReqDTO;
 import vn.phantruongan.backend.company.dtos.res.CompanyResDTO;
 import vn.phantruongan.backend.company.entities.Company;
+import vn.phantruongan.backend.company.entities.Country;
 import vn.phantruongan.backend.company.mappers.CompanyMapper;
 import vn.phantruongan.backend.company.repositories.CompanyRepository;
+import vn.phantruongan.backend.company.repositories.CountryRepository;
 import vn.phantruongan.backend.company.specification.CompanySpecification;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @Service
 public class CompanyService {
     private final CompanyRepository companyRepository;
+    private final CountryRepository countryRepository;
     private final CompanyMapper companyMapper;
 
-    public CompanyService(CompanyRepository companyRepository, CompanyMapper companyMapper) {
+    public CompanyService(CompanyRepository companyRepository, CountryRepository countryRepository,
+            CompanyMapper companyMapper) {
         this.companyRepository = companyRepository;
+        this.countryRepository = countryRepository;
         this.companyMapper = companyMapper;
     }
 
@@ -43,6 +48,9 @@ public class CompanyService {
             throw new InvalidException(
                     "The company already exists in this country!");
         }
+        Country country = countryRepository.findById(dto.getCountryId())
+                .orElseThrow(() -> new InvalidException("Country not found"));
+        company.setCountry(country);
         Company savedCompany = companyRepository.save(company);
         return companyMapper.toDto(savedCompany);
     }
