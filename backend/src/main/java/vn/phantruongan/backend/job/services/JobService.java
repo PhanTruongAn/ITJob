@@ -16,11 +16,14 @@ import vn.phantruongan.backend.job.dtos.req.job.GetListJobReqDTO;
 import vn.phantruongan.backend.job.dtos.req.job.UpdateJobReqDTO;
 import vn.phantruongan.backend.job.dtos.res.JobResDTO;
 import vn.phantruongan.backend.job.entities.Job;
+import vn.phantruongan.backend.job.entities.JobSkill;
 import vn.phantruongan.backend.job.mappers.JobMapper;
 import vn.phantruongan.backend.job.mappers.JobSkillMapper;
 import vn.phantruongan.backend.job.repositories.JobRepository;
 import vn.phantruongan.backend.job.repositories.JobSkillRepository;
 import vn.phantruongan.backend.job.specification.JobSpecification;
+import vn.phantruongan.backend.subscriber.entities.Skill;
+import vn.phantruongan.backend.subscriber.repositories.SkillRepository;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @Service
@@ -28,6 +31,7 @@ public class JobService {
     private final JobRepository jobRepository;
     private final JobSkillRepository jobSkillRepository;
     private final CompanyRepository companyRepository;
+    private final SkillRepository skillRepository;
     private final JobMapper jobMapper;
     private final JobSkillMapper jobSkillMapper;
 
@@ -35,11 +39,13 @@ public class JobService {
             JobRepository jobRepository,
             JobSkillRepository jobSkillRepository,
             CompanyRepository companyRepository,
+            SkillRepository skillRepository,
             JobMapper jobMapper,
             JobSkillMapper jobSkillMapper) {
         this.jobRepository = jobRepository;
         this.jobSkillRepository = jobSkillRepository;
         this.companyRepository = companyRepository;
+        this.skillRepository = skillRepository;
         this.jobMapper = jobMapper;
         this.jobSkillMapper = jobSkillMapper;
     }
@@ -63,10 +69,26 @@ public class JobService {
     public JobResDTO createJob(CreateJobReqDTO dto) throws InvalidException {
         Job job = jobMapper.toEntity(dto);
 
-        if (!companyRepository.existsById(dto.getCompanyId())) {
-            throw new InvalidException("Company not found with id: " + dto.getCompanyId());
-        }
+        Company company = companyRepository.findById(dto.getCompanyId())
+                .orElseThrow(() -> new InvalidException("Company not found with id: " + dto.getCompanyId()));
+        job.setCompany(company);
 
+        List<JobSkill> jobSkills = dto.getSkills().stream()
+                .map(skillDto -> {
+                    Skill skill = skillRepository.findById(skillDto.getSkillId())
+                            .orElseThrow(
+                                    () -> new InvalidException("Skill not found with id: " + skillDto.getSkillId()));
+
+                    JobSkill js = new JobSkill();
+                    js.setSkill(skill);
+                    js.setJob(job);
+                    js.setRequired(skillDto.isRequired());
+                    js.setPriority(skillDto.getPriority());
+                    return js;
+                })
+                .collect(Collectors.toList());
+
+        job.setJobSkills(jobSkills);
         Job savedJob = jobRepository.save(job);
         return jobMapper.toDto(savedJob);
     }
