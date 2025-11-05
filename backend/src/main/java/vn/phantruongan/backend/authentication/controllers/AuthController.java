@@ -10,6 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +30,7 @@ import vn.phantruongan.backend.authentication.entities.User;
 import vn.phantruongan.backend.authentication.services.AuthService;
 import vn.phantruongan.backend.authentication.services.UserService;
 import vn.phantruongan.backend.util.SecurityUtil;
-import vn.phantruongan.backend.util.annotation.ApiMessage;
+import vn.phantruongan.backend.util.annotations.ApiMessage;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
@@ -56,32 +57,41 @@ public class AuthController {
     @PostMapping("/auth/login")
     @ApiMessage("Login")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody LoginDTO loginDto) {
+
+        User user = userService.findUserByEmail(loginDto.getUsername());
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        if (user.getRole() == null) {
+            throw new InvalidException("User has no role assigned");
+        }
+
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 loginDto.getUsername(), loginDto.getPassword());
 
-        // Xác thực người dùng => Cần viết hàm loadUserByUsername
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        // Set thông tin người dùng đăng nhập vào context
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        System.err.println(">>> User " + authentication.getAuthorities());
         ResLoginDTO res = new ResLoginDTO();
-        // Create access token
-        String access_token = securityService.createAccessToken(authentication.getName());
+
+        // Truyền roleId vào JWT
+        String access_token = securityService.createAccessToken(user.getEmail(), user.getRole().getId());
         res.setAccessToken(access_token);
-        // Create refresh token
-        String refresh_token = securityService.createRefreshToken(loginDto.getUsername(), res);
+
+        String refresh_token = securityService.createRefreshToken(loginDto.getUsername(), user.getRole().getId(), res);
         userService.updateRefreshToken(loginDto.getUsername(), refresh_token);
 
-        // Set refresh token in cookies
         ResponseCookie cookies = ResponseCookie.from("refresh_token", refresh_token)
                 .httpOnly(true)
                 .secure(true)
-                // .path("/")
-                .path("/auth/refresh")
+                .path("/")
                 .maxAge(refreshTokenExpiration)
                 .build();
 
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookies.toString()).body(res);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookies.toString())
+                .body(res);
     }
 
     @GetMapping("/auth/account")
@@ -118,36 +128,20 @@ public class AuthController {
         if (refresh_token.equals("none")) {
             throw new InvalidException("No refresh token found in cookies.");
         }
-        // Check valid refresh token
+
         Jwt decodedToken = securityService.checkRefreshToken(refresh_token);
         String emailUser = decodedToken.getSubject();
 
-        // Check user by refresh token and email
         User user = userService.getUserByRefreshTokenAndEmail(refresh_token, emailUser);
         if (user == null) {
             throw new InvalidException("Invalid refresh token.");
         }
+
         ResLoginDTO res = new ResLoginDTO();
-        User userInDB = userService.findUserByEmail(emailUser);
-        if (userInDB == null) {
-            throw new InvalidException("Người dùng không tồn tại!");
-        }
-        // Create access token
-        String access_token = securityService.createAccessToken(emailUser);
+        String access_token = securityService.createAccessToken(emailUser, user.getRole().getId());
         res.setAccessToken(access_token);
-        // Create refresh token
-        String new_refresh_token = securityService.createRefreshToken(emailUser, res);
-        userService.updateRefreshToken(emailUser, new_refresh_token);
 
-        // Set refresh token in cookies
-        ResponseCookie cookies = ResponseCookie.from("refresh_token", new_refresh_token)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(refreshTokenExpiration)
-                .build();
-
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookies.toString()).body(res);
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping("/auth/logout")

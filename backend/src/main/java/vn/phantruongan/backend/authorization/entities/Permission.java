@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 import vn.phantruongan.backend.authorization.enums.ActionEnum;
@@ -51,5 +52,10 @@ public class Permission extends Auditable {
     @JsonIgnore
     @OneToMany(mappedBy = "permission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RolePermission> rolePermissions;
+
+    @Transient
+    public String getPermissionKey() {
+        return resource + "_" + action;
+    }
 
 }

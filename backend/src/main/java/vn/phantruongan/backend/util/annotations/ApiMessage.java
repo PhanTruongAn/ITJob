@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.util.annotation;
+package vn.phantruongan.backend.util.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

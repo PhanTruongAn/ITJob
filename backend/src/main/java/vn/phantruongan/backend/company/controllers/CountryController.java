@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import vn.phantruongan.backend.company.entities.Country;
 import vn.phantruongan.backend.company.services.CountryService;
-import vn.phantruongan.backend.util.annotation.ApiMessage;
+import vn.phantruongan.backend.util.annotations.ApiMessage;
 
 @RestController
 @RequestMapping("/api/v1")
 public class CountryController {
-    private final CountryService service;
+    public final CountryService service;
 
-    private CountryController(CountryService service) {
+    public CountryController(CountryService service) {
         this.service = service;
     }
 

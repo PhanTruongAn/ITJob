@@ -1,27 +1,27 @@
-import { message, theme } from "antd";
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { fetchCompanies } from "../../apis/companyModule";
-import CustomHooks from "../../common/hooks/CustomHooks";
-import useRefresh from "../../common/hooks/useRefresh";
-import { QUERY_KEYS } from "../../common/queryKeys";
-import { replacePathParamsWithQuery } from "../../common/utils/replaceParams";
-import ConfirmModal from "../../components/modal/ConfirmModal";
-import CustomGlobalTable from "../../components/table";
-import { PATH_DASHBOARD } from "../../routes/paths";
-import { IBackendPaginateRes, ICompany } from "../../types/backend";
-import { DEFAULT_STATE } from "./common/constants";
-import { useCompanyState, useDeleteCompany } from "./common/hooks";
-import { IFilterCompany } from "./common/interface";
-import CompanyListHeader from "./components/CompanyListHeader";
-import { CompanyListHeaderToolbar } from "./components/CompanyListToolbar";
-import { companyColumns } from "./components/table/CompanyComlumns";
+import { message, theme } from "antd"
+import React from "react"
+import { useNavigate } from "react-router-dom"
+import { fetchCompanies } from "../../apis/companyModule"
+import CustomHooks from "../../common/hooks/CustomHooks"
+import useRefresh from "../../common/hooks/useRefresh"
+import { QUERY_KEYS } from "../../common/queryKeys"
+import { replacePathParamsWithQuery } from "../../common/utils/replaceParams"
+import ConfirmModal from "../../components/modal/ConfirmModal"
+import CustomGlobalTable from "../../components/table"
+import { PATH_DASHBOARD } from "../../routes/paths"
+import { IBackendPaginateRes, ICompany } from "../../types/backend"
+import { DEFAULT_STATE } from "./common/constants"
+import { useCompanyState, useDeleteCompany } from "./common/hooks"
+import { IFilterCompany } from "./common/interface"
+import CompanyListHeader from "./components/CompanyListHeader"
+import { CompanyListHeaderToolbar } from "./components/CompanyListToolbar"
+import { companyColumns } from "./components/table/CompanyComlumns"
 const Company: React.FC = () => {
-  const navigate = useNavigate();
-  const { state, updateState } = useCompanyState();
+  const navigate = useNavigate()
+  const { state, updateState } = useCompanyState()
 
-  const { mutate: deleteMutate, isPending: isDelete } = useDeleteCompany();
-  const { token } = theme.useToken();
+  const { mutate: deleteMutate, isPending: isDelete } = useDeleteCompany()
+  const { token } = theme.useToken()
   const handleFilter = ({
     name,
     address,
@@ -29,18 +29,18 @@ const Company: React.FC = () => {
     companyType,
     countryId,
   }: IFilterCompany) => {
-    updateState({ name, address, companySize, companyType, countryId });
-  };
+    updateState({ name, address, companySize, companyType, countryId })
+  }
   const handleClearFilter = () => {
-    updateState(DEFAULT_STATE);
-  };
+    updateState(DEFAULT_STATE)
+  }
 
   const handleAddCompany = () => {
-    navigate(PATH_DASHBOARD.companyManage.create);
-  };
+    navigate(PATH_DASHBOARD.companyManage.create)
+  }
   const handleTableChange = (page: number, pageSize: number, sort?: string) => {
-    updateState({ page, pageSize, sort });
-  };
+    updateState({ page, pageSize, sort })
+  }
 
   const fetchDataCompanies = async (): Promise<
     IBackendPaginateRes<ICompany[]>
@@ -54,14 +54,14 @@ const Company: React.FC = () => {
       companySize: state.companySize || null,
       companyType: state.companyType || null,
       countryId: state.countryId || null,
-    });
+    })
     if (res?.statusCode >= 400) {
-      message.error(res?.error);
+      message.error(res?.message)
     } else {
-      updateState({ total: res.data.meta.total });
+      updateState({ total: res.data.meta.total })
     }
-    return res;
-  };
+    return res
+  }
   const {
     data,
     refetch,
@@ -79,53 +79,53 @@ const Company: React.FC = () => {
       state.countryId,
     ],
     fetchDataCompanies
-  );
-  const { isLoading, handleRefresh } = useRefresh(refetch);
+  )
+  const { isLoading, handleRefresh } = useRefresh(refetch)
   const listStyle: React.CSSProperties = {
     display: "flex",
     background: token.colorBgContainer,
     borderRadius: token.borderRadiusLG,
     marginTop: 13,
     flexDirection: "column",
-  };
+  }
   const confirmDeleteCompany = (id: number) => {
-    updateState({ visibleDeleteModal: true, selectedCompanyId: id });
-  };
+    updateState({ visibleDeleteModal: true, selectedCompanyId: id })
+  }
   const handleDelete = () => {
     deleteMutate(
       { id: state.selectedCompanyId! },
       {
         onSuccess: async (result) => {
-          const updatedData = await refetch();
-          const resultLength = updatedData?.data?.data?.result?.length ?? 0;
+          const updatedData = await refetch()
+          const resultLength = updatedData?.data?.data?.result?.length ?? 0
 
           if (resultLength === 0 && state.page > 1) {
-            updateState({ page: state.page - 1 });
+            updateState({ page: state.page - 1 })
           }
 
-          message.success(result.message);
+          message.success(result.message)
           updateState({
             visibleDeleteModal: false,
             selectedCompanyId: null,
-          });
+          })
         },
         onError: () => {
-          message.error("Error when deleted company");
+          message.error("Error when deleted company")
           updateState({
             visibleDeleteModal: false,
             selectedCompanyId: null,
-          });
+          })
         },
       }
-    );
-  };
+    )
+  }
   const handleEditUser = (record: ICompany) => {
     navigate(
       replacePathParamsWithQuery(PATH_DASHBOARD.companyManage.edit, {
         id: record.id,
       })
-    );
-  };
+    )
+  }
   const handleViewUser = (record: ICompany) => {
     navigate(
       replacePathParamsWithQuery(PATH_DASHBOARD.companyManage.edit, {
@@ -134,8 +134,8 @@ const Company: React.FC = () => {
       {
         state: { isView: true },
       }
-    );
-  };
+    )
+  }
   return (
     <div>
       <CompanyListHeader
@@ -161,13 +161,13 @@ const Company: React.FC = () => {
           <CustomGlobalTable<ICompany>
             columns={companyColumns({
               onView: (record) => {
-                handleViewUser(record);
+                handleViewUser(record)
               },
               onEdit: (record) => {
-                handleEditUser(record);
+                handleEditUser(record)
               },
               onDelete: (record) => {
-                confirmDeleteCompany(record);
+                confirmDeleteCompany(record)
               },
             })}
             data={data?.data?.result || []}
@@ -180,7 +180,7 @@ const Company: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Company;
+export default Company

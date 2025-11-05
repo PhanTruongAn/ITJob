@@ -62,7 +62,7 @@ public class SecurityUtil {
     }
 
     // Create access-token
-    public String createAccessToken(String email) {
+    public String createAccessToken(String email, long roleId) {
         Instant now = Instant.now();
         Instant validity = now.plus(accessTokenExpiration, ChronoUnit.SECONDS);
 
@@ -71,14 +71,14 @@ public class SecurityUtil {
         .issuedAt(now)
         .expiresAt(validity)
         .subject(email)
-        // .claim("user", userLogin)
+        .claim("roleId", roleId)
         .build();
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader,
        claims)).getTokenValue();
     }
     // Create refresh-token
-    public String createRefreshToken(String email,ResLoginDTO dto) {
+    public String createRefreshToken(String email, long roleId, ResLoginDTO dto) {
 
         Instant now = Instant.now();
         Instant validity = now.plus(refreshTokenExpiration, ChronoUnit.SECONDS);
@@ -88,7 +88,7 @@ public class SecurityUtil {
         .issuedAt(now)
         .expiresAt(validity)
         .subject(email)
-        // .claim("user", dto.getUser())
+        .claim("roleId", roleId)
         .build();
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader,

@@ -98,7 +98,8 @@ instance.interceptors.response.use(
       message.error(error?.response?.data?.message ?? "")
     }
 
-    return Promise.reject(error?.response?.data?.message)
+    // return Promise.reject(error?.response?.data?.message)
+    return Promise.reject(error)
   }
 )
 

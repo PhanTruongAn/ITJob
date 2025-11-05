@@ -22,8 +22,11 @@ import vn.phantruongan.backend.authentication.dtos.req.GetListUserReqDTO;
 import vn.phantruongan.backend.authentication.dtos.req.UpdateUserReqDTO;
 import vn.phantruongan.backend.authentication.dtos.res.UserResDTO;
 import vn.phantruongan.backend.authentication.services.UserService;
+import vn.phantruongan.backend.authorization.enums.ActionEnum;
+import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
-import vn.phantruongan.backend.util.annotation.ApiMessage;
+import vn.phantruongan.backend.util.annotations.ApiMessage;
+import vn.phantruongan.backend.util.annotations.CheckPermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @SecurityRequirement(name = "bearerAuth")
@@ -38,6 +41,7 @@ public class UserController {
 
     }
 
+    @CheckPermission(resource = ResourceEnum.USER, action = ActionEnum.CREATE)
     @PostMapping("/users")
     @ApiMessage("User created")
     public ResponseEntity<UserResDTO> createNewUser(@Valid @RequestBody CreateUserReqDTO dto) throws InvalidException {
@@ -45,6 +49,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(dataUser);
     }
 
+    @CheckPermission(resource = ResourceEnum.USER, action = ActionEnum.UPDATE)
     @PutMapping("/users")
     @ApiMessage("User updated")
     public ResponseEntity<UserResDTO> updateUser(@Valid @RequestBody UpdateUserReqDTO dto) throws InvalidException {
@@ -53,6 +58,7 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    @CheckPermission(resource = ResourceEnum.USER, action = ActionEnum.DELETE)
     @DeleteMapping("/users/{id}")
     @ApiMessage("User deleted")
     public ResponseEntity<Boolean> deleteUserById(@PathVariable("id") long id) throws InvalidException {
@@ -60,6 +66,7 @@ public class UserController {
         return ResponseEntity.ok(deleted);
     }
 
+    @CheckPermission(resource = ResourceEnum.USER, action = ActionEnum.READ)
     @GetMapping("/users/{id}")
     @ApiMessage("Get user")
     public ResponseEntity<UserResDTO> getUserById(@PathVariable("id") long id) throws InvalidException {
@@ -67,6 +74,7 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @CheckPermission(resource = ResourceEnum.USER, action = ActionEnum.READ)
     @GetMapping("/users")
     @ApiMessage("Get users with filter")
     public ResponseEntity<PaginationResponse<UserResDTO>> getAllUser(

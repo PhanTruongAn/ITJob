@@ -13,8 +13,12 @@ import vn.phantruongan.backend.authorization.dtos.req.permission.GetListPermissi
 import vn.phantruongan.backend.authorization.dtos.req.permission.UpdatePermissionReqDTO;
 import vn.phantruongan.backend.authorization.dtos.res.PermissionResDTO;
 import vn.phantruongan.backend.authorization.entities.Permission;
+import vn.phantruongan.backend.authorization.entities.Role;
+import vn.phantruongan.backend.authorization.enums.ActionEnum;
+import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 import vn.phantruongan.backend.authorization.mappers.PermissionMapper;
 import vn.phantruongan.backend.authorization.repositories.PermissionRepository;
+import vn.phantruongan.backend.authorization.repositories.RoleRepository;
 import vn.phantruongan.backend.authorization.specification.PermissionSpecification;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.util.error.InvalidException;
@@ -22,10 +26,13 @@ import vn.phantruongan.backend.util.error.InvalidException;
 @Service
 public class PermissionService {
     private final PermissionRepository permissionRepository;
+    private final RoleRepository roleRepository;
     private final PermissionMapper permissionMapper;
 
-    public PermissionService(PermissionRepository permissionRepository, PermissionMapper permissionMapper) {
+    public PermissionService(PermissionRepository permissionRepository, RoleRepository roleRepository,
+            PermissionMapper permissionMapper) {
         this.permissionRepository = permissionRepository;
+        this.roleRepository = roleRepository;
         this.permissionMapper = permissionMapper;
     }
 
@@ -78,5 +85,16 @@ public class PermissionService {
 
         permissionRepository.delete(permission);
         return true;
+    }
+
+    // Kiểm tra quyền theo key
+    public boolean hasPermission(Long roleId, ResourceEnum resource, ActionEnum action) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new RuntimeException("Role not found with id: " + roleId));
+
+        String permissionKey = resource + "_" + action;
+
+        return role.getRolePermissions().stream()
+                .anyMatch(rp -> rp.getPermission().getPermissionKey().equals(permissionKey));
     }
 }

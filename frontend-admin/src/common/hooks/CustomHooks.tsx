@@ -1,15 +1,15 @@
 import {
-  useQuery as useReactQuery,
-  QueryKey,
-  UseQueryOptions,
-  UseQueryResult,
   keepPreviousData,
+  QueryKey,
   useMutation,
   UseMutationOptions,
   UseMutationResult,
-} from "@tanstack/react-query";
-import { message } from "antd";
-import axios from "axios";
+  UseQueryOptions,
+  UseQueryResult,
+  useQuery as useReactQuery,
+} from "@tanstack/react-query"
+import { message } from "antd"
+import axios from "axios"
 
 const CustomHooks = {
   useQuery<TData>(
@@ -21,8 +21,11 @@ const CustomHooks = {
       queryKey,
       queryFn,
       placeholderData: keepPreviousData,
+      refetchOnWindowFocus: false, // 🧠 Không fetch lại khi tab focus
+      refetchOnReconnect: false, // 🧠 Không fetch lại khi reconnect
+      retry: false,
       ...options,
-    });
+    })
   },
 
   useMutation<TData, TError = unknown, TVariables = void, TContext = unknown>(
@@ -34,13 +37,13 @@ const CustomHooks = {
       ...options,
       onError: (error, variables, context) => {
         if (axios.isAxiosError(error)) {
-          const resData = error.response?.data;
-          message.error(resData?.error || resData?.message);
+          const resData = error.response?.data
+          message.error(resData?.message || "An error occurred")
         }
-        options?.onError?.(error, variables, context);
+        options?.onError?.(error, variables, context)
       },
-    });
+    })
   },
-};
+}
 
-export default CustomHooks;
+export default CustomHooks
