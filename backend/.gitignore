@@ -35,3 +35,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Application Properties ###
+# Bỏ toàn bộ file config thật
+src/main/resources/application.properties
