@@ -29,7 +29,7 @@ import vn.phantruongan.backend.authentication.dtos.register.RegisterResDTO;
 import vn.phantruongan.backend.authentication.entities.User;
 import vn.phantruongan.backend.authentication.services.AuthService;
 import vn.phantruongan.backend.authentication.services.UserService;
-import vn.phantruongan.backend.util.SecurityUtil;
+import vn.phantruongan.backend.config.jwt.JwtService;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
 import vn.phantruongan.backend.util.error.InvalidException;
 
@@ -39,17 +39,17 @@ import vn.phantruongan.backend.util.error.InvalidException;
 public class AuthController {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final SecurityUtil securityService;
+    private final JwtService jwtService;
     private final AuthService authService;
     private final UserService userService;
 
     @Value("${jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityService,
+    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, JwtService jwtService,
             UserService userService, AuthService authService) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
-        this.securityService = securityService;
+        this.jwtService = jwtService;
         this.userService = userService;
         this.authService = authService;
     }
@@ -76,10 +76,10 @@ public class AuthController {
         ResLoginDTO res = new ResLoginDTO();
 
         // Truyền roleId vào JWT
-        String access_token = securityService.createAccessToken(user.getEmail(), user.getRole().getId());
+        String access_token = jwtService.createAccessToken(user.getEmail(), user.getRole().getId());
         res.setAccessToken(access_token);
 
-        String refresh_token = securityService.createRefreshToken(loginDto.getUsername(), user.getRole().getId(), res);
+        String refresh_token = jwtService.createRefreshToken(loginDto.getUsername(), user.getRole().getId(), res);
         userService.updateRefreshToken(loginDto.getUsername(), refresh_token);
 
         ResponseCookie cookies = ResponseCookie.from("refresh_token", refresh_token)
@@ -97,8 +97,8 @@ public class AuthController {
     @GetMapping("/auth/account")
     @ApiMessage("Get account information")
     public ResponseEntity<GetAccountResDTO> getAccount() {
-        String email = SecurityUtil.getCurrentUserLogin().isPresent()
-                ? SecurityUtil.getCurrentUserLogin().get()
+        String email = JwtService.getCurrentUserLogin().isPresent()
+                ? JwtService.getCurrentUserLogin().get()
                 : "";
 
         User userInDB = userService.findUserByEmail(email);
@@ -129,7 +129,7 @@ public class AuthController {
             throw new InvalidException("No refresh token found in cookies.");
         }
 
-        Jwt decodedToken = securityService.checkRefreshToken(refresh_token);
+        Jwt decodedToken = jwtService.checkRefreshToken(refresh_token);
         String emailUser = decodedToken.getSubject();
 
         User user = userService.getUserByRefreshTokenAndEmail(refresh_token, emailUser);
@@ -138,7 +138,7 @@ public class AuthController {
         }
 
         ResLoginDTO res = new ResLoginDTO();
-        String access_token = securityService.createAccessToken(emailUser, user.getRole().getId());
+        String access_token = jwtService.createAccessToken(emailUser, user.getRole().getId());
         res.setAccessToken(access_token);
 
         return ResponseEntity.ok(res);
@@ -147,8 +147,8 @@ public class AuthController {
     @PostMapping("/auth/logout")
     @ApiMessage("Logout")
     public ResponseEntity<Void> logOut() throws InvalidException {
-        String email = SecurityUtil.getCurrentUserLogin().isPresent()
-                ? SecurityUtil.getCurrentUserLogin().get()
+        String email = JwtService.getCurrentUserLogin().isPresent()
+                ? JwtService.getCurrentUserLogin().get()
                 : "";
         if (email == "") {
             throw new InvalidException("Invalid or unauthenticated user.");

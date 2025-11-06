@@ -7,7 +7,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import lombok.Getter;
 import lombok.Setter;
-import vn.phantruongan.backend.util.SecurityUtil;
+import vn.phantruongan.backend.config.jwt.JwtService;
 
 @MappedSuperclass
 @Getter
@@ -22,7 +22,7 @@ public abstract class Auditable {
     @PrePersist
     public void handleBeforeCreate() {
         try {
-            this.createdBy = SecurityUtil.getCurrentUserLogin().orElse("");
+            this.createdBy = JwtService.getCurrentUserLogin().orElse("");
         } catch (Exception e) {
             this.createdBy = "system";
         }
@@ -32,7 +32,7 @@ public abstract class Auditable {
     @PreUpdate
     public void handleBeforeUpdate() {
         try {
-            this.updatedBy = SecurityUtil.getCurrentUserLogin().orElse("");
+            this.updatedBy = JwtService.getCurrentUserLogin().orElse("");
         } catch (Exception e) {
             this.updatedBy = "system";
         }

@@ -25,7 +25,7 @@ import vn.phantruongan.backend.company.dtos.res.CompanyResDTO;
 import vn.phantruongan.backend.company.repositories.CompanyRepository;
 import vn.phantruongan.backend.company.services.CompanyService;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
-import vn.phantruongan.backend.util.annotations.CheckPermission;
+import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
@@ -42,7 +42,7 @@ public class CompanyController {
         this.companyRepository = companyRepository;
     }
 
-    @CheckPermission(resource = ResourceEnum.COMPANY, action = ActionEnum.READ)
+    @RequirePermission(resource = ResourceEnum.COMPANY, action = ActionEnum.READ)
     @GetMapping("/companies")
     @ApiMessage("Get list company with filter")
     public ResponseEntity<PaginationResponse<CompanyResDTO>> getAllCompanies(
@@ -53,7 +53,7 @@ public class CompanyController {
         return ResponseEntity.ok(result);
     }
 
-    @CheckPermission(resource = ResourceEnum.COMPANY, action = ActionEnum.CREATE)
+    @RequirePermission(resource = ResourceEnum.COMPANY, action = ActionEnum.CREATE)
     @PostMapping("/companies")
     @ApiMessage("Create new company")
     public ResponseEntity<CompanyResDTO> createCompany(@Valid @RequestBody CreateCompanyReqDTO dto)
@@ -63,7 +63,7 @@ public class CompanyController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newCompany);
     }
 
-    @CheckPermission(resource = ResourceEnum.COMPANY, action = ActionEnum.UPDATE)
+    @RequirePermission(resource = ResourceEnum.COMPANY, action = ActionEnum.UPDATE)
     @PutMapping("/companies")
     @ApiMessage("Company updated")
     public ResponseEntity<CompanyResDTO> updateCompany(@Valid @RequestBody UpdateCompanyReqDTO dto)
@@ -73,7 +73,7 @@ public class CompanyController {
         return ResponseEntity.ok(companyUpdated);
     }
 
-    @CheckPermission(resource = ResourceEnum.COMPANY, action = ActionEnum.READ)
+    @RequirePermission(resource = ResourceEnum.COMPANY, action = ActionEnum.READ)
     @GetMapping("/companies/{id}")
     @ApiMessage("Get company by id")
     public ResponseEntity<CompanyResDTO> findCompanyById(@PathVariable("id") long id) throws InvalidException {
@@ -81,7 +81,7 @@ public class CompanyController {
         return ResponseEntity.ok(company);
     }
 
-    @CheckPermission(resource = ResourceEnum.COMPANY, action = ActionEnum.DELETE)
+    @RequirePermission(resource = ResourceEnum.COMPANY, action = ActionEnum.DELETE)
     @DeleteMapping("/companies/{id}")
     @ApiMessage("Company deleted")
     public ResponseEntity<Boolean> deleteCompany(@PathVariable("id") long id) throws InvalidException {

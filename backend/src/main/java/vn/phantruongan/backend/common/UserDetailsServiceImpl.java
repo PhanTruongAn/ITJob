@@ -13,11 +13,11 @@ import vn.phantruongan.backend.authentication.entities.User;
 import vn.phantruongan.backend.authentication.services.UserService;
 
 @Component("userDetailsService")
-public class UserDetailCustom implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserService userService;
 
-    public UserDetailCustom(UserService userService) {
+    public UserDetailsServiceImpl(UserService userService) {
         this.userService = userService;
     }
 

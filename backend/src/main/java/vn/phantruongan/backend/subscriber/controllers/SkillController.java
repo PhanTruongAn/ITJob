@@ -24,7 +24,7 @@ import vn.phantruongan.backend.subscriber.dtos.req.skill.UpdateSkillReqDTO;
 import vn.phantruongan.backend.subscriber.dtos.res.SkillResDTO;
 import vn.phantruongan.backend.subscriber.services.SkillService;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
-import vn.phantruongan.backend.util.annotations.CheckPermission;
+import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
@@ -37,7 +37,7 @@ public class SkillController {
         this.skillService = skillService;
     }
 
-    @CheckPermission(resource = ResourceEnum.SKILL, action = ActionEnum.READ)
+    @RequirePermission(resource = ResourceEnum.SKILL, action = ActionEnum.READ)
     @GetMapping("/skills")
     @ApiMessage("Get list skill with filter")
     public ResponseEntity<PaginationResponse<SkillResDTO>> getAllSkills(
@@ -48,7 +48,7 @@ public class SkillController {
         return ResponseEntity.ok(result);
     }
 
-    @CheckPermission(resource = ResourceEnum.SKILL, action = ActionEnum.CREATE)
+    @RequirePermission(resource = ResourceEnum.SKILL, action = ActionEnum.CREATE)
     @PostMapping("/skills")
     @ApiMessage("Create new skill")
     public ResponseEntity<SkillResDTO> createSkill(@Valid @RequestBody CreateSkillReqDTO dto) throws InvalidException {
@@ -58,7 +58,7 @@ public class SkillController {
 
     }
 
-    @CheckPermission(resource = ResourceEnum.SKILL, action = ActionEnum.UPDATE)
+    @RequirePermission(resource = ResourceEnum.SKILL, action = ActionEnum.UPDATE)
     @PutMapping("/skills")
     @ApiMessage("Skill updated")
     public ResponseEntity<SkillResDTO> updateSkill(@Valid @RequestBody UpdateSkillReqDTO dto)
@@ -68,7 +68,7 @@ public class SkillController {
         return ResponseEntity.ok(skillUpdated);
     }
 
-    @CheckPermission(resource = ResourceEnum.SKILL, action = ActionEnum.READ)
+    @RequirePermission(resource = ResourceEnum.SKILL, action = ActionEnum.READ)
     @GetMapping("/skills/{id}")
     @ApiMessage("Get skill by id")
     public ResponseEntity<SkillResDTO> findSkillById(@PathVariable("id") long id) throws InvalidException {
@@ -76,7 +76,7 @@ public class SkillController {
         return ResponseEntity.ok(skill);
     }
 
-    @CheckPermission(resource = ResourceEnum.SKILL, action = ActionEnum.DELETE)
+    @RequirePermission(resource = ResourceEnum.SKILL, action = ActionEnum.DELETE)
     @DeleteMapping("/skills/{id}")
     @ApiMessage("Skill deleted")
     public ResponseEntity<Boolean> deleteSkill(@PathVariable("id") long id) throws InvalidException {

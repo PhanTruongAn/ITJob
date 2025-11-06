@@ -10,7 +10,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import vn.phantruongan.backend.authorization.services.PermissionService;
-import vn.phantruongan.backend.util.annotations.CheckPermission;
+import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.PermissionDeniedException;
 
 @Aspect
@@ -23,8 +23,8 @@ public class PermissionAspect {
         this.permissionService = permissionService;
     }
 
-    @Around("@annotation(checkPermission)")
-    public Object check(ProceedingJoinPoint joinPoint, CheckPermission checkPermission) throws Throwable {
+    @Around("@annotation(requirePermission)")
+    public Object check(ProceedingJoinPoint joinPoint, RequirePermission requirePermission) throws Throwable {
         // Lấy thông tin người dùng hiện tại từ SecurityContextHolder
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -46,8 +46,8 @@ public class PermissionAspect {
 
         // Kiểm tra quyền theo resource và action trong annotation
         boolean allowed = permissionService.hasPermission(roleId,
-                checkPermission.resource(),
-                checkPermission.action());
+                requirePermission.resource(),
+                requirePermission.action());
 
         if (!allowed) {
             throw new PermissionDeniedException("You don't have permission to perform this action");

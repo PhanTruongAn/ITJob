@@ -3,6 +3,7 @@ package vn.phantruongan.backend.authorization.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -88,7 +89,9 @@ public class PermissionService {
     }
 
     // Kiểm tra quyền theo key
+    @Cacheable(cacheNames = "permissions", key = "#roleId + '_' + #resource + '_' + #action")
     public boolean hasPermission(Long roleId, ResourceEnum resource, ActionEnum action) {
+
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RuntimeException("Role not found with id: " + roleId));
 

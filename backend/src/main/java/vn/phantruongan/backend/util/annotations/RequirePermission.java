@@ -10,7 +10,7 @@ import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CheckPermission {
+public @interface RequirePermission {
     ResourceEnum resource();
 
     ActionEnum action();

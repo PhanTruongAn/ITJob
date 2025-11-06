@@ -28,7 +28,7 @@ import vn.phantruongan.backend.authorization.repositories.RoleRepository;
 import vn.phantruongan.backend.authorization.services.RoleService;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
-import vn.phantruongan.backend.util.annotations.CheckPermission;
+import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
@@ -45,7 +45,7 @@ public class RoleController {
         this.roleRepository = roleRepository;
     }
 
-    @CheckPermission(resource = ResourceEnum.ROLE, action = ActionEnum.READ)
+    @RequirePermission(resource = ResourceEnum.ROLE, action = ActionEnum.READ)
     @GetMapping("/roles")
     @ApiMessage("Get list role with filter")
     public ResponseEntity<PaginationResponse<RoleResDTO>> getAllRoles(
@@ -56,7 +56,7 @@ public class RoleController {
         return ResponseEntity.ok(result);
     }
 
-    @CheckPermission(resource = ResourceEnum.ROLE, action = ActionEnum.CREATE)
+    @RequirePermission(resource = ResourceEnum.ROLE, action = ActionEnum.CREATE)
     @PostMapping("/roles")
     @ApiMessage("Create new role")
     public ResponseEntity<RoleResDTO> createCompany(@Valid @RequestBody CreateRoleReqDTO dto)
@@ -65,7 +65,7 @@ public class RoleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newRole);
     }
 
-    @CheckPermission(resource = ResourceEnum.ROLE, action = ActionEnum.UPDATE)
+    @RequirePermission(resource = ResourceEnum.ROLE, action = ActionEnum.UPDATE)
     @PutMapping("/roles")
     @ApiMessage("Role updated")
     public ResponseEntity<RoleResDTO> updateCompany(@Valid @RequestBody UpdateRoleReqDTO dto)
@@ -75,7 +75,7 @@ public class RoleController {
         return ResponseEntity.ok(roleUpdated);
     }
 
-    @CheckPermission(resource = ResourceEnum.ROLE, action = ActionEnum.READ)
+    @RequirePermission(resource = ResourceEnum.ROLE, action = ActionEnum.READ)
     @GetMapping("/roles/{id}")
     @ApiMessage("Get role by id")
     public ResponseEntity<RoleResDTO> findCompanyById(@PathVariable("id") long id) throws InvalidException {
@@ -83,7 +83,7 @@ public class RoleController {
         return ResponseEntity.ok(role);
     }
 
-    @CheckPermission(resource = ResourceEnum.ROLE, action = ActionEnum.DELETE)
+    @RequirePermission(resource = ResourceEnum.ROLE, action = ActionEnum.DELETE)
     @DeleteMapping("/roles/{id}")
     @ApiMessage("Role deleted")
     public ResponseEntity<Boolean> deleteCompany(@PathVariable("id") long id) throws InvalidException {
@@ -93,7 +93,7 @@ public class RoleController {
 
     }
 
-    @CheckPermission(resource = ResourceEnum.ROLE, action = ActionEnum.UPDATE)
+    @RequirePermission(resource = ResourceEnum.ROLE, action = ActionEnum.UPDATE)
     @PostMapping("/roles/assign-permissions")
     @ApiMessage("Assign permissions to role")
     public ResponseEntity<Map<String, Integer>> assignPermissionsToRole(
