@@ -111,8 +111,6 @@ public class RoleService {
                 .map(rp -> rp.getPermission().getId())
                 .collect(Collectors.toList());
 
-        // If don't have any change then skip
-
         Set<Long> oldSet = new HashSet<>(oldPermissionIds);
         Set<Long> newSet = new HashSet<>(newPermissionIds);
         if (oldSet.equals(newSet)) {

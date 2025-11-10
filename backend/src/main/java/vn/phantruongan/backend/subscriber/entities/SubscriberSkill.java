@@ -1,7 +1,5 @@
 package vn.phantruongan.backend.subscriber.entities;
 
-import java.time.Instant;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -31,5 +29,4 @@ public class SubscriberSkill extends Auditable {
     @JoinColumn(name = "skill_id", nullable = false)
     private Skill skill;
 
-    private Instant subscribedAt;
 }
