@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authorization.enums.ActionEnum;
 import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
@@ -30,12 +31,9 @@ import vn.phantruongan.backend.util.error.InvalidException;
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Job Controller", description = "Quản lý việc làm")
+@RequiredArgsConstructor
 public class JobController {
     private final JobService jobService;
-
-    public JobController(JobService jobService) {
-        this.jobService = jobService;
-    }
 
     @RequirePermission(resource = ResourceEnum.JOB, action = ActionEnum.READ)
     @GetMapping("/jobs")

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authorization.enums.ActionEnum;
 import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
@@ -30,12 +31,9 @@ import vn.phantruongan.backend.util.error.InvalidException;
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Skill Controller", description = "Quản lý kỹ năng")
+@RequiredArgsConstructor
 public class SkillController {
     private final SkillService skillService;
-
-    public SkillController(SkillService skillService) {
-        this.skillService = skillService;
-    }
 
     @RequirePermission(resource = ResourceEnum.SKILL, action = ActionEnum.READ)
     @GetMapping("/skills")

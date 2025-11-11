@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.subscriber.dtos.req.skill.CreateSkillReqDTO;
 import vn.phantruongan.backend.subscriber.dtos.req.skill.GetListSkillReqDTO;
@@ -20,15 +21,11 @@ import vn.phantruongan.backend.subscriber.specification.SkillSpecification;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @Service
+@RequiredArgsConstructor
 public class SkillService {
 
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
-
-    public SkillService(SkillRepository skillRepository, SkillMapper skillMapper) {
-        this.skillRepository = skillRepository;
-        this.skillMapper = skillMapper;
-    }
 
     public PaginationResponse<SkillResDTO> getAllSkills(GetListSkillReqDTO dto, Pageable pageable) {
         Specification<Skill> spec = new SkillSpecification(dto);

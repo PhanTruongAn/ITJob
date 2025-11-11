@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authorization.dtos.req.permission.CreatePermissionReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.permission.GetListPermissionReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.permission.UpdatePermissionReqDTO;
@@ -30,12 +31,9 @@ import vn.phantruongan.backend.util.error.InvalidException;
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Permission Controller", description = "Quản lý quyền hạn")
+@RequiredArgsConstructor
 public class PermissionController {
     private final PermissionService permissionService;
-
-    public PermissionController(PermissionService permissionService) {
-        this.permissionService = permissionService;
-    }
 
     @RequirePermission(resource = ResourceEnum.PERMISSION, action = ActionEnum.READ)
     @GetMapping("/permissions")

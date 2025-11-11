@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cloudinary.Cloudinary;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
 
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "File Controller", description = "Quản lý tệp tin")
 public class FileController {
 
     private final Cloudinary cloudinary;

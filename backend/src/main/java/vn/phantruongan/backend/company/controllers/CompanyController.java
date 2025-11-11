@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authorization.enums.ActionEnum;
 import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
@@ -31,16 +32,12 @@ import vn.phantruongan.backend.util.error.InvalidException;
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Company Controller", description = "Quản lý công ty")
+@RequiredArgsConstructor
 public class CompanyController {
 
     private final CompanyRepository companyRepository;
 
     private final CompanyService companyService;
-
-    public CompanyController(CompanyService companyService, CompanyRepository companyRepository) {
-        this.companyService = companyService;
-        this.companyRepository = companyRepository;
-    }
 
     @RequirePermission(resource = ResourceEnum.COMPANY, action = ActionEnum.READ)
     @GetMapping("/companies")

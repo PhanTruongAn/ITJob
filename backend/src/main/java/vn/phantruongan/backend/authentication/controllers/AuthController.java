@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authentication.dtos.login.req.LoginDTO;
 import vn.phantruongan.backend.authentication.dtos.login.res.GetAccountResDTO;
 import vn.phantruongan.backend.authentication.dtos.login.res.ResLoginDTO;
@@ -36,6 +37,7 @@ import vn.phantruongan.backend.util.error.InvalidException;
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Auth Controller", description = "Quản lý xác thực")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -45,14 +47,6 @@ public class AuthController {
 
     @Value("${jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
-
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, JwtService jwtService,
-            UserService userService, AuthService authService) {
-        this.authenticationManagerBuilder = authenticationManagerBuilder;
-        this.jwtService = jwtService;
-        this.userService = userService;
-        this.authService = authService;
-    }
 
     @PostMapping("/auth/login")
     @ApiMessage("Login")

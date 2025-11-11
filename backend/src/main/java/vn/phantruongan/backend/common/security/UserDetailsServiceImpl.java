@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.common;
+package vn.phantruongan.backend.common.security;
 
 import java.util.Collection;
 import java.util.Collections;

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authentication.dtos.req.CreateUserReqDTO;
 import vn.phantruongan.backend.authentication.dtos.req.GetListUserReqDTO;
 import vn.phantruongan.backend.authentication.dtos.req.UpdateUserReqDTO;
@@ -21,17 +22,12 @@ import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
-
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userMapper = userMapper;
-    }
 
     public UserResDTO createUser(CreateUserReqDTO dto) throws InvalidException {
         User user = userMapper.toEntity(dto);

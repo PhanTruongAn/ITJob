@@ -4,26 +4,21 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authentication.dtos.register.RegisterReqDTO;
 import vn.phantruongan.backend.authentication.dtos.register.RegisterResDTO;
 import vn.phantruongan.backend.authentication.entities.User;
 import vn.phantruongan.backend.authentication.repositories.UserRepository;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserService userService) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userService = userService;
-    }
-
     public RegisterResDTO register(RegisterReqDTO dto) throws BadRequestException {
-
         if (userService.findUserByEmail(dto.getEmail()) != null) {
             throw new BadRequestException("Email already in use!");
         }

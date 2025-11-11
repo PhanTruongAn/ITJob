@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authorization.dtos.req.permission.CreatePermissionReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.permission.GetListPermissionReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.permission.UpdatePermissionReqDTO;
@@ -25,17 +26,11 @@ import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @Service
+@RequiredArgsConstructor
 public class PermissionService {
     private final PermissionRepository permissionRepository;
     private final RoleRepository roleRepository;
     private final PermissionMapper permissionMapper;
-
-    public PermissionService(PermissionRepository permissionRepository, RoleRepository roleRepository,
-            PermissionMapper permissionMapper) {
-        this.permissionRepository = permissionRepository;
-        this.roleRepository = roleRepository;
-        this.permissionMapper = permissionMapper;
-    }
 
     public PaginationResponse<PermissionResDTO> getAllPermission(GetListPermissionReqDTO dto, Pageable pageable) {
         Specification<Permission> spec = new PermissionSpecification(dto);

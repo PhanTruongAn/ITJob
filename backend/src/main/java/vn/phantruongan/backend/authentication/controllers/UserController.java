@@ -4,7 +4,6 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authentication.dtos.req.CreateUserReqDTO;
 import vn.phantruongan.backend.authentication.dtos.req.GetListUserReqDTO;
 import vn.phantruongan.backend.authentication.dtos.req.UpdateUserReqDTO;
@@ -33,13 +33,9 @@ import vn.phantruongan.backend.util.error.InvalidException;
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "User Controller", description = "Quản lý người dùng")
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-
-    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
-        this.userService = userService;
-
-    }
 
     @RequirePermission(resource = ResourceEnum.USER, action = ActionEnum.CREATE)
     @PostMapping("/users")

@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.subscriber.dtos.req.subscriber.CreateSubscriberReqDTO;
 import vn.phantruongan.backend.subscriber.dtos.req.subscriber.GetListSubscriberReqDTO;
@@ -29,21 +30,12 @@ import vn.phantruongan.backend.subscriber.specification.SubscriberSpecification;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @Service
+@RequiredArgsConstructor
 public class SubscriberService {
     private final SubscriberRepository subscriberRepository;
     private final SubscriberSkillRepository subscriberSkillRepository;
     private final SkillRepository skillRepository;
     private final SubscriberMapper subscriberMapper;
-
-    public SubscriberService(SubscriberRepository subscriberRepository,
-            SubscriberSkillRepository subscriberSkillRepository,
-            SkillRepository skillRepository,
-            SubscriberMapper subscriberMapper) {
-        this.subscriberRepository = subscriberRepository;
-        this.subscriberSkillRepository = subscriberSkillRepository;
-        this.skillRepository = skillRepository;
-        this.subscriberMapper = subscriberMapper;
-    }
 
     public PaginationResponse<SubscriberResDTO> getAllSubscribers(GetListSubscriberReqDTO dto, Pageable pageable) {
         Specification<Subscriber> spec = new SubscriberSpecification(dto);

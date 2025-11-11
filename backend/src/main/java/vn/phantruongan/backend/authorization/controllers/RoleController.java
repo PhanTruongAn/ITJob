@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authorization.dtos.req.role.AssignPermissionsReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.role.CreateRoleReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.role.GetListRoleReqDTO;
@@ -34,16 +35,11 @@ import vn.phantruongan.backend.util.error.InvalidException;
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Role Controller", description = "Quản lý vai trò")
+@RequiredArgsConstructor
 public class RoleController {
 
     private final RoleRepository roleRepository;
-
     private final RoleService roleService;
-
-    public RoleController(RoleService roleService, RoleRepository roleRepository) {
-        this.roleService = roleService;
-        this.roleRepository = roleRepository;
-    }
 
     @RequirePermission(resource = ResourceEnum.ROLE, action = ActionEnum.READ)
     @GetMapping("/roles")

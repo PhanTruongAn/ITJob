@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.company.dtos.req.CreateCompanyReqDTO;
 import vn.phantruongan.backend.company.dtos.req.GetListCompanyReqDTO;
@@ -22,17 +23,11 @@ import vn.phantruongan.backend.company.specification.CompanySpecification;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @Service
+@RequiredArgsConstructor
 public class CompanyService {
     private final CompanyRepository companyRepository;
     private final CountryRepository countryRepository;
     private final CompanyMapper companyMapper;
-
-    public CompanyService(CompanyRepository companyRepository, CountryRepository countryRepository,
-            CompanyMapper companyMapper) {
-        this.companyRepository = companyRepository;
-        this.countryRepository = countryRepository;
-        this.companyMapper = companyMapper;
-    }
 
     public boolean isExistCompany(String name, long countryId) {
         if (companyRepository.existsByNameAndCountry_Id(name, countryId)) {

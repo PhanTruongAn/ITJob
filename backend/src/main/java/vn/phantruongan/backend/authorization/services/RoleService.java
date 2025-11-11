@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authorization.dtos.req.role.AssignPermissionsReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.role.CreateRoleReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.role.GetListRoleReqDTO;
@@ -30,19 +31,12 @@ import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @Service
+@RequiredArgsConstructor
 public class RoleService {
     private final RoleRepository roleRepository;
     private final RolePermissionRepository rolePermissionRepository;
     private final PermissionRepository permissionRepository;
     private final RoleMapper roleMapper;
-
-    public RoleService(RoleRepository roleRepository, RolePermissionRepository rolePermissionRepository,
-            PermissionRepository permissionRepository, RoleMapper roleMapper) {
-        this.roleRepository = roleRepository;
-        this.rolePermissionRepository = rolePermissionRepository;
-        this.permissionRepository = permissionRepository;
-        this.roleMapper = roleMapper;
-    }
 
     public PaginationResponse<RoleResDTO> getAllRole(GetListRoleReqDTO dto, Pageable pageable) {
         Specification<Role> spec = new RoleSpecification(dto);
