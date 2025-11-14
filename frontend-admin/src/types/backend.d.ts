@@ -71,6 +71,7 @@ export interface ICompany {
   address: string
   companyType: ECompany
   companySize: string
+  status: ECompanyStatus
   industry: string
   overtime: boolean
   description: string

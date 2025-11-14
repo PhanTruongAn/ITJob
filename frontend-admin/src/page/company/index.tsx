@@ -28,8 +28,9 @@ const Company: React.FC = () => {
     companySize,
     companyType,
     countryId,
+    status,
   }: IFilterCompany) => {
-    updateState({ name, address, companySize, companyType, countryId })
+    updateState({ name, address, companySize, companyType, countryId, status })
   }
   const handleClearFilter = () => {
     updateState(DEFAULT_STATE)
@@ -53,6 +54,7 @@ const Company: React.FC = () => {
       address: state.address || null,
       companySize: state.companySize || null,
       companyType: state.companyType || null,
+      status: state.status || null,
       countryId: state.countryId || null,
     })
     if (res?.statusCode >= 400) {
@@ -76,6 +78,7 @@ const Company: React.FC = () => {
       state.address,
       state.companySize,
       state.companyType,
+      state.status,
       state.countryId,
     ],
     fetchDataCompanies

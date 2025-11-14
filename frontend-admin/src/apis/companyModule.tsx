@@ -1,13 +1,13 @@
+import axiosInstance from "../config/axios"
+import { IReqCompany } from "../page/company/common/interface"
 import {
   IBackendPaginateRes,
   IBackendRes,
   ICompany,
   ICreateCompanyDTO,
   IEditCompanyDTO,
-} from "../types/backend";
-import axiosInstance from "../config/axios";
-import { PATH_API } from "./constants/apiPath";
-import { IReqCompany } from "../page/company/common/interface";
+} from "../types/backend"
+import { PATH_API } from "./constants/apiPath"
 export async function fetchCompanies({
   page,
   pageSize,
@@ -17,6 +17,7 @@ export async function fetchCompanies({
   companySize,
   companyType,
   countryId,
+  status,
 }: IReqCompany): Promise<IBackendPaginateRes<ICompany[]>> {
   const response = await axiosInstance.get<IBackendPaginateRes<ICompany[]>>(
     `${PATH_API.company.root}`,
@@ -29,11 +30,12 @@ export async function fetchCompanies({
         companySize: companySize,
         companyType: companyType,
         countryId: countryId,
+        status: status,
         ...(sort && { sort: sort }),
       },
     }
-  );
-  return response.data;
+  )
+  return response.data
 }
 export async function createCompany(
   data: ICreateCompanyDTO
@@ -41,19 +43,19 @@ export async function createCompany(
   const response = await axiosInstance.post<IBackendRes<ICompany>>(
     `${PATH_API.company.root}`,
     data
-  );
-  return response.data;
+  )
+  return response.data
 }
 
 export async function deleteCompany({
   id,
 }: {
-  id: number;
+  id: number
 }): Promise<IBackendRes<ICompany>> {
   const response = await axiosInstance.delete<IBackendRes<ICompany>>(
     `${PATH_API.company.root}/${id}`
-  );
-  return response.data;
+  )
+  return response.data
 }
 
 export async function getCompanyById(
@@ -61,8 +63,8 @@ export async function getCompanyById(
 ): Promise<IBackendRes<ICompany>> {
   const response = await axiosInstance.get<IBackendRes<ICompany>>(
     `${PATH_API.company.root}/${id}`
-  );
-  return response.data;
+  )
+  return response.data
 }
 
 export async function editCompany(
@@ -71,6 +73,6 @@ export async function editCompany(
   const response = await axiosInstance.put<IBackendRes<ICompany>>(
     `${PATH_API.company.root}`,
     data
-  );
-  return response.data;
+  )
+  return response.data
 }

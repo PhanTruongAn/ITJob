@@ -8,3 +8,10 @@ export enum GenderEnum {
   MALE = "MALE",
   OTHER = "OTHER",
 }
+
+export enum ECompanyStatus {
+  PENDING = "PENDING",
+  CHECKING = "CHECKING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+}

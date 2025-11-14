@@ -1,28 +1,27 @@
 import {
   DeleteOutlined,
   EditOutlined,
-  EyeOutlined,
   EllipsisOutlined,
-} from "@ant-design/icons";
-import { Button, Dropdown, Tag } from "antd";
-import type { TableColumnsType } from "antd";
-import dayjs from "dayjs";
-import { ICompany } from "../../../../types/backend";
+  EyeOutlined,
+} from "@ant-design/icons"
+import type { TableColumnsType } from "antd"
+import { Button, Dropdown, Tag } from "antd"
+import { ICompany } from "../../../../types/backend"
+import { ECompanyType } from "../../../../types/enum"
 import {
   COMPANY_SIZE,
-  companySizeColorMap,
+  COMPANY_STATUS,
   companyTypeColorMap,
-} from "../../common/constants";
-import { ECompanyType } from "../../../../types/enum";
+} from "../../common/constants"
 
 export const companyColumns = ({
   onView,
   onEdit,
   onDelete,
 }: {
-  onView?: (user: ICompany) => void;
-  onEdit?: (user: ICompany) => void;
-  onDelete?: (id: number) => void;
+  onView?: (user: ICompany) => void
+  onEdit?: (user: ICompany) => void
+  onDelete?: (id: number) => void
 }): TableColumnsType<ICompany> => [
   {
     title: "ID",
@@ -46,16 +45,16 @@ export const companyColumns = ({
     sorter: true,
     render: (type: string) => {
       const displayType =
-        ECompanyType[type as keyof typeof ECompanyType] || type;
-      const color = companyTypeColorMap[type] || "default";
-      return <Tag color={color}>{displayType}</Tag>;
+        ECompanyType[type as keyof typeof ECompanyType] || type
+      const color = companyTypeColorMap[type] || "default"
+      return <Tag color={color}>{displayType}</Tag>
     },
   },
-  {
-    title: "Address",
-    dataIndex: "address",
-    ellipsis: true,
-  },
+  // {
+  //   title: "Address",
+  //   dataIndex: "address",
+  //   ellipsis: true,
+  // },
   {
     title: "Industry",
     dataIndex: "industry",
@@ -67,10 +66,24 @@ export const companyColumns = ({
     width: "13%",
     ellipsis: true,
     render: (size: string) => {
-      const company = COMPANY_SIZE.find((item) => item.value === size);
-      const displayLabel = company ? company.label : size;
-      const color = companySizeColorMap[size] || "default";
-      return <Tag color={color}>{displayLabel}</Tag>;
+      const company = COMPANY_SIZE.find((item) => item.value === size)
+
+      return (
+        <Tag color={company?.color || "default"}>{company?.label || size}</Tag>
+      )
+    },
+  },
+  {
+    title: "Status",
+    dataIndex: "status",
+    width: "13%",
+    ellipsis: true,
+    render: (size: string) => {
+      const company = COMPANY_STATUS.find((item) => item.value === size)
+
+      return (
+        <Tag color={company?.color || "default"}>{company?.value || size}</Tag>
+      )
     },
   },
   // {
@@ -106,11 +119,11 @@ export const companyColumns = ({
           },
         ],
         onClick: ({ key }: { key: string }) => {
-          if (key === "view") onView?.(record);
-          else if (key === "edit") onEdit?.(record);
-          else if (key === "delete") onDelete?.(record.id);
+          if (key === "view") onView?.(record)
+          else if (key === "edit") onEdit?.(record)
+          else if (key === "delete") onDelete?.(record.id)
         },
-      };
+      }
 
       return (
         <Dropdown menu={menu} trigger={["click"]}>
@@ -120,7 +133,7 @@ export const companyColumns = ({
             style={{ border: "none", outline: "none" }}
           />
         </Dropdown>
-      );
+      )
     },
   },
-];
+]

@@ -1,7 +1,7 @@
 import { ClearOutlined, SearchOutlined } from "@ant-design/icons"
 import { Button, Col, Form, Input, Row, Select, Space, theme } from "antd"
 import React from "react"
-import { ECompanyType } from "../../../types/enum"
+import { ECompanyStatus, ECompanyType } from "../../../types/enum"
 import { COMPANY_SIZE } from "../common/constants"
 import { useGetCountries } from "../common/hooks"
 import { IFilterCompany } from "../common/interface"
@@ -13,6 +13,7 @@ export interface UserFilterProps {
     companySize,
     companyType,
     countryId,
+    status,
   }: IFilterCompany) => void
   onClear: () => void
 }
@@ -43,7 +44,7 @@ export const CompanyListHeaderToolbar: React.FC<UserFilterProps> = ({
       style={formStyle}
       onFinish={onFinish}
     >
-      <Row gutter={[16, 8]}>
+      <Row gutter={16} justify="end">
         <Col span={8}>
           <Form.Item name="name" label="Name">
             <Input placeholder="Input company name" size="middle" />
@@ -97,6 +98,22 @@ export const CompanyListHeaderToolbar: React.FC<UserFilterProps> = ({
               {data?.data.map((item) => (
                 <Select.Option key={item.id} value={item.id}>
                   {item.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item name="status" label="Company Status">
+            <Select
+              placeholder="Select company status"
+              size="middle"
+              optionFilterProp="children"
+              showSearch
+            >
+              {Object.entries(ECompanyStatus).map(([key, value]) => (
+                <Select.Option key={key} value={key}>
+                  {value}
                 </Select.Option>
               ))}
             </Select>

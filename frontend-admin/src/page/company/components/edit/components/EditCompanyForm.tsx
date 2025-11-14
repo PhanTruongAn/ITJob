@@ -17,7 +17,7 @@ import React, { useEffect, useState } from "react"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 import { PATH_DASHBOARD } from "../../../../../routes/paths"
 import { ECompanyType } from "../../../../../types/enum"
-import { COMPANY_SIZE } from "../../../common/constants"
+import { COMPANY_SIZE, COMPANY_STATUS } from "../../../common/constants"
 import {
   useEditCompany,
   useGetCompanyById,
@@ -33,6 +33,7 @@ interface EditCompanyForm {
   industry: string
   companyType: string
   companySize: string
+  status: string
   overtime: boolean
   workingDays: string[]
   description: string
@@ -128,7 +129,7 @@ const EditCompanyForm: React.FC = () => {
 
   return (
     <Form form={form} layout="vertical" name="add_company_form">
-      <Row gutter={[16, 16]}>
+      <Row gutter={[16, 14]}>
         <Col span={18}>
           <Row gutter={[16, 16]}>
             <Col span={12}>
@@ -216,11 +217,19 @@ const EditCompanyForm: React.FC = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                name="overtime"
-                label="Overtime"
-                valuePropName="checked"
+                name="status"
+                label="Company Status"
+                rules={[
+                  { required: true, message: "Please select company status" },
+                ]}
               >
-                <Checkbox disabled={isViewed}>Allow Overtime</Checkbox>
+                <Select placeholder="Select company status" disabled={isViewed}>
+                  {COMPANY_STATUS.map((size) => (
+                    <Option key={size.value} value={size.value}>
+                      {size.label}
+                    </Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
           </Row>
@@ -243,21 +252,27 @@ const EditCompanyForm: React.FC = () => {
                 handlePreview(file)
                 return false
               }}
-              // showUploadList={{
-              //   showPreviewIcon: true,
-              //   showRemoveIcon: true,
-              // }}
               onRemove={() => {
                 setPreviewImage(null)
                 form.setFieldsValue({ logo: null })
               }}
-              style={{ height: "200px", textAlign: "center" }}
+              style={{
+                // height: "auto",
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
               {previewImage ? (
                 <img
                   src={previewImage}
                   alt="Preview"
-                  style={{ maxWidth: "100%" }}
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "100px",
+                    objectFit: "contain",
+                  }}
                 />
               ) : (
                 <div>
@@ -271,8 +286,8 @@ const EditCompanyForm: React.FC = () => {
       </Row>
 
       <Row gutter={[16, 16]}>
-        <Col span={24}>
-          <Form.Item name="workingDays" label="Working Days">
+        <Col span={16}>
+          <Form.Item name="workingDays" label="Working Days" required={true}>
             <Checkbox.Group>
               {[
                 "Monday",
@@ -292,6 +307,18 @@ const EditCompanyForm: React.FC = () => {
                 </Checkbox>
               ))}
             </Checkbox.Group>
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row gutter={[16, 16]}>
+        <Col span={8}>
+          <Form.Item
+            name="overtime"
+            label="Overtime"
+            valuePropName="checked"
+            required={true}
+          >
+            <Checkbox disabled={isViewed}>Allow Overtime</Checkbox>
           </Form.Item>
         </Col>
       </Row>
