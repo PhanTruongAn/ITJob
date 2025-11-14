@@ -44,6 +44,11 @@ public class CompanySpecification implements Specification<Company> {
         if (dtoFilter.getCompanyType() != null) {
             predicates.add(cb.equal(root.get("companyType"), dtoFilter.getCompanyType()));
         }
+
+        if (dtoFilter.getStatus() != null) {
+            predicates.add(cb.equal(root.get("status"), dtoFilter.getStatus()));
+        }
+
         if (dtoFilter.getCountryId() != null) {
             Join<Company, Country> countryJoin = root.join("country");
             predicates.add(cb.equal(countryJoin.get("id"), dtoFilter.getCountryId()));

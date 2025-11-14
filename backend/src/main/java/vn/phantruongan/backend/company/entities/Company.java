@@ -50,6 +50,9 @@ public class Company extends Auditable {
     private String industry;
     private boolean overtime;
 
+    @Enumerated(EnumType.STRING)
+    private CompanyStatus status = CompanyStatus.PENDING;
+
     @Convert(converter = DayOfWeekListConverter.class)
     private List<DayOfWeek> workingDays;
 

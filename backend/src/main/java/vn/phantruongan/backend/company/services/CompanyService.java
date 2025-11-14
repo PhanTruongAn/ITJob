@@ -9,7 +9,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
+import vn.phantruongan.backend.common.security.CurrentUserService;
 import vn.phantruongan.backend.company.dtos.req.CreateCompanyReqDTO;
 import vn.phantruongan.backend.company.dtos.req.GetListCompanyReqDTO;
 import vn.phantruongan.backend.company.dtos.req.UpdateCompanyReqDTO;
@@ -20,6 +22,7 @@ import vn.phantruongan.backend.company.mappers.CompanyMapper;
 import vn.phantruongan.backend.company.repositories.CompanyRepository;
 import vn.phantruongan.backend.company.repositories.CountryRepository;
 import vn.phantruongan.backend.company.specification.CompanySpecification;
+import vn.phantruongan.backend.log.services.AuditLogService;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @Service
@@ -28,6 +31,8 @@ public class CompanyService {
     private final CompanyRepository companyRepository;
     private final CountryRepository countryRepository;
     private final CompanyMapper companyMapper;
+    private final CurrentUserService currentUserService;
+    private final AuditLogService auditLogService;
 
     public boolean isExistCompany(String name, long countryId) {
         if (companyRepository.existsByNameAndCountry_Id(name, countryId)) {
@@ -37,6 +42,7 @@ public class CompanyService {
     }
 
     public CompanyResDTO createCompany(CreateCompanyReqDTO dto) throws InvalidException {
+        String email = currentUserService.getCurrentUserEmail();
         Company company = companyMapper.toEntity(dto);
 
         if (isExistCompany(dto.getName(), dto.getCountryId())) {
@@ -47,6 +53,7 @@ public class CompanyService {
                 .orElseThrow(() -> new InvalidException("Country not found"));
         company.setCountry(country);
         Company savedCompany = companyRepository.save(company);
+        auditLogService.logCreate(ResourceEnum.COMPANY, email, savedCompany.getId(), "Register company");
         return companyMapper.toDto(savedCompany);
     }
 
@@ -58,12 +65,13 @@ public class CompanyService {
     }
 
     public CompanyResDTO updateCompany(UpdateCompanyReqDTO dto) throws InvalidException {
+        String email = currentUserService.getCurrentUserEmail();
         Company existingCompany = companyRepository.findById(dto.getId())
                 .orElseThrow(() -> new InvalidException("Company not found"));
 
         companyMapper.updateEntityFromDto(dto, existingCompany);
-
         Company companyUpdated = companyRepository.save(existingCompany);
+        auditLogService.logUpdate(ResourceEnum.COMPANY, email, companyUpdated.getId(), "Update company");
         return companyMapper.toDto(companyUpdated);
 
     }
@@ -85,6 +93,7 @@ public class CompanyService {
     }
 
     public boolean deleteCompanyById(long id) throws InvalidException {
+        String email = currentUserService.getCurrentUserEmail();
         if (id <= 0) {
             throw new InvalidException("Company ID must be a positive number.");
         }
@@ -93,6 +102,7 @@ public class CompanyService {
                 .orElseThrow(() -> new InvalidException("Company not found."));
 
         companyRepository.delete(company);
+        auditLogService.logDelete(ResourceEnum.COMPANY, email, id, "Delete company");
         return true;
     }
 

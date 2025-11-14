@@ -30,6 +30,18 @@ public class AuditLogService {
         return log(AuditActionEnum.DELETE, resource, email, recordId, description);
     }
 
+    public AuditLog logApprove(ResourceEnum resource, String email, long recordId, String description) {
+        return log(AuditActionEnum.APPROVE, resource, email, recordId, description);
+    }
+
+    public AuditLog logReview(ResourceEnum resource, String email, long recordId, String description) {
+        return log(AuditActionEnum.REVIEW, resource, email, recordId, description);
+    }
+
+    public AuditLog logReject(ResourceEnum resource, String email, long recordId, String description) {
+        return log(AuditActionEnum.REJECT, resource, email, recordId, description);
+    }
+
     // Batch log
     public List<AuditLog> logBatch(AuditActionEnum action, ResourceEnum resource, List<AuditLog> logs) {
         logs.forEach(l -> l.setAction(action));

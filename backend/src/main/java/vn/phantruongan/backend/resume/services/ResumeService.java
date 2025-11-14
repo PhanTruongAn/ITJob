@@ -118,7 +118,7 @@ public class ResumeService {
 
                 resume.setStatus(ResumeEnum.REVIEWING);
                 Resume saved = resumeRepository.save(resume);
-                auditLogService.logUpdate(ResourceEnum.RESUME, email, saved.getId(), "Review resume");
+                auditLogService.logReview(ResourceEnum.RESUME, email, saved.getId(), "Review resume");
                 return resumeMapper.toDto(saved);
         }
 
@@ -133,7 +133,7 @@ public class ResumeService {
 
                 resume.setStatus(ResumeEnum.APPROVED);
                 Resume saved = resumeRepository.save(resume);
-                auditLogService.logUpdate(ResourceEnum.RESUME, email, saved.getId(), "Approve resume");
+                auditLogService.logApprove(ResourceEnum.RESUME, email, saved.getId(), "Approve resume");
                 return resumeMapper.toDto(saved);
         }
 
@@ -152,7 +152,7 @@ public class ResumeService {
                 }
 
                 Resume saved = resumeRepository.save(resume);
-                auditLogService.logUpdate(ResourceEnum.RESUME, email, saved.getId(), "Reject resume");
+                auditLogService.logReject(ResourceEnum.RESUME, email, saved.getId(), "Reject resume");
                 return resumeMapper.toDto(saved);
         }
 }

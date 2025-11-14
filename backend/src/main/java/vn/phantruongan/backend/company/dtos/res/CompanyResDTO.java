@@ -6,6 +6,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.phantruongan.backend.company.entities.CompanyStatus;
 import vn.phantruongan.backend.company.enums.CompanyTypeEnum;
 
 @Getter
@@ -16,6 +17,7 @@ public class CompanyResDTO {
     private String name;
     private CompanyTypeEnum companyType;
     private String companySize;
+    private CompanyStatus status;
     private String industry;
     private boolean overtime;
     private List<DayOfWeek> workingDays;
