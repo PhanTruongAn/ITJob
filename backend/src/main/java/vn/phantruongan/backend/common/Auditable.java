@@ -21,11 +21,15 @@ public abstract class Auditable {
 
     @PrePersist
     public void handleBeforeCreate() {
-        try {
-            this.createdBy = JwtService.getCurrentUserLogin().orElse("");
-        } catch (Exception e) {
-            this.createdBy = "system";
+        String currentUser = JwtService.getCurrentUserLogin().orElse("system");
+
+        if ("anonymousUser".equals(currentUser) || currentUser.isBlank()) {
+            currentUser = "system";
         }
+
+        System.out.println(">>>> SAVING createdBy = " + currentUser);
+
+        this.createdBy = currentUser;
         this.createdAt = Instant.now();
     }
 

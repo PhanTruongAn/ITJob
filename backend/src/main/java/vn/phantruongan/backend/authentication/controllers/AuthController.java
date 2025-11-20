@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import vn.phantruongan.backend.authentication.dtos.google.req.GoogleLoginReqDTO;
 import vn.phantruongan.backend.authentication.dtos.login.req.LoginDTO;
 import vn.phantruongan.backend.authentication.dtos.login.res.GetAccountResDTO;
 import vn.phantruongan.backend.authentication.dtos.login.res.ResLoginDTO;
@@ -47,6 +48,16 @@ public class AuthController {
 
     @Value("${jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
+
+    @PostMapping("/auth/google")
+    @ApiMessage("Login with google")
+    public ResponseEntity<ResLoginDTO> loginWithGoogle(@Valid @RequestBody GoogleLoginReqDTO request)
+            throws Exception {
+
+        System.out.println("Check request: " + request);
+        ResLoginDTO response = authService.googleLogin(request);
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/auth/login")
     @ApiMessage("Login")

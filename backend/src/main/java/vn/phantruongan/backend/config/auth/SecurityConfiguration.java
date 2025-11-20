@@ -14,30 +14,32 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration {
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint entryPoint)
-            throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers(
-                                "/", "/api/v1/auth/login", "/api/v1/auth/refresh",
-                                "/api/v1/auth/register", "/api/v1/auth/logout",
-                                "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                                "/swagger-resources/**", "/webjars/**")
-                        .permitAll()
-                        .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
-                        .authenticationEntryPoint(entryPoint))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .formLogin(form -> form.disable());
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint entryPoint)
+                        throws Exception {
+                http
+                                .csrf(csrf -> csrf.disable())
+                                .cors(Customizer.withDefaults())
+                                .authorizeHttpRequests(authz -> authz
+                                                .requestMatchers(
+                                                                "/", "/api/v1/auth/login", "/api/v1/auth/refresh",
+                                                                "/api/v1/auth/register", "/api/v1/auth/logout",
+                                                                "/api/v1/auth/google",
+                                                                "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
+                                                                "/swagger-resources/**", "/webjars/**")
+                                                .permitAll()
+                                                .anyRequest().authenticated())
+                                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
+                                                .authenticationEntryPoint(entryPoint))
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .formLogin(form -> form.disable());
 
-        return http.build();
-    }
+                return http.build();
+        }
 }

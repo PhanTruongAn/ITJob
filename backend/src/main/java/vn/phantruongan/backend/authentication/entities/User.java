@@ -19,7 +19,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import vn.phantruongan.backend.authentication.enums.GenderEnum;
@@ -31,11 +34,15 @@ import vn.phantruongan.backend.resume.entities.Resume;
 @Entity
 @Table(name = "users", indexes = {
         @Index(name = "idx_user_email", columnList = "email", unique = true),
-        @Index(name = "idx_user_phone", columnList = "phone", unique = true)
+        @Index(name = "idx_user_phone", columnList = "phone", unique = true),
+        @Index(name = "idx_user_google_id", columnList = "google_id", unique = true)
 })
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,6 +57,7 @@ public class User extends Auditable {
     private GenderEnum gender;
     private String address;
     private String avatar;
+    private String googleId;
     @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
 
