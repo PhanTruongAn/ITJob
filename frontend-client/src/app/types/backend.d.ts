@@ -5,6 +5,13 @@ export interface IBackendRes<T> {
   data?: T | string
 }
 
+export interface UserNextAuth {
+  id: string
+  name: string
+  email?: string
+  accessToken?: string
+}
+
 export interface ILoginRes {
   access_token: string
 }

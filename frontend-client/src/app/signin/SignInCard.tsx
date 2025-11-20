@@ -1,4 +1,3 @@
-import { AuthService } from "@/app/apis/authApi"
 import Alert from "@mui/material/Alert"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
@@ -13,6 +12,7 @@ import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar"
 import { styled } from "@mui/material/styles"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
+import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 import {
@@ -70,27 +70,36 @@ export default function SignInCard() {
 
     setOpenAlert(false)
   }
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (emailError || passwordError) return
 
     const data = new FormData(event.currentTarget)
-    const res = await AuthService.login(
-      data.get("email") as string,
-      data.get("password") as string
-    )
-    if (res.statusCode === 200) {
+    const email = data.get("email") as string
+    const password = data.get("password") as string
+
+    // Dùng NextAuth CredentialsProvider
+    const res = await signIn("credentials", {
+      redirect: false, // false để không redirect tự động
+      username: email,
+      password,
+    })
+
+    if (res?.ok) {
       setAlertMessage("Đăng nhập thành công!")
       setAlertStatus("success")
+      setOpenAlert(true)
+
       setTimeout(() => {
         router.push(`${process.env.NEXT_PUBLIC_FE_URL}`)
       }, 2000)
     } else {
       setAlertMessage("Đăng nhập thất bại. Vui lòng kiểm tra lại.")
       setAlertStatus("error")
+      setOpenAlert(true)
     }
-    setOpenAlert(true)
   }
 
   const validateInputs = () => {
@@ -222,7 +231,16 @@ export default function SignInCard() {
       </Box>
       <Divider>hoặc</Divider>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <Button fullWidth variant="outlined" startIcon={<GoogleIcon />}>
+        <Button
+          fullWidth
+          variant="outlined"
+          startIcon={<GoogleIcon />}
+          onClick={() =>
+            signIn("google", {
+              callbackUrl: process.env.NEXT_PUBLIC_FE_URL,
+            })
+          }
+        >
           Đăng nhập với Google
         </Button>
         <Button fullWidth variant="outlined" startIcon={<FacebookIcon />}>

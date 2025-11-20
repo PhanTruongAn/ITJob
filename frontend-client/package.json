@@ -16,7 +16,7 @@
     "@reduxjs/toolkit": "^2.5.0",
     "axios": "^1.7.9",
     "next": "15.1.0",
-    "next-auth": "^4.24.11",
+    "next-auth": "^5.0.0-beta.30",
     "react": "^18",
     "react-dom": "^18"
   },
