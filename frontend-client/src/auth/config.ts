@@ -81,9 +81,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       // Credentials login
       if (account?.provider === "credentials") {
-        ;(token.backendToken = token.accessToken as string),
-          (token.userId = token.id as string),
-          (token.name = token.name)
+        token.backendToken = token.accessToken as string
+        token.userId = token.id as string
+        token.name = token.name
       }
 
       return token
