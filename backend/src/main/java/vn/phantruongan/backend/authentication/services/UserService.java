@@ -88,23 +88,12 @@ public class UserService {
         return new PaginationResponse<>(list, meta);
     }
 
-    public User findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
+    // public Optional<User> findUserByEmail(String email) {
+    // return userRepository.findByEmail(email);
+    // }
 
     public boolean existUserByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
-    public void updateRefreshToken(String email, String refreshToken) {
-        User user = findUserByEmail(email);
-        if (user != null) {
-            user.setRefreshToken(refreshToken);
-            userRepository.save(user);
-        }
-    }
-
-    public User getUserByRefreshTokenAndEmail(String token, String email) {
-        return userRepository.findByRefreshTokenAndEmail(token, email);
-    }
 }

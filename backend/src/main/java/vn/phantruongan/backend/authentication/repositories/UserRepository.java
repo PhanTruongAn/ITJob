@@ -12,9 +12,8 @@ import vn.phantruongan.backend.authentication.entities.User;
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     Optional<User> findByGoogleId(String googleId);
 
-    User findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
 
-    User findByRefreshTokenAndEmail(String token, String email);
 }

@@ -3,6 +3,7 @@ package vn.phantruongan.backend.config.jwt;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -12,28 +13,33 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nimbusds.jose.util.Base64;
 
-import vn.phantruongan.backend.authentication.dtos.login.res.ResLoginDTO;
+import lombok.RequiredArgsConstructor;
+import vn.phantruongan.backend.authentication.entities.RefreshToken;
+import vn.phantruongan.backend.authentication.entities.User;
+import vn.phantruongan.backend.authentication.repositories.RefreshTokenRepository;
+import vn.phantruongan.backend.authentication.repositories.UserRepository;
+import vn.phantruongan.backend.util.error.RefreshTokenException;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
     private final JwtEncoder jwtEncoder;
-
-    public JwtService(JwtEncoder jwtEncoder) {
-        this.jwtEncoder = jwtEncoder;
-    }
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
 
     @Value("${jwt.base64-secret}")
     private String jwtKey;
@@ -50,15 +56,29 @@ public class JwtService {
     }
 
     // Check valid refresh token
-    public Jwt checkRefreshToken(String token) {
-        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(
-                getSecretKey()).macAlgorithm(JWT_ALGORITHM).build();
-        try {
-            return jwtDecoder.decode(token);
-        } catch (Exception e) {
-            System.out.println(">>> Refresh token error: " + e.getMessage());
-            throw e;
+    @Transactional
+    public String validateRefreshTokenAndGetEmail(String token) {
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(token)
+                .orElseThrow(() -> new RefreshTokenException("Invalid or missing refresh token"));
+
+        if (refreshToken.getExpiresAt().isBefore(Instant.now())) {
+            refreshTokenRepository.delete(refreshToken);
+            throw new RefreshTokenException("Refresh token has expired");
         }
+
+        // Kiểm tra tokenVersion
+        User user = userRepository.findByEmail(refreshToken.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // Nếu có tokenVersion
+        if (!refreshToken.getTokenVersion().equals(user.getTokenVersion())) {
+            throw new RefreshTokenException("Refresh token has expired");
+        }
+
+        // Rotation: xóa token cũ
+        refreshTokenRepository.delete(refreshToken);
+
+        return refreshToken.getEmail();
     }
 
     // Create access-token
@@ -77,22 +97,28 @@ public class JwtService {
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader,
        claims)).getTokenValue();
     }
+    
     // Create refresh-token
-    public String createRefreshToken(String email, long roleId, ResLoginDTO dto) {
+    @Transactional
+    public String createRefreshToken(String email) {
+        // Xóa token cũ của user này (rotation + single session)
+        refreshTokenRepository.deleteAllByEmail(email);
 
-        Instant now = Instant.now();
-        Instant validity = now.plus(refreshTokenExpiration, ChronoUnit.SECONDS);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        // @formatter:off
-        JwtClaimsSet claims = JwtClaimsSet.builder()
-        .issuedAt(now)
-        .expiresAt(validity)
-        .subject(email)
-        .claim("roleId", roleId)
-        .build();
-        JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
-        return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader,
-       claims)).getTokenValue();
+        String token = UUID.randomUUID().toString() + "-" + System.nanoTime();
+
+        RefreshToken entity = RefreshToken.builder()
+                .token(token)
+                .email(email)
+                .expiresAt(Instant.now().plusSeconds(refreshTokenExpiration))
+                .createdAt(Instant.now())
+                .tokenVersion(user.getTokenVersion() != null ? user.getTokenVersion() : 0L)
+                .build();
+
+        refreshTokenRepository.save(entity);
+        return token;
     }
 
 

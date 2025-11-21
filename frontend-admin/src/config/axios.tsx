@@ -25,27 +25,58 @@ const whiteList: string[] = [
   "/api/v1/auth/refresh",
   "/api/v1/auth/logout",
 ]
+// const handleRefreshToken = async (): Promise<IAccount | null> => {
+//   return await mutex.runExclusive(async () => {
+//     try {
+//       const res = await instance.get<IBackendRes<IAccount>>(
+//         "/api/v1/auth/refresh",
+//         { headers: { [NO_RETRY_HEADER]: "true" } }
+//       )
+//       if (res && res.data && res.data.statusCode === 200) {
+//         const { access_token, user } = res.data.data
+//         localStorage.setItem("access_token", access_token)
+//         return { access_token, user }
+//       } else {
+//         localStorage.removeItem("access_token")
+//         // localStorage.removeItem("session")
+//         message.error("Your session has expired. Please log in again.")
+//         await new Promise((resolve) => setTimeout(resolve, 2000))
+//         window.location.href = PATH_AUTH.login
+//       }
+//       throw new Error("Refresh token failed")
+//     } catch (error: any) {
+//       console.log("Error: ", error)
+//       return null
+//     }
+//   })
+// }
 const handleRefreshToken = async (): Promise<IAccount | null> => {
   return await mutex.runExclusive(async () => {
     try {
-      const res = await instance.get<IBackendRes<IAccount>>(
+      const res = await instance.post<IBackendRes<IAccount>>(
         "/api/v1/auth/refresh",
+        {},
         { headers: { [NO_RETRY_HEADER]: "true" } }
       )
-      if (res && res.data && res.data.statusCode === 200) {
+
+      if (res?.data?.statusCode === 200 && res.data.data?.access_token) {
         const { access_token, user } = res.data.data
         localStorage.setItem("access_token", access_token)
         return { access_token, user }
-      } else {
-        localStorage.removeItem("access_token")
-        localStorage.removeItem("session")
-        message.error("Your session has expired. Please log in again.")
-        await new Promise((resolve) => setTimeout(resolve, 2000))
-        window.location.href = PATH_AUTH.login
       }
-      throw new Error("Refresh token failed")
+
+      // Nếu backend trả lỗi (400, 401, 403, v.v.)
+      message.error(res.data.message)
+      throw new Error("Refresh failed")
     } catch (error: any) {
-      console.log("Error: ", error)
+      localStorage.removeItem("access_token")
+
+      message.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.")
+
+      setTimeout(() => {
+        window.location.href = PATH_AUTH.login
+      }, 1500)
+
       return null
     }
   })

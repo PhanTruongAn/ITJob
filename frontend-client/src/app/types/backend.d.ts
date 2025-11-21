@@ -14,4 +14,13 @@ export interface UserNextAuth {
 
 export interface ILoginRes {
   access_token: string
+  refresh_token: string
+  user: IAccountRes
+}
+
+export interface IAccountRes {
+  id: number
+  name: string
+  email: string
+  avatar?: string
 }

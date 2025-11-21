@@ -58,8 +58,9 @@ public class User extends Auditable {
     private String address;
     private String avatar;
     private String googleId;
-    @Column(columnDefinition = "MEDIUMTEXT")
-    private String refreshToken;
+
+    @Column(nullable = false, columnDefinition = "bigint default 0")
+    private Long tokenVersion = 0L;
 
     @ManyToOne
     @JoinColumn(name = "company_id")
