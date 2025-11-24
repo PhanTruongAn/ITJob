@@ -20,6 +20,7 @@ import vn.phantruongan.backend.authentication.dtos.login.res.GetAccountResDTO;
 import vn.phantruongan.backend.authentication.dtos.login.res.ResLoginDTO;
 import vn.phantruongan.backend.authentication.dtos.register.RegisterReqDTO;
 import vn.phantruongan.backend.authentication.dtos.register.RegisterResDTO;
+import vn.phantruongan.backend.authentication.dtos.req.RefreshTokenReqDTO;
 import vn.phantruongan.backend.authentication.services.AuthService;
 import vn.phantruongan.backend.config.jwt.JwtService;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
@@ -52,10 +53,19 @@ public class AuthController {
     @PostMapping("/auth/refresh")
     @ApiMessage("Refresh token")
     public ResponseEntity<ResLoginDTO> refreshToken(
-            @CookieValue(name = "refresh_token", required = false) String refreshToken) {
+            @CookieValue(name = "refresh_token", required = false) String cookieToken,
+            @Valid @RequestBody(required = false) RefreshTokenReqDTO body) {
 
-        if (refreshToken == null || refreshToken.isBlank()) {
-            throw new InvalidException("Refresh token not found in cookies");
+        String refreshToken = null;
+
+        if (body != null && body.getRefreshToken() != null && !body.getRefreshToken().isBlank()) {
+            refreshToken = body.getRefreshToken();
+        } else if (cookieToken != null && !cookieToken.isBlank()) {
+            refreshToken = cookieToken;
+        }
+
+        if (refreshToken == null) {
+            throw new InvalidException("Refresh token not found");
         }
 
         ResLoginDTO res = authService.refreshToken(refreshToken);
@@ -68,7 +78,7 @@ public class AuthController {
         String email = JwtService.getCurrentUserLogin()
                 .orElseThrow(() -> new InvalidException("Unauthenticated user"));
 
-        GetAccountResDTO dto = authService.getCurrentUserAccount(email); // đề xuất chuyển logic sang service cho sạch
+        GetAccountResDTO dto = authService.getCurrentUserAccount(email);
 
         return ResponseEntity.ok(dto);
     }
