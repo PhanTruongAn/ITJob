@@ -11,6 +11,7 @@ export interface UserNextAuth {
   email?: string
   image?: string
   accessToken?: string
+  refreshToken?: string
 }
 
 export interface ILoginRes {

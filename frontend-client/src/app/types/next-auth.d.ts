@@ -1,25 +1,31 @@
-// src/types/next-auth.d.ts
 import { DefaultSession, DefaultUser } from "next-auth"
 import { DefaultJWT } from "next-auth/jwt"
 
 declare module "next-auth" {
   interface Session {
-    accessToken?: string // JWT từ backend Java của bạn
+    accessToken?: string
+    refreshToken?: string
     user: {
-      id: string // thêm id user (Google không trả id mặc định)
+      id: string
     } & DefaultSession["user"]
   }
 
   interface User extends DefaultUser {
     id: string
     accessToken?: string
+    refreshToken?: string
     image?: string
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT extends DefaultJWT {
-    backendToken?: string
+    accessToken?: string
+    accessTokenExpires?: number
+    refreshToken?: string
     userId?: string
+    name?: string
+    email?: string
+    image?: string
   }
 }
