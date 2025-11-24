@@ -73,7 +73,6 @@ const darkLogos = [
 ]
 
 const logoStyle = {
-  width: "64px",
   opacity: 0.3,
 }
 
@@ -154,6 +153,8 @@ export default function Testimonials() {
                 <Image
                   src={logos[index]}
                   alt={`Logo ${index + 1}`}
+                  width={64}
+                  height={80}
                   style={logoStyle}
                 />
               </Box>

@@ -1,3 +1,8 @@
+import {
+  FacebookIcon,
+  GoogleIcon,
+  SitemarkIcon,
+} from "@/components/CustomIcons"
 import Alert from "@mui/material/Alert"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
@@ -15,11 +20,6 @@ import Typography from "@mui/material/Typography"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import * as React from "react"
-import {
-  FacebookIcon,
-  GoogleIcon,
-  SitemarkIcon,
-} from "../components/CustomIcons"
 import ForgotPassword from "./ForgotPassword"
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -223,7 +223,7 @@ export default function SignInCard() {
         <Typography sx={{ textAlign: "center" }}>
           Chưa có tài khoản?{" "}
           <span>
-            <Link href="#" variant="body2" sx={{ alignSelf: "center" }}>
+            <Link href="/signup" variant="body2" sx={{ alignSelf: "center" }}>
               Đăng ký
             </Link>
           </span>

@@ -1,8 +1,8 @@
 "use client"
-import AppAppBar from "@/app/components/AppAppBar"
+import AppAppBar from "@/components/AppAppBar"
+import AppTheme from "@/shared-theme/AppTheme"
 import CssBaseline from "@mui/material/CssBaseline"
 import Stack from "@mui/material/Stack"
-import AppTheme from "../shared-theme/AppTheme"
 import Content from "./Content"
 import SignInCard from "./SignInCard"
 // @ts-ignore

@@ -1,5 +1,5 @@
-import axiosInstance from "../configs/axiosInstance"
-import { IBackendRes, ILoginRes } from "../types/backend"
+import axiosInstance from "../../configs/axiosInstance"
+import { IBackendRes, ILoginRes } from "../../types/backend"
 
 export class AuthService {
   static async getHelloWorld(): Promise<IBackendRes<string>> {

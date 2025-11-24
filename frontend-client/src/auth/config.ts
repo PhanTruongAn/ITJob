@@ -1,6 +1,6 @@
-import axiosInstance from "@/app/configs/axiosInstance"
-import { UserNextAuth } from "@/app/types/backend"
-import { ACCESS_TOKEN_VALIDITY } from "@/constants/auth"
+import axiosInstance from "@/configs/axiosInstance"
+import { ACCESS_TOKEN_VALIDITY, REFRESH_TOKEN_VALIDITY } from "@/constants/auth"
+import { UserNextAuth } from "@/types/backend"
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
@@ -45,7 +45,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
 
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: REFRESH_TOKEN_VALIDITY },
   secret: process.env.AUTH_SECRET,
 
   callbacks: {

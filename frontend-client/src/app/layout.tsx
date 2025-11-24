@@ -1,4 +1,4 @@
-import { lexend } from "@/app/ui/font"
+import { lexend } from "@/ui/font"
 import type { Metadata } from "next"
 import { SessionProvider } from "next-auth/react"
 import "./globals.css"

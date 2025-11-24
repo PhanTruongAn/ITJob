@@ -23,8 +23,6 @@ const darkLogos = [
 ]
 
 const logoStyle = {
-  width: "100px",
-  height: "80px",
   margin: "0 32px",
   opacity: 0.7,
 }
@@ -49,6 +47,8 @@ export default function LogoCollection() {
             <Image
               src={logo}
               alt={`Fake company number ${index + 1}`}
+              width={100}
+              height={80}
               style={logoStyle}
             />
           </Grid>

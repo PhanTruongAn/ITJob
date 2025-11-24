@@ -1,21 +1,21 @@
-"use client";
-import * as React from "react";
-import { alpha, styled } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
-import Container from "@mui/material/Container";
-import Divider from "@mui/material/Divider";
-import MenuItem from "@mui/material/MenuItem";
-import Drawer from "@mui/material/Drawer";
-import MenuIcon from "@mui/icons-material/Menu";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import Sitemark from "./SitemarkIcon";
-import ColorModeIconDropdown from "../shared-theme/ColorModeIconDropdown";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+"use client"
+import ColorModeIconDropdown from "@/shared-theme/ColorModeIconDropdown"
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded"
+import MenuIcon from "@mui/icons-material/Menu"
+import AppBar from "@mui/material/AppBar"
+import Box from "@mui/material/Box"
+import Button from "@mui/material/Button"
+import Container from "@mui/material/Container"
+import Divider from "@mui/material/Divider"
+import Drawer from "@mui/material/Drawer"
+import IconButton from "@mui/material/IconButton"
+import MenuItem from "@mui/material/MenuItem"
+import { alpha, styled } from "@mui/material/styles"
+import Toolbar from "@mui/material/Toolbar"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import * as React from "react"
+import Sitemark from "./SitemarkIcon"
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -28,14 +28,14 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.background.default, 0.4),
   boxShadow: theme.shadows[1],
   padding: "8px 12px",
-}));
+}))
 
 export default function AppAppBar() {
-  const [open, setOpen] = React.useState(false);
-  const router = useRouter();
+  const [open, setOpen] = React.useState(false)
+  const router = useRouter()
   const toggleDrawer = (newOpen: boolean) => () => {
-    setOpen(newOpen);
-  };
+    setOpen(newOpen)
+  }
 
   return (
     <AppBar
@@ -139,5 +139,5 @@ export default function AppAppBar() {
         </StyledToolbar>
       </Container>
     </AppBar>
-  );
+  )
 }

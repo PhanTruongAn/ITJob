@@ -1,19 +1,18 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid2";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
-import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
-import ConstructionRoundedIcon from "@mui/icons-material/ConstructionRounded";
-import QueryStatsRoundedIcon from "@mui/icons-material/QueryStatsRounded";
-import SettingsSuggestRoundedIcon from "@mui/icons-material/SettingsSuggestRounded";
-import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded";
-import ThumbUpAltRoundedIcon from "@mui/icons-material/ThumbUpAltRounded";
-import Chip from "@mui/material/Chip";
-import Image from "next/image";
-import backgroundImage from "../assets/bg-company.png";
+import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded"
+import ConstructionRoundedIcon from "@mui/icons-material/ConstructionRounded"
+import QueryStatsRoundedIcon from "@mui/icons-material/QueryStatsRounded"
+import SettingsSuggestRoundedIcon from "@mui/icons-material/SettingsSuggestRounded"
+import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded"
+import ThumbUpAltRoundedIcon from "@mui/icons-material/ThumbUpAltRounded"
+import Box from "@mui/material/Box"
+import Card from "@mui/material/Card"
+import Chip from "@mui/material/Chip"
+import Container from "@mui/material/Container"
+import Grid from "@mui/material/Grid2"
+import Stack from "@mui/material/Stack"
+import Typography from "@mui/material/Typography"
+import Image from "next/image"
+import backgroundImage from "../assets/bg-company.png"
 const items = [
   {
     icon: <SettingsSuggestRoundedIcon />,
@@ -92,8 +91,8 @@ const items = [
   },
   {
     icon: <QueryStatsRoundedIcon />,
-    url: "https://res.cloudinary.com/dxyxfr1bj/image/upload/v1736335373/Company/cp6.webp",
-    title: "Samsung Electronics HCMC CE Complex",
+    url: "https://res.cloudinary.com/dxyxfr1bj/image/upload/v1763123309/Company/NITECO_iyouhj.webp",
+    title: "Niteco Vietnam Co., Ltd",
     skills: [
       "JavaScript",
       "Python",
@@ -105,7 +104,7 @@ const items = [
       "Node.js",
     ],
   },
-];
+]
 
 export default function Highlights() {
   return (
@@ -227,5 +226,5 @@ export default function Highlights() {
         </Grid>
       </Container>
     </Box>
-  );
+  )
 }
