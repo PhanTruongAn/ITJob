@@ -95,7 +95,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const data = res.data?.data
           if (data?.access_token) {
             token.accessToken = data.access_token
+            token.refreshToken = data.refresh_token
             token.accessTokenExpires = Date.now() + ACCESS_TOKEN_VALIDITY
+
+            console.log("Refreshed tokens successfully")
           }
         } catch (err: any) {
           console.error("Error refreshing access token:", err)
