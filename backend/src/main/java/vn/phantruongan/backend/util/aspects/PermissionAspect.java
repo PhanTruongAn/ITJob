@@ -44,6 +44,11 @@ public class PermissionAspect {
             throw new BadCredentialsException("Role ID not found in token");
         }
 
+        // Nếu roleId = 1 (ADMIN) thì bỏ qua check permission
+        if (roleId == 1L) {
+            return joinPoint.proceed();
+        }
+
         // Kiểm tra quyền theo resource và action trong annotation
         boolean allowed = permissionService.hasPermission(roleId,
                 requirePermission.resource(),

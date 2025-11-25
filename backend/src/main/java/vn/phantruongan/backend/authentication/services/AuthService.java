@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authentication.dtos.google.req.GoogleLoginReqDTO;
 import vn.phantruongan.backend.authentication.dtos.google.res.GoogleTokenInfoResDTO;
@@ -164,6 +165,7 @@ public class AuthService {
         return res;
     }
 
+    @Transactional
     public void logout(String email) {
         refreshTokenRepository.deleteAllByEmail(email);
 

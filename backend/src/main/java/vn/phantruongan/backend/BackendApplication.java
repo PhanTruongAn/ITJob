@@ -1,13 +1,7 @@
 package vn.phantruongan.backend;
 
-import java.util.Locale;
-
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import vn.phantruongan.backend.company.entities.Country;
-import vn.phantruongan.backend.company.repositories.CountryRepository;
 
 //disable security
 // @SpringBootApplication(exclude = {
@@ -20,25 +14,6 @@ public class BackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BackendApplication.class, args);
-	}
-
-	// @Bean
-	CommandLineRunner seedCountries(CountryRepository countryRepository) {
-		return args -> {
-			String[] isoCountries = Locale.getISOCountries();
-
-			for (String code : isoCountries) {
-				Locale locale = new Locale("", code);
-				String name = locale.getDisplayCountry(Locale.ENGLISH);
-
-				if (!name.isEmpty() && !countryRepository.existsByCode(code)) {
-					Country country = new Country();
-					country.setCode(code);
-					country.setName(name);
-					countryRepository.save(country);
-				}
-			}
-		};
 	}
 
 }
