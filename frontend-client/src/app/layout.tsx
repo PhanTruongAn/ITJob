@@ -1,3 +1,4 @@
+import Providers from "@/components/Providers"
 import { lexend } from "@/ui/font"
 import type { Metadata } from "next"
 import { SessionProvider } from "next-auth/react"
@@ -17,7 +18,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${lexend.className} antialiased`}>
         <SessionProvider refetchInterval={0} refetchOnWindowFocus={false}>
-          {children}
+          <Providers>{children}</Providers>
         </SessionProvider>
       </body>
     </html>
