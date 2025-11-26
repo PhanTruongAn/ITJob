@@ -27,7 +27,7 @@ import vn.phantruongan.backend.util.annotations.ApiMessage;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/auth")
 @Tag(name = "Auth Controller", description = "Quản lý xác thực")
 @RequiredArgsConstructor
 public class AuthController {
@@ -35,7 +35,7 @@ public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
 
-    @PostMapping("/auth/google")
+    @PostMapping("/google")
     @ApiMessage("Login with Google")
     public ResponseEntity<ResLoginDTO> loginWithGoogle(@Valid @RequestBody GoogleLoginReqDTO request)
             throws Exception {
@@ -43,14 +43,14 @@ public class AuthController {
         return authService.buildLoginResponse(res);
     }
 
-    @PostMapping("/auth/login")
+    @PostMapping("/login")
     @ApiMessage("Login")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody LoginDTO loginDto) {
         ResLoginDTO res = authService.normalLogin(loginDto);
         return authService.buildLoginResponse(res);
     }
 
-    @PostMapping("/auth/refresh")
+    @PostMapping("/refresh")
     @ApiMessage("Refresh token")
     public ResponseEntity<ResLoginDTO> refreshToken(
             @CookieValue(name = "refresh_token", required = false) String cookieToken,
@@ -72,7 +72,7 @@ public class AuthController {
         return authService.buildLoginResponse(res);
     }
 
-    @GetMapping("/auth/account")
+    @GetMapping("/account")
     @ApiMessage("Get account information")
     public ResponseEntity<GetAccountResDTO> getAccount() {
         String email = JwtService.getCurrentUserLogin()
@@ -83,7 +83,7 @@ public class AuthController {
         return ResponseEntity.ok(dto);
     }
 
-    @PostMapping("/auth/register")
+    @PostMapping("/register")
     @ApiMessage("Register new user")
     public ResponseEntity<RegisterResDTO> register(@Valid @RequestBody RegisterReqDTO dto)
             throws BadRequestException {
@@ -92,7 +92,7 @@ public class AuthController {
         return ResponseEntity.ok(res);
     }
 
-    @PostMapping("/auth/logout")
+    @PostMapping("/logout")
     @ApiMessage("Logout")
     public ResponseEntity<Void> logout() {
         String email = JwtService.getCurrentUserLogin()

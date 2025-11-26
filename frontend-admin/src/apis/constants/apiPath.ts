@@ -1,7 +1,7 @@
 function path(root: string, subApi: string) {
   return `${root}${subApi}`
 }
-export const ROOT_API = "/api/v1"
+export const ROOT_API = "/api/v1/admin"
 export const PATH_API = {
   user: {
     root: path(ROOT_API, "/users"),

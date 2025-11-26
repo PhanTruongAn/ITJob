@@ -13,7 +13,7 @@ import vn.phantruongan.backend.company.services.CountryService;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor
 public class CountryController {
     public final CountryService service;

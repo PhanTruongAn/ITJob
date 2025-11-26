@@ -29,10 +29,10 @@ import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/admin")
 @Tag(name = "Permission Controller", description = "Quản lý quyền hạn")
 @RequiredArgsConstructor
-public class PermissionController {
+public class PermissionAdminController {
     private final PermissionService permissionService;
 
     @RequirePermission(resource = ResourceEnum.PERMISSION, action = ActionEnum.READ)
