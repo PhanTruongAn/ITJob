@@ -24,19 +24,20 @@ import vn.phantruongan.backend.authorization.enums.ActionEnum;
 import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 import vn.phantruongan.backend.authorization.services.PermissionService;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
+import vn.phantruongan.backend.config.web.ApiPaths;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
 import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping(ApiPaths.PERMISSIONS)
 @Tag(name = "Permission Controller", description = "Quản lý quyền hạn")
 @RequiredArgsConstructor
 public class PermissionController {
     private final PermissionService permissionService;
 
     @RequirePermission(resource = ResourceEnum.PERMISSION, action = ActionEnum.READ)
-    @GetMapping("/permissions")
+    @GetMapping()
     @ApiMessage("Get list permission with filter")
     public ResponseEntity<PaginationResponse<PermissionResDTO>> getAllPermissions(
             @ParameterObject GetListPermissionReqDTO dto,
@@ -47,7 +48,7 @@ public class PermissionController {
     }
 
     @RequirePermission(resource = ResourceEnum.PERMISSION, action = ActionEnum.CREATE)
-    @PostMapping("/permissions")
+    @PostMapping()
     @ApiMessage("Create new permission")
     public ResponseEntity<PermissionResDTO> createCompany(@Valid @RequestBody CreatePermissionReqDTO dto) {
         PermissionResDTO newPermission = permissionService.createPermission(dto);
@@ -55,7 +56,7 @@ public class PermissionController {
     }
 
     @RequirePermission(resource = ResourceEnum.PERMISSION, action = ActionEnum.UPDATE)
-    @PutMapping("/permissions")
+    @PutMapping()
     @ApiMessage("Permission updated")
     public ResponseEntity<PermissionResDTO> updateCompany(@Valid @RequestBody UpdatePermissionReqDTO dto)
             throws InvalidException {
@@ -65,7 +66,7 @@ public class PermissionController {
     }
 
     @RequirePermission(resource = ResourceEnum.PERMISSION, action = ActionEnum.READ)
-    @GetMapping("/permissions/{id}")
+    @GetMapping("/{id}")
     @ApiMessage("Get permission by id")
     public ResponseEntity<PermissionResDTO> findCompanyById(@PathVariable("id") long id) throws InvalidException {
         PermissionResDTO permission = permissionService.findById(id);
@@ -73,7 +74,7 @@ public class PermissionController {
     }
 
     @RequirePermission(resource = ResourceEnum.PERMISSION, action = ActionEnum.DELETE)
-    @DeleteMapping("/permissions/{id}")
+    @DeleteMapping("/{id}")
     @ApiMessage("Permission deleted")
     public ResponseEntity<Boolean> deleteCompany(@PathVariable("id") long id) throws InvalidException {
         boolean isDelete = permissionService.deletePermissionById(id);

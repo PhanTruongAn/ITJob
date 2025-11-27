@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authorization.enums.ActionEnum;
 import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
+import vn.phantruongan.backend.config.web.ApiPaths;
 import vn.phantruongan.backend.subscriber.dtos.req.subscriber.CreateSubscriberReqDTO;
 import vn.phantruongan.backend.subscriber.dtos.req.subscriber.GetListSubscriberReqDTO;
 import vn.phantruongan.backend.subscriber.dtos.req.subscriber.UpdateSubscriberReqDTO;
@@ -31,14 +32,14 @@ import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping(ApiPaths.SUBSCRIBERS)
 @Tag(name = "Subscriber Controller", description = "Quản lý đăng ký kỹ năng")
 @RequiredArgsConstructor
 public class SubscriberController {
     private final SubscriberService subscriberService;
 
     @RequirePermission(resource = ResourceEnum.SUBSCRIBER, action = ActionEnum.READ)
-    @GetMapping("/subscribers")
+    @GetMapping()
     @ApiMessage("Get list subscriber with filter")
     public ResponseEntity<PaginationResponse<SubscriberResDTO>> getAllSubscribers(
             @ParameterObject GetListSubscriberReqDTO dto,
@@ -49,7 +50,7 @@ public class SubscriberController {
     }
 
     @RequirePermission(resource = ResourceEnum.SUBSCRIBER, action = ActionEnum.CREATE)
-    @PostMapping("/subscribers")
+    @PostMapping()
     @ApiMessage("Create new subscriber")
     public ResponseEntity<SubscriberResDTO> createSubscriber(@Valid @RequestBody CreateSubscriberReqDTO dto)
             throws InvalidException {
@@ -60,7 +61,7 @@ public class SubscriberController {
     }
 
     @RequirePermission(resource = ResourceEnum.SUBSCRIBER, action = ActionEnum.UPDATE)
-    @PutMapping("/subscribers")
+    @PutMapping()
     @ApiMessage("Subscriber updated")
     public ResponseEntity<Map<String, Integer>> updateSubscriber(@Valid @RequestBody UpdateSubscriberReqDTO dto)
             throws InvalidException {
@@ -70,7 +71,7 @@ public class SubscriberController {
     }
 
     @RequirePermission(resource = ResourceEnum.SUBSCRIBER, action = ActionEnum.READ)
-    @GetMapping("/subscribers/{id}")
+    @GetMapping("/{id}")
     @ApiMessage("Get subscriber by id")
     public ResponseEntity<SubscriberResDTO> findSubscriberById(@PathVariable("id") long id) throws InvalidException {
         SubscriberResDTO subscriber = subscriberService.findById(id);
@@ -78,7 +79,7 @@ public class SubscriberController {
     }
 
     @RequirePermission(resource = ResourceEnum.SUBSCRIBER, action = ActionEnum.DELETE)
-    @DeleteMapping("/subscribers/{id}")
+    @DeleteMapping("/{id}")
     @ApiMessage("Subscriber deleted")
     public ResponseEntity<Boolean> deleteSubscriber(@PathVariable("id") long id) throws InvalidException {
         boolean isDelete = subscriberService.deleteSubscriberById(id);

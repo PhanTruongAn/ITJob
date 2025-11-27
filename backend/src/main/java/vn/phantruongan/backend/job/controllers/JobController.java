@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authorization.enums.ActionEnum;
 import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
+import vn.phantruongan.backend.config.web.ApiPaths;
 import vn.phantruongan.backend.job.dtos.req.job.CreateJobReqDTO;
 import vn.phantruongan.backend.job.dtos.req.job.GetListJobReqDTO;
 import vn.phantruongan.backend.job.dtos.req.job.UpdateJobReqDTO;
@@ -29,14 +30,14 @@ import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping(ApiPaths.JOBS)
 @Tag(name = "Job Controller", description = "Quản lý việc làm")
 @RequiredArgsConstructor
 public class JobController {
     private final JobService jobService;
 
     @RequirePermission(resource = ResourceEnum.JOB, action = ActionEnum.READ)
-    @GetMapping("/jobs")
+    @GetMapping()
     @ApiMessage("Get list job with filter")
     public ResponseEntity<PaginationResponse<JobResDTO>> getAllJobs(
             @ParameterObject GetListJobReqDTO dto,
@@ -47,7 +48,7 @@ public class JobController {
     }
 
     @RequirePermission(resource = ResourceEnum.JOB, action = ActionEnum.CREATE)
-    @PostMapping("/jobs")
+    @PostMapping()
     @ApiMessage("Create new job")
     public ResponseEntity<JobResDTO> createJob(@Valid @RequestBody CreateJobReqDTO dto) throws InvalidException {
 
@@ -57,7 +58,7 @@ public class JobController {
     }
 
     @RequirePermission(resource = ResourceEnum.JOB, action = ActionEnum.UPDATE)
-    @PutMapping("/jobs")
+    @PutMapping()
     @ApiMessage("Job updated")
     public ResponseEntity<JobResDTO> updateJob(@Valid @RequestBody UpdateJobReqDTO dto)
             throws InvalidException {
@@ -67,7 +68,7 @@ public class JobController {
     }
 
     @RequirePermission(resource = ResourceEnum.JOB, action = ActionEnum.READ)
-    @GetMapping("/jobs/{id}")
+    @GetMapping("/{id}")
     @ApiMessage("Get job by id")
     public ResponseEntity<JobResDTO> findJobById(@PathVariable("id") long id) throws InvalidException {
         JobResDTO job = jobService.findById(id);
@@ -75,7 +76,7 @@ public class JobController {
     }
 
     @RequirePermission(resource = ResourceEnum.JOB, action = ActionEnum.DELETE)
-    @DeleteMapping("/jobs/{id}")
+    @DeleteMapping("/{id}")
     @ApiMessage("Job deleted")
     public ResponseEntity<Boolean> deleteJob(@PathVariable("id") long id) throws InvalidException {
         boolean isDelete = jobService.deleteJobById(id);

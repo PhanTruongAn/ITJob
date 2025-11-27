@@ -10,15 +10,16 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.company.entities.Country;
 import vn.phantruongan.backend.company.services.CountryService;
+import vn.phantruongan.backend.config.web.ApiPaths;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
 
 @RestController
-@RequestMapping("/api/v1/admin")
+@RequestMapping(ApiPaths.COUNTRIES)
 @RequiredArgsConstructor
 public class CountryController {
     public final CountryService service;
 
-    @GetMapping("/countries")
+    @GetMapping()
     @ApiMessage("Get all countries")
     public ResponseEntity<List<Country>> getAllCountries() {
         return ResponseEntity.ok(service.getAllCountries());

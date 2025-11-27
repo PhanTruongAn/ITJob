@@ -21,6 +21,7 @@ public class UserResDTO {
     private LocalDate dob;
     private GenderEnum gender;
     private String address;
+    private String avatar;
     private Instant createdAt;
     private Instant updatedAt;
     // private long roleId;

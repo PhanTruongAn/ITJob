@@ -10,10 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cloudinary.Cloudinary;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import vn.phantruongan.backend.config.web.ApiPaths;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping(ApiPaths.FILE)
 @Tag(name = "File Controller", description = "Quản lý tệp tin")
 public class FileController {
 
@@ -26,7 +27,7 @@ public class FileController {
     @Value("${cloudinary.upload-preset}")
     private String uploadPreset;
 
-    @GetMapping("/file/signed")
+    @GetMapping("/signed")
     @ApiMessage("File signed")
     public Map<String, Object> getSignature() {
         long timestamp = System.currentTimeMillis() / 1000L;

@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authorization.enums.ActionEnum;
 import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
+import vn.phantruongan.backend.config.web.ApiPaths;
 import vn.phantruongan.backend.resume.dtos.req.CreateResumeReqDTO;
 import vn.phantruongan.backend.resume.dtos.req.GetListResumeReqDTO;
 import vn.phantruongan.backend.resume.dtos.req.UpdateResumeReqDTO;
@@ -30,7 +31,7 @@ import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping(ApiPaths.RESUMES)
 @Tag(name = "Resume Controller", description = "Quản lý hồ sơ ứng tuyển")
 @RequiredArgsConstructor
 public class ResumeController {
@@ -38,7 +39,7 @@ public class ResumeController {
     private final ResumeService resumeService;
 
     @RequirePermission(resource = ResourceEnum.RESUME, action = ActionEnum.READ)
-    @GetMapping("/resumes")
+    @GetMapping()
     @ApiMessage("Get list resumes with filter")
     public ResponseEntity<PaginationResponse<ResumeResDTO>> getAllResumes(
             @ParameterObject GetListResumeReqDTO dto,
@@ -49,7 +50,7 @@ public class ResumeController {
     }
 
     @RequirePermission(resource = ResourceEnum.RESUME, action = ActionEnum.CREATE)
-    @PostMapping("/resumes")
+    @PostMapping()
     @ApiMessage("Create new resume")
     public ResponseEntity<ResumeResDTO> createResume(@Valid @RequestBody CreateResumeReqDTO dto)
             throws InvalidException {
@@ -59,7 +60,7 @@ public class ResumeController {
     }
 
     @RequirePermission(resource = ResourceEnum.RESUME, action = ActionEnum.UPDATE)
-    @PutMapping("/resumes")
+    @PutMapping()
     @ApiMessage("Resume updated")
     public ResponseEntity<ResumeResDTO> updateResume(@Valid @RequestBody UpdateResumeReqDTO dto)
             throws InvalidException {
@@ -69,7 +70,7 @@ public class ResumeController {
     }
 
     @RequirePermission(resource = ResourceEnum.RESUME, action = ActionEnum.READ)
-    @GetMapping("/resumes/{id}")
+    @GetMapping("/{id}")
     @ApiMessage("Get resume by id")
     public ResponseEntity<ResumeResDTO> findResumeById(@PathVariable("id") long id)
             throws InvalidException {
@@ -79,7 +80,7 @@ public class ResumeController {
     }
 
     @RequirePermission(resource = ResourceEnum.RESUME, action = ActionEnum.DELETE)
-    @DeleteMapping("/resumes/{id}")
+    @DeleteMapping("/{id}")
     @ApiMessage("Resume deleted")
     public ResponseEntity<Boolean> deleteResume(@PathVariable("id") long id)
             throws InvalidException {
@@ -89,7 +90,7 @@ public class ResumeController {
     }
 
     @RequirePermission(resource = ResourceEnum.RESUME, action = ActionEnum.UPDATE)
-    @PutMapping("/resumes/{id}/approve")
+    @PutMapping("/{id}/approve")
     @ApiMessage("Approve resume")
     public ResponseEntity<ResumeResDTO> approveResume(@PathVariable("id") long id)
             throws InvalidException {
@@ -99,7 +100,7 @@ public class ResumeController {
     }
 
     @RequirePermission(resource = ResourceEnum.RESUME, action = ActionEnum.UPDATE)
-    @PutMapping("/resumes/{id}/reject")
+    @PutMapping("/{id}/reject")
     @ApiMessage("Reject resume")
     public ResponseEntity<ResumeResDTO> rejectResume(
             @PathVariable("id") long id,
@@ -111,7 +112,7 @@ public class ResumeController {
     }
 
     @RequirePermission(resource = ResourceEnum.RESUME, action = ActionEnum.UPDATE)
-    @PutMapping("/resumes/{id}/review")
+    @PutMapping("/{id}/review")
     @ApiMessage("Review resume")
     public ResponseEntity<ResumeResDTO> reviewResume(@PathVariable("id") long id)
             throws InvalidException {

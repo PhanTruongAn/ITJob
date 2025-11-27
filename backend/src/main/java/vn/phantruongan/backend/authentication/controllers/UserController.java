@@ -25,20 +25,21 @@ import vn.phantruongan.backend.authentication.services.UserService;
 import vn.phantruongan.backend.authorization.enums.ActionEnum;
 import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
+import vn.phantruongan.backend.config.web.ApiPaths;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
 import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
-@SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping(ApiPaths.USERS)
 @Tag(name = "User Controller", description = "Quản lý người dùng")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
     private final UserService userService;
 
     @RequirePermission(resource = ResourceEnum.USER, action = ActionEnum.CREATE)
-    @PostMapping("/users")
+    @PostMapping()
     @ApiMessage("User created")
     public ResponseEntity<UserResDTO> createNewUser(@Valid @RequestBody CreateUserReqDTO dto) throws InvalidException {
         UserResDTO dataUser = userService.createUser(dto);
@@ -46,7 +47,7 @@ public class UserController {
     }
 
     @RequirePermission(resource = ResourceEnum.USER, action = ActionEnum.UPDATE)
-    @PutMapping("/users")
+    @PutMapping()
     @ApiMessage("User updated")
     public ResponseEntity<UserResDTO> updateUser(@Valid @RequestBody UpdateUserReqDTO dto) throws InvalidException {
 
@@ -55,7 +56,7 @@ public class UserController {
     }
 
     @RequirePermission(resource = ResourceEnum.USER, action = ActionEnum.DELETE)
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/{id}")
     @ApiMessage("User deleted")
     public ResponseEntity<Boolean> deleteUserById(@PathVariable("id") long id) throws InvalidException {
         boolean deleted = userService.deleteUserById(id);
@@ -63,7 +64,7 @@ public class UserController {
     }
 
     @RequirePermission(resource = ResourceEnum.USER, action = ActionEnum.READ)
-    @GetMapping("/users/{id}")
+    @GetMapping("/{id}")
     @ApiMessage("Get user")
     public ResponseEntity<UserResDTO> getUserById(@PathVariable("id") long id) throws InvalidException {
         UserResDTO user = userService.getUserById(id);

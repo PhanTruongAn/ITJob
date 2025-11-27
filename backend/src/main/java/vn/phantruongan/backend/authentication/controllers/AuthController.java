@@ -23,11 +23,12 @@ import vn.phantruongan.backend.authentication.dtos.register.RegisterResDTO;
 import vn.phantruongan.backend.authentication.dtos.req.RefreshTokenReqDTO;
 import vn.phantruongan.backend.authentication.services.AuthService;
 import vn.phantruongan.backend.config.jwt.JwtService;
+import vn.phantruongan.backend.config.web.ApiPaths;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping(ApiPaths.AUTH)
 @Tag(name = "Auth Controller", description = "Quản lý xác thực")
 @RequiredArgsConstructor
 public class AuthController {
