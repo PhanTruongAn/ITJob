@@ -31,7 +31,7 @@ import vn.phantruongan.backend.util.error.InvalidException;
 
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1")
 @Tag(name = "User Controller", description = "Quản lý người dùng")
 @RequiredArgsConstructor
 public class UserController {

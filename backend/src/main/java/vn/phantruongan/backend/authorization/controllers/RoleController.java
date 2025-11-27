@@ -33,10 +33,10 @@ import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1")
 @Tag(name = "Role Controller", description = "Quản lý vai trò")
 @RequiredArgsConstructor
-public class RoleAdminController {
+public class RoleController {
 
     private final RoleRepository roleRepository;
     private final RoleService roleService;

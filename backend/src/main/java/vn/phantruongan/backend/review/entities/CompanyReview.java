@@ -34,10 +34,12 @@ public class CompanyReview extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
+    @ToString.Exclude
     private Company company;
 
     private Integer rating;

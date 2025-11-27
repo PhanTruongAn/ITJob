@@ -30,10 +30,10 @@ import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1")
 @Tag(name = "Resume Controller", description = "Quản lý hồ sơ ứng tuyển")
 @RequiredArgsConstructor
-public class ResumeAdminController {
+public class ResumeController {
 
     private final ResumeService resumeService;
 

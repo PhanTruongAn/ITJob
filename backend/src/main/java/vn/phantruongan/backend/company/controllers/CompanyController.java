@@ -31,11 +31,11 @@ import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1")
 @Tag(name = "Company Controller", description = "Quản lý công ty")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
-public class CompanyAdminController {
+public class CompanyController {
 
     private final CompanyRepository companyRepository;
 

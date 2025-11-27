@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import vn.phantruongan.backend.authentication.entities.User;
 import vn.phantruongan.backend.common.Auditable;
 import vn.phantruongan.backend.company.entities.Company;
@@ -25,6 +26,7 @@ import vn.phantruongan.backend.recommendation.enums.RecommendationStatus;
 })
 @Getter
 @Setter
+@ToString
 public class CompanyRecommendation extends Auditable {
 
     @Id
@@ -33,10 +35,12 @@ public class CompanyRecommendation extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
+    @ToString.Exclude
     private Company company;
 
     @Enumerated(EnumType.STRING)

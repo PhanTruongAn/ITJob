@@ -36,10 +36,12 @@ public class JobRecommendation extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_id")
+    @ToString.Exclude
     private Job job;
 
     @Enumerated(EnumType.STRING)

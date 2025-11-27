@@ -29,10 +29,10 @@ import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1")
 @Tag(name = "Job Controller", description = "Quản lý việc làm")
 @RequiredArgsConstructor
-public class JobAdminController {
+public class JobController {
     private final JobService jobService;
 
     @RequirePermission(resource = ResourceEnum.JOB, action = ActionEnum.READ)

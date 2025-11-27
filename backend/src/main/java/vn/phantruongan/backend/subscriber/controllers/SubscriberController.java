@@ -31,10 +31,10 @@ import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.InvalidException;
 
 @RestController
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1")
 @Tag(name = "Subscriber Controller", description = "Quản lý đăng ký kỹ năng")
 @RequiredArgsConstructor
-public class SubscriberAdminController {
+public class SubscriberController {
     private final SubscriberService subscriberService;
 
     @RequirePermission(resource = ResourceEnum.SUBSCRIBER, action = ActionEnum.READ)
