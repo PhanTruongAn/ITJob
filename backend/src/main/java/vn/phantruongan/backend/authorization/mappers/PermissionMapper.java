@@ -1,5 +1,7 @@
 package vn.phantruongan.backend.authorization.mappers;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -17,6 +19,8 @@ public interface PermissionMapper extends BaseMapper<PermissionResDTO, Permissio
     Permission toEntity(CreatePermissionReqDTO dto);
 
     PermissionResDTO toDto(Permission entity);
+
+    List<PermissionResDTO> toDtoList(List<Permission> entities);
 
     @Mapping(target = "id", ignore = true)
     void updateEntityFromDto(UpdatePermissionReqDTO dto, @MappingTarget Permission entity);

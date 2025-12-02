@@ -1,5 +1,7 @@
 package vn.phantruongan.backend.authorization.mappers;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -17,6 +19,8 @@ public interface RoleMapper extends BaseMapper<RoleResDTO, Role> {
     Role toEntity(CreateRoleReqDTO dto);
 
     RoleResDTO toDto(Role entity);
+
+    List<RoleResDTO> toDtoList(List<Role> entities);
 
     @Mapping(target = "id", ignore = true)
     void updateEntityFromDto(UpdateRoleReqDTO dto, @MappingTarget Role entity);

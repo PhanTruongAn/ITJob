@@ -1,7 +1,6 @@
 package vn.phantruongan.backend.subscriber.services;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,10 +29,7 @@ public class SkillService {
     public PaginationResponse<SkillResDTO> getAllSkills(GetListSkillReqDTO dto, Pageable pageable) {
         Specification<Skill> spec = new SkillSpecification(dto);
         Page<Skill> page = skillRepository.findAll(spec, pageable);
-        List<SkillResDTO> list = page.getContent().stream()
-                .map(skillMapper::toDto)
-                .collect(Collectors.toList());
-
+        List<SkillResDTO> list = skillMapper.toDtoList(page.getContent());
         PaginationResponse.Meta meta = new PaginationResponse.Meta(
                 page.getNumber() + 1,
                 page.getSize(),

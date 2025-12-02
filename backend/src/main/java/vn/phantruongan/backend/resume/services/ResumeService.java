@@ -1,7 +1,6 @@
 package vn.phantruongan.backend.resume.services;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,9 +41,7 @@ public class ResumeService {
         public PaginationResponse<ResumeResDTO> getAllResumes(GetListResumeReqDTO dto, Pageable pageable) {
                 Specification<Resume> spec = new ResumeSpecification(dto);
                 Page<Resume> page = resumeRepository.findAll(spec, pageable);
-                List<ResumeResDTO> list = page.getContent().stream()
-                                .map(resumeMapper::toDto)
-                                .collect(Collectors.toList());
+                List<ResumeResDTO> list = resumeMapper.toDtoList(page.getContent());
 
                 PaginationResponse.Meta meta = new PaginationResponse.Meta(
                                 page.getNumber() + 1,

@@ -3,6 +3,9 @@ package vn.phantruongan.backend.authentication.entities;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -20,14 +23,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import vn.phantruongan.backend.authentication.enums.GenderEnum;
 import vn.phantruongan.backend.authorization.entities.Role;
-import vn.phantruongan.backend.common.Auditable;
+import vn.phantruongan.backend.common.BaseSoftDelete;
 import vn.phantruongan.backend.company.entities.Company;
 import vn.phantruongan.backend.resume.entities.Resume;
 
@@ -42,8 +44,9 @@ import vn.phantruongan.backend.resume.entities.Resume;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class User extends Auditable {
+@SQLDelete(sql = "UPDATE users SET deleted = true, deleted_at = UTC_TIMESTAMP() WHERE id = ?")
+@SQLRestriction("deleted = false")
+public class User extends BaseSoftDelete {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

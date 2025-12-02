@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.job.entities;
+package vn.phantruongan.backend.bookmark.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,16 +11,19 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import vn.phantruongan.backend.authentication.entities.User;
 import vn.phantruongan.backend.common.Auditable;
+import vn.phantruongan.backend.company.entities.Company;
 
 @Entity
-@Table(name = "saved_jobs", indexes = {
-        @Index(name = "idx_savedjob_candidate", columnList = "candidate_id")
+@Table(name = "saved_companies", indexes = {
+        @Index(name = "idx_savedcompany_candidate", columnList = "candidate_id")
 })
 @Getter
 @Setter
-public class SavedJob extends Auditable {
+@ToString
+public class SavedCompany extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +34,6 @@ public class SavedJob extends Auditable {
     private User candidate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "job_id", nullable = false)
-    private Job job;
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
 }

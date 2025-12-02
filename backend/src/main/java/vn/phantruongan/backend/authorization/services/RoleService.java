@@ -41,9 +41,7 @@ public class RoleService {
     public PaginationResponse<RoleResDTO> getAllRole(GetListRoleReqDTO dto, Pageable pageable) {
         Specification<Role> spec = new RoleSpecification(dto);
         Page<Role> page = roleRepository.findAll(spec, pageable);
-        List<RoleResDTO> list = page.getContent().stream()
-                .map(roleMapper::toDto)
-                .collect(Collectors.toList());
+        List<RoleResDTO> list = roleMapper.toDtoList(page.getContent());
 
         PaginationResponse.Meta meta = new PaginationResponse.Meta(
                 page.getNumber() + 1,

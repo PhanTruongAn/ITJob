@@ -51,12 +51,11 @@ public class AuthService {
             throw new BadRequestException("Email already in use!");
         }
 
-        User user = User.builder()
-                .email(dto.getEmail())
-                .name(dto.getName())
-                .avatar(dto.getAvatar())
-                .password(passwordEncoder.encode(dto.getPassword()))
-                .build();
+        User user = new User();
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setAvatar(dto.getAvatar());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         User savedUser = userRepository.save(user);
 
@@ -114,10 +113,12 @@ public class AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("Role CANDIDATE not found"));
 
         User user = userRepository.findByEmail(info.getEmail())
-                .orElseGet(() -> User.builder()
-                        .email(info.getEmail())
-                        .role(candidateRole)
-                        .build());
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setEmail(info.getEmail());
+                    newUser.setRole(candidateRole);
+                    return newUser;
+                });
 
         user.setGoogleId(info.getSub());
         user.setName(info.getName());

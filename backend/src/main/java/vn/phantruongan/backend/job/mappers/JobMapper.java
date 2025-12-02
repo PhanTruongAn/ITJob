@@ -1,5 +1,7 @@
 package vn.phantruongan.backend.job.mappers;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -20,6 +22,8 @@ public interface JobMapper extends BaseMapper<JobResDTO, Job> {
 
     @Mapping(source = "company.id", target = "companyId")
     JobResDTO toDto(Job entity);
+
+    List<JobResDTO> toDtoList(List<Job> entities);
 
     @Mapping(target = "id", ignore = true)
     void updateEntityFromDto(UpdateJobReqDTO dto, @MappingTarget Job entity);

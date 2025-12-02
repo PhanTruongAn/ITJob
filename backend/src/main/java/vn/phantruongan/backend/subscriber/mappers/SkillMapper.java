@@ -1,5 +1,7 @@
 package vn.phantruongan.backend.subscriber.mappers;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -17,6 +19,8 @@ public interface SkillMapper extends BaseMapper<SkillResDTO, Skill> {
     Skill toEntity(CreateSkillReqDTO dto);
 
     SkillResDTO toDto(Skill entity);
+
+    List<SkillResDTO> toDtoList(List<Skill> entities);
 
     @Mapping(target = "id", ignore = true)
     void updateEntityFromDto(UpdateSkillReqDTO dto, @MappingTarget Skill entity);

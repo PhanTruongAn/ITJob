@@ -40,9 +40,7 @@ public class JobService {
         public PaginationResponse<JobResDTO> getAllJobs(GetListJobReqDTO dto, Pageable pageable) {
                 Specification<Job> spec = new JobSpecification(dto);
                 Page<Job> page = jobRepository.findAll(spec, pageable);
-                List<JobResDTO> list = page.getContent().stream()
-                                .map(jobMapper::toDto)
-                                .collect(Collectors.toList());
+                List<JobResDTO> list = jobMapper.toDtoList(page.getContent());
 
                 PaginationResponse.Meta meta = new PaginationResponse.Meta(
                                 page.getNumber() + 1,

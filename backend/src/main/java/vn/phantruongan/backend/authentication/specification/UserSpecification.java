@@ -34,7 +34,7 @@ public class UserSpecification implements Specification<User> {
         }
 
         if (dtoFilter.getEmail() != null) {
-            predicates.add(cb.like(cb.lower(root.get("email")), dtoFilter.getPhone().toLowerCase() + "%"));
+            predicates.add(cb.like(cb.lower(root.get("email")), dtoFilter.getEmail().toLowerCase() + "%"));
         }
 
         if (dtoFilter.getGender() != null) {

@@ -1,5 +1,7 @@
 package vn.phantruongan.backend.resume.mappers;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -21,6 +23,8 @@ public interface ResumeMapper extends BaseMapper<ResumeResDTO, Resume> {
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "job.id", target = "jobId")
     ResumeResDTO toDto(Resume entity);
+
+    List<ResumeResDTO> toDtoList(List<Resume> entities);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user.id", source = "userId")

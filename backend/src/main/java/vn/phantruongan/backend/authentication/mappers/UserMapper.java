@@ -1,5 +1,7 @@
 package vn.phantruongan.backend.authentication.mappers;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -17,6 +19,8 @@ public interface UserMapper extends BaseMapper<UserResDTO, User> {
     User toEntity(CreateUserReqDTO dto);
 
     UserResDTO toDto(User entity);
+
+    List<UserResDTO> toDtoList(List<User> entities);
 
     @Mapping(target = "id", ignore = true)
     void updateEntityFromDto(UpdateUserReqDTO dto, @MappingTarget User entity);

@@ -38,6 +38,17 @@ import vn.phantruongan.backend.util.error.InvalidException;
 public class UserController {
     private final UserService userService;
 
+    @RequirePermission(resource = ResourceEnum.USER, action = ActionEnum.READ)
+    @GetMapping("/users")
+    @ApiMessage("Get users with filter")
+    public ResponseEntity<PaginationResponse<UserResDTO>> getAllUser(
+            @ParameterObject GetListUserReqDTO filter,
+            @ParameterObject Pageable pageable) {
+
+        PaginationResponse<UserResDTO> result = userService.getListUser(filter, pageable);
+        return ResponseEntity.ok(result);
+    }
+
     @RequirePermission(resource = ResourceEnum.USER, action = ActionEnum.CREATE)
     @PostMapping()
     @ApiMessage("User created")
@@ -69,17 +80,6 @@ public class UserController {
     public ResponseEntity<UserResDTO> getUserById(@PathVariable("id") long id) throws InvalidException {
         UserResDTO user = userService.getUserById(id);
         return ResponseEntity.ok(user);
-    }
-
-    @RequirePermission(resource = ResourceEnum.USER, action = ActionEnum.READ)
-    @GetMapping("/users")
-    @ApiMessage("Get users with filter")
-    public ResponseEntity<PaginationResponse<UserResDTO>> getAllUser(
-            @ParameterObject GetListUserReqDTO filter,
-            @ParameterObject Pageable pageable) {
-
-        PaginationResponse<UserResDTO> result = userService.getListUser(filter, pageable);
-        return ResponseEntity.ok(result);
     }
 
 }

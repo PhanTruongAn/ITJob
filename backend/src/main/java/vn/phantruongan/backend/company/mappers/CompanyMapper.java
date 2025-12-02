@@ -1,5 +1,7 @@
 package vn.phantruongan.backend.company.mappers;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -17,6 +19,8 @@ public interface CompanyMapper extends BaseMapper<CompanyResDTO, Company> {
     Company toEntity(CreateCompanyReqDTO dto);
 
     CompanyResDTO toDto(Company entity);
+
+    List<CompanyResDTO> toDtoList(List<Company> entities);
 
     @Mapping(target = "id", ignore = true)
     void updateEntityFromDto(UpdateCompanyReqDTO dto, @MappingTarget Company entity);

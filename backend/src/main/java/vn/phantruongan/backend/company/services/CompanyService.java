@@ -1,7 +1,6 @@
 package vn.phantruongan.backend.company.services;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -79,9 +78,7 @@ public class CompanyService {
     public PaginationResponse<CompanyResDTO> getAllCompanies(GetListCompanyReqDTO dto, Pageable pageable) {
         Specification<Company> spec = new CompanySpecification(dto);
         Page<Company> page = companyRepository.findAll(spec, pageable);
-        List<CompanyResDTO> list = page.getContent().stream()
-                .map(companyMapper::toDto)
-                .collect(Collectors.toList());
+        List<CompanyResDTO> list = companyMapper.toDtoList(page.getContent());
 
         PaginationResponse.Meta meta = new PaginationResponse.Meta(
                 page.getNumber() + 1,

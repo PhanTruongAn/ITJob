@@ -1,7 +1,6 @@
 package vn.phantruongan.backend.authentication.services;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +27,22 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+
+    // Get list user with filter
+    public PaginationResponse<UserResDTO> getListUser(GetListUserReqDTO dto, Pageable pageable) {
+        Specification<User> spec = new UserSpecification(dto);
+        Page<User> page = userRepository.findAll(spec, pageable);
+
+        List<UserResDTO> list = userMapper.toDtoList(page.getContent());
+
+        PaginationResponse.Meta meta = new PaginationResponse.Meta(
+                page.getNumber() + 1,
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages());
+
+        return new PaginationResponse<>(list, meta);
+    }
 
     public UserResDTO createUser(CreateUserReqDTO dto) throws InvalidException {
         User user = userMapper.toEntity(dto);
@@ -68,24 +83,6 @@ public class UserService {
                 .orElseThrow(() -> new InvalidException("User not found with id: " + id));
 
         return userMapper.toDto(user);
-    }
-
-    // Get list user with filter
-    public PaginationResponse<UserResDTO> getListUser(GetListUserReqDTO dto, Pageable pageable) {
-        Specification<User> spec = new UserSpecification(dto);
-        Page<User> page = userRepository.findAll(spec, pageable);
-
-        List<UserResDTO> list = page.getContent().stream()
-                .map(userMapper::toDto)
-                .collect(Collectors.toList());
-
-        PaginationResponse.Meta meta = new PaginationResponse.Meta(
-                page.getNumber() + 1,
-                page.getSize(),
-                page.getTotalElements(),
-                page.getTotalPages());
-
-        return new PaginationResponse<>(list, meta);
     }
 
     // public Optional<User> findUserByEmail(String email) {

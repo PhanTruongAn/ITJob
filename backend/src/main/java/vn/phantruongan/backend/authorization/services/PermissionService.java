@@ -1,7 +1,6 @@
 package vn.phantruongan.backend.authorization.services;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -35,9 +34,7 @@ public class PermissionService {
     public PaginationResponse<PermissionResDTO> getAllPermission(GetListPermissionReqDTO dto, Pageable pageable) {
         Specification<Permission> spec = new PermissionSpecification(dto);
         Page<Permission> page = permissionRepository.findAll(spec, pageable);
-        List<PermissionResDTO> list = page.getContent().stream()
-                .map(permissionMapper::toDto)
-                .collect(Collectors.toList());
+        List<PermissionResDTO> list = permissionMapper.toDtoList(page.getContent());
 
         PaginationResponse.Meta meta = new PaginationResponse.Meta(
                 page.getNumber() + 1,

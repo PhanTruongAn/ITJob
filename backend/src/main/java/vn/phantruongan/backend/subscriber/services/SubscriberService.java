@@ -42,7 +42,7 @@ public class SubscriberService {
         Page<Subscriber> page = subscriberRepository.findAll(spec, pageable);
         List<SubscriberResDTO> list = page.getContent().stream()
                 .map(subscriberMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
 
         PaginationResponse.Meta meta = new PaginationResponse.Meta(
                 page.getNumber() + 1,
