@@ -16,7 +16,7 @@ import vn.phantruongan.backend.subscriber.entities.Subscriber;
 public interface SubscriberRepository extends JpaRepository<Subscriber, Long>, JpaSpecificationExecutor<Subscriber> {
     public boolean existsByEmail(String email);
 
-    @Query("SELECT DISTINCT s FROM Subscriber s JOIN FETCH s.subscriberSkills ss JOIN FETCH ss.skill")
+    @EntityGraph(attributePaths = { "subscriberSkills", "subscriberSkills.skill" })
     List<Subscriber> findAllWithSkills();
 
     @EntityGraph(attributePaths = { "subscriberSkills", "subscriberSkills.skill" })
