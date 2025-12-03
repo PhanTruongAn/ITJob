@@ -50,14 +50,18 @@ public class User extends BaseSoftDelete {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     private String name;
     private String email;
     private String password;
     private String phone;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate dob;
+
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
+
     private String address;
     private String avatar;
     private String googleId;
@@ -77,4 +81,13 @@ public class User extends BaseSoftDelete {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    // @JsonIgnore
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval =
+    // true)
+    // private List<JobRecommendation> jobRecommendations;
+
+    // @JsonIgnore
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval =
+    // true)
+    // private List<CompanyRecommendation> companyRecommendations;
 }

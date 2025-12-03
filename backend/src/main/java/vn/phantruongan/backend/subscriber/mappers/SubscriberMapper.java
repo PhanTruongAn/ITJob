@@ -5,10 +5,12 @@ import java.util.stream.Collectors;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
 import vn.phantruongan.backend.common.BaseMapper;
 import vn.phantruongan.backend.config.common.GlobalMapperConfig;
+import vn.phantruongan.backend.subscriber.dtos.req.subscriber.UpdateSubscriberReqDTO;
 import vn.phantruongan.backend.subscriber.dtos.res.SkillResDTO;
 import vn.phantruongan.backend.subscriber.dtos.res.SubscriberResDTO;
 import vn.phantruongan.backend.subscriber.entities.Skill;
@@ -39,4 +41,7 @@ public interface SubscriberMapper extends BaseMapper<SubscriberResDTO, Subscribe
                 })
                 .collect(Collectors.toList());
     }
+
+    @Mapping(target = "id", ignore = true)
+    void updateEntityFromDto(UpdateSubscriberReqDTO dto, @MappingTarget Subscriber entity);
 }

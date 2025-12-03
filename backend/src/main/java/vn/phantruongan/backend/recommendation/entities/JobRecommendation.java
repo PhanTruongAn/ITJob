@@ -14,14 +14,14 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import vn.phantruongan.backend.authentication.entities.User;
 import vn.phantruongan.backend.common.Auditable;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.recommendation.enums.RecommendationStatus;
+import vn.phantruongan.backend.subscriber.entities.Subscriber;
 
 @Entity
 @Table(name = "job_recommendations", indexes = {
-        @Index(name = "idx_recommend_user", columnList = "user_id"),
+        @Index(name = "idx_recommend_subscriber", columnList = "subscriber_id"),
         @Index(name = "idx_recommend_job", columnList = "job_id"),
         @Index(name = "idx_recommend_status", columnList = "status")
 })
@@ -35,9 +35,9 @@ public class JobRecommendation extends Auditable {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "subscriber_id")
     @ToString.Exclude
-    private User user;
+    private Subscriber subscriber;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_id")

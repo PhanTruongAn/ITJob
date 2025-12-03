@@ -6,5 +6,5 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class UpdateJobReqDTO extends CreateJobReqDTO {
-    private long id;
+    private Long id;
 }

@@ -1,7 +1,5 @@
 package vn.phantruongan.backend.subscriber.controllers;
 
-import java.util.Map;
-
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -63,10 +61,10 @@ public class SubscriberController {
     @RequirePermission(resource = ResourceEnum.SUBSCRIBER, action = ActionEnum.UPDATE)
     @PutMapping()
     @ApiMessage("Subscriber updated")
-    public ResponseEntity<Map<String, Integer>> updateSubscriber(@Valid @RequestBody UpdateSubscriberReqDTO dto)
+    public ResponseEntity<SubscriberResDTO> updateSubscriber(@Valid @RequestBody UpdateSubscriberReqDTO dto)
             throws InvalidException {
 
-        Map<String, Integer> subscriberUpdated = subscriberService.updateSubscriber(dto);
+        SubscriberResDTO subscriberUpdated = subscriberService.updateSubscriber(dto);
         return ResponseEntity.ok(subscriberUpdated);
     }
 

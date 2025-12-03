@@ -3,7 +3,6 @@ package vn.phantruongan.backend.subscriber.services;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -57,76 +56,80 @@ public class SubscriberService {
     public SubscriberResDTO createSubscriber(CreateSubscriberReqDTO dto) throws InvalidException {
 
         if (subscriberRepository.existsByEmail(dto.getEmail())) {
-            throw new InvalidException("Subscriber already exists");
+            throw new InvalidException("Email already exists");
         }
 
         Subscriber subscriber = new Subscriber();
-        subscriber.setEmail(dto.getEmail());
-        Subscriber subscriberSaved = subscriberRepository.save(subscriber);
+        subscriber.setEmail(dto.getEmail().trim().toLowerCase());
 
         List<Long> skillIds = dto.getSkillIds();
         if (skillIds != null && !skillIds.isEmpty()) {
             List<Skill> skills = skillRepository.findAllById(skillIds);
-            List<SubscriberSkill> subscriberSkills = skills.stream()
+
+            if (skills.size() != skillIds.size()) {
+                throw new InvalidException("One or more skill IDs are invalid");
+            }
+
+            List<SubscriberSkill> links = skills.stream()
                     .map(skill -> {
-                        SubscriberSkill sp = new SubscriberSkill();
-                        sp.setSubscriber(subscriberSaved);
-                        sp.setSkill(skill);
-                        subscriber.getSubscriberSkills().add(sp);
-                        return sp;
+                        SubscriberSkill link = new SubscriberSkill();
+                        link.setSubscriber(subscriber);
+                        link.setSkill(skill);
+                        return link;
                     })
-                    .collect(Collectors.toList());
-            subscriberSkillRepository.saveAll(subscriberSkills);
+                    .toList();
+
+            subscriber.getSubscriberSkills().addAll(links);
+
         }
-        return subscriberMapper.toDto(subscriberSaved);
+
+        Subscriber saved = subscriberRepository.save(subscriber);
+        return subscriberMapper.toDto(saved);
     }
 
     @Transactional
-    public Map<String, Integer> updateSubscriber(UpdateSubscriberReqDTO dto) throws InvalidException {
+    public SubscriberResDTO updateSubscriber(UpdateSubscriberReqDTO dto) throws InvalidException {
 
-        List<Long> newSkillIds = dto.getSkillIds();
-        Subscriber existingSubscriber = subscriberRepository.findById(dto.getId())
+        Subscriber subscriber = subscriberRepository.findByIdWithSkills(dto.getId())
                 .orElseThrow(() -> new InvalidException("Subscriber not found"));
 
-        // Get list of skill current
-        List<Long> oldSkillIds = existingSubscriber.getSubscriberSkills().stream()
-                .map(sp -> sp.getSkill().getId())
-                .collect(Collectors.toList());
+        subscriberMapper.updateEntityFromDto(dto, subscriber);
 
-        Set<Long> oldSet = new HashSet<>(oldSkillIds);
-        Set<Long> newSet = new HashSet<>(newSkillIds);
-        if (oldSet.equals(newSet)) {
-            return Map.of("addedCount", 0, "removedCount", 0);
+        Set<Long> newSkillIds = dto.getSkillIds() == null ? Set.of() : Set.copyOf(dto.getSkillIds());
+        Set<Long> oldSkillIds = subscriber.getSubscriberSkills().stream()
+                .map(ss -> ss.getSkill().getId())
+                .collect(Collectors.toSet());
+
+        if (!oldSkillIds.equals(newSkillIds)) {
+            Set<Long> toAdd = new HashSet<>(newSkillIds);
+            Set<Long> toRemove = new HashSet<>(oldSkillIds);
+            toAdd.removeAll(oldSkillIds);
+            toRemove.removeAll(newSkillIds);
+
+            if (!toRemove.isEmpty()) {
+                subscriber.getSubscriberSkills().removeIf(ss -> toRemove.contains(ss.getSkill().getId()));
+
+                subscriberSkillRepository.deleteBySubscriberIdAndSkillIdIn(subscriber.getId(),
+                        new ArrayList<>(toRemove));
+            }
+
+            if (!toAdd.isEmpty()) {
+                List<Skill> skills = skillRepository.findAllById(toAdd);
+                List<SubscriberSkill> links = skills.stream()
+                        .map(s -> {
+                            SubscriberSkill ss = new SubscriberSkill();
+                            ss.setSubscriber(subscriber);
+                            ss.setSkill(s);
+                            return ss;
+                        })
+                        .toList();
+
+                subscriberSkillRepository.saveAll(links);
+                subscriber.getSubscriberSkills().addAll(links);
+            }
         }
 
-        // If have change, we determine skills need to add and remove
-        Set<Long> toAdd = new HashSet<>(newSkillIds);
-        toAdd.removeAll(oldSkillIds);
-
-        Set<Long> toRemove = new HashSet<>(oldSkillIds);
-        toRemove.removeAll(newSkillIds);
-
-        // Remove the skills that were deselected
-        if (!toRemove.isEmpty()) {
-            subscriberSkillRepository.deleteBySubscriberIdAndSkillIds(dto.getId(), new ArrayList<>(toRemove));
-        }
-
-        // Add the newly selected skills
-        int addedCount = 0;
-        if (!toAdd.isEmpty()) {
-            List<Skill> skills = skillRepository.findAllById(toAdd);
-            List<SubscriberSkill> newSps = skills.stream()
-                    .map(skill -> {
-                        SubscriberSkill sp = new SubscriberSkill();
-                        sp.setSubscriber(existingSubscriber);
-                        sp.setSkill(skill);
-                        return sp;
-                    })
-                    .collect(Collectors.toList());
-            subscriberSkillRepository.saveAll(newSps);
-            addedCount = newSps.size();
-        }
-        return Map.of("addedCount", addedCount, "removedCount", toRemove.size());
+        return subscriberMapper.toDto(subscriber);
     }
 
     public SubscriberResDTO findById(long id) throws InvalidException {

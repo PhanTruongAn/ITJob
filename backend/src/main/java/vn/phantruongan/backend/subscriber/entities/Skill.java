@@ -17,6 +17,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import vn.phantruongan.backend.common.Auditable;
 import vn.phantruongan.backend.job.entities.JobSkill;
 import vn.phantruongan.backend.subscriber.enums.SkillCategory;
@@ -27,6 +28,7 @@ import vn.phantruongan.backend.subscriber.enums.SkillCategory;
 })
 @Getter
 @Setter
+@ToString
 public class Skill extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,9 +44,11 @@ public class Skill extends Auditable {
 
     @JsonIgnore
     @OneToMany(mappedBy = "skill", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<JobSkill> jobSkills;
 
     @JsonIgnore
     @OneToMany(mappedBy = "skill", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<SubscriberSkill> subscriberSkills;
 }

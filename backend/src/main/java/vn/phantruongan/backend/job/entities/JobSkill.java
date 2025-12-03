@@ -10,6 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import vn.phantruongan.backend.common.Auditable;
 import vn.phantruongan.backend.subscriber.entities.Skill;
 
@@ -17,6 +18,7 @@ import vn.phantruongan.backend.subscriber.entities.Skill;
 @Table(name = "job_skills")
 @Getter
 @Setter
+@ToString
 public class JobSkill extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +26,7 @@ public class JobSkill extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_id", nullable = false)
+    @ToString.Exclude
     private Job job;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,4 +35,5 @@ public class JobSkill extends Auditable {
 
     private boolean required;
     private int priority;
+
 }

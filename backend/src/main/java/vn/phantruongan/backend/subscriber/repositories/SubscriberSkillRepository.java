@@ -13,7 +13,10 @@ import vn.phantruongan.backend.subscriber.entities.SubscriberSkill;
 @Repository
 public interface SubscriberSkillRepository extends JpaRepository<SubscriberSkill, Long> {
     @Modifying
-    @Query("DELETE FROM SubscriberSkill rp WHERE rp.subscriber.id = :subscriberId AND rp.skill.id IN :skillIds")
-    void deleteBySubscriberIdAndSkillIds(@Param("subscriberId") Long subscriberId,
+    @Query("DELETE FROM SubscriberSkill ss " +
+            "WHERE ss.subscriber.id = :subscriberId " +
+            "AND ss.skill.id IN :skillIds")
+    void deleteBySubscriberIdAndSkillIdIn(
+            @Param("subscriberId") Long subscriberId,
             @Param("skillIds") List<Long> skillIds);
 }

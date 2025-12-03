@@ -1,6 +1,11 @@
 package vn.phantruongan.backend.job.services;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -8,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.company.entities.Company;
@@ -15,6 +21,7 @@ import vn.phantruongan.backend.company.repositories.CompanyRepository;
 import vn.phantruongan.backend.job.dtos.req.job.CreateJobReqDTO;
 import vn.phantruongan.backend.job.dtos.req.job.GetListJobReqDTO;
 import vn.phantruongan.backend.job.dtos.req.job.UpdateJobReqDTO;
+import vn.phantruongan.backend.job.dtos.req.jobSkill.CreateJobSkillReqDTO;
 import vn.phantruongan.backend.job.dtos.res.JobResDTO;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.entities.JobSkill;
@@ -52,6 +59,7 @@ public class JobService {
         }
 
         public JobResDTO createJob(CreateJobReqDTO dto) throws InvalidException {
+
                 Job job = jobMapper.toEntity(dto);
 
                 Company company = companyRepository.findById(dto.getCompanyId())
@@ -59,24 +67,30 @@ public class JobService {
                                                 "Company not found with id: " + dto.getCompanyId()));
                 job.setCompany(company);
 
-                List<JobSkill> jobSkills = dto.getSkills().stream()
-                                .map(skillDto -> {
-                                        Skill skill = skillRepository.findById(skillDto.getSkillId())
-                                                        .orElseThrow(
-                                                                        () -> new InvalidException(
-                                                                                        "Skill not found with id: "
-                                                                                                        + skillDto.getSkillId()));
-
-                                        JobSkill js = new JobSkill();
-                                        js.setSkill(skill);
-                                        js.setJob(job);
-                                        js.setRequired(skillDto.isRequired());
-                                        js.setPriority(skillDto.getPriority());
-                                        return js;
-                                })
+                List<Long> skillIds = dto.getSkills().stream()
+                                .map(CreateJobSkillReqDTO::getSkillId)
                                 .collect(Collectors.toList());
 
-                job.setJobSkills(jobSkills);
+                List<Skill> skills = skillRepository.findAllById(skillIds);
+
+                Map<Long, Skill> skillMap = skills.stream()
+                                .collect(Collectors.toMap(Skill::getId, Function.identity()));
+
+                for (CreateJobSkillReqDTO jobSkill : dto.getSkills()) {
+                        Skill skill = skillMap.get(jobSkill.getSkillId());
+                        if (skill == null) {
+                                throw new InvalidException("Skill not found with id: " + jobSkill.getSkillId());
+                        }
+
+                        JobSkill js = new JobSkill();
+                        js.setSkill(skill);
+                        js.setJob(job);
+                        js.setRequired(jobSkill.isRequired());
+                        js.setPriority(jobSkill.getPriority());
+
+                        job.getJobSkills().add(js);
+                }
+
                 Job savedJob = jobRepository.save(job);
                 return jobMapper.toDto(savedJob);
         }
@@ -88,19 +102,73 @@ public class JobService {
                 return jobMapper.toDto(job);
         }
 
+        @Transactional
         public JobResDTO updateJob(UpdateJobReqDTO dto) throws InvalidException {
-                Job existingJob = jobRepository.findById(dto.getId())
+
+                Job job = jobRepository.findByIdWithSkills(dto.getId())
                                 .orElseThrow(() -> new InvalidException("Job not found"));
 
                 Company company = companyRepository.findById(dto.getCompanyId())
                                 .orElseThrow(() -> new InvalidException("Company not found"));
 
-                existingJob.setCompany(company);
-                jobMapper.updateEntityFromDto(dto, existingJob);
+                job.setCompany(company);
+                jobMapper.updateEntityFromDto(dto, job);
 
-                Job jobUpdated = jobRepository.save(existingJob);
-                return jobMapper.toDto(jobUpdated);
+                Set<Long> newSkillIds = dto.getSkills() == null ? Set.of()
+                                : dto.getSkills().stream()
+                                                .map(CreateJobSkillReqDTO::getSkillId)
+                                                .collect(Collectors.toSet());
 
+                Set<Long> oldSkillIds = job.getJobSkills().stream()
+                                .map(js -> js.getSkill().getId())
+                                .collect(Collectors.toSet());
+
+                if (!oldSkillIds.equals(newSkillIds)) {
+                        Set<Long> toAdd = new HashSet<>(newSkillIds);
+                        Set<Long> toRemove = new HashSet<>(oldSkillIds);
+                        toAdd.removeAll(oldSkillIds);
+                        toRemove.removeAll(newSkillIds);
+
+                        if (!toRemove.isEmpty()) {
+                                job.getJobSkills().removeIf(js -> toRemove.contains(js.getSkill().getId()));
+
+                                jobSkillRepository.deleteByJobIdAndSkillIdIn(job.getId(), new ArrayList<>(toRemove));
+                        }
+
+                        if (!toAdd.isEmpty()) {
+                                List<Skill> skills = skillRepository.findAllById(toAdd);
+
+                                if (skills.size() != toAdd.size()) {
+                                        throw new InvalidException("Some skill IDs are invalid");
+                                }
+
+                                Map<Long, CreateJobSkillReqDTO> skillDtoMap = dto.getSkills().stream()
+                                                .collect(Collectors.toMap(
+                                                                CreateJobSkillReqDTO::getSkillId,
+                                                                s -> s,
+                                                                (a, b) -> a));
+
+                                List<JobSkill> newJobSkills = skills.stream()
+                                                .map(skill -> {
+                                                        JobSkill js = new JobSkill();
+                                                        js.setJob(job);
+                                                        js.setSkill(skill);
+
+                                                        CreateJobSkillReqDTO skillDto = skillDtoMap.get(skill.getId());
+                                                        if (skillDto != null) {
+                                                                js.setRequired(skillDto.isRequired());
+                                                                js.setPriority(skillDto.getPriority());
+                                                        }
+                                                        return js;
+                                                })
+                                                .toList();
+
+                                jobSkillRepository.saveAll(newJobSkills);
+                                job.getJobSkills().addAll(newJobSkills);
+                        }
+                }
+
+                return jobMapper.toDto(job);
         }
 
         public boolean deleteJobById(long id) throws InvalidException {

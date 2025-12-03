@@ -7,5 +7,5 @@ import vn.phantruongan.backend.recommendation.entities.JobRecommendation;
 
 @Repository
 public interface JobRecommendationRepository extends JpaRepository<JobRecommendation, Long> {
-
+    public boolean existsBySubscriber_IdAndJob_Id(Long subscriberId, Long jobId);
 }

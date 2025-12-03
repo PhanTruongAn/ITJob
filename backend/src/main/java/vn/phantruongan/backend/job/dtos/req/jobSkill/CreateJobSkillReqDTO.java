@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class CreateJobSkillReqDTO {
 
     @NotNull(message = "Skill ID must not be null")
-    private long skillId;
+    private Long skillId;
 
     private boolean required;
 

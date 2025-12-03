@@ -1,6 +1,7 @@
 package vn.phantruongan.backend.job.entities;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -55,10 +56,10 @@ public class Job extends Auditable {
 
     @JsonIgnore
     @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<JobSkill> jobSkills;
+    private List<JobSkill> jobSkills = new ArrayList<>();;
 
     @JsonIgnore
     @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Resume> resumes;
+    private List<Resume> resumes = new ArrayList<>();;
 
 }
