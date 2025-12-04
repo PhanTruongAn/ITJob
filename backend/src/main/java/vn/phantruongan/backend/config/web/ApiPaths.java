@@ -15,5 +15,6 @@ public class ApiPaths {
     public static final String SKILLS = BASE + "/skills";
     public static final String SUBSCRIBERS = BASE + "/subscribers";
     public static final String BOOKMARKS = BASE + "/bookmarks";
+    public static final String REVIEWS = BASE + "/reviews";
 
 }

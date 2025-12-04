@@ -10,6 +10,7 @@ public enum ResourceEnum {
     APPLICATION("Ứng tuyển", "/applications"),
     JOB_SAVED("Việc làm đã lưu", "/bookmarks/jobs/saved"),
     COMPANY_SAVED("Công ty đã lưu", "/bookmarks/companies/saved"),
+    COMPANY_REVIEW("Đánh giá công ty", "/reviews/companies"),
     NOTIFICATION("Thông báo", "/notifications"),
     USER("Người dùng", "/users"),
     ROLE("Vai trò", "/roles"),
