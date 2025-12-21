@@ -49,6 +49,9 @@ public class UserService {
         if (existUserByEmail(dto.getEmail())) {
             throw new InvalidException(
                     "This email already exists, please use a different one.");
+        } else if (userRepository.existsByPhoneAndDeletedAtIsNull(dto.getPhone())) {
+            throw new InvalidException(
+                    "This phone number already exists, please use a different one.");
         }
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         User savedUser = userRepository.save(user);
@@ -59,6 +62,10 @@ public class UserService {
         User existingUser = userRepository.findById(dto.getId())
                 .orElseThrow(() -> new InvalidException("User not found"));
 
+        if (userRepository.existsByPhoneAndDeletedAtIsNull(dto.getPhone())) {
+            throw new InvalidException(
+                    "This phone number already exists, please use a different one.");
+        }
         // Map các field từ DTO sang entity hiện tại
         userMapper.updateEntityFromDto(dto, existingUser);
 

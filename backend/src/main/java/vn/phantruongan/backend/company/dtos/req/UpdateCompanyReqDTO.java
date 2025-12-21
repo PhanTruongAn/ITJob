@@ -8,9 +8,8 @@ import vn.phantruongan.backend.company.entities.CompanyStatus;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class UpdateCompanyReqDTO extends CreateCompanyReqDTO {
-    @NotNull
+    @NotNull(message = "Company ID must not be null")
     private Long id;
 
-    @NotNull
     private CompanyStatus status;
 }

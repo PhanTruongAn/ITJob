@@ -39,7 +39,7 @@ public class UserController {
     private final UserService userService;
 
     @RequirePermission(resource = ResourceEnum.USER, action = ActionEnum.READ)
-    @GetMapping("/users")
+    @GetMapping()
     @ApiMessage("Get users with filter")
     public ResponseEntity<PaginationResponse<UserResDTO>> getAllUser(
             @ParameterObject GetListUserReqDTO filter,
@@ -51,7 +51,7 @@ public class UserController {
 
     @RequirePermission(resource = ResourceEnum.USER, action = ActionEnum.CREATE)
     @PostMapping()
-    @ApiMessage("User created")
+    @ApiMessage("Created new user")
     public ResponseEntity<UserResDTO> createNewUser(@Valid @RequestBody CreateUserReqDTO dto) throws InvalidException {
         UserResDTO dataUser = userService.createUser(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(dataUser);
@@ -59,7 +59,7 @@ public class UserController {
 
     @RequirePermission(resource = ResourceEnum.USER, action = ActionEnum.UPDATE)
     @PutMapping()
-    @ApiMessage("User updated")
+    @ApiMessage("Updated user")
     public ResponseEntity<UserResDTO> updateUser(@Valid @RequestBody UpdateUserReqDTO dto) throws InvalidException {
 
         UserResDTO updatedUser = userService.updateUser(dto);
@@ -68,7 +68,7 @@ public class UserController {
 
     @RequirePermission(resource = ResourceEnum.USER, action = ActionEnum.DELETE)
     @DeleteMapping("/{id}")
-    @ApiMessage("User deleted")
+    @ApiMessage("Deleted user")
     public ResponseEntity<Boolean> deleteUserById(@PathVariable("id") long id) throws InvalidException {
         boolean deleted = userService.deleteUserById(id);
         return ResponseEntity.ok(deleted);

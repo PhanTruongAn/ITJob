@@ -36,7 +36,7 @@ import vn.phantruongan.backend.resume.entities.Resume;
 @Entity
 @Table(name = "users", indexes = {
         @Index(name = "idx_user_email", columnList = "email", unique = true),
-        @Index(name = "idx_user_phone", columnList = "phone", unique = true),
+        @Index(name = "idx_user_phone", columnList = "phone"),
         @Index(name = "idx_user_google_id", columnList = "google_id", unique = true)
 })
 @Getter
