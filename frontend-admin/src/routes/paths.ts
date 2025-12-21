@@ -1,11 +1,11 @@
 function path(root: string, subLink: string) {
-  return `${root}${subLink}`;
+  return `${root}${subLink}`
 }
-export const ROOT_AUTH = "/auth/customer";
-export const ROOT_DASHBOARD = "/dashboard";
+export const ROOT_AUTH = "/auth/customer"
+export const ROOT_DASHBOARD = "/dashboard"
 export const PATH_AUTH = {
   login: path(ROOT_AUTH, "/login"),
-};
+}
 export const PATH_DASHBOARD = {
   root: "/dashboard/users",
   userManage: {
@@ -19,6 +19,8 @@ export const PATH_DASHBOARD = {
   },
   jobManage: {
     list: path(ROOT_DASHBOARD, "/jobs"),
+    create: path(ROOT_DASHBOARD, "/jobs/create"),
+    edit: path(ROOT_DASHBOARD, "/jobs/edit/:id"),
   },
   roleManage: {
     list: path(ROOT_DASHBOARD, "/roles"),
@@ -29,4 +31,4 @@ export const PATH_DASHBOARD = {
   permissionManage: {
     list: path(ROOT_DASHBOARD, "/permissions"),
   },
-};
+}

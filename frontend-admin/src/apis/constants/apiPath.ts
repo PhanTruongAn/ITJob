@@ -17,4 +17,8 @@ export const PATH_API = {
     root: path(ROOT_API, "/file"),
     sign: path(ROOT_API, "/file/signed"),
   },
+
+  job: {
+    root: path(ROOT_API, "/jobs"),
+  },
 }

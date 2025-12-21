@@ -6,67 +6,39 @@ import {
   Col,
   Form,
   Input,
-  message,
   Row,
   Select,
   Space,
   Upload,
 } from "antd"
-import { useWatch } from "antd/es/form/Form"
-import React, { useState } from "react"
+import { FormInstance, useWatch } from "antd/es/form/Form"
+import { Dispatch, SetStateAction } from "react"
 import { useNavigate } from "react-router-dom"
-import { PATH_DASHBOARD } from "../../../../../routes/paths"
-import { ECompanyType } from "../../../../../types/enum"
-import { COMPANY_SIZE } from "../../../common/constants"
-import {
-  useCreateCompany,
-  useGetCountries,
-  usePresignImage,
-} from "../../../common/hooks"
-
+import { ECompanyType } from "../../../types/enum"
+import { COMPANY_SIZE, COMPANY_STATUS } from "../common/constants"
+import { useGetCountries, usePresignImage } from "../common/hooks"
 const { Option } = Select
+interface CompanyFormProps {
+  type: "create" | "edit" | "view"
+  form: FormInstance
+  onSubmit: (payload: any) => Promise<void> | void
+  previewImage?: string | null
+  setPreviewImage: Dispatch<SetStateAction<string | null>>
+}
 
-const CreateCompanyForm: React.FC = ({}) => {
-  const [form] = Form.useForm()
+const CompanyForm = ({
+  type,
+  form,
+  onSubmit,
+  previewImage,
+  setPreviewImage,
+}: CompanyFormProps) => {
   const navigate = useNavigate()
   const description = useWatch("description", form)
   const { handleUpload, isUploading } = usePresignImage()
-  const { mutate } = useCreateCompany()
-  const [previewImage, setPreviewImage] = useState<string | null>(null)
-  const normFile = (e: any) => {
-    if (Array.isArray(e)) {
-      return e
-    }
-    return e && e.fileList
-  }
-
-  const handleOk = async () => {
-    try {
-      const values = await form.validateFields()
-      const file = values.logo[0]?.originFileObj as File
-
-      const imageUrl = await handleUpload(file)
-      if (!imageUrl) {
-        message.error("No logo uploaded")
-        return
-      }
-
-      mutate(
-        { ...values, logo: imageUrl, countryId: values.countryId },
-        {
-          onSuccess: (res) => {
-            message.success(res.message)
-            form.resetFields()
-            setPreviewImage(null)
-          },
-        }
-      )
-    } catch (error) {
-      console.log("Validate Failed:", error)
-    }
-  }
-
   const { data: countriesData } = useGetCountries()
+
+  const normFile = (e: any) => (Array.isArray(e) ? e : e?.fileList)
 
   const handlePreview = (file: any) => {
     const reader = new FileReader()
@@ -75,6 +47,29 @@ const CreateCompanyForm: React.FC = ({}) => {
     }
     reader.readAsDataURL(file)
   }
+  const handleFinish = async () => {
+    try {
+      const values = await form.validateFields()
+      const file = values.logo?.[0]
+
+      let imageUrl = ""
+
+      if (file?.originFileObj) {
+        imageUrl = await handleUpload(file.originFileObj)
+      } else if (file?.url) {
+        imageUrl = file.url
+      }
+
+      await onSubmit({
+        ...values,
+        logo: imageUrl,
+      })
+    } catch (error) {
+      console.log("Validation failed:", error)
+    }
+  }
+
+  const isView = type === "view"
 
   return (
     <Form form={form} layout="vertical" name="add_company_form">
@@ -89,7 +84,7 @@ const CreateCompanyForm: React.FC = ({}) => {
                   { required: true, message: "Please enter company name" },
                 ]}
               >
-                <Input placeholder="Enter company name" />
+                <Input placeholder="Enter company name" disabled={isView} />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -102,6 +97,7 @@ const CreateCompanyForm: React.FC = ({}) => {
                   placeholder="Select a country"
                   optionFilterProp="children"
                   showSearch
+                  disabled={type === "edit" || isView}
                 >
                   {countriesData?.data.map((item) => (
                     <Select.Option key={item.id} value={item.id}>
@@ -120,7 +116,10 @@ const CreateCompanyForm: React.FC = ({}) => {
                 label="Industry"
                 rules={[{ required: true, message: "Please enter industry" }]}
               >
-                <Input placeholder="Enter industry (e.g., Banking)" />
+                <Input
+                  placeholder="Enter industry (e.g., Banking)"
+                  disabled={isView}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -131,7 +130,7 @@ const CreateCompanyForm: React.FC = ({}) => {
                   { required: true, message: "Please select company type" },
                 ]}
               >
-                <Select placeholder="Select company type">
+                <Select placeholder="Select company type" disabled={isView}>
                   {Object.keys(ECompanyType).map((key) => (
                     <Option key={key} value={key}>
                       {ECompanyType[key as keyof typeof ECompanyType]}
@@ -151,7 +150,7 @@ const CreateCompanyForm: React.FC = ({}) => {
                   { required: true, message: "Please select company size" },
                 ]}
               >
-                <Select placeholder="Select company size">
+                <Select placeholder="Select company size" disabled={isView}>
                   {COMPANY_SIZE.map((size) => (
                     <Option key={size.value} value={size.value}>
                       {size.label}
@@ -166,10 +165,34 @@ const CreateCompanyForm: React.FC = ({}) => {
                 label="Overtime"
                 valuePropName="checked"
               >
-                <Checkbox>Allow Overtime</Checkbox>
+                <Checkbox disabled={isView}>Allow Overtime</Checkbox>
               </Form.Item>
             </Col>
           </Row>
+          {(type === "edit" || type === "view") && (
+            <Row gutter={[16, 16]}>
+              <Col span={12}>
+                <Form.Item
+                  name="status"
+                  label="Company Status"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please select company status",
+                    },
+                  ]}
+                >
+                  <Select placeholder="Select company status" disabled={isView}>
+                    {COMPANY_STATUS.map((size) => (
+                      <Option key={size.value} value={size.value}>
+                        {size.label}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+          )}
         </Col>
 
         <Col span={6}>
@@ -181,6 +204,7 @@ const CreateCompanyForm: React.FC = ({}) => {
             rules={[{ required: true, message: "Please upload a logo" }]}
           >
             <Upload.Dragger
+              //   disabled={isView}
               name="logo"
               listType="picture"
               maxCount={1}
@@ -228,7 +252,7 @@ const CreateCompanyForm: React.FC = ({}) => {
                 "Saturday",
                 "Sunday",
               ].map((day) => (
-                <Checkbox key={day} value={day.toUpperCase()}>
+                <Checkbox disabled={isView} key={day} value={day.toUpperCase()}>
                   {day}
                 </Checkbox>
               ))}
@@ -244,7 +268,7 @@ const CreateCompanyForm: React.FC = ({}) => {
             label="Address"
             rules={[{ required: true, message: "Please enter address" }]}
           >
-            <Input placeholder="Enter address" />
+            <Input placeholder="Enter address" disabled={isView} />
           </Form.Item>
         </Col>
       </Row>
@@ -272,17 +296,20 @@ const CreateCompanyForm: React.FC = ({}) => {
       <Row gutter={[16, 16]}>
         <Col span={24} style={{ textAlign: "right" }}>
           <Space>
-            <Button
-              loading={isUploading}
-              variant="outlined"
-              type="primary"
-              onClick={handleOk}
-            >
-              Submit
-            </Button>
+            {!isView && (
+              <Button
+                loading={isUploading}
+                variant="outlined"
+                type="primary"
+                onClick={handleFinish}
+              >
+                Submit
+              </Button>
+            )}
+
             <Button
               onClick={() => {
-                navigate(PATH_DASHBOARD.companyManage.list)
+                navigate(-1)
               }}
             >
               Cancel
@@ -293,5 +320,4 @@ const CreateCompanyForm: React.FC = ({}) => {
     </Form>
   )
 }
-
-export default CreateCompanyForm
+export default CompanyForm

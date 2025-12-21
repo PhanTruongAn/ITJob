@@ -1,20 +1,20 @@
-import React, { useState } from "react";
-import { BREADCRUMB } from "../../../constants/Breadcrumb";
-import { PATH_DASHBOARD } from "../../../routes/paths";
-import CustomBreadcrumbs from "../../../components/CustomBreadScrumb";
 import {
-  HomeOutlined,
   BankOutlined,
+  HomeOutlined,
   PlusOutlined,
   ReloadOutlined,
-} from "@ant-design/icons";
-import { Button, Space } from "antd";
+} from "@ant-design/icons"
+import { Button, Space } from "antd"
+import React from "react"
+import CustomBreadcrumbs from "../../../components/CustomBreadScrumb"
+import { BREADCRUMB } from "../../../constants/Breadcrumb"
+import { PATH_DASHBOARD } from "../../../routes/paths"
 
 type Props = {
-  onAddCompany: () => void;
-  onRefresh: () => void;
-  loading: boolean;
-};
+  onAddCompany: () => void
+  onRefresh: () => void
+  loading: boolean
+}
 
 const CompanyListHeader: React.FC<Props> = ({
   onAddCompany,
@@ -55,7 +55,7 @@ const CompanyListHeader: React.FC<Props> = ({
           icon={<PlusOutlined />}
           onClick={onAddCompany}
         >
-          Add Company
+          New Company
         </Button>
         <Button
           color="cyan"
@@ -69,7 +69,7 @@ const CompanyListHeader: React.FC<Props> = ({
         </Button>
       </Space>
     </div>
-  );
-};
+  )
+}
 
-export default CompanyListHeader;
+export default CompanyListHeader

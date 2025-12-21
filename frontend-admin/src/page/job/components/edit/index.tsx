@@ -1,9 +1,9 @@
 import { theme } from "antd"
 import React from "react"
-import CreateCompany from "./components/CreateCompany"
-import CreateCompanyHeader from "./components/CreateCompanyHeader"
+import EditJobForm from "./components/EditJobForm"
+import EditJobHeader from "./components/EditJobHeader"
 
-const CreateCompanyPage: React.FC = () => {
+const EditJobPage: React.FC = () => {
   const { token } = theme.useToken()
   const defaultStyle: React.CSSProperties = {
     display: "flex",
@@ -16,12 +16,12 @@ const CreateCompanyPage: React.FC = () => {
   }
   return (
     <div>
-      <CreateCompanyHeader />
+      <EditJobHeader />
       <div style={defaultStyle}>
-        <CreateCompany />
+        <EditJobForm />
       </div>
     </div>
   )
 }
 
-export default CreateCompanyPage
+export default EditJobPage

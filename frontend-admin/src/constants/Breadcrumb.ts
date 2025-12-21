@@ -13,7 +13,8 @@ export const BREADCRUMB = {
   //Job
   JOB: "Job",
   LIST_JOB: "List job",
-
+  CREATE_JOB: "Create job",
+  EDIT_JOB: "Edit job",
   //Role
   ROLE: "Role",
   LIST_ROLE: "List role",
@@ -25,4 +26,4 @@ export const BREADCRUMB = {
   //Permission
   PERMISSION: "Permission",
   LIST_PERMISSION: "List permission",
-};
+}
