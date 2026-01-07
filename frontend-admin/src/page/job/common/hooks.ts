@@ -9,10 +9,10 @@ import {
 import CustomHooks from "../../../common/hooks/CustomHooks"
 import { QUERY_KEYS } from "../../../common/queryKeys"
 import { useUpdateState } from "../../../util/hooks"
-import { IJobState } from "./interfaces"
+import { JobState } from "./interfaces"
 
 export const useJobState = () => {
-  const [state, setState] = useState<IJobState>({
+  const [state, setState] = useState<JobState>({
     page: 1,
     pageSize: 5,
     total: 0,
@@ -23,7 +23,7 @@ export const useJobState = () => {
     typeModal: "view",
   })
 
-  const updateState = useUpdateState<IJobState>(setState)
+  const updateState = useUpdateState<JobState>(setState)
 
   return { state, updateState }
 }

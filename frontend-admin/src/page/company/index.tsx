@@ -122,14 +122,14 @@ const Company: React.FC = () => {
       }
     )
   }
-  const handleEditUser = (record: ICompany) => {
+  const handleEditCompany = (record: ICompany) => {
     navigate(
       replacePathParamsWithQuery(PATH_DASHBOARD.companyManage.edit, {
         id: record.id,
       })
     )
   }
-  const handleViewUser = (record: ICompany) => {
+  const handleViewCompany = (record: ICompany) => {
     navigate(
       replacePathParamsWithQuery(PATH_DASHBOARD.companyManage.edit, {
         id: record.id,
@@ -164,10 +164,10 @@ const Company: React.FC = () => {
           <CustomGlobalTable<ICompany>
             columns={companyColumns({
               onView: (record) => {
-                handleViewUser(record)
+                handleViewCompany(record)
               },
               onEdit: (record) => {
-                handleEditUser(record)
+                handleEditCompany(record)
               },
               onDelete: (record) => {
                 confirmDeleteCompany(record)

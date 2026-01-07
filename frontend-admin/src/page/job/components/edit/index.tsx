@@ -1,6 +1,6 @@
 import { theme } from "antd"
 import React from "react"
-import EditJobForm from "./components/EditJobForm"
+import EditJob from "./components/EditJob"
 import EditJobHeader from "./components/EditJobHeader"
 
 const EditJobPage: React.FC = () => {
@@ -18,7 +18,7 @@ const EditJobPage: React.FC = () => {
     <div>
       <EditJobHeader />
       <div style={defaultStyle}>
-        <EditJobForm />
+        <EditJob />
       </div>
     </div>
   )

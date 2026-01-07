@@ -1,5 +1,5 @@
 import { theme } from "antd"
-import CreateJobForm from "./components/CreateJobForm"
+import CreateJob from "./components/CreateJob"
 import CreateJobHeader from "./components/CreateJobHeader"
 
 const CreateJobPage: React.FC = () => {
@@ -17,7 +17,7 @@ const CreateJobPage: React.FC = () => {
     <div>
       <CreateJobHeader />
       <div style={defaultStyle}>
-        <CreateJobForm />
+        <CreateJob />
       </div>
     </div>
   )

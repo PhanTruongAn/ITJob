@@ -18,6 +18,7 @@ import { ECompanyType } from "../../../types/enum"
 import { COMPANY_SIZE, COMPANY_STATUS } from "../common/constants"
 import { useGetCountries, usePresignImage } from "../common/hooks"
 const { Option } = Select
+
 interface CompanyFormProps {
   type: "create" | "edit" | "view"
   form: FormInstance

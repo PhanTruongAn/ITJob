@@ -10,45 +10,36 @@ import {
   Row,
   Select,
   Space,
-  message,
 } from "antd"
-import { useWatch } from "antd/es/form/Form"
+import { FormInstance, useWatch } from "antd/es/form/Form"
 import React from "react"
 import { useNavigate } from "react-router-dom"
-import { PATH_DASHBOARD } from "../../../../../routes/paths"
-import { IBackendRes } from "../../../../../types/backend"
-import { LevelEnum } from "../../../common/enums"
-import { useEditJob } from "../../../common/hooks"
-import { IJob } from "../../../common/interfaces"
+import { PATH_DASHBOARD } from "../../../routes/paths"
+import { LevelEnum } from "../common/enums"
 
 const { Option } = Select
 
-const EditJobForm: React.FC = () => {
-  const [form] = Form.useForm()
+interface JobFormProps {
+  type: "create" | "edit" | "view"
+  form: FormInstance
+  onSubmit: (payload: any) => Promise<void> | void
+}
+
+const JobForm: React.FC<JobFormProps> = ({ type, form, onSubmit }) => {
   const navigate = useNavigate()
-  const { mutate } = useEditJob()
-  // const { data: companies } = useGetCompanyList()
+  //   const { data: companies } = useGetCompanyList()
 
   const description = useWatch("description", form)
 
-  const handleOk = async () => {
+  const handleFinish = async () => {
     try {
       const values = await form.validateFields()
 
-      const payload = {
+      await onSubmit({
         ...values,
-        startDate: values.startDate?.toISOString(),
-        endDate: values.endDate?.toISOString(),
-      }
-
-      mutate(payload, {
-        onSuccess: (res: IBackendRes<IJob>) => {
-          message.success(res.message || "Job created successfully!")
-          form.resetFields()
-        },
       })
     } catch (error) {
-      console.log("Validate Failed:", error)
+      console.log("Validation failed:", error)
     }
   }
 
@@ -203,7 +194,7 @@ const EditJobForm: React.FC = () => {
       <Row>
         <Col span={24} style={{ textAlign: "right" }}>
           <Space>
-            <Button type="primary" onClick={handleOk}>
+            <Button type="primary" onClick={handleFinish}>
               Submit
             </Button>
             <Button onClick={() => navigate(PATH_DASHBOARD.jobManage.list)}>
@@ -216,4 +207,4 @@ const EditJobForm: React.FC = () => {
   )
 }
 
-export default EditJobForm
+export default JobForm

@@ -1,7 +1,7 @@
 import { ICompany } from "../../../types/backend"
 import { LevelEnum } from "./enums"
 
-export interface IJob {
+export interface Job {
   id: number
   name: string
   location: string
@@ -11,12 +11,25 @@ export interface IJob {
   level: LevelEnum
   startDate: string
   endDate: string
-  isActive: boolean
+  active: boolean
   company: ICompany
-  jobSkills: IJobSkill[]
+  jobSkills: JobSkill[]
 }
 
-export interface ICreateJobReq {
+export interface GetListJobResDTO {
+  page: number
+  pageSize: number
+  sort?: string
+  name?: string | null
+  location?: string | null
+  minSalary?: number | null
+  maxSalary?: number | null
+  level?: LevelEnum | null
+  companyId?: number | null
+  skillId?: number | null
+}
+
+export interface CreateJobReqDTO {
   name: string
   location: string
   description: string
@@ -25,16 +38,16 @@ export interface ICreateJobReq {
   level: LevelEnum
   startDate: string
   endDate: string
-  isActive: boolean
+  // isActive: boolean
   companyId?: number
   jobSkillIds?: number[]
 }
 
-export interface IEditJobDTO extends ICreateJobReq {
+export interface EditJobReqDTO extends CreateJobReqDTO {
   id: number
 }
 
-export interface IJobState extends IFilterJob {
+export interface JobState extends JobFilter {
   page: number
   pageSize: number
   total: number
@@ -45,7 +58,7 @@ export interface IJobState extends IFilterJob {
   typeModal: "view" | "edit"
 }
 
-export interface IFilterJob {
+export interface JobFilter {
   name?: string | null
   location?: string | null
   minSalary?: number | null
@@ -55,14 +68,14 @@ export interface IFilterJob {
   skillId?: number | null
 }
 
-export interface IJobSkill {
+export interface JobSkill {
   id: number
   required: boolean
   priority: number
-  skill: ISkill
+  skill: Skill
 }
 
-export interface ISkill {
+export interface Skill {
   id: number
   name: string
   description: string

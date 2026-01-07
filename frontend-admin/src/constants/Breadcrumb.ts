@@ -10,11 +10,13 @@ export const BREADCRUMB = {
   LIST_COMPANY: "List company",
   CREATE_COMPANY: "Create company",
   EDIT_COMPANY: "Edit company",
+
   //Job
   JOB: "Job",
   LIST_JOB: "List job",
   CREATE_JOB: "Create job",
   EDIT_JOB: "Edit job",
+
   //Role
   ROLE: "Role",
   LIST_ROLE: "List role",
