@@ -12,9 +12,11 @@ import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.subscriber.dtos.req.skill.CreateSkillReqDTO;
 import vn.phantruongan.backend.subscriber.dtos.req.skill.GetListSkillReqDTO;
 import vn.phantruongan.backend.subscriber.dtos.req.skill.UpdateSkillReqDTO;
+import vn.phantruongan.backend.subscriber.dtos.res.SkillOptionResDTO;
 import vn.phantruongan.backend.subscriber.dtos.res.SkillResDTO;
 import vn.phantruongan.backend.subscriber.entities.Skill;
 import vn.phantruongan.backend.subscriber.mappers.SkillMapper;
+import vn.phantruongan.backend.subscriber.mappers.SkillOptionMapper;
 import vn.phantruongan.backend.subscriber.repositories.SkillRepository;
 import vn.phantruongan.backend.subscriber.specification.SkillSpecification;
 import vn.phantruongan.backend.util.error.InvalidException;
@@ -25,6 +27,7 @@ public class SkillService {
 
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
+    private final SkillOptionMapper skillOptionMapper;
 
     public PaginationResponse<SkillResDTO> getAllSkills(GetListSkillReqDTO dto, Pageable pageable) {
         Specification<Skill> spec = new SkillSpecification(dto);
@@ -76,5 +79,11 @@ public class SkillService {
 
         skillRepository.delete(skill);
         return true;
+    }
+
+    // Get skill options for dropdowns select
+    public List<SkillOptionResDTO> getSkillOptions() {
+        return skillOptionMapper.toDtoList(
+                skillRepository.findSkillOptions());
     }
 }

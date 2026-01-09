@@ -1,5 +1,7 @@
 package vn.phantruongan.backend.subscriber.controllers;
 
+import java.util.List;
+
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ import vn.phantruongan.backend.config.web.ApiPaths;
 import vn.phantruongan.backend.subscriber.dtos.req.skill.CreateSkillReqDTO;
 import vn.phantruongan.backend.subscriber.dtos.req.skill.GetListSkillReqDTO;
 import vn.phantruongan.backend.subscriber.dtos.req.skill.UpdateSkillReqDTO;
+import vn.phantruongan.backend.subscriber.dtos.res.SkillOptionResDTO;
 import vn.phantruongan.backend.subscriber.dtos.res.SkillResDTO;
 import vn.phantruongan.backend.subscriber.services.SkillService;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
@@ -83,5 +86,13 @@ public class SkillController {
 
         return ResponseEntity.ok(isDelete);
 
+    }
+
+    @RequirePermission(resource = ResourceEnum.SKILL, action = ActionEnum.READ)
+    @GetMapping("/options")
+    @ApiMessage("Get list skill options")
+    public ResponseEntity<List<SkillOptionResDTO>> getSkillOptions() {
+        List<SkillOptionResDTO> result = skillService.getSkillOptions();
+        return ResponseEntity.ok(result);
     }
 }
