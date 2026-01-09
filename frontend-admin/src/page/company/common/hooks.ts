@@ -91,7 +91,7 @@ export const usePresignImage = () => {
 }
 
 export const useGetCountries = () => {
-  return CustomHooks.useQuery(["countries"], fetchCountries)
+  return CustomHooks.useQuery([QUERY_KEYS.COUNTRY_MODULE], fetchCountries)
 }
 
 export const useCreateCompany = () => {

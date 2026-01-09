@@ -1,7 +1,9 @@
 import { ClearOutlined, SearchOutlined } from "@ant-design/icons"
 import { Button, Col, Form, Input, Row, Select, Space, theme } from "antd"
 import React from "react"
+import { SALARY_OPTIONS } from "../common/constants"
 import { LevelEnum } from "../common/enums"
+import { useGetSkillOptions } from "../common/hooks"
 import { JobFilter } from "../common/interfaces"
 export interface JobFilterProps {
   onFilter: ({
@@ -29,6 +31,7 @@ export const JobListHeaderToolbar: React.FC<JobFilterProps> = ({
     padding: 16,
     paddingBottom: 5,
   }
+  const { data } = useGetSkillOptions()
 
   const onFinish = (values: any) => {
     onFilter(values)
@@ -90,19 +93,18 @@ export const JobListHeaderToolbar: React.FC<JobFilterProps> = ({
       <Row gutter={16} justify="start">
         <Col span={8}>
           <Form.Item name="skillId" label="Skill Name">
-            {/* <Select
-              placeholder="Select company size"
-              size="middle"
-              optionFilterProp="children"
+            <Select
+              placeholder="Select skill"
               showSearch
+              optionFilterProp="children"
+              size="middle"
             >
-              {COMPANY_SIZE.map((item) => (
-                <Select.Option key={item.value} value={item.value}>
-                  {item.label}
+              {data?.data.map((item) => (
+                <Select.Option key={item.id} value={item.id}>
+                  {item.name}
                 </Select.Option>
               ))}
-            </Select> */}
-            <Input placeholder="Input skill name" size="middle" />
+            </Select>
           </Form.Item>
         </Col>
         <Col span={16}>
@@ -114,14 +116,33 @@ export const JobListHeaderToolbar: React.FC<JobFilterProps> = ({
 
       <Row gutter={16} justify="end">
         <Col span={8}>
-          <Form.Item name="maxSalary" label="Max Salary">
-            <Input placeholder="Input max salary" size="middle" />
+          <Form.Item name="minSalary" label="Min Salary">
+            <Select placeholder="Select min salary" options={SALARY_OPTIONS} />
           </Form.Item>
         </Col>
 
         <Col span={8}>
-          <Form.Item name="minSalary" label="Min Salary">
-            <Input placeholder="Input min salary" size="middle" />
+          <Form.Item
+            name="maxSalary"
+            label="Max Salary"
+            dependencies={["minSalary"]}
+            rules={[
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  const min = getFieldValue("minSalary")
+                  if (value === undefined || min === undefined)
+                    return Promise.resolve()
+                  if (value >= min) return Promise.resolve()
+                  return Promise.reject(
+                    new Error(
+                      "Max salary must be greater than or equal to Min salary"
+                    )
+                  )
+                },
+              }),
+            ]}
+          >
+            <Select placeholder="Select max salary" options={SALARY_OPTIONS} />
           </Form.Item>
         </Col>
 

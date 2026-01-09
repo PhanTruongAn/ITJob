@@ -5,8 +5,9 @@ import CustomHooks from "../../common/hooks/CustomHooks"
 import { QUERY_KEYS } from "../../common/queryKeys"
 import CustomGlobalTable from "../../components/table"
 import { IBackendPaginateRes } from "../../types/backend"
+import { DEFAULT_STATE } from "./common/constants"
 import { useJobState } from "./common/hooks"
-import type { Job } from "./common/interfaces"
+import type { Job, JobFilter } from "./common/interfaces"
 import JobListHeader from "./components/JobListHeader"
 import { JobListHeaderToolbar } from "./components/JobListToolBar"
 import { JobColumns } from "./components/table/JobColumns"
@@ -47,7 +48,8 @@ const Job = () => {
   const {
     data,
     refetch,
-    isLoading: isLoadingJob,
+    // isLoading: isLoadingJob,
+    isFetching: isFetchingJob,
   } = CustomHooks.useQuery<IBackendPaginateRes<Job[]>>(
     [
       QUERY_KEYS.JOB_MODULE,
@@ -64,6 +66,29 @@ const Job = () => {
     ],
     fetchLitsJob
   )
+  const handlerFilterJobs = ({
+    companyId,
+    level,
+    location,
+    maxSalary,
+    minSalary,
+    name,
+    skillId,
+  }: JobFilter) => {
+    updateState({
+      companyId,
+      level,
+      location,
+      maxSalary,
+      minSalary,
+      name,
+      skillId,
+    })
+  }
+
+  const handlerClearFilter = () => {
+    updateState(DEFAULT_STATE)
+  }
 
   const handleViewJob = (record: Job) => {}
   const handleEditJob = (record: Job) => {}
@@ -74,7 +99,10 @@ const Job = () => {
   return (
     <>
       <JobListHeader onAddJob={() => {}} onRefresh={() => {}} loading={false} />
-      <JobListHeaderToolbar onClear={() => {}} onFilter={() => {}} />
+      <JobListHeaderToolbar
+        onClear={handlerClearFilter}
+        onFilter={handlerFilterJobs}
+      />
       <div style={listStyle}>
         <div className="table-container">
           <CustomGlobalTable<Job>
@@ -90,7 +118,7 @@ const Job = () => {
               },
             })}
             data={data?.data?.result || []}
-            loading={isLoadingJob}
+            loading={isFetchingJob}
             total={data?.data?.meta?.total || 0}
             page={state.page}
             pageSize={state.pageSize}

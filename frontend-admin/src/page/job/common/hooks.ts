@@ -6,6 +6,7 @@ import {
   editJob,
   getJobById,
 } from "../../../apis/jobModule"
+import { fetchSkillOptions } from "../../../apis/skillModule"
 import CustomHooks from "../../../common/hooks/CustomHooks"
 import { QUERY_KEYS } from "../../../common/queryKeys"
 import { useUpdateState } from "../../../util/hooks"
@@ -53,3 +54,7 @@ export const useEditJob = () => {
   })
 }
 export const useGetCompanyList = () => {}
+
+export const useGetSkillOptions = () => {
+  return CustomHooks.useQuery([QUERY_KEYS.SKILL_MODULE], fetchSkillOptions)
+}

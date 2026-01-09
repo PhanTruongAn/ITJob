@@ -18,10 +18,12 @@ export const useAuthLogin = () => {
             localStorage.setItem("access_token", res.data.access_token)
             dispatch(getAccount())
             message.success(res.message)
+          } else {
+            message.error(res.message)
           }
         },
         onError: (error: any) => {
-          message.error(error)
+          console.log("Login error: ", error)
         },
       }
     ),

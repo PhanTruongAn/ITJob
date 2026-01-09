@@ -21,4 +21,8 @@ export const PATH_API = {
   job: {
     root: path(ROOT_API, "/jobs"),
   },
+
+  skill: {
+    root: path(ROOT_API, "/skills"),
+  },
 }

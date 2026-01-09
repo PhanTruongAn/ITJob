@@ -81,3 +81,5 @@ export interface Skill {
   description: string
   category: string
 }
+
+export type SkillOptions = Omit<Skill, "description" | "category">
