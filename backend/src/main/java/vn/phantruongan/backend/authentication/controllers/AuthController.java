@@ -55,7 +55,7 @@ public class AuthController {
     @ApiMessage("Refresh token")
     public ResponseEntity<ResLoginDTO> refreshToken(
             @CookieValue(name = "refresh_token", required = false) String cookieToken,
-            @Valid @RequestBody(required = false) RefreshTokenReqDTO body) {
+            @RequestBody(required = false) RefreshTokenReqDTO body) {
 
         String refreshToken = null;
 
