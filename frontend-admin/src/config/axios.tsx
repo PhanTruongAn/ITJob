@@ -55,7 +55,7 @@ const handleRefreshToken = async (): Promise<IAccount | null> => {
       const res = await instance.post<IBackendRes<IAccount>>(
         "/api/v1/auth/refresh",
         {},
-        { headers: { [NO_RETRY_HEADER]: "true" } }
+        { headers: { [NO_RETRY_HEADER]: "true" } },
       )
 
       if (res?.data?.statusCode === 200 && res.data.data?.access_token) {
@@ -69,13 +69,6 @@ const handleRefreshToken = async (): Promise<IAccount | null> => {
       throw new Error("Refresh failed")
     } catch (error: any) {
       localStorage.removeItem("access_token")
-
-      message.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.")
-
-      setTimeout(() => {
-        window.location.href = PATH_AUTH.login
-      }, 1500)
-
       return null
     }
   })
@@ -108,16 +101,14 @@ instance.interceptors.response.use(
       const authData = await handleRefreshToken()
       if (authData && authData.access_token) {
         error.config.headers[NO_RETRY_HEADER] = "true"
-        error.config.headers[
-          "Authorization"
-        ] = `Bearer ${authData.access_token}`
+        error.config.headers["Authorization"] =
+          `Bearer ${authData.access_token}`
         return instance.request(error.config)
       }
     }
 
     if (error.config && status === 400 && url === "/api/v1/auth/refresh") {
       localStorage.removeItem("access_token")
-      localStorage.removeItem("session")
       message.error("Refresh token is invalid. Please log in again.")
       await new Promise((resolve) => setTimeout(resolve, 2000))
       window.location.href = PATH_AUTH.login
@@ -130,7 +121,7 @@ instance.interceptors.response.use(
 
     // return Promise.reject(error?.response?.data?.message)
     return Promise.reject(error)
-  }
+  },
 )
 
 export default instance
