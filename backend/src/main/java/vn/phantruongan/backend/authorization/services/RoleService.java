@@ -18,6 +18,7 @@ import vn.phantruongan.backend.authorization.dtos.req.role.AssignPermissionsReqD
 import vn.phantruongan.backend.authorization.dtos.req.role.CreateRoleReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.role.GetListRoleReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.role.UpdateRoleReqDTO;
+import vn.phantruongan.backend.authorization.dtos.res.RoleDetailResDTO;
 import vn.phantruongan.backend.authorization.dtos.res.RoleResDTO;
 import vn.phantruongan.backend.authorization.entities.Permission;
 import vn.phantruongan.backend.authorization.entities.Role;
@@ -72,11 +73,11 @@ public class RoleService {
         return roleMapper.toDto(roleUpdated);
     }
 
-    public RoleResDTO findById(long id) throws InvalidException {
+    public RoleDetailResDTO findById(long id) throws InvalidException {
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new InvalidException("Role not found with id: " + id));
 
-        return roleMapper.toDto(role);
+        return roleMapper.toDetailDto(role);
     }
 
     public boolean deleteRoleById(long id) throws InvalidException {

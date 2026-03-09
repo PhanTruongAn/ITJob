@@ -1,5 +1,11 @@
 package vn.phantruongan.backend.authorization.controllers;
 
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -83,4 +89,32 @@ public class PermissionController {
 
     }
 
+    @RequirePermission(resource = ResourceEnum.PERMISSION, action = ActionEnum.READ)
+    @GetMapping("/resources")
+    @ApiMessage("Get permission resources")
+    public ResponseEntity<List<Map<String, String>>> getResources() {
+        List<Map<String, String>> resources = Arrays.stream(ResourceEnum.values())
+             .map(r -> {
+                 Map<String, String> map = new HashMap<>();
+                 map.put("name", r.name());
+                 map.put("displayName", r.getDisplayName());
+                 map.put("basePath", r.getBasePath());
+                 return map;
+             }).collect(Collectors.toList());
+        return ResponseEntity.ok(resources);
+    }
+
+    @RequirePermission(resource = ResourceEnum.PERMISSION, action = ActionEnum.READ)
+    @GetMapping("/actions")
+    @ApiMessage("Get permission actions")
+    public ResponseEntity<List<Map<String, String>>> getActions() {
+        List<Map<String, String>> actions = Arrays.stream(ActionEnum.values())
+             .map(a -> {
+                 Map<String, String> map = new HashMap<>();
+                 map.put("name", a.name());
+                 map.put("displayName", a.getDisplayName());
+                 return map;
+             }).collect(Collectors.toList());
+        return ResponseEntity.ok(actions);
+    }
 }

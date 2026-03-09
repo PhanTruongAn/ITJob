@@ -22,6 +22,7 @@ import vn.phantruongan.backend.authorization.dtos.req.role.AssignPermissionsReqD
 import vn.phantruongan.backend.authorization.dtos.req.role.CreateRoleReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.role.GetListRoleReqDTO;
 import vn.phantruongan.backend.authorization.dtos.req.role.UpdateRoleReqDTO;
+import vn.phantruongan.backend.authorization.dtos.res.RoleDetailResDTO;
 import vn.phantruongan.backend.authorization.dtos.res.RoleResDTO;
 import vn.phantruongan.backend.authorization.enums.ActionEnum;
 import vn.phantruongan.backend.authorization.enums.ResourceEnum;
@@ -75,8 +76,8 @@ public class RoleController {
     @RequirePermission(resource = ResourceEnum.ROLE, action = ActionEnum.READ)
     @GetMapping("/{id}")
     @ApiMessage("Get role by id")
-    public ResponseEntity<RoleResDTO> findCompanyById(@PathVariable("id") long id) throws InvalidException {
-        RoleResDTO role = roleService.findById(id);
+    public ResponseEntity<RoleDetailResDTO> findCompanyById(@PathVariable("id") long id) throws InvalidException {
+        RoleDetailResDTO role = roleService.findById(id);
         return ResponseEntity.ok(role);
     }
 
