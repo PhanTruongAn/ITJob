@@ -28,7 +28,7 @@ export interface IReqCompany {
   companySize?: string | null
   companyType?: ECompanyType | null
   status?: ECompanyStatus | null
-  countryId: number | null
+  countryId?: number | null
 }
 
 export interface IFilterCompany {

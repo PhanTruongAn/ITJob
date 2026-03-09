@@ -51,6 +51,26 @@ const navItems: any = [
     label: BREADCRUMB.PERMISSION,
     key: PATH_DASHBOARD.permissionManage.list,
   },
+  {
+    icon: <DeploymentUnitOutlined />,
+    label: BREADCRUMB.SKILL,
+    key: PATH_DASHBOARD.skillManage.list,
+  },
+  {
+    icon: <ContactsOutlined />,
+    label: BREADCRUMB.SUBSCRIBER,
+    key: PATH_DASHBOARD.subscriberManage.list,
+  },
+  {
+    icon: <ScheduleOutlined />,
+    label: BREADCRUMB.REVIEW,
+    key: PATH_DASHBOARD.reviewManage.list,
+  },
+  {
+    icon: <BankOutlined />,
+    label: BREADCRUMB.COUNTRY,
+    key: PATH_DASHBOARD.countryManage.list,
+  },
 ];
 
 export default navItems;

@@ -95,7 +95,7 @@ export const CompanyListHeaderToolbar: React.FC<CompanyFilterProps> = ({
               optionFilterProp="children"
               size="middle"
             >
-              {data?.data.map((item) => (
+              {data?.data?.map((item) => (
                 <Select.Option key={item.id} value={item.id}>
                   {item.name}
                 </Select.Option>

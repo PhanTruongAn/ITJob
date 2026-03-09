@@ -31,4 +31,16 @@ export const PATH_DASHBOARD = {
   permissionManage: {
     list: path(ROOT_DASHBOARD, "/permissions"),
   },
+  skillManage: {
+    list: path(ROOT_DASHBOARD, "/skills"),
+  },
+  subscriberManage: {
+    list: path(ROOT_DASHBOARD, "/subscribers"),
+  },
+  reviewManage: {
+    list: path(ROOT_DASHBOARD, "/reviews"),
+  },
+  countryManage: {
+    list: path(ROOT_DASHBOARD, "/countries"),
+  },
 }

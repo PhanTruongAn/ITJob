@@ -28,4 +28,20 @@ export const BREADCRUMB = {
   //Permission
   PERMISSION: "Permission",
   LIST_PERMISSION: "List permission",
+
+  //Skill
+  SKILL: "Skill",
+  LIST_SKILL: "List skill",
+
+  //Subscriber
+  SUBSCRIBER: "Subscriber",
+  LIST_SUBSCRIBER: "List subscriber",
+
+  //Review
+  REVIEW: "Review",
+  LIST_REVIEW: "List review",
+
+  //Country
+  COUNTRY: "Country",
+  LIST_COUNTRY: "List country",
 }

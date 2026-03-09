@@ -25,4 +25,19 @@ export const PATH_API = {
   skill: {
     root: path(ROOT_API, "/skills"),
   },
+  subscriber: {
+    root: path(ROOT_API, "/subscribers"),
+  },
+  review: {
+    root: path(ROOT_API, "/reviews/companies"),
+  },
+  permission: {
+    root: path(ROOT_API, "/permissions"),
+  },
+  role: {
+    root: path(ROOT_API, "/roles"),
+  },
+  resume: {
+    root: path(ROOT_API, "/resumes"),
+  },
 }

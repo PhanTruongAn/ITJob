@@ -109,7 +109,7 @@ export const useDeleteCompany = () => {
 
 export const useGetCompanyById = (id: number) => {
   return CustomHooks.useQuery([QUERY_KEYS.COMPANY_MODULE, id], () =>
-    getCompanyById(id)
+    getCompanyById(id),
   )
 }
 export const useEditCompany = () => {

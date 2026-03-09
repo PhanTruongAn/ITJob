@@ -1,31 +1,31 @@
-import React from "react";
-import { Modal, Button } from "antd";
 import {
   CheckCircleOutlined,
   CheckOutlined,
   CloseCircleOutlined,
   CloseOutlined,
   ExclamationCircleTwoTone,
-} from "@ant-design/icons";
+} from "@ant-design/icons"
+import { Button, Modal } from "antd"
+import React from "react"
 
-type ModalType = "success" | "error" | "warning";
+type ModalType = "success" | "error" | "warning"
 
 interface ConfirmModalProps {
-  visible: boolean;
-  loading?: boolean;
-  type?: ModalType;
-  title?: string;
-  content: string;
-  onOk?: (data?: any) => void;
-  onCancel?: () => void;
-  customFooter?: React.ReactNode;
+  visible: boolean
+  loading?: boolean
+  type?: ModalType
+  title?: string
+  content: string | React.ReactNode
+  onOk?: (data?: any) => void
+  onCancel?: () => void
+  customFooter?: React.ReactNode
 }
 
 const iconMap = {
   success: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
   error: <CloseCircleOutlined style={{ color: "#ff4d4f" }} />,
   warning: <ExclamationCircleTwoTone twoToneColor="#faad14" />,
-};
+}
 
 const ConfirmModal: React.FC<ConfirmModalProps> = ({
   visible,
@@ -65,7 +65,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
     >
       <p>{content}</p>
     </Modal>
-  );
-};
+  )
+}
 
-export default ConfirmModal;
+export default ConfirmModal

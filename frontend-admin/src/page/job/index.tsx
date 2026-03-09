@@ -1,18 +1,24 @@
 import { message, theme } from "antd"
+import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { fetchJobs } from "../../apis/jobModule"
+import { fetchCompanies } from "../../apis/companyModule"
+import { createJob, deleteJob, editJob, fetchJobs } from "../../apis/jobModule"
+import { fetchSkills } from "../../apis/skillModule"
 import CustomHooks from "../../common/hooks/CustomHooks"
 import { QUERY_KEYS } from "../../common/queryKeys"
+import ConfirmModal from "../../components/modal/ConfirmModal"
 import CustomGlobalTable from "../../components/table"
-import { IBackendPaginateRes } from "../../types/backend"
+import { IBackendPaginateRes, ICompany, ISkill } from "../../types/backend"
 import { DEFAULT_STATE } from "./common/constants"
 import { useJobState } from "./common/hooks"
 import type { Job, JobFilter } from "./common/interfaces"
+import CreateJobModal from "./components/create/CreateJobModal"
+import EditJobModal from "./components/edit/EditJobModal"
 import JobListHeader from "./components/JobListHeader"
 import { JobListHeaderToolbar } from "./components/JobListToolBar"
 import { JobColumns } from "./components/table/JobColumns"
 
-const Job = () => {
+const JobManageList: React.FC = () => {
   const { token } = theme.useToken()
   const navigate = useNavigate()
   const { state, updateState } = useJobState()
@@ -23,6 +29,32 @@ const Job = () => {
     marginTop: 13,
     flexDirection: "column",
   }
+
+  const [visibleCreateModal, setVisibleCreateModal] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
+
+  const [visibleEditModal, setVisibleEditModal] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [selectedJob, setSelectedJob] = useState<Job | undefined>(undefined)
+
+  const [visibleDeleteModal, setVisibleDeleteModal] = useState(false)
+  const [selectedJobId, setSelectedJobId] = useState<number | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  const [companiesOptions, setCompaniesOptions] = useState<ICompany[]>([])
+  const [skillsOptions, setSkillsOptions] = useState<ISkill[]>([])
+
+  useEffect(() => {
+    const loadOptions = async () => {
+      // Fetch large limit for dropdowns
+      const compRes = await fetchCompanies({ page: 1, pageSize: 100 })
+      if (compRes?.data?.result) setCompaniesOptions(compRes.data.result)
+
+      const skillRes = await fetchSkills({ page: 1, pageSize: 100 })
+      if (skillRes?.data?.result) setSkillsOptions(skillRes.data.result)
+    }
+    loadOptions()
+  }, [])
 
   const fetchLitsJob = async (): Promise<IBackendPaginateRes<Job[]>> => {
     const res = await fetchJobs({
@@ -48,7 +80,6 @@ const Job = () => {
   const {
     data,
     refetch,
-    // isLoading: isLoadingJob,
     isFetching: isFetchingJob,
   } = CustomHooks.useQuery<IBackendPaginateRes<Job[]>>(
     [
@@ -64,8 +95,9 @@ const Job = () => {
       state.minSalary,
       state.skillId,
     ],
-    fetchLitsJob
+    fetchLitsJob,
   )
+
   const handlerFilterJobs = ({
     companyId,
     level,
@@ -90,31 +122,118 @@ const Job = () => {
     updateState(DEFAULT_STATE)
   }
 
-  const handleViewJob = (record: Job) => {}
-  const handleEditJob = (record: Job) => {}
-  const confirmDeleteJob = (id: number) => {}
   const handleTableChange = (page: number, pageSize: number, sort?: string) => {
     updateState({ page, pageSize, sort })
   }
+
+  const handleCreate = async (values: any) => {
+    setIsCreating(true)
+    const res = await createJob(values)
+    setIsCreating(false)
+    if (res.statusCode >= 400) {
+      message.error(res.message)
+    } else {
+      message.success("Job created successfully")
+      setVisibleCreateModal(false)
+      refetch()
+    }
+  }
+
+  const handleEdit = async (values: any) => {
+    setIsEditing(true)
+    const res = await editJob(values)
+    setIsEditing(false)
+    if (res.statusCode >= 400) {
+      message.error(res.message)
+    } else {
+      message.success("Job updated successfully")
+      setVisibleEditModal(false)
+      setSelectedJob(undefined)
+      refetch()
+    }
+  }
+
+  const handleDelete = async () => {
+    if (selectedJobId) {
+      setIsDeleting(true)
+      const res = await deleteJob({ id: selectedJobId })
+      setIsDeleting(false)
+      if (res.statusCode >= 400) {
+        message.error(res.message)
+      } else {
+        message.success("Deleted successfully")
+        refetch()
+      }
+    }
+    setVisibleDeleteModal(false)
+  }
+
+  const handleViewJob = (record: Job) => {
+    // Optionally navigate to a read-only page or pop up modal
+    // For now, let's just open the edit modal in view mode? Or just view mode.
+    // The previous stub was empty.
+    setSelectedJob(record)
+    setVisibleEditModal(true)
+  }
+
   return (
     <>
-      <JobListHeader onAddJob={() => {}} onRefresh={() => {}} loading={false} />
+      <JobListHeader
+        onAddJob={() => setVisibleCreateModal(true)}
+        onRefresh={() => refetch()}
+        loading={isFetchingJob}
+      />
       <JobListHeaderToolbar
         onClear={handlerClearFilter}
         onFilter={handlerFilterJobs}
       />
+
+      <CreateJobModal
+        loading={isCreating}
+        open={visibleCreateModal}
+        companyOptions={companiesOptions}
+        skillOptions={skillsOptions}
+        onCancel={() => setVisibleCreateModal(false)}
+        onSubmit={handleCreate}
+      />
+
+      <EditJobModal
+        loading={isEditing}
+        open={visibleEditModal}
+        record={selectedJob}
+        companyOptions={companiesOptions}
+        skillOptions={skillsOptions}
+        onCancel={() => {
+          setVisibleEditModal(false)
+          setSelectedJob(undefined)
+        }}
+        onSubmit={handleEdit}
+      />
+
+      <ConfirmModal
+        content="Are you sure you want to delete this job?"
+        visible={visibleDeleteModal}
+        type="warning"
+        onOk={handleDelete}
+        loading={isDeleting}
+        onCancel={() => setVisibleDeleteModal(false)}
+        title="Confirm job deletion"
+      />
+
       <div style={listStyle}>
-        <div className="table-container">
+        <div className="table-container" style={{ padding: 16 }}>
           <CustomGlobalTable<Job>
             columns={JobColumns({
               onView: (record) => {
                 handleViewJob(record)
               },
               onEdit: (record) => {
-                handleEditJob(record)
+                setSelectedJob(record)
+                setVisibleEditModal(true)
               },
               onDelete: (record) => {
-                confirmDeleteJob(record)
+                setSelectedJobId(record)
+                setVisibleDeleteModal(true)
               },
             })}
             data={data?.data?.result || []}
@@ -130,4 +249,4 @@ const Job = () => {
   )
 }
 
-export default Job
+export default JobManageList

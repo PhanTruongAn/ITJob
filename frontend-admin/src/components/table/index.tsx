@@ -10,6 +10,7 @@ interface CustomTableProps<T> {
   total: number;
   page: number;
   pageSize: number;
+  isPagination?: boolean;
   onTableChange: (page: number, pageSize: number, sortBy?: string) => void;
 }
 
@@ -20,6 +21,7 @@ const CustomGlobalTable = <T extends { id: string | number }>({
   total,
   page,
   pageSize,
+  isPagination,
   onTableChange,
 }: CustomTableProps<T>) => {
   return (
@@ -42,14 +44,18 @@ const CustomGlobalTable = <T extends { id: string | number }>({
 
         onTableChange(pagination.current!, pagination.pageSize!, sortBy);
       }}
-      pagination={{
-        showSizeChanger: true,
-        pageSizeOptions: ["5", "10", "20"],
-        total,
-        current: page,
-        pageSize,
-        responsive: true,
-      }}
+      pagination={
+        isPagination !== false
+          ? {
+              showSizeChanger: true,
+              pageSizeOptions: ["5", "10", "20"],
+              total,
+              current: page,
+              pageSize,
+              responsive: true,
+            }
+          : false
+      }
       locale={{
         emptyText: <EmptyData />,
       }}

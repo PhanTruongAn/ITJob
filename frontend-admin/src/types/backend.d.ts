@@ -111,3 +111,53 @@ export interface IParamLogin {
 }
 export interface IGetAccount extends Omit<IAccount, "access_token"> {}
 export interface IEditCompanyDTO extends Omit<ICompany, "country"> {}
+
+export interface ISkill {
+  id: number
+  name: string
+  description?: string
+  category?: string
+}
+
+export interface ISubscriber {
+  id: number
+  email: string
+  name: string
+  skills: ISkill[]
+}
+
+export interface ICompanyReview {
+  id: number
+  companyId: number
+  content: string
+  rating: number
+}
+
+export interface IPermission {
+  id: number
+  name: string
+  apiPath: string
+  method: string
+  action: string
+  resource: string
+}
+
+export interface IRole {
+  id: number
+  name: string
+  description: string
+  active: boolean
+  permissions: IPermission[]
+}
+
+export interface IResume {
+  id: number
+  candidateName: string
+  phoneNumber: string
+  email: string
+  url: string
+  status: string
+  companyId: number
+  jobId: number
+  note?: string
+}

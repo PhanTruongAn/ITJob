@@ -118,6 +118,58 @@ export default function Router() {
             },
           ],
         },
+        {
+          path: "",
+          children: [
+            {
+              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              index: true,
+            },
+            {
+              path: PATH_DASHBOARD.skillManage.list,
+              element: <SkillManageList />,
+            },
+          ],
+        },
+        {
+          path: "",
+          children: [
+            {
+              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              index: true,
+            },
+            {
+              path: PATH_DASHBOARD.subscriberManage.list,
+              element: <SubscriberManageList />,
+            },
+          ],
+        },
+        {
+          path: "",
+          children: [
+            {
+              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              index: true,
+            },
+            {
+              path: PATH_DASHBOARD.reviewManage.list,
+              element: <ReviewManageList />,
+            },
+          ],
+        },
+        {
+          path: "",
+          children: [
+            {
+              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              index: true,
+            },
+            {
+              path: PATH_DASHBOARD.countryManage.list,
+              element: <CountryManageList />,
+            },
+          ],
+        },
       ],
     },
     // Thêm route catch-all cho các URL không khớp
@@ -142,4 +194,8 @@ const JobManageList = Loadable(lazy(() => import("../page/job")));
 const RoleManageList = Loadable(lazy(() => import("../page/role")));
 const ResumeManageList = Loadable(lazy(() => import("../page/resume")));
 const PermissionManageList = Loadable(lazy(() => import("../page/permission")));
+const SkillManageList = Loadable(lazy(() => import("../page/skill")));
+const SubscriberManageList = Loadable(lazy(() => import("../page/subscriber")));
+const ReviewManageList = Loadable(lazy(() => import("../page/review")));
+const CountryManageList = Loadable(lazy(() => import("../page/country")));
 const NotFound = Loadable(lazy(() => import("../page/404/index")));
