@@ -9,11 +9,13 @@ import { ISubscriber } from "../../../../types/backend"
 interface SubscriberColumnsParams {
   onEdit: (record: ISubscriber) => void
   onDelete: (record: ISubscriber) => void
+  onViewRecommendations: (record: ISubscriber) => void
 }
 
 export const subscriberColumns = ({
   onEdit,
   onDelete,
+  onViewRecommendations,
 }: SubscriberColumnsParams): TableColumnsType<ISubscriber> => [
   {
     title: "ID",
@@ -47,6 +49,11 @@ export const subscriberColumns = ({
       const menu = {
         items: [
           {
+            key: "view-recommendations",
+            icon: <EllipsisOutlined />,
+            label: "View Recommendations",
+          },
+          {
             key: "edit",
             icon: <EditOutlined />,
             label: "Edit",
@@ -61,6 +68,7 @@ export const subscriberColumns = ({
         onClick: ({ key }: { key: string }) => {
           if (key === "edit") onEdit?.(record)
           else if (key === "delete") onDelete?.(record)
+          else if (key === "view-recommendations") onViewRecommendations?.(record)
         },
       }
 

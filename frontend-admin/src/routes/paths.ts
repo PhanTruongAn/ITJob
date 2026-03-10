@@ -43,4 +43,7 @@ export const PATH_DASHBOARD = {
   countryManage: {
     list: path(ROOT_DASHBOARD, "/countries"),
   },
+  recommendationManage: {
+    list: path(ROOT_DASHBOARD, "/recommendations"),
+  },
 }

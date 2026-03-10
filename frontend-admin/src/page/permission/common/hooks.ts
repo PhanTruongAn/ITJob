@@ -4,6 +4,8 @@ import { useState } from "react"
 import {
   createPermission,
   deletePermission,
+  fetchActions,
+  fetchResources,
   updatePermission,
 } from "../../../apis/permissionModule"
 import CustomHooks from "../../../common/hooks/CustomHooks"
@@ -63,4 +65,17 @@ export const useDeletePermission = () => {
       message.success("Permission deleted successfully")
     },
   })
+}
+export const useFetchResources = () => {
+  return CustomHooks.useQuery(
+    [QUERY_KEYS.PERMISSION_MODULE, "resources"],
+    fetchResources
+  )
+}
+
+export const useFetchActions = () => {
+  return CustomHooks.useQuery(
+    [QUERY_KEYS.PERMISSION_MODULE, "actions"],
+    fetchActions
+  )
 }

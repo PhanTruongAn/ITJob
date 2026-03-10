@@ -71,6 +71,11 @@ const navItems: any = [
     label: BREADCRUMB.COUNTRY,
     key: PATH_DASHBOARD.countryManage.list,
   },
+  {
+    icon: <ScheduleOutlined />,
+    label: BREADCRUMB.RECOMMENDATION,
+    key: PATH_DASHBOARD.recommendationManage.list,
+  },
 ];
 
 export default navItems;

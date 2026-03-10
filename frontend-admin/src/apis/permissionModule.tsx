@@ -42,3 +42,16 @@ export async function deletePermission({ id }: { id: number }) {
   )
   return response.data
 }
+export async function fetchResources(): Promise<IBackendRes<any[]>> {
+  const response = await axiosInstance.get<IBackendRes<any[]>>(
+    `${PATH_API.permission.root}/resources`
+  )
+  return response.data
+}
+
+export async function fetchActions(): Promise<IBackendRes<any[]>> {
+  const response = await axiosInstance.get<IBackendRes<any[]>>(
+    `${PATH_API.permission.root}/actions`
+  )
+  return response.data
+}

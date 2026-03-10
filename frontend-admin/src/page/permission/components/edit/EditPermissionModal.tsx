@@ -1,6 +1,7 @@
 import { Form, Input, Modal, Select } from "antd"
 import React, { useEffect } from "react"
 import { IPermission } from "../../../../types/backend"
+import { useFetchActions, useFetchResources } from "../../common/hooks"
 
 interface EditPermissionModalProps {
   loading: boolean
@@ -18,6 +19,9 @@ const EditPermissionModal: React.FC<EditPermissionModalProps> = ({
   onSubmit,
 }) => {
   const [form] = Form.useForm()
+
+  const { data: resources, isLoading: isLoadingResources } = useFetchResources()
+  const { data: actions, isLoading: isLoadingActions } = useFetchActions()
 
   useEffect(() => {
     if (record) {
@@ -82,16 +86,30 @@ const EditPermissionModal: React.FC<EditPermissionModalProps> = ({
         <Form.Item
           name="action"
           label="Action"
-          rules={[{ required: true, message: "Please enter action" }]}
+          rules={[{ required: true, message: "Please select action" }]}
         >
-          <Input placeholder="e.g. CREATE, READ, UPDATE, DELETE" />
+          <Select
+            placeholder="Select Action"
+            loading={isLoadingActions}
+            options={actions?.data?.map((item: any) => ({
+              label: item.displayName,
+              value: item.name,
+            }))}
+          />
         </Form.Item>
         <Form.Item
           name="resource"
           label="Resource"
-          rules={[{ required: true, message: "Please enter resource" }]}
+          rules={[{ required: true, message: "Please select resource" }]}
         >
-          <Input placeholder="e.g. USERS, ROLE" />
+          <Select
+            placeholder="Select Resource"
+            loading={isLoadingResources}
+            options={resources?.data?.map((item: any) => ({
+              label: item.displayName,
+              value: item.name,
+            }))}
+          />
         </Form.Item>
       </Form>
     </Modal>

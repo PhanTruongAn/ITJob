@@ -161,3 +161,11 @@ export interface IResume {
   jobId: number
   note?: string
 }
+
+export interface IJobRecommendation {
+  id: number
+  jobTitle: string
+  subscriberEmail: string
+  status: "PENDING" | "SENT" | "CLICKED" | "IGNORED"
+  createdAt: Date
+}

@@ -9,4 +9,5 @@ export const QUERY_KEYS = Object.freeze({
   PERMISSION_MODULE: "permissions",
   SUBSCRIBER_MODULE: "subscribers",
   RESUME_MODULE: "resumes",
+  RECOMMENDATION_MODULE: "recommendations",
 })

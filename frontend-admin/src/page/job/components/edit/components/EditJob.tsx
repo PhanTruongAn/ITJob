@@ -7,6 +7,8 @@ import JobForm from "../../JobForm"
 
 const { Option } = Select
 
+import dayjs from "dayjs"
+
 const EditJob: React.FC = () => {
   const [form] = Form.useForm()
   const { mutate } = useEditJob()
@@ -14,11 +16,18 @@ const EditJob: React.FC = () => {
   const location = useLocation()
   const isViewed = location.state?.isView
   const { data: jobData } = useGetJobById(Number(id))
+
   useEffect(() => {
     if (jobData?.data) {
-      form.setFieldsValue(jobData.data)
+      const data = jobData.data
+      form.setFieldsValue({
+        ...data,
+        companyId: data.companyId || data.company?.id,
+        startDate: data.startDate ? dayjs(data.startDate) : null,
+        endDate: data.endDate ? dayjs(data.endDate) : null,
+      })
     }
-  }, [jobData])
+  }, [jobData, form])
   const handleEdit = async (payload: CreateJobReqDTO) => {
     mutate(
       { ...payload, id: Number(id) },

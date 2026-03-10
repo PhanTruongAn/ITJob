@@ -44,4 +44,8 @@ export const BREADCRUMB = {
   //Country
   COUNTRY: "Country",
   LIST_COUNTRY: "List country",
+
+  //Recommendation
+  RECOMMENDATION: "Job Recommendation",
+  LIST_RECOMMENDATION: "List recommendation",
 }

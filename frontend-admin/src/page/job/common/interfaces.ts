@@ -13,6 +13,7 @@ export interface Job {
   endDate: string
   active: boolean
   company: ICompany
+  companyId?: number
   jobSkills: JobSkill[]
 }
 
@@ -40,7 +41,7 @@ export interface CreateJobReqDTO {
   endDate: string
   // isActive: boolean
   companyId?: number
-  jobSkillIds?: number[]
+  skillIds?: number[]
 }
 
 export interface EditJobReqDTO extends CreateJobReqDTO {

@@ -30,13 +30,16 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
     if (record) {
       form.setFieldsValue({
         name: record.name,
-        companyId: record.company?.id,
+        companyId: record.companyId || record.company?.id,
         level: record.level,
         location: record.location,
         salary: record.salary,
         quantity: record.quantity,
-        dateRange: [dayjs(record.startDate), dayjs(record.endDate)],
-        jobSkillIds: record.jobSkills?.map((js) => js.skill?.id) || [],
+        dateRange: [
+          record.startDate ? dayjs(record.startDate) : null,
+          record.endDate ? dayjs(record.endDate) : null,
+        ],
+        skillIds: record.jobSkills?.map((js) => js.skill?.id) || [],
         description: record.description,
       })
     }
@@ -156,7 +159,7 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
           <DatePicker.RangePicker style={{ width: "100%" }} />
         </Form.Item>
 
-        <Form.Item name="jobSkillIds" label="Skills">
+        <Form.Item name="skillIds" label="Skills">
           <Select
             mode="multiple"
             placeholder="Select required skills"

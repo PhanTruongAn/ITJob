@@ -18,11 +18,13 @@ import {
 import SubscriberListHeader from "./components/SubscriberListHeader"
 import CreateSubscriberModal from "./components/create/CreateSubscriberModal"
 import EditSubscriberModal from "./components/edit/EditSubscriberModal"
+import SubscriberRecommendationsModal from "./components/recommendation/SubscriberRecommendationsModal"
 import { subscriberColumns } from "./components/table/SubscriberColumns"
 
 const SubscriberManageList: React.FC = () => {
   const { token } = theme.useToken()
   const { state, updateState } = useSubscriberState()
+  const [visibleRecommendModal, setVisibleRecommendModal] = useState(false)
 
   const [skillsOptions, setSkillsOptions] = useState<ISkill[]>([])
 
@@ -154,6 +156,14 @@ const SubscriberManageList: React.FC = () => {
         onCancel={() => updateState({ visibleDeleteModal: false })}
         title="Confirm subscriber deletion"
       />
+      <SubscriberRecommendationsModal
+        open={visibleRecommendModal}
+        subscriber={state.selectedRecord}
+        onCancel={() => {
+          setVisibleRecommendModal(false)
+          updateState({ selectedRecord: undefined })
+        }}
+      />
       <div
         style={{
           background: token.colorBgContainer,
@@ -174,6 +184,10 @@ const SubscriberManageList: React.FC = () => {
                 selectedId: record.id,
                 visibleDeleteModal: true,
               })
+            },
+            onViewRecommendations: (record) => {
+              updateState({ selectedRecord: record })
+              setVisibleRecommendModal(true)
             },
           })}
           data={data?.data?.result || []}

@@ -170,6 +170,19 @@ export default function Router() {
             },
           ],
         },
+        {
+          path: "",
+          children: [
+            {
+              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              index: true,
+            },
+            {
+              path: PATH_DASHBOARD.recommendationManage.list,
+              element: <RecommendationManageList />,
+            },
+          ],
+        },
       ],
     },
     // Thêm route catch-all cho các URL không khớp
@@ -198,4 +211,7 @@ const SkillManageList = Loadable(lazy(() => import("../page/skill")));
 const SubscriberManageList = Loadable(lazy(() => import("../page/subscriber")));
 const ReviewManageList = Loadable(lazy(() => import("../page/review")));
 const CountryManageList = Loadable(lazy(() => import("../page/country")));
+const RecommendationManageList = Loadable(
+  lazy(() => import("../page/recommendation"))
+);
 const NotFound = Loadable(lazy(() => import("../page/404/index")));

@@ -53,7 +53,13 @@ export const useEditJob = () => {
     },
   })
 }
-export const useGetCompanyList = () => {}
+import { fetchCompanies } from "../../../apis/companyModule"
+
+export const useGetCompanyList = () => {
+  return CustomHooks.useQuery([QUERY_KEYS.COMPANY_MODULE, "all"], () =>
+    fetchCompanies({ page: 1, pageSize: 100 })
+  )
+}
 
 export const useGetSkillOptions = () => {
   return CustomHooks.useQuery([QUERY_KEYS.SKILL_MODULE], fetchSkillOptions)

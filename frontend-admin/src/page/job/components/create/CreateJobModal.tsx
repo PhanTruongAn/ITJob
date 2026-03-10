@@ -135,7 +135,7 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
           <DatePicker.RangePicker style={{ width: "100%" }} />
         </Form.Item>
 
-        <Form.Item name="jobSkillIds" label="Skills">
+        <Form.Item name="skillIds" label="Skills">
           <Select
             mode="multiple"
             placeholder="Select required skills"

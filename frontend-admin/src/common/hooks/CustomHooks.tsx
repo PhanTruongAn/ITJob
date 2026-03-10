@@ -12,12 +12,17 @@ import { message } from "antd"
 import axios from "axios"
 
 const CustomHooks = {
-  useQuery<TData>(
-    queryKey: QueryKey,
-    queryFn: () => Promise<TData>,
-    options?: UseQueryOptions<TData>
-  ): UseQueryResult<TData> {
-    return useReactQuery<TData>({
+  useQuery<
+    TQueryFnData = unknown,
+    TError = Error,
+    TData = TQueryFnData,
+    TQueryKey extends QueryKey = QueryKey
+  >(
+    queryKey: TQueryKey,
+    queryFn: () => Promise<TQueryFnData>,
+    options?: Omit<UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>, "queryKey" | "queryFn">
+  ): UseQueryResult<TData, TError> {
+    return useReactQuery<TQueryFnData, TError, TData, TQueryKey>({
       queryKey,
       queryFn,
       placeholderData: keepPreviousData,

@@ -25,9 +25,11 @@ interface JobFormProps {
   onSubmit: (payload: any) => Promise<void> | void
 }
 
+import { useGetCompanyList } from "../common/hooks"
+
 const JobForm: React.FC<JobFormProps> = ({ type, form, onSubmit }) => {
   const navigate = useNavigate()
-  //   const { data: companies } = useGetCompanyList()
+  const { data: companies } = useGetCompanyList()
 
   const description = useWatch("description", form)
 
@@ -120,21 +122,21 @@ const JobForm: React.FC<JobFormProps> = ({ type, form, onSubmit }) => {
               </Form.Item>
             </Col>
 
-            {/* <Col span={12}>
+            <Col span={12}>
               <Form.Item
                 name="companyId"
                 label="Company"
                 rules={[{ required: true, message: "Please select company" }]}
               >
                 <Select placeholder="Select company">
-                  {companies?.map((c: any) => (
+                  {companies?.data?.result?.map((c: any) => (
                     <Option key={c.id} value={c.id}>
                       {c.name}
                     </Option>
                   ))}
                 </Select>
               </Form.Item>
-            </Col> */}
+            </Col>
           </Row>
 
           {/* ROW 4 */}
