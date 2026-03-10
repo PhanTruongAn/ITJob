@@ -33,7 +33,4 @@ public class JobSkill extends Auditable {
     @JoinColumn(name = "skill_id", nullable = false)
     private Skill skill;
 
-    private boolean required;
-    private int priority;
-
 }

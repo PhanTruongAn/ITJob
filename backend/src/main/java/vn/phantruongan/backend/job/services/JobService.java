@@ -21,7 +21,6 @@ import vn.phantruongan.backend.company.repositories.CompanyRepository;
 import vn.phantruongan.backend.job.dtos.req.job.CreateJobReqDTO;
 import vn.phantruongan.backend.job.dtos.req.job.GetListJobReqDTO;
 import vn.phantruongan.backend.job.dtos.req.job.UpdateJobReqDTO;
-import vn.phantruongan.backend.job.dtos.req.jobSkill.CreateJobSkillReqDTO;
 import vn.phantruongan.backend.job.dtos.res.JobResDTO;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.entities.JobSkill;
@@ -67,8 +66,7 @@ public class JobService {
                                                 "Company not found with id: " + dto.getCompanyId()));
                 job.setCompany(company);
 
-                List<Long> skillIds = dto.getSkills().stream()
-                                .map(CreateJobSkillReqDTO::getSkillId)
+                List<Long> skillIds = dto.getSkillIds().stream()
                                 .collect(Collectors.toList());
 
                 List<Skill> skills = skillRepository.findAllById(skillIds);
@@ -76,17 +74,15 @@ public class JobService {
                 Map<Long, Skill> skillMap = skills.stream()
                                 .collect(Collectors.toMap(Skill::getId, Function.identity()));
 
-                for (CreateJobSkillReqDTO jobSkill : dto.getSkills()) {
-                        Skill skill = skillMap.get(jobSkill.getSkillId());
+                for (Long skillId : dto.getSkillIds()) {
+                        Skill skill = skillMap.get(skillId);
                         if (skill == null) {
-                                throw new InvalidException("Skill not found with id: " + jobSkill.getSkillId());
+                                throw new InvalidException("Skill not found with id: " + skillId);
                         }
 
                         JobSkill js = new JobSkill();
                         js.setSkill(skill);
                         js.setJob(job);
-                        js.setRequired(jobSkill.isRequired());
-                        js.setPriority(jobSkill.getPriority());
 
                         job.getJobSkills().add(js);
                 }
@@ -114,9 +110,8 @@ public class JobService {
                 job.setCompany(company);
                 jobMapper.updateEntityFromDto(dto, job);
 
-                Set<Long> newSkillIds = dto.getSkills() == null ? Set.of()
-                                : dto.getSkills().stream()
-                                                .map(CreateJobSkillReqDTO::getSkillId)
+                Set<Long> newSkillIds = dto.getSkillIds() == null ? Set.of()
+                                : dto.getSkillIds().stream()
                                                 .collect(Collectors.toSet());
 
                 Set<Long> oldSkillIds = job.getJobSkills().stream()
@@ -142,23 +137,12 @@ public class JobService {
                                         throw new InvalidException("Some skill IDs are invalid");
                                 }
 
-                                Map<Long, CreateJobSkillReqDTO> skillDtoMap = dto.getSkills().stream()
-                                                .collect(Collectors.toMap(
-                                                                CreateJobSkillReqDTO::getSkillId,
-                                                                s -> s,
-                                                                (a, b) -> a));
-
                                 List<JobSkill> newJobSkills = skills.stream()
                                                 .map(skill -> {
                                                         JobSkill js = new JobSkill();
                                                         js.setJob(job);
                                                         js.setSkill(skill);
 
-                                                        CreateJobSkillReqDTO skillDto = skillDtoMap.get(skill.getId());
-                                                        if (skillDto != null) {
-                                                                js.setRequired(skillDto.isRequired());
-                                                                js.setPriority(skillDto.getPriority());
-                                                        }
                                                         return js;
                                                 })
                                                 .toList();

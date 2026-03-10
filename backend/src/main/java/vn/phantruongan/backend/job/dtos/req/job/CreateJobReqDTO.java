@@ -13,7 +13,6 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import vn.phantruongan.backend.job.dtos.req.jobSkill.CreateJobSkillReqDTO;
 import vn.phantruongan.backend.job.enums.LevelEnum;
 
 @Data
@@ -53,5 +52,5 @@ public class CreateJobReqDTO {
     @NotEmpty(message = "At least one skill must be provided")
     @Size(min = 1, message = "At least one skill must be provided")
     @Valid
-    private List<CreateJobSkillReqDTO> skills;
+    private List<Long> skillIds;
 }

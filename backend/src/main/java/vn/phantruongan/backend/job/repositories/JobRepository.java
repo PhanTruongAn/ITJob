@@ -15,7 +15,7 @@ import vn.phantruongan.backend.job.entities.Job;
 @Repository
 public interface JobRepository extends JpaRepository<Job, Long>, JpaSpecificationExecutor<Job> {
     @EntityGraph(attributePaths = { "jobSkills", "jobSkills.skill" })
-    @Query("SELECT j FROM Job j")
+    @Query("SELECT DISTINCT j FROM Job j")
     List<Job> findAllWithSkills();
 
     @EntityGraph(attributePaths = { "jobSkills", "jobSkills.skill" })

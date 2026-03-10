@@ -17,7 +17,7 @@ public interface SubscriberRepository extends JpaRepository<Subscriber, Long>, J
     public boolean existsByEmail(String email);
 
     @EntityGraph(attributePaths = { "subscriberSkills", "subscriberSkills.skill" })
-    @Query("SELECT s FROM Subscriber s")
+    @Query("SELECT DISTINCT s FROM Subscriber s")
     List<Subscriber> findAllWithSkills();
 
     @EntityGraph(attributePaths = { "subscriberSkills", "subscriberSkills.skill" })

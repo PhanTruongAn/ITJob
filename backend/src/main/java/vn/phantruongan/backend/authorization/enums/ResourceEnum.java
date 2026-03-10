@@ -20,7 +20,8 @@ public enum ResourceEnum {
     REPORT("Báo cáo", "/reports"),
     SUBSCRIBER("Người đăng ký", "/subscribers"),
     SKILL("Kỹ năng", "/skills"),
-    COUNTRY("Quốc gia", "/countries");
+    COUNTRY("Quốc gia", "/countries"),
+    RECOMMENDATION("Gợi ý công việc", "/recommendations");
 
     private final String displayName;
     private final String basePath;
