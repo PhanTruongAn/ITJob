@@ -3,6 +3,8 @@ import AppAppBar from "@/components/AppAppBar"
 import Footer from "@/components/Footer"
 import Hero from "@/components/Hero"
 import Highlights from "@/components/Highlights"
+import HotJobs from "@/components/HotJobs"
+import ServiceGrid from "@/components/ServiceGrid"
 import AppTheme from "@/shared-theme/AppTheme"
 import CssBaseline from "@mui/material/CssBaseline"
 import Divider from "@mui/material/Divider"
@@ -21,6 +23,8 @@ export default async function Home() {
       <AppAppBar />
       <Hero />
       <div>
+        <ServiceGrid />
+        <HotJobs />
         <Highlights />
         {/* <LogoCollection />
         <Features />
@@ -32,7 +36,9 @@ export default async function Home() {
         <Pricing />
         <Divider />
         <FAQ /> */}
+
         <Divider />
+
         <Footer />
       </div>
     </AppTheme>

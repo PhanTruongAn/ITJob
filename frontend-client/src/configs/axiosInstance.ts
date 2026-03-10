@@ -1,36 +1,44 @@
+import { Mutex } from "async-mutex"
 import axios from "axios"
+import { getSession } from "next-auth/react"
+
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
+
 const axiosInstance = axios.create({
   baseURL: backendUrl,
-  timeout: 3000,
-  headers: {
-    "content-type": "application/json",
-  },
   withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 })
 
-axiosInstance.interceptors.request.use(
-  function (config) {
-    // Do something before request is sent
-    return config
-  },
-  function (error) {
-    // Do something with request error
-    return Promise.reject(error)
+const mutex = new Mutex()
+const NO_RETRY_HEADER = "x-no-retry"
+
+const whiteList = ["/api/v1/auth/login", "/api/v1/auth/register"]
+
+//
+// REQUEST INTERCEPTOR
+//
+axiosInstance.interceptors.request.use(async (config) => {
+  const session: any = await getSession()
+
+  if (session?.accessToken) {
+    config.headers.Authorization = `Bearer ${session.accessToken}`
   }
-)
 
+  return config
+})
+
+//
+// RESPONSE INTERCEPTOR
+//
 axiosInstance.interceptors.response.use(
-  function (response) {
-    // Any status code that lie within the range of 2xx cause this function to trigger
-    // Do something with response data
-
-    return response
-  },
+  (res) => res,
   function (error) {
     return error.response.data
     // return Promise.reject(error);
-  }
+  },
 )
 
 export default axiosInstance

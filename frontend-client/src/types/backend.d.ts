@@ -2,7 +2,45 @@ export interface IBackendRes<T> {
   error?: string | string[]
   message: string
   statusCode: number | string
-  data?: T | string
+  data?: T
+}
+
+export interface IBackendPaginateRes<T> {
+  statusCode: number
+  error: any
+  message: string
+  data: {
+    meta: {
+      pageNumber?: number
+      pageSize?: number
+      pages?: number
+      total?: number
+    }
+    result: T
+  }
+}
+
+export interface IJob {
+  id: number
+  name: string
+  location: string
+  salary: number
+  quantity: number
+  level: string
+  description: string
+  startDate: string
+  endDate: string
+  isActive: boolean
+  company?: ICompany
+  skills?: any[]
+}
+
+export interface ICompany {
+  id: number
+  name: string
+  address: string
+  description: string
+  logo?: string
 }
 
 export interface UserNextAuth {

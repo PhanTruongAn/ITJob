@@ -6,7 +6,6 @@ export async function middleware(request: NextRequest) {
   const session = await auth()
   const { pathname } = request.nextUrl
 
-  // Ví dụ: Bảo vệ trang profile
   if (pathname.startsWith("/profile") && !session) {
     return NextResponse.redirect(new URL("/signin", request.url))
   }
