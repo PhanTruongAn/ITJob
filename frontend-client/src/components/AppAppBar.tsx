@@ -3,6 +3,7 @@ import ColorModeIconDropdown from "@/shared-theme/ColorModeIconDropdown"
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded"
 import MenuIcon from "@mui/icons-material/Menu"
 import AppBar from "@mui/material/AppBar"
+import Avatar from "@mui/material/Avatar"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
 import Container from "@mui/material/Container"
@@ -12,6 +13,8 @@ import IconButton from "@mui/material/IconButton"
 import MenuItem from "@mui/material/MenuItem"
 import { alpha, styled } from "@mui/material/styles"
 import Toolbar from "@mui/material/Toolbar"
+import Typography from "@mui/material/Typography"
+import { signOut, useSession } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as React from "react"
@@ -31,6 +34,7 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 }))
 
 export default function AppAppBar() {
+  const { data: session } = useSession()
   const [open, setOpen] = React.useState(false)
   const router = useRouter()
   const toggleDrawer = (newOpen: boolean) => () => {
@@ -74,22 +78,41 @@ export default function AppAppBar() {
             <Button color="primary" variant="text" size="medium">
               Nhà tuyển dụng
             </Button>
-            <Button
-              color="primary"
-              variant="text"
-              size="medium"
-              // onClick={() => router.push("/signin")}
-            >
-              <Link href="/signin">Đăng nhập</Link>
-            </Button>
-            <Button
-              color="primary"
-              variant="contained"
-              size="medium"
-              // onClick={() => router.push("/signup")}
-            >
-              <Link href="/signup">Đăng ký</Link>
-            </Button>
+            {!session ? (
+              <>
+                <Button color="primary" variant="text" size="medium">
+                  <Link href="/signin">Đăng nhập</Link>
+                </Button>
+                <Button color="primary" variant="contained" size="medium">
+                  <Link href="/signup">Đăng ký</Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Avatar
+                    src={session.user?.image || undefined}
+                    sx={{ width: 32, height: 32 }}
+                  >
+                    {session.user?.name?.[0]}
+                  </Avatar>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "text.primary", fontWeight: 500 }}
+                  >
+                    {session.user?.name}
+                  </Typography>
+                </Box>
+                <Button
+                  color="error"
+                  variant="outlined"
+                  size="small"
+                  onClick={() => signOut()}
+                >
+                  Đăng xuất
+                </Button>
+              </>
+            )}
             <ColorModeIconDropdown />
           </Box>
           <Box sx={{ display: { xs: "flex", md: "none" }, gap: 1 }}>
@@ -123,16 +146,42 @@ export default function AppAppBar() {
                 <MenuItem>Công ty</MenuItem>
 
                 <Divider sx={{ my: 3 }} />
-                <MenuItem>
-                  <Button color="primary" variant="contained" fullWidth>
-                    <Link href="/signup">Đăng ký</Link>
-                  </Button>
-                </MenuItem>
-                <MenuItem>
-                  <Button color="primary" variant="outlined" fullWidth>
-                    <Link href="/signin">Đăng nhập</Link>
-                  </Button>
-                </MenuItem>
+                {!session ? (
+                  <>
+                    <MenuItem>
+                      <Button color="primary" variant="contained" fullWidth>
+                        <Link href="/signup">Đăng ký</Link>
+                      </Button>
+                    </MenuItem>
+                    <MenuItem>
+                      <Button color="primary" variant="outlined" fullWidth>
+                        <Link href="/signin">Đăng nhập</Link>
+                      </Button>
+                    </MenuItem>
+                  </>
+                ) : (
+                  <>
+                    <MenuItem sx={{ justifyContent: "center", gap: 1 }}>
+                      <Avatar
+                        src={session.user?.image || undefined}
+                        sx={{ width: 32, height: 32 }}
+                      />
+                      <Typography variant="body2">
+                        {session.user?.name}
+                      </Typography>
+                    </MenuItem>
+                    <MenuItem>
+                      <Button
+                        color="error"
+                        variant="outlined"
+                        fullWidth
+                        onClick={() => signOut()}
+                      >
+                        Đăng xuất
+                      </Button>
+                    </MenuItem>
+                  </>
+                )}
               </Box>
             </Drawer>
           </Box>

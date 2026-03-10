@@ -1,13 +1,20 @@
-"use client"
+import { auth } from "@/auth/config"
+import AppAppBar from "@/components/AppAppBar"
+import Footer from "@/components/Footer"
+import Hero from "@/components/Hero"
+import Highlights from "@/components/Highlights"
 import AppTheme from "@/shared-theme/AppTheme"
 import CssBaseline from "@mui/material/CssBaseline"
 import Divider from "@mui/material/Divider"
-import AppAppBar from "../components/AppAppBar"
-import Footer from "../components/Footer"
-import Hero from "../components/Hero"
-import Highlights from "../components/Highlights"
+
 // @ts-ignore
-export default function Home() {
+export default async function Home() {
+  const session = await auth()
+
+  if (session) {
+    console.log("📌 Server-side Session data:", session)
+  }
+
   return (
     <AppTheme>
       <CssBaseline enableColorScheme />

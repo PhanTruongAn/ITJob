@@ -1,8 +1,8 @@
-import * as React from "react";
-import SvgIcon from "@mui/material/SvgIcon";
-import { useRouter } from "next/navigation";
+"use client"
+import SvgIcon from "@mui/material/SvgIcon"
+import { useRouter } from "next/navigation"
 export default function SitemarkIcon() {
-  const router = useRouter();
+  const router = useRouter()
   return (
     <SvgIcon
       sx={{ height: 50, width: 100, cursor: "pointer" }}
@@ -38,5 +38,5 @@ export default function SitemarkIcon() {
         </defs>
       </svg>
     </SvgIcon>
-  );
+  )
 }

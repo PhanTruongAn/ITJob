@@ -1,16 +1,17 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Container from "@mui/material/Container";
-import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import SearchIcon from "@mui/icons-material/Search";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import Chip from "@mui/material/Chip";
-import InputLabel from "@mui/material/InputLabel";
+"use client"
+import SearchIcon from "@mui/icons-material/Search"
+import Box from "@mui/material/Box"
+import Button from "@mui/material/Button"
+import Chip from "@mui/material/Chip"
+import Container from "@mui/material/Container"
+import FormControl from "@mui/material/FormControl"
+import InputLabel from "@mui/material/InputLabel"
+import MenuItem from "@mui/material/MenuItem"
+import Select, { SelectChangeEvent } from "@mui/material/Select"
+import Stack from "@mui/material/Stack"
+import TextField from "@mui/material/TextField"
+import Typography from "@mui/material/Typography"
+import * as React from "react"
 // const StyledBox = styled("div")(({ theme }) => ({
 //   alignSelf: "center",
 //   width: "100%",
@@ -41,9 +42,9 @@ import InputLabel from "@mui/material/InputLabel";
 // }));
 
 export default function Hero() {
-  const [cities, setCities] = React.useState("");
-  const [chipSelected, setChipSelected] = React.useState("");
-  const vietnam_cities = ["Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Other"];
+  const [cities, setCities] = React.useState("")
+  const [chipSelected, setChipSelected] = React.useState("")
+  const vietnam_cities = ["Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Other"]
   const chip_data = [
     "JavaScript",
     "Python",
@@ -53,10 +54,10 @@ export default function Hero() {
     "CSS",
     "React",
     "Node.js",
-  ];
+  ]
   const handleChange = (event: SelectChangeEvent) => {
-    setCities(event.target.value);
-  };
+    setCities(event.target.value)
+  }
   return (
     <Box
       id="hero"
@@ -197,5 +198,5 @@ export default function Hero() {
         </Stack>
       </Container>
     </Box>
-  );
+  )
 }

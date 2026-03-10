@@ -1,5 +1,5 @@
-import axiosInstance from "../../configs/axiosInstance"
-import { IBackendRes, ILoginRes } from "../../types/backend"
+import axiosInstance from "@/configs/axiosInstance"
+import { IBackendRes, ILoginRes } from "@/types/backend"
 
 export class AuthService {
   static async getHelloWorld(): Promise<IBackendRes<string>> {
@@ -8,13 +8,12 @@ export class AuthService {
   }
   static async login(
     username: string,
-    password: string
+    password: string,
   ): Promise<IBackendRes<ILoginRes>> {
     const response = await axiosInstance.post<IBackendRes<ILoginRes>>(
       "/api/v1/auth/login",
-      { username, password }
+      { username, password },
     )
-    console.log(response.data)
     return response.data
   }
 }

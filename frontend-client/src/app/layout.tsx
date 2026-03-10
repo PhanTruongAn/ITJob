@@ -1,7 +1,7 @@
 import Providers from "@/components/Providers"
 import { lexend } from "@/ui/font"
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter"
 import type { Metadata } from "next"
-import { SessionProvider } from "next-auth/react"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -17,9 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${lexend.className} antialiased`}>
-        <SessionProvider refetchInterval={0} refetchOnWindowFocus={false}>
+        <AppRouterCacheProvider>
           <Providers>{children}</Providers>
-        </SessionProvider>
+        </AppRouterCacheProvider>
       </body>
     </html>
   )

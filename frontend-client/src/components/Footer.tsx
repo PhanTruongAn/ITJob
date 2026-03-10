@@ -1,14 +1,14 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
-import IconButton from "@mui/material/IconButton";
-import Link from "@mui/material/Link";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import SitemarkIcon from "./SitemarkIcon";
-import GitHubIcon from "@mui/icons-material/GitHub";
+"use client"
+import FacebookIcon from "@mui/icons-material/Facebook"
+import GitHubIcon from "@mui/icons-material/GitHub"
+import LinkedInIcon from "@mui/icons-material/LinkedIn"
+import Box from "@mui/material/Box"
+import Container from "@mui/material/Container"
+import IconButton from "@mui/material/IconButton"
+import Link from "@mui/material/Link"
+import Stack from "@mui/material/Stack"
+import Typography from "@mui/material/Typography"
+import SitemarkIcon from "./SitemarkIcon"
 function Copyright() {
   return (
     <Typography variant="body2" sx={{ color: "text.secondary", mt: 1 }}>
@@ -19,7 +19,7 @@ function Copyright() {
       &nbsp;
       {new Date().getFullYear()}
     </Typography>
-  );
+  )
 }
 
 export default function Footer() {
@@ -191,5 +191,5 @@ export default function Footer() {
         </div>
       </Box>
     </Container>
-  );
+  )
 }
