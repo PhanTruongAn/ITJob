@@ -50,7 +50,7 @@ export default function HotJobs() {
     <Box sx={{ py: 8 }}>
       <Container maxWidth="lg">
         <Typography variant="h2" gutterBottom sx={{ mb: 4 }}>
-          Việc làm "Chất" nhất
+          Việc làm &quot;Chất&quot; nhất
         </Typography>
         <Grid container spacing={3}>
           {isLoading

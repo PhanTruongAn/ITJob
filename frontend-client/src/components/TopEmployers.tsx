@@ -16,7 +16,7 @@ export default function TopEmployers() {
   })
 
   // Mock data if API is empty or failing
-  const companies = data?.data || [
+  const companies = data?.data?.result || [
     { id: 1, name: "NAVER VIETNAM", address: "Hà Nội", logo: "" },
     { id: 2, name: "NAB Innovation", address: "Hồ Chí Minh", logo: "" },
     { id: 3, name: "FPT Software", address: "Toàn quốc", logo: "" },
