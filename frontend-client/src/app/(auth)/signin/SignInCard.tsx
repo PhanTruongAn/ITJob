@@ -49,7 +49,7 @@ export default function SignInCard() {
   const [openAlert, setOpenAlert] = React.useState(false)
   const [alertMessage, setAlertMessage] = React.useState("")
   const [alertStatus, setAlertStatus] = React.useState<"success" | "error">(
-    "success"
+    "success",
   )
 
   const handleClickOpen = () => {
@@ -62,7 +62,7 @@ export default function SignInCard() {
 
   const handleCloseAlert = (
     event?: React.SyntheticEvent | Event,
-    reason?: SnackbarCloseReason
+    reason?: SnackbarCloseReason,
   ) => {
     if (reason === "clickaway") {
       return

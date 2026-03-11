@@ -40,7 +40,10 @@ export default function AppAppBar() {
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen)
   }
-
+  const mainMenu = [
+    { label: "Công việc", href: "/jobs" },
+    { label: "Công ty", href: "/companies" },
+  ]
   return (
     <AppBar
       position="fixed"
@@ -60,12 +63,17 @@ export default function AppAppBar() {
             <Sitemark />
 
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
-              <Button variant="text" color="info" size="medium">
-                Công việc
-              </Button>
-              <Button variant="text" color="info" size="medium">
-                Công ty
-              </Button>
+              {mainMenu.map((item) => (
+                <Button
+                  key={item.href}
+                  component={Link}
+                  href={item.href}
+                  variant="text"
+                  color="info"
+                >
+                  {item.label}
+                </Button>
+              ))}
             </Box>
           </Box>
           <Box
@@ -142,8 +150,18 @@ export default function AppAppBar() {
                   </IconButton>
                 </Box>
 
-                <MenuItem>Công việc</MenuItem>
-                <MenuItem>Công ty</MenuItem>
+                {mainMenu.map((item) => (
+                  <MenuItem key={item.href}>
+                    <Button
+                      component={Link}
+                      href={item.href}
+                      variant="outlined"
+                      fullWidth
+                    >
+                      {item.label}
+                    </Button>
+                  </MenuItem>
+                ))}
 
                 <Divider sx={{ my: 3 }} />
                 {!session ? (
