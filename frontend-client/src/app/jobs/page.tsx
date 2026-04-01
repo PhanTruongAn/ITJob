@@ -3,8 +3,9 @@ import JobFiltersSidebar from "@/app/jobs/components/JobFilterSideBar"
 import JobList from "@/app/jobs/components/JobList"
 import JobSearchBar from "@/app/jobs/components/JobSearchBar"
 import AppAppBar from "@/components/AppAppBar"
+import Footer from "@/components/Footer"
 import AppTheme from "@/shared-theme/AppTheme"
-import { CssBaseline, Stack } from "@mui/material"
+import { Box, CssBaseline, Stack } from "@mui/material"
 import { Container } from "@mui/system"
 
 export default function JobsPage() {
@@ -83,6 +84,9 @@ export default function JobsPage() {
           </Stack>
         </Container>
       </Stack>
+      <Box sx={{ bgcolor: "background.paper" }}>
+        <Footer />
+      </Box>
     </AppTheme>
   )
 }
