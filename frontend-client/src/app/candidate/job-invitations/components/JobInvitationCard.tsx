@@ -183,7 +183,7 @@ export default function JobInvitationCard({
                 color="text.primary"
                 sx={{ lineHeight: 1.6 }}
               >
-                "{message}"
+                &quot;{message}&quot;
               </Typography>
             </Box>
 

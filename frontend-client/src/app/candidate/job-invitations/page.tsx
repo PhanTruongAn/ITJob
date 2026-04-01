@@ -165,7 +165,7 @@ export default function JobInvitationsPage() {
           color="text.secondary"
           mb={2}
         >
-          You've reached the end of your recent invitations.
+          You&apos;ve reached the end of your recent invitations.
         </Typography>
         <Button
           variant="text"
