@@ -44,3 +44,10 @@ export async function getJobById(id: number): Promise<IBackendRes<IJob>> {
   )
   return response.data
 }
+
+export async function getJobLatest(): Promise<IBackendRes<IJob[]>> {
+  const response = await axiosInstance.get<IBackendRes<IJob[]>>(
+    `${PATH_API.job.root}/latest`,
+  )
+  return response.data
+}

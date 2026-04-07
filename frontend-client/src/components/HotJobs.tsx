@@ -1,5 +1,6 @@
 "use client"
-import { fetchJobs } from "@/apis/job"
+import { getJobLatest } from "@/apis/job"
+import { formatVNCurency } from "@/common/utils/formatCurrency"
 import LocationOnIcon from "@mui/icons-material/LocationOn"
 import PaymentsIcon from "@mui/icons-material/Payments"
 import Box from "@mui/material/Box"
@@ -15,11 +16,10 @@ import { useQuery } from "@tanstack/react-query"
 export default function HotJobs() {
   const { data, isLoading } = useQuery({
     queryKey: ["jobs", "hot"],
-    queryFn: () => fetchJobs({ page: 1, pageSize: 6 }),
+    queryFn: () => getJobLatest(),
   })
 
-  // Mock data if API is empty or failing
-  const jobs = data?.data?.result || [
+  const jobs = data?.data || [
     {
       id: 1,
       name: "Senior Java Developer",
@@ -45,7 +45,6 @@ export default function HotJobs() {
       skills: ["Testing", "Selenium"],
     },
   ]
-  console.log("Job: ", jobs)
   return (
     <Box sx={{ py: 8 }}>
       <Container maxWidth="lg">
@@ -81,7 +80,7 @@ export default function HotJobs() {
                       {job.name}
                     </Typography>
                     <Typography variant="subtitle1" sx={{ mb: 2 }}>
-                      {job.company?.name || "Công ty ẩn danh"}
+                      {job.companyName || "Công ty ẩn danh"}
                     </Typography>
                     <Stack spacing={1} sx={{ mt: "auto" }}>
                       <Stack
@@ -101,7 +100,9 @@ export default function HotJobs() {
                       >
                         <PaymentsIcon fontSize="small" />
                         <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {job.salary ? `$${job.salary}` : "Thỏa thuận"}
+                          {job.salary
+                            ? `${formatVNCurency(job.salary)}`
+                            : "Thỏa thuận"}
                         </Typography>
                       </Stack>
                       <Stack direction="row" spacing={0.5} flexWrap="wrap">

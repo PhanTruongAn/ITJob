@@ -1,11 +1,14 @@
+const BASE = "/api/v1/public"
+
 export const PATH_API = {
+  BASE,
   job: {
-    root: "/api/v1/jobs",
+    root: BASE + "/jobs",
   },
   company: {
-    root: "/api/v1/companies",
+    root: BASE + "/companies",
   },
   skill: {
-    root: "/api/v1/skills",
+    root: BASE + "/skills",
   },
 }

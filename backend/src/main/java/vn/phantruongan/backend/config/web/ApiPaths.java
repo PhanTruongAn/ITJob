@@ -18,4 +18,13 @@ public class ApiPaths {
     public static final String REVIEWS = BASE + "/reviews";
     public static final String RECOMMENDATIONS = BASE + "/recommendations";
 
+    // API paths for public
+    public static final String PUBLIC = BASE + "/public";
+    public static final String PUBLIC_JOBS = PUBLIC + "/jobs";
+    public static final String PUBLIC_COMPANIES = PUBLIC + "/companies";
+    public static final String PUBLIC_RESUMES = PUBLIC + "/resumes";
+    public static final String PUBLIC_BOOKMARKS = PUBLIC + "/bookmarks";
+    public static final String PUBLIC_REVIEWS = PUBLIC + "/reviews";
+    public static final String PUBLIC_RECOMMENDATIONS = PUBLIC + "/recommendations";
+
 }

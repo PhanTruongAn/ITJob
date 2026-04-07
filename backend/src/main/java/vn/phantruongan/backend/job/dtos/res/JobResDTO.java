@@ -21,5 +21,6 @@ public class JobResDTO {
     private Instant endDate;
     private boolean active;
     private Long companyId;
+    private String companyName;
     private List<JobSkillResDTO> jobSkills;
 }
