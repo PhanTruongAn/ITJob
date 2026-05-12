@@ -1,4 +1,5 @@
 "use client"
+import { useUpdateProfile } from "@/apis/profile/profile.hooks"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever"
 import DescriptionIcon from "@mui/icons-material/Description"
@@ -10,19 +11,30 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline"
 import SendIcon from "@mui/icons-material/Send"
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser"
 import {
+  Alert,
   Box,
   Button,
   Grid,
   IconButton,
+  Snackbar,
   TextField,
   Typography,
 } from "@mui/material"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { useProfileState } from "../commons/hooks"
 
 export default function DashboardPage() {
+  const { mutate: updateProfileMutate, isPending: isUpdateProfile } =
+    useUpdateProfile()
   const { data: session, status } = useSession()
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  })
+  const { state, updateState } = useProfileState()
   const router = useRouter()
 
   useEffect(() => {
@@ -43,8 +55,47 @@ export default function DashboardPage() {
     return null // Will redirect in useEffect
   }
 
+  const handleUpdateProfile = () => {
+    updateProfileMutate(
+      {
+        name: state.name,
+        phone: state.phone,
+        address: state.address,
+      },
+      {
+        onSuccess: () => {
+          setSnackbar({
+            open: true,
+            message: "Cập nhật thành công",
+            severity: "success",
+          })
+        },
+        onError: () => {
+          setSnackbar({
+            open: true,
+            message: "Cập nhật thất bại",
+            severity: "error",
+          })
+        },
+      },
+    )
+  }
   return (
     <Box sx={{ maxWidth: 1000, mx: "auto" }}>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert
+          severity="success"
+          variant="filled"
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
       {/* Header */}
       <Box mb={5}>
         <Typography
@@ -153,6 +204,9 @@ export default function DashboardPage() {
                       size="small"
                       defaultValue={session?.user?.name || "Candidate Name"}
                       variant="outlined"
+                      onChange={(e) => {
+                        updateState({ name: e.target.value })
+                      }}
                       sx={{
                         bgcolor: (theme) =>
                           theme.palette.mode === "dark"
@@ -208,6 +262,9 @@ export default function DashboardPage() {
                       type="tel"
                       defaultValue="+1 (555) 000-1234"
                       variant="outlined"
+                      onChange={(e) => {
+                        updateState({ phone: e.target.value })
+                      }}
                       sx={{
                         bgcolor: (theme) =>
                           theme.palette.mode === "dark"
@@ -233,6 +290,9 @@ export default function DashboardPage() {
                       size="small"
                       defaultValue="Ho Chi Minh City, VN"
                       variant="outlined"
+                      onChange={(e) => {
+                        updateState({ address: e.target.value })
+                      }}
                       sx={{
                         bgcolor: (theme) =>
                           theme.palette.mode === "dark"
@@ -258,6 +318,7 @@ export default function DashboardPage() {
                   variant="contained"
                   color="primary"
                   sx={{ px: 4, fontWeight: "bold", borderRadius: 2 }}
+                  onClick={handleUpdateProfile}
                 >
                   Save Changes
                 </Button>

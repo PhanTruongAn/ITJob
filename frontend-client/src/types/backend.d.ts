@@ -63,4 +63,5 @@ export interface IAccountRes {
   name: string
   email: string
   avatar?: string
+  address?: string
 }

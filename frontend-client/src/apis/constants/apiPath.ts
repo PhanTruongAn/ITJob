@@ -11,4 +11,7 @@ export const PATH_API = {
   skill: {
     root: BASE + "/skills",
   },
+  profile: {
+    root: BASE + "/profiles",
+  },
 }

@@ -13,6 +13,7 @@ import vn.phantruongan.backend.authentication.entities.User;
 import vn.phantruongan.backend.common.BaseMapper;
 import vn.phantruongan.backend.config.common.GlobalMapperConfig;
 import vn.phantruongan.backend.profile.dtos.req.UpdateProfileReqDTO;
+import vn.phantruongan.backend.publics.profile.dtos.req.PublicUpdateProfileReqDTO;
 
 @Mapper(config = GlobalMapperConfig.class)
 public interface UserMapper extends BaseMapper<UserResDTO, User> {
@@ -27,4 +28,7 @@ public interface UserMapper extends BaseMapper<UserResDTO, User> {
 
     @Mapping(target = "id", ignore = true)
     void updateProfileFromDto(UpdateProfileReqDTO dto, @MappingTarget User entity);
+
+    @Mapping(target = "id", ignore = true)
+    void updatePublicProfileFromDto(PublicUpdateProfileReqDTO dto, @MappingTarget User entity);
 }

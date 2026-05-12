@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.guest.controllers;
+package vn.phantruongan.backend.publics.company.controllers;
 
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;

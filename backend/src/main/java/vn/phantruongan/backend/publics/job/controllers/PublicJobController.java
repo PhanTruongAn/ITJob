@@ -1,4 +1,4 @@
-package vn.phantruongan.backend.guest.controllers;
+package vn.phantruongan.backend.publics.job.controllers;
 
 import java.util.List;
 
@@ -15,10 +15,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.config.web.ApiPaths;
-import vn.phantruongan.backend.guest.services.PublicJobService;
 import vn.phantruongan.backend.job.dtos.req.job.GetListJobReqDTO;
 import vn.phantruongan.backend.job.dtos.res.JobResDTO;
 import vn.phantruongan.backend.job.services.JobService;
+import vn.phantruongan.backend.publics.job.services.PublicJobService;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
 import vn.phantruongan.backend.util.error.InvalidException;
 

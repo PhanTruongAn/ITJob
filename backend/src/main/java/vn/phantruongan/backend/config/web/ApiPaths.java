@@ -20,6 +20,7 @@ public class ApiPaths {
 
     // API paths for public
     public static final String PUBLIC = BASE + "/public";
+    public static final String PUBLIC_PROFILES = PUBLIC + "/profiles";
     public static final String PUBLIC_JOBS = PUBLIC + "/jobs";
     public static final String PUBLIC_COMPANIES = PUBLIC + "/companies";
     public static final String PUBLIC_RESUMES = PUBLIC + "/resumes";
