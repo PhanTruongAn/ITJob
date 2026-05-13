@@ -44,6 +44,17 @@ export default function DashboardPage() {
     }
   }, [status, router])
 
+  useEffect(() => {
+    if (session?.user) {
+      updateState({
+        name: session.user.name || "",
+        phone: session.user.phone || "",
+        address: session.user.address || "",
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user])
+
   // Check if it's a gmail login (or Google provider).
   const isGoogleLogin = session?.user?.email?.endsWith("gmail.com") // Alternatively check provider if it's available
 
@@ -202,7 +213,7 @@ export default function DashboardPage() {
                     <TextField
                       fullWidth
                       size="small"
-                      defaultValue={session?.user?.name || "Candidate Name"}
+                      value={state.name || ""}
                       variant="outlined"
                       onChange={(e) => {
                         updateState({ name: e.target.value })
@@ -260,7 +271,7 @@ export default function DashboardPage() {
                       fullWidth
                       size="small"
                       type="tel"
-                      defaultValue="+1 (555) 000-1234"
+                      value={state.phone || ""}
                       variant="outlined"
                       onChange={(e) => {
                         updateState({ phone: e.target.value })
@@ -288,7 +299,7 @@ export default function DashboardPage() {
                     <TextField
                       fullWidth
                       size="small"
-                      defaultValue="Ho Chi Minh City, VN"
+                      value={state.address || ""}
                       variant="outlined"
                       onChange={(e) => {
                         updateState({ address: e.target.value })

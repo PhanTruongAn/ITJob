@@ -39,6 +39,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               name: data.user.name || credentials?.username,
               email: credentials?.username as string,
               image: data.user.avatar || null,
+              phone: data.user.phone || null,
+              address: data.user.address || null,
               accessToken: data.access_token,
               refreshToken: data.refresh_token,
             }
@@ -61,7 +63,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET,
 
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session }) {
+      /**
+       * CẬP NHẬT SESSION TỪ CLIENT (ví dụ khi gọi hàm update() từ useSession)
+       */
+      if (trigger === "update" && session) {
+        if (session.name) token.name = session.name
+        if (session.image) token.image = session.image
+        if (session.phone !== undefined) token.phone = session.phone
+        if (session.address !== undefined) token.address = session.address
+      }
+
       /**
        * LOGIN LẦN ĐẦU
        */
@@ -72,6 +84,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.name = user.name ?? ""
         token.email = user.email ?? ""
         token.image = user.image
+        token.phone = user.phone
+        token.address = user.address
         token.accessTokenExpires = Date.now() + ACCESS_TOKEN_VALIDITY
 
         return token
@@ -95,6 +109,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             token.name = data.user?.name
             token.email = data.user?.email
             token.image = data.user?.avatar
+            token.phone = data.user?.phone
+            token.address = data.user?.address
             token.accessTokenExpires = Date.now() + ACCESS_TOKEN_VALIDITY
           }
 
@@ -184,6 +200,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.name = token.name as string
       session.user.email = token.email as string
       session.user.image = token.image as string | undefined
+      session.user.phone = token.phone as string | undefined
+      session.user.address = token.address as string | undefined
 
       return session
     },

@@ -81,9 +81,11 @@ public class AuthService {
         userInfo.setEmail(user.getEmail());
         userInfo.setName(user.getName());
         userInfo.setAvatar(user.getAvatar());
+        userInfo.setPhone(user.getPhone());
+        userInfo.setAddress(user.getAddress());
         res.setUser(userInfo);
         res.setAccessToken(accessToken);
-        // refreshToken KHÔNG bỏ vào body -> chỉ set cookie ở controller
+        // refreshToken không bỏ vào body -> chỉ set cookie ở controller
         res.setRefreshTokenTemp(refreshToken);
         return res;
     }

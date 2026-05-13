@@ -48,6 +48,8 @@ export interface UserNextAuth {
   name: string
   email?: string
   image?: string
+  phone?: string
+  address?: string
   accessToken?: string
   refreshToken?: string
 }
@@ -63,5 +65,6 @@ export interface IAccountRes {
   name: string
   email: string
   avatar?: string
+  phone?: string
   address?: string
 }

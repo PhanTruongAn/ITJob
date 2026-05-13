@@ -87,14 +87,14 @@ export default function SignInCard() {
       password,
     })
 
-    if (res?.ok) {
+    if (res?.ok && !res?.error) {
       setAlertMessage("Đăng nhập thành công!")
       setAlertStatus("success")
       setOpenAlert(true)
 
       setTimeout(() => {
         router.push(`${process.env.NEXT_PUBLIC_FE_URL}`)
-      }, 2000)
+      }, 1000)
     } else {
       setAlertMessage("Đăng nhập thất bại. Vui lòng kiểm tra lại.")
       setAlertStatus("error")
