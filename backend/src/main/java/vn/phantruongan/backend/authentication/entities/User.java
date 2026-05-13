@@ -69,6 +69,11 @@ public class User extends BaseSoftDelete {
     @Column(nullable = false, columnDefinition = "bigint default 0")
     private Long tokenVersion = 0L;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean isVerified = false;
+
+    private String verificationCode;
+
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;

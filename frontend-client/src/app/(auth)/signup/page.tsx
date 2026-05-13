@@ -2,13 +2,17 @@
 import AppAppBar from "@/components/AppAppBar"
 import { SitemarkIcon } from "@/components/CustomIcons"
 import AppTheme from "@/shared-theme/AppTheme"
+import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead"
+import Alert from "@mui/material/Alert"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
 import CssBaseline from "@mui/material/CssBaseline"
 import FormControl from "@mui/material/FormControl"
 import FormLabel from "@mui/material/FormLabel"
+import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
+import axios from "axios"
 import * as React from "react"
 import { Card } from "./components/Card"
 import { Container } from "./components/Container"
@@ -20,6 +24,20 @@ export default function SignUp() {
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("")
   const [nameError, setNameError] = React.useState(false)
   const [nameErrorMessage, setNameErrorMessage] = React.useState("")
+  const [loading, setLoading] = React.useState(false)
+  const [registeredEmail, setRegisteredEmail] = React.useState<string | null>(null)
+
+  // Snackbar for errors
+  const [openAlert, setOpenAlert] = React.useState(false)
+  const [alertMessage, setAlertMessage] = React.useState("")
+
+  const handleCloseAlert = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") return
+    setOpenAlert(false)
+  }
 
   const validateInputs = () => {
     const email = document.getElementById("email") as HTMLInputElement
@@ -30,7 +48,7 @@ export default function SignUp() {
 
     if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
       setEmailError(true)
-      setEmailErrorMessage("Please enter a valid email address.")
+      setEmailErrorMessage("Vui lòng nhập địa chỉ email hợp lệ.")
       isValid = false
     } else {
       setEmailError(false)
@@ -39,7 +57,7 @@ export default function SignUp() {
 
     if (!password.value || password.value.length < 6) {
       setPasswordError(true)
-      setPasswordErrorMessage("Password must be at least 6 characters long.")
+      setPasswordErrorMessage("Mật khẩu phải có ít nhất 6 ký tự.")
       isValid = false
     } else {
       setPasswordError(false)
@@ -48,7 +66,7 @@ export default function SignUp() {
 
     if (!name.value || name.value.length < 1) {
       setNameError(true)
-      setNameErrorMessage("Name is required.")
+      setNameErrorMessage("Họ tên là bắt buộc.")
       isValid = false
     } else {
       setNameError(false)
@@ -58,24 +76,82 @@ export default function SignUp() {
     return isValid
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    if (nameError || emailError || passwordError) {
-      event.preventDefault()
-      return
-    }
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!validateInputs()) return
+
     const data = new FormData(event.currentTarget)
-    console.log({
-      name: data.get("name"),
-      lastName: data.get("lastName"),
-      email: data.get("email"),
-      password: data.get("password"),
-    })
+    const name = data.get("name") as string
+    const email = data.get("email") as string
+    const password = data.get("password") as string
+
+    setLoading(true)
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/register`,
+        { name, email, password }
+      )
+      setRegisteredEmail(email)
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        "Đăng ký thất bại. Vui lòng thử lại."
+      setAlertMessage(msg)
+      setOpenAlert(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
+  // --- Step 2: Màn hình "Verify your email" ---
+  if (registeredEmail) {
+    return (
+      <AppTheme>
+        <CssBaseline enableColorScheme />
+        <AppAppBar />
+        <Box
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 3,
+            textAlign: "center",
+            px: 2,
+          }}
+        >
+          <MarkEmailReadIcon sx={{ fontSize: 80, color: "grey.400" }} />
+          <Typography variant="h4" fontWeight={700}>
+            Verify your email address
+          </Typography>
+          <Typography color="text.secondary" fontSize={16}>
+            {`We've sent a verification email to `}
+            <strong>{registeredEmail}</strong>
+            {`.`}
+            <br />
+            {`If you don't see any email, please look at Spam or Junk folder.`}
+          </Typography>
+        </Box>
+      </AppTheme>
+    )
+  }
+
+  // --- Step 1: Form đăng ký ---
   return (
     <AppTheme>
       <CssBaseline enableColorScheme />
       <AppAppBar />
+      <Snackbar
+        open={openAlert}
+        autoHideDuration={4000}
+        onClose={handleCloseAlert}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={handleCloseAlert} severity="error" variant="filled">
+          {alertMessage}
+        </Alert>
+      </Snackbar>
       <Container direction="column" justifyContent="space-between">
         <Card variant="outlined">
           <SitemarkIcon />
@@ -99,7 +175,7 @@ export default function SignUp() {
                 required
                 fullWidth
                 id="name"
-                placeholder="Jon Snow"
+                placeholder="Nguyễn Văn A"
                 error={nameError}
                 helperText={nameErrorMessage}
                 color={nameError ? "error" : "primary"}
@@ -117,7 +193,7 @@ export default function SignUp() {
                 variant="outlined"
                 error={emailError}
                 helperText={emailErrorMessage}
-                color={passwordError ? "error" : "primary"}
+                color={emailError ? "error" : "primary"}
               />
             </FormControl>
             <FormControl>
@@ -141,9 +217,13 @@ export default function SignUp() {
               type="submit"
               fullWidth
               variant="contained"
-              onClick={validateInputs}
+              disabled={loading}
+              sx={{
+                bgcolor: "#ed1b2f",
+                "&:hover": { bgcolor: "#c0162a" },
+              }}
             >
-              Đăng ký
+              {loading ? "Đang đăng ký..." : "Đăng ký"}
             </Button>
           </Box>
         </Card>

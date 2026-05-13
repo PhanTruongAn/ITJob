@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -91,6 +92,13 @@ public class AuthController {
 
         RegisterResDTO res = authService.register(dto);
         return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/verify-email")
+    @ApiMessage("Verify email")
+    public ResponseEntity<Void> verifyEmail(@RequestParam String token) throws BadRequestException {
+        authService.verifyEmail(token);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/logout")

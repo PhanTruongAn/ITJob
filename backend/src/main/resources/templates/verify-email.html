@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eeeeee;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #d11124;
+        }
+        .slogan {
+            font-size: 16px;
+            color: #333333;
+            font-weight: bold;
+        }
+        .content {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333333;
+        }
+        .button-container {
+            margin: 30px 0;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #ed1b2f;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 16px;
+            color: #333333;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span style="background-color: #333; color: white; padding: 4px 8px; border-radius: 4px; margin-right: 2px;">it</span><span style="background-color: #d11124; color: white; padding: 4px 8px; border-radius: 4px;">Job</span>
+            </div>
+            <div class="slogan">Ít Nhưng Mà Chất</div>
+        </div>
+        
+        <div class="content">
+            <p>Hi <span th:text="${name}">User</span>,</p>
+            <p>Welcome to ITJob!</p>
+            <p>Please click the button below to confirm your email.</p>
+            
+            <div class="button-container">
+                <a th:href="${link}" class="btn" style="color: white !important;">Confirm my email</a>
+            </div>
+            
+            <p>Thank you! See you soon on ITJob.</p>
+        </div>
+        
+        <div class="footer">
+            <p>Cheers,<br>The ITJob Team</p>
+        </div>
+    </div>
+</body>
+</html>

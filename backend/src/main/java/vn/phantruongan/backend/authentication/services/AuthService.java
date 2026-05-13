@@ -31,6 +31,8 @@ import vn.phantruongan.backend.authorization.entities.Role;
 import vn.phantruongan.backend.authorization.repositories.RoleRepository;
 import vn.phantruongan.backend.config.jwt.JwtService;
 import vn.phantruongan.backend.extenals.google.GoogleAuthService;
+import vn.phantruongan.backend.common.email.EmailService;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -43,11 +45,12 @@ public class AuthService {
     private final GoogleAuthService googleAuthService;
     private final JwtService jwtService;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final EmailService emailService;
 
     private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60L;
 
     public RegisterResDTO register(RegisterReqDTO dto) throws BadRequestException {
-        if (userRepository.findByEmail(dto.getEmail()) != null) {
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new BadRequestException("Email already in use!");
         }
 
@@ -56,8 +59,18 @@ public class AuthService {
         user.setEmail(dto.getEmail());
         user.setAvatar(dto.getAvatar());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        
+        String token = UUID.randomUUID().toString();
+        user.setVerificationCode(token);
+        user.setVerified(false);
+        
+        // Cần lấy role mặc định cho user
+        Role role = roleRepository.findByName("CANDIDATE").orElse(null);
+        user.setRole(role);
 
         User savedUser = userRepository.save(user);
+        
+        emailService.sendVerifyEmail(savedUser.getEmail(), savedUser.getName(), token);
 
         // map sang response
         RegisterResDTO res = new RegisterResDTO();
@@ -66,6 +79,19 @@ public class AuthService {
         res.setName(savedUser.getName());
         res.setAvatar(savedUser.getAvatar());
         return res;
+    }
+
+    public void verifyEmail(String token) throws BadRequestException {
+        User user = userRepository.findByVerificationCode(token)
+                .orElseThrow(() -> new BadRequestException("Invalid verification token"));
+
+        if (user.isVerified()) {
+            throw new BadRequestException("Email is already verified");
+        }
+
+        user.setVerified(true);
+        user.setVerificationCode(null); // Xóa token sau khi xác nhận thành công
+        userRepository.save(user);
     }
 
     private ResLoginDTO loginCommon(String email) {
