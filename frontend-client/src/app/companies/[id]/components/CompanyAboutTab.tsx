@@ -86,8 +86,8 @@ export default function CompanyAboutTab() {
           mb={3}
         >
           Tại FPT Software, chúng tôi tin vào văn hóa học hỏi liên tục, đổi mới
-          và hợp tác toàn cầu. Tinh thần "Work hard, play hard" là động lực cho
-          sự thành công của chúng tôi tại 26 quốc gia.
+          và hợp tác toàn cầu. Tinh thần Work hard, play hard là động lực cho sự
+          thành công của chúng tôi tại 26 quốc gia.
         </Typography>
         <Box
           sx={{
