@@ -2,6 +2,7 @@
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward"
 import StarIcon from "@mui/icons-material/Star"
 import { Box, Card, CardContent, IconButton, Typography } from "@mui/material"
+import { useRouter } from "next/navigation"
 
 interface CompanyCardProps {
   id: number
@@ -16,6 +17,7 @@ interface CompanyCardProps {
 }
 
 export default function CompanyCard({
+  id,
   name,
   logo,
   industry,
@@ -25,8 +27,15 @@ export default function CompanyCard({
   jobCount,
   badge,
 }: CompanyCardProps) {
+  const router = useRouter()
+
+  const handleNavigate = () => {
+    router.push(`/companies/${id}`)
+  }
+
   return (
     <Card
+      onClick={handleNavigate}
       sx={{
         borderRadius: 3,
         overflow: "hidden",
@@ -34,8 +43,10 @@ export default function CompanyCard({
         borderColor: "divider",
         backgroundColor: "background.paper",
         boxShadow: "none",
-        transition: "box-shadow 0.3s ease-in-out",
+        cursor: "pointer",
+        transition: "transform 0.2s, box-shadow 0.3s ease-in-out",
         "&:hover": {
+          transform: "translateY(-4px)",
           boxShadow: 8,
           "& .company-title": {
             color: "primary.main",

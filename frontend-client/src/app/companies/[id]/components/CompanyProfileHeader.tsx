@@ -1,0 +1,195 @@
+"use client"
+import BusinessIcon from "@mui/icons-material/Business"
+import GroupsIcon from "@mui/icons-material/Groups"
+import LocationOnIcon from "@mui/icons-material/LocationOn"
+import VerifiedIcon from "@mui/icons-material/Verified"
+import Box from "@mui/material/Box"
+import Button from "@mui/material/Button"
+import Container from "@mui/material/Container"
+import Paper from "@mui/material/Paper"
+import Stack from "@mui/material/Stack"
+import Typography from "@mui/material/Typography"
+
+interface CompanyProfileHeaderProps {
+  name: string
+  logo: string
+  tagline: string
+  location: string
+  industry: string
+  employeeCount: string
+  isVerified?: boolean
+  onFollow?: () => void
+  onVisitWebsite?: () => void
+}
+
+export default function CompanyProfileHeader({
+  name,
+  logo,
+  tagline,
+  location,
+  industry,
+  employeeCount,
+  isVerified = false,
+  onFollow,
+  onVisitWebsite,
+}: CompanyProfileHeaderProps) {
+  return (
+    <Container
+      maxWidth="lg"
+      sx={{ mt: "-80px", position: "relative", zIndex: 10 }}
+    >
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 3,
+          border: "1px solid",
+          borderColor: "divider",
+          bgcolor: "background.paper",
+          p: { xs: 3, md: 4 },
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { xs: "flex-start", md: "center" },
+          justifyContent: "space-between",
+          gap: 3,
+        }}
+      >
+        {/* Left: Logo + Info */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { xs: "flex-start", md: "center" },
+            gap: 3,
+            flex: 1,
+          }}
+        >
+          {/* Company Logo */}
+          <Paper
+            elevation={2}
+            sx={{
+              p: 1.5,
+              borderRadius: 2,
+              border: "1px solid",
+              borderColor: "divider",
+              bgcolor: "common.white",
+              mt: { xs: "-60px", md: "-80px" },
+              flexShrink: 0,
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={logo}
+              alt={`${name} logo`}
+              style={{
+                width: 96,
+                height: 96,
+                objectFit: "contain",
+                display: "block",
+              }}
+            />
+          </Paper>
+
+          {/* Company Info */}
+          <Box sx={{ flex: 1 }}>
+            <Stack direction="row" alignItems="center" gap={1} mb={0.5}>
+              <Typography
+                variant="h4"
+                component="h1"
+                fontWeight="800"
+                sx={{
+                  color: "primary.main",
+                  fontSize: { xs: "1.5rem", md: "2rem" },
+                }}
+              >
+                {name}
+              </Typography>
+              {isVerified && (
+                <VerifiedIcon sx={{ color: "#1976d2", fontSize: 24 }} />
+              )}
+            </Stack>
+
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              fontWeight={500}
+              mb={1.5}
+            >
+              {tagline}
+            </Typography>
+
+            <Stack direction="row" flexWrap="wrap" gap={2} alignItems="center">
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <LocationOnIcon
+                  sx={{ fontSize: 18, color: "text.secondary" }}
+                />
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  fontWeight={500}
+                >
+                  {location}
+                </Typography>
+              </Stack>
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <BusinessIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  fontWeight={500}
+                >
+                  {industry}
+                </Typography>
+              </Stack>
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <GroupsIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  fontWeight={500}
+                >
+                  {employeeCount}
+                </Typography>
+              </Stack>
+            </Stack>
+          </Box>
+        </Box>
+
+        <Stack
+          direction={{ xs: "row", md: "row" }}
+          gap={1.5}
+          flexShrink={0}
+          width={{ xs: "100%", md: "auto" }}
+        >
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{
+              px: 3,
+              py: 1.2,
+              fontWeight: "bold",
+              borderRadius: 2,
+              flex: { xs: 1, md: "none" },
+            }}
+            onClick={onFollow}
+          >
+            Follow
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            sx={{
+              px: 3,
+              py: 1.2,
+              fontWeight: "bold",
+              borderRadius: 2,
+              flex: { xs: 1, md: "none" },
+            }}
+            onClick={onVisitWebsite}
+          >
+            Visit Website
+          </Button>
+        </Stack>
+      </Paper>
+    </Container>
+  )
+}

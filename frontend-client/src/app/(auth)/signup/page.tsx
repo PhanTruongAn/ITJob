@@ -25,7 +25,9 @@ export default function SignUp() {
   const [nameError, setNameError] = React.useState(false)
   const [nameErrorMessage, setNameErrorMessage] = React.useState("")
   const [loading, setLoading] = React.useState(false)
-  const [registeredEmail, setRegisteredEmail] = React.useState<string | null>(null)
+  const [registeredEmail, setRegisteredEmail] = React.useState<string | null>(
+    null,
+  )
 
   // Snackbar for errors
   const [openAlert, setOpenAlert] = React.useState(false)
@@ -33,7 +35,7 @@ export default function SignUp() {
 
   const handleCloseAlert = (
     _event?: React.SyntheticEvent | Event,
-    reason?: SnackbarCloseReason
+    reason?: SnackbarCloseReason,
   ) => {
     if (reason === "clickaway") return
     setOpenAlert(false)
@@ -89,13 +91,12 @@ export default function SignUp() {
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/register`,
-        { name, email, password }
+        { name, email, password },
       )
       setRegisteredEmail(email)
     } catch (err: any) {
       const msg =
-        err?.response?.data?.message ||
-        "Đăng ký thất bại. Vui lòng thử lại."
+        err?.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại."
       setAlertMessage(msg)
       setOpenAlert(true)
     } finally {
@@ -218,10 +219,6 @@ export default function SignUp() {
               fullWidth
               variant="contained"
               disabled={loading}
-              sx={{
-                bgcolor: "#ed1b2f",
-                "&:hover": { bgcolor: "#c0162a" },
-              }}
             >
               {loading ? "Đang đăng ký..." : "Đăng ký"}
             </Button>
