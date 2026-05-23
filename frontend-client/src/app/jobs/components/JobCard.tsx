@@ -4,8 +4,10 @@ import LocationOnIcon from "@mui/icons-material/LocationOn"
 import PaymentsIcon from "@mui/icons-material/Payments"
 import ScheduleIcon from "@mui/icons-material/Schedule"
 import { Box, Button, Chip, Stack, Typography } from "@mui/material"
+import { useRouter } from "next/navigation"
 
 export interface JobCardProps {
+  id?: number | string
   title: string
   company: string
   salary: string
@@ -16,6 +18,7 @@ export interface JobCardProps {
 }
 
 export default function JobCard({
+  id,
   title,
   company,
   salary,
@@ -24,6 +27,8 @@ export default function JobCard({
   tags,
   badge,
 }: JobCardProps) {
+  const router = useRouter()
+
   return (
     <Box
       sx={{
@@ -67,7 +72,16 @@ export default function JobCard({
           }}
         />
         <Box flex={1}>
-          <Typography variant="h6" fontWeight="bold" sx={{ mb: 0.5 }}>
+          <Typography
+            variant="h6"
+            fontWeight="bold"
+            sx={{
+              mb: 0.5,
+              cursor: "pointer",
+              "&:hover": { color: "primary.main" },
+            }}
+            onClick={() => router.push(`/jobs/${id || 1}`)}
+          >
             {title}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>

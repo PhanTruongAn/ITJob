@@ -8,7 +8,6 @@ import { useState } from "react"
 const tabs = [
   { label: "Về chúng tôi", value: "about" },
   { label: "Việc làm", value: "jobs", count: 12 },
-  { label: "Nhân sự", value: "people" },
   { label: "Đánh giá", value: "reviews" },
 ]
 

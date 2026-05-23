@@ -12,6 +12,8 @@ import {
 } from "@mui/material"
 import { useState } from "react"
 import CompanyAboutTab from "./components/CompanyAboutTab"
+import CompanyReviewsTab from "./components/CompanyReviewsTab"
+import CompanyJobsTab from "./components/CompanyJobsTab"
 import CompanyCoverHeader from "./components/CompanyCoverHeader"
 import CompanyNavTabs from "./components/CompanyNavTabs"
 import CompanyProfileHeader from "./components/CompanyProfileHeader"
@@ -69,7 +71,9 @@ export default function CompanyDetailPage() {
             {/* Left Content Area */}
             <Grid item xs={12} lg={8}>
               {activeTab === "about" && <CompanyAboutTab />}
-              {activeTab !== "about" && (
+              {activeTab === "jobs" && <CompanyJobsTab />}
+              {activeTab === "reviews" && <CompanyReviewsTab />}
+              {activeTab !== "about" && activeTab !== "jobs" && activeTab !== "reviews" && (
                 <Box
                   sx={{
                     p: 4,

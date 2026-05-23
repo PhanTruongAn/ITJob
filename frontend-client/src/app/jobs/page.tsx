@@ -12,6 +12,7 @@ export default function JobsPage() {
   // Demo data
   const jobs = [
     {
+      id: 1,
       title: "Senior Frontend Developer (ReactJS)",
       company: "FPT Software",
       salary: "$1,500 - $2,800",
@@ -21,6 +22,7 @@ export default function JobsPage() {
       badge: "Hot",
     },
     {
+      id: 2,
       title: "Backend Engineer (Go/Node.js)",
       company: "VNG Corporation",
       salary: "Thỏa thuận",
@@ -30,6 +32,7 @@ export default function JobsPage() {
       badge: "Mới",
     },
     {
+      id: 3,
       title: "DevOps Engineer (Kubernetes, AWS)",
       company: "Viettel Group",
       salary: "$2,000 - $3,500",
