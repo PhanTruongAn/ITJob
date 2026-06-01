@@ -1,50 +1,14 @@
 "use client"
-import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn"
-import DoneAllIcon from "@mui/icons-material/DoneAll"
-import MailIcon from "@mui/icons-material/Mail"
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff"
-import SettingsSuggestIcon from "@mui/icons-material/SettingsSuggest"
-import VerifiedIcon from "@mui/icons-material/Verified"
-import WorkOutlineIcon from "@mui/icons-material/WorkOutline"
-import {
-  Avatar,
-  Box,
-  Button,
-  Card,
-  Stack,
-  Tab,
-  Tabs,
-  Typography,
-} from "@mui/material"
+import { Box, Button, Typography } from "@mui/material"
 import { useSession } from "next-auth/react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-
-// Types
-type NotificationType = "application" | "alerts" | "system"
-
-interface NotificationItem {
-  id: number
-  type: NotificationType
-  title: string
-  message: string
-  boldText?: string
-  boldSubject?: string
-  time: string
-  unread: boolean
-  iconType: "assignment" | "work" | "mail" | "settings" | "verified"
-  detailsLink?: string
-  primaryAction?: {
-    label: string
-    href: string
-  }
-  secondaryAction?: {
-    label: string
-    href?: string
-    actionType?: "decline" | "read"
-  }
-}
+import NotificationCard, {
+  NotificationItem,
+} from "./components/NotificationCard"
+import NotificationHeader from "./components/NotificationHeader"
+import NotificationTabs from "./components/NotificationTabs"
 
 // Initial Mock Data from HTML
 const initialNotifications: NotificationItem[] = [
@@ -172,341 +136,32 @@ export default function NotificationsPage() {
 
   // Decline invitation
   const handleDecline = (id: number) => {
-    // Just mock action to remove or change status
     setNotifications((prev) => prev.filter((item) => item.id !== id))
   }
 
-  // Icon mapping helper
-  const renderIcon = (iconType: string) => {
-    switch (iconType) {
-      case "assignment":
-        return <AssignmentTurnedInIcon color="primary" />
-      case "work":
-        return <WorkOutlineIcon sx={{ color: "tertiary.main" }} />
-      case "mail":
-        return <MailIcon color="primary" />
-      case "settings":
-        return <SettingsSuggestIcon color="secondary" />
-      case "verified":
-        return <VerifiedIcon sx={{ color: "tertiary.main" }} />
-      default:
-        return <AssignmentTurnedInIcon color="primary" />
-    }
-  }
-
-  // Icon bg helper
-  const getIconBg = (type: NotificationType) => {
-    switch (type) {
-      case "application":
-        return "primary.light" // Soft blue
-      case "alerts":
-        return "#dcfce7" // Soft green
-      case "system":
-        return "grey.100" // Soft grey
-      default:
-        return "grey.50"
-    }
-  }
+  const hasUnread = notifications.some((n) => n.unread)
 
   return (
     <Box sx={{ maxWidth: 850, mx: "auto" }}>
       {/* Header & Actions */}
-      <Box
-        display="flex"
-        flexDirection={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
-        gap={2}
-        mb={4}
-      >
-        <Box>
-          <Typography
-            variant="h4"
-            fontWeight={900}
-            color="primary.main"
-            gutterBottom
-            sx={{ letterSpacing: "-0.5px" }}
-          >
-            Notifications
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Stay updated on your application progress and new opportunities.
-          </Typography>
-        </Box>
-        {notifications.some((n) => n.unread) && (
-          <Button
-            variant="outlined"
-            onClick={handleMarkAllAsRead}
-            startIcon={<DoneAllIcon />}
-            sx={{
-              fontWeight: "bold",
-              borderRadius: 2.5,
-              borderColor: "divider",
-              color: "primary.main",
-              textTransform: "none",
-              px: 2.5,
-              py: 1,
-            }}
-          >
-            Mark all as read
-          </Button>
-        )}
-      </Box>
+      <NotificationHeader
+        hasUnread={hasUnread}
+        onMarkAllAsRead={handleMarkAllAsRead}
+      />
 
       {/* Tabs */}
-      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
-        <Tabs
-          value={activeTab}
-          onChange={(_, val) => setActiveTab(val)}
-          sx={{
-            minHeight: 0,
-            "& .MuiTab-root": {
-              textTransform: "none",
-              fontWeight: 600,
-              fontSize: "0.875rem",
-              minWidth: 0,
-              px: 3,
-              py: 1.5,
-              color: "text.secondary",
-              "&.Mui-selected": {
-                color: "primary.main",
-              },
-            },
-            "& .MuiTabs-indicator": {
-              bgcolor: "primary.main",
-              height: 3,
-              borderRadius: "3px 3px 0 0",
-            },
-          }}
-        >
-          <Tab value="all" label="All" />
-          <Tab value="application" label="Application Updates" />
-          <Tab value="alerts" label="Job Alerts" />
-          <Tab value="system" label="System" />
-        </Tabs>
-      </Box>
+      <NotificationTabs activeTab={activeTab} onChange={setActiveTab} />
 
       {/* Notification List */}
       {filteredNotifications.length > 0 ? (
         <Box display="flex" flexDirection="column" gap={2}>
           {filteredNotifications.map((item) => (
-            <Card
+            <NotificationCard
               key={item.id}
-              variant="outlined"
-              sx={{
-                p: { xs: 2, sm: 2.5 },
-                borderRadius: 3,
-                borderColor: "divider",
-                boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.01)",
-                position: "relative",
-                overflow: "hidden",
-                opacity: item.unread ? 1 : 0.8,
-                bgcolor: (t) =>
-                  item.unread
-                    ? t.palette.mode === "dark"
-                      ? "rgba(25, 118, 210, 0.05)"
-                      : "#f8fafc"
-                    : "background.paper",
-                "&:hover": {
-                  boxShadow: "0px 4px 16px rgba(0,0,0,0.03)",
-                  borderColor: "divider",
-                  bgcolor: (t) =>
-                    t.palette.mode === "dark"
-                      ? "rgba(255,255,255,0.02)"
-                      : "#f1f5f9",
-                },
-                transition: "all 0.2s ease",
-              }}
-            >
-              {/* Left blue accent line for unread notifications */}
-              {item.unread && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    left: 0,
-                    top: 0,
-                    bottom: 0,
-                    width: 4,
-                    bgcolor: "primary.main",
-                  }}
-                />
-              )}
-
-              <Box display="flex" gap={2} alignItems="flex-start">
-                {/* Icon Avatar */}
-                <Avatar
-                  sx={{
-                    bgcolor: item.unread
-                      ? getIconBg(item.type)
-                      : "action.hover",
-                    width: 48,
-                    height: 48,
-                    borderRadius: 2,
-                    flexShrink: 0,
-                  }}
-                >
-                  {renderIcon(item.iconType)}
-                </Avatar>
-
-                {/* Content */}
-                <Box flexGrow={1} minWidth={0}>
-                  <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    mb={0.5}
-                    gap={1.5}
-                  >
-                    <Typography
-                      variant="subtitle1"
-                      fontWeight="bold"
-                      color="text.primary"
-                      noWrap
-                    >
-                      {item.title}
-                    </Typography>
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{ whiteSpace: "nowrap", fontWeight: 500 }}
-                      >
-                        {item.time}
-                      </Typography>
-                      {item.unread && (
-                        <Box
-                          sx={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: "50%",
-                            bgcolor: "primary.main",
-                          }}
-                        />
-                      )}
-                    </Box>
-                  </Box>
-
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 2, leading: "1.6" }}
-                  >
-                    {item.message}
-                    {item.boldText && (
-                      <Box
-                        component="span"
-                        fontWeight={700}
-                        color="text.primary"
-                      >
-                        {item.boldText}
-                      </Box>
-                    )}
-                    {item.boldSubject && (
-                      <Box component="span" fontWeight={500}>
-                        {item.boldSubject}
-                      </Box>
-                    )}
-                  </Typography>
-
-                  {/* Actions Row */}
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    {/* Primary Button */}
-                    {item.primaryAction && (
-                      <Button
-                        component={Link}
-                        href={item.primaryAction.href}
-                        variant="contained"
-                        size="small"
-                        sx={{
-                          fontWeight: "bold",
-                          borderRadius: 2,
-                          px: 2.5,
-                          py: 0.75,
-                          fontSize: "0.75rem",
-                        }}
-                      >
-                        {item.primaryAction.label}
-                      </Button>
-                    )}
-
-                    {/* Details Link */}
-                    {item.detailsLink && (
-                      <Typography
-                        variant="body2"
-                        fontWeight="bold"
-                        color="primary.main"
-                        component={Link}
-                        href={item.detailsLink}
-                        sx={{
-                          textDecoration: "none",
-                          fontSize: "0.8rem",
-                          "&:hover": { textDecoration: "underline" },
-                        }}
-                      >
-                        {item.boldText === "Senior Frontend Architect"
-                          ? "View Details"
-                          : item.boldText === "Profile Verification Complete"
-                            ? "View My Public CV"
-                            : "Learn More"}
-                      </Typography>
-                    )}
-
-                    {/* Secondary Action */}
-                    {item.secondaryAction && (
-                      <Box>
-                        {item.secondaryAction.actionType === "read" ? (
-                          <Button
-                            size="small"
-                            onClick={() => handleMarkAsRead(item.id)}
-                            sx={{
-                              fontSize: "0.75rem",
-                              fontWeight: "bold",
-                              color: "text.secondary",
-                              "&:hover": { color: "primary.main" },
-                              textTransform: "none",
-                              p: 0,
-                            }}
-                          >
-                            {item.secondaryAction.label}
-                          </Button>
-                        ) : item.secondaryAction.actionType === "decline" ? (
-                          <Button
-                            size="small"
-                            onClick={() => handleDecline(item.id)}
-                            sx={{
-                              fontSize: "0.75rem",
-                              fontWeight: "bold",
-                              color: "text.secondary",
-                              "&:hover": { color: "error.main" },
-                              textTransform: "none",
-                              p: 0,
-                            }}
-                          >
-                            {item.secondaryAction.label}
-                          </Button>
-                        ) : (
-                          <Button
-                            component={Link}
-                            href={item.secondaryAction.href || "#"}
-                            size="small"
-                            sx={{
-                              fontSize: "0.75rem",
-                              fontWeight: "bold",
-                              color: "text.secondary",
-                              "&:hover": { color: "primary.main" },
-                              textTransform: "none",
-                              p: 0,
-                            }}
-                          >
-                            {item.secondaryAction.label}
-                          </Button>
-                        )}
-                      </Box>
-                    )}
-                  </Stack>
-                </Box>
-              </Box>
-            </Card>
+              item={item}
+              onMarkAsRead={handleMarkAsRead}
+              onDecline={handleDecline}
+            />
           ))}
 
           {/* Load More Button */}
