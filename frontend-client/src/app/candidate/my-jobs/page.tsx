@@ -1,40 +1,11 @@
 "use client"
-import LocationOnIcon from "@mui/icons-material/LocationOn"
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday"
-import PaymentsIcon from "@mui/icons-material/Payments"
-import EventIcon from "@mui/icons-material/Event"
-import {
-  Box,
-  Typography,
-  Grid,
-  Paper,
-  Chip,
-  Stack,
-  Button,
-  Avatar,
-} from "@mui/material"
+import { Box, Paper, Stack, Typography } from "@mui/material"
 import { useState } from "react"
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-type AppStatus = "hired" | "interviewing" | "reviewing" | "not_selected" | "applied"
-type FilterTab = "all" | AppStatus
-
-interface Application {
-  id: number
-  jobTitle: string
-  company: string
-  logo: string
-  location: string
-  appliedTime: string
-  salary?: string
-  status: AppStatus
-  interviewDate?: string
-  lastUpdated?: string
-}
+import ApplicationCard, { Application } from "./components/ApplicationCard"
+import FilterTabBar, { FilterTab } from "./components/FilterTabBar"
+import StatsBentoGrid from "./components/StatsBentoGrid"
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
-
 const applications: Application[] = [
   {
     id: 1,
@@ -78,200 +49,25 @@ const applications: Application[] = [
   },
 ]
 
-// ─── Status Badge Config ──────────────────────────────────────────────────────
-
-const statusConfig: Record<AppStatus, { label: string; color: string; bg: string }> = {
-  hired: { label: "Hired", color: "#166534", bg: "#dcfce7" },
-  interviewing: { label: "Interviewing", color: "#1e3a8a", bg: "#e0e7ff" },
-  reviewing: { label: "Reviewing", color: "#334155", bg: "#f1f5f9" },
-  not_selected: { label: "Not Selected", color: "#991b1b", bg: "#fee2e2" },
-  applied: { label: "Applied", color: "#0369a1", bg: "#e0f2fe" },
-}
-
-// ─── Filter Tabs Config ───────────────────────────────────────────────────────
-
-const filterTabs: { label: string; value: FilterTab }[] = [
-  { label: "All Jobs", value: "all" },
-  { label: "Applied", value: "applied" },
-  { label: "Interview", value: "interviewing" },
-  { label: "Reviewing", value: "reviewing" },
-  { label: "Not Selected", value: "not_selected" },
+const stats = [
+  {
+    label: "Applied",
+    value: 12,
+    sub: "+2 this week",
+    subColor: "success.main",
+  },
+  { label: "Interviews", value: 4, sub: "Active", subColor: "success.main" },
+  { label: "Reviewing", value: 6, sub: null, subColor: null },
+  {
+    label: "Offers",
+    value: 1,
+    sub: "NEW",
+    subColor: "success.main",
+    isOffer: true,
+  },
 ]
 
-// ─── Application Card ─────────────────────────────────────────────────────────
-
-function ApplicationCard({ app }: { app: Application }) {
-  const statusCfg = statusConfig[app.status]
-  const isNotSelected = app.status === "not_selected"
-
-  return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: 3,
-        borderRadius: 3,
-        border: "1px solid",
-        borderColor: "divider",
-        bgcolor: "background.paper",
-        transition: "box-shadow 0.2s ease",
-        opacity: isNotSelected ? 0.75 : 1,
-        filter: isNotSelected ? "grayscale(50%)" : "none",
-        "&:hover": { boxShadow: 3 },
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: { md: "center" },
-          justifyContent: "space-between",
-          gap: 3,
-        }}
-      >
-        {/* Left: Logo + Info */}
-        <Box display="flex" alignItems="flex-start" gap={2.5}>
-          <Avatar
-            src={app.logo}
-            variant="rounded"
-            sx={{
-              width: 56,
-              height: 56,
-              flexShrink: 0,
-              border: "1px solid",
-              borderColor: "divider",
-              opacity: isNotSelected ? 0.6 : 1,
-              bgcolor: "grey.100",
-              "& img": { objectFit: "contain" },
-            }}
-          />
-          <Box>
-            <Typography
-              variant="subtitle1"
-              fontWeight="bold"
-              color="primary.main"
-              sx={{ mb: 0.3 }}
-            >
-              {app.jobTitle}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ mb: 1 }}>
-              {app.company}
-            </Typography>
-            <Stack direction="row" flexWrap="wrap" gap={2}>
-              <Box display="flex" alignItems="center" gap={0.5}>
-                <LocationOnIcon sx={{ fontSize: 14, color: "text.secondary" }} />
-                <Typography variant="caption" color="text.secondary">{app.location}</Typography>
-              </Box>
-              <Box display="flex" alignItems="center" gap={0.5}>
-                <CalendarTodayIcon sx={{ fontSize: 14, color: "text.secondary" }} />
-                <Typography variant="caption" color="text.secondary">Applied {app.appliedTime}</Typography>
-              </Box>
-              {app.salary && (
-                <Box display="flex" alignItems="center" gap={0.5}>
-                  <PaymentsIcon sx={{ fontSize: 14, color: "success.main" }} />
-                  <Typography variant="caption" fontWeight="bold" color="success.main">
-                    {app.salary}
-                  </Typography>
-                </Box>
-              )}
-            </Stack>
-          </Box>
-        </Box>
-
-        {/* Right: Status + Actions */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: { xs: "flex-start", md: "flex-end" },
-            gap: 1.5,
-            flexShrink: 0,
-          }}
-        >
-          <Chip
-            label={statusCfg.label.toUpperCase()}
-            size="small"
-            sx={{
-              fontWeight: "bold",
-              fontSize: "0.7rem",
-              letterSpacing: "0.05em",
-              bgcolor: statusCfg.bg,
-              color: statusCfg.color,
-              borderRadius: 999,
-            }}
-          />
-
-          {/* Conditional extras */}
-          {app.status === "hired" && (
-            <Button
-              variant="text"
-              size="small"
-              sx={{
-                fontWeight: "bold",
-                color: "primary.main",
-                textDecoration: "underline",
-                textDecorationColor: "rgba(0,43,92,0.3)",
-                textUnderlineOffset: 3,
-                p: 0,
-                "&:hover": { textDecorationColor: "primary.main", bgcolor: "transparent" },
-              }}
-            >
-              View Offer Details
-            </Button>
-          )}
-
-          {app.status === "interviewing" && app.interviewDate && (
-            <Box
-              display="flex"
-              alignItems="center"
-              gap={0.8}
-              sx={{
-                px: 1.5,
-                py: 0.5,
-                borderRadius: 2,
-                bgcolor: (theme) =>
-                  theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "grey.50",
-                border: "1px solid",
-                borderColor: "divider",
-              }}
-            >
-              <EventIcon sx={{ fontSize: 16, color: "text.secondary" }} />
-              <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                {app.interviewDate}
-              </Typography>
-            </Box>
-          )}
-
-          {app.status === "reviewing" && app.lastUpdated && (
-            <Typography variant="caption" color="text.secondary" fontStyle="italic">
-              {app.lastUpdated}
-            </Typography>
-          )}
-
-          {app.status === "not_selected" && (
-            <Button
-              variant="text"
-              size="small"
-              sx={{
-                fontWeight: 500,
-                fontSize: "0.75rem",
-                color: "text.secondary",
-                textDecoration: "underline",
-                textUnderlineOffset: 2,
-                p: 0,
-                "&:hover": { color: "primary.main", bgcolor: "transparent" },
-              }}
-            >
-              Feedback Received
-            </Button>
-          )}
-        </Box>
-      </Box>
-    </Paper>
-  )
-}
-
 // ─── Main Page ────────────────────────────────────────────────────────────────
-
 export default function MyJobsPage() {
   const [activeFilter, setActiveFilter] = useState<FilterTab>("all")
 
@@ -280,18 +76,16 @@ export default function MyJobsPage() {
       ? applications
       : applications.filter((a) => a.status === activeFilter)
 
-  const stats = [
-    { label: "Applied", value: 12, sub: "+2 this week", subColor: "success.main" },
-    { label: "Interviews", value: 4, sub: "Active", subColor: "success.main" },
-    { label: "Reviewing", value: 6, sub: null, subColor: null },
-    { label: "Offers", value: 1, sub: "NEW", subColor: "success.main", isOffer: true },
-  ]
-
   return (
     <Box>
       {/* Header */}
       <Box mb={5}>
-        <Typography variant="h4" fontWeight={900} color="primary.main" gutterBottom>
+        <Typography
+          variant="h4"
+          fontWeight={900}
+          color="primary.main"
+          gutterBottom
+        >
           My Jobs
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -300,98 +94,20 @@ export default function MyJobsPage() {
       </Box>
 
       {/* Stats Bento Grid */}
-      <Grid container spacing={2.5} sx={{ mb: 4 }}>
-        {stats.map((stat) => (
-          <Grid item xs={6} md={3} key={stat.label}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2.5,
-                borderRadius: 3,
-                border: "1px solid",
-                borderColor: "divider",
-                bgcolor: "background.paper",
-                display: "flex",
-                flexDirection: "column",
-                gap: 1,
-              }}
-            >
-              <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                {stat.label}
-              </Typography>
-              <Box display="flex" alignItems="baseline" gap={1}>
-                <Typography
-                  variant="h4"
-                  fontWeight="900"
-                  color={stat.isOffer ? "success.main" : "primary.main"}
-                >
-                  {stat.value}
-                </Typography>
-                {stat.sub && (
-                  stat.isOffer ? (
-                    <Chip
-                      label={stat.sub}
-                      size="small"
-                      sx={{
-                        fontWeight: "bold",
-                        fontSize: "0.65rem",
-                        bgcolor: "success.light",
-                        color: "success.dark",
-                        borderRadius: 999,
-                        height: 20,
-                      }}
-                    />
-                  ) : (
-                    <Typography variant="caption" fontWeight="bold" color={stat.subColor || "text.secondary"}>
-                      {stat.sub}
-                    </Typography>
-                  )
-                )}
-              </Box>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
+      <StatsBentoGrid stats={stats} />
 
       {/* Filter Tab Bar */}
-      <Stack direction="row" flexWrap="wrap" gap={1.5} sx={{ mb: 3 }}>
-        {filterTabs.map((tab) => (
-          <Button
-            key={tab.value}
-            onClick={() => setActiveFilter(tab.value)}
-            variant={activeFilter === tab.value ? "contained" : "outlined"}
-            size="small"
-            sx={{
-              borderRadius: 999,
-              fontWeight: 500,
-              fontSize: "0.8rem",
-              px: 2.5,
-              py: 0.8,
-              textTransform: "none",
-              ...(activeFilter === tab.value
-                ? {
-                    bgcolor: "primary.main",
-                    color: "white",
-                    borderColor: "primary.main",
-                    "&:hover": { bgcolor: "primary.dark" },
-                  }
-                : {
-                    bgcolor: "background.paper",
-                    color: "text.secondary",
-                    borderColor: "divider",
-                    "&:hover": { bgcolor: "grey.100", borderColor: "grey.300" },
-                  }),
-            }}
-          >
-            {tab.label}
-          </Button>
-        ))}
-      </Stack>
+      <FilterTabBar
+        activeFilter={activeFilter}
+        setActiveFilter={setActiveFilter}
+      />
 
       {/* Application Cards */}
       <Stack spacing={2.5}>
         {filteredApps.length > 0 ? (
-          filteredApps.map((app) => <ApplicationCard key={app.id} app={app} />)
+          filteredApps.map((app) => (
+            <ApplicationCard key={app.id} app={app} />
+          ))
         ) : (
           <Paper
             elevation={0}
