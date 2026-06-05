@@ -54,7 +54,12 @@ const initialReviews: Review[] = [
   },
 ]
 
-export default function CompanyReviewsTab() {
+interface CompanyReviewsTabProps {
+  rating?: number
+  totalReviews?: number
+}
+
+export default function CompanyReviewsTab({ rating, totalReviews }: CompanyReviewsTabProps) {
   const [reviews, setReviews] = useState<Review[]>(initialReviews)
   const [open, setOpen] = useState(false)
   const [newReview, setNewReview] = useState({
@@ -67,10 +72,12 @@ export default function CompanyReviewsTab() {
   })
 
   // Calculate statistics
-  const totalReviews = reviews.length
-  const averageRating = (
-    reviews.reduce((acc, curr) => acc + curr.rating, 0) / (totalReviews || 1)
-  ).toFixed(1)
+  const localTotal = reviews.length
+  const totalReviewsCount = totalReviews !== undefined && totalReviews > 0 ? totalReviews : localTotal
+  const averageRating = rating !== undefined && rating > 0 ? rating : (
+    reviews.reduce((acc, curr) => acc + curr.rating, 0) / (localTotal || 1)
+  )
+  const averageRatingStr = averageRating.toFixed(1)
 
   const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
   reviews.forEach((r) => {
@@ -81,7 +88,7 @@ export default function CompanyReviewsTab() {
   })
 
   const getPercentage = (count: number) => {
-    return totalReviews > 0 ? (count / totalReviews) * 100 : 0
+    return totalReviewsCount > 0 ? (count / totalReviewsCount) * 100 : 0
   }
 
   const handleOpenDialog = () => {
@@ -148,17 +155,17 @@ export default function CompanyReviewsTab() {
           {/* Average Rating */}
           <Box sx={{ textAlign: "center", minWidth: 100 }}>
             <Typography variant="h3" fontWeight="800" color="text.primary">
-              {averageRating}
+              {averageRatingStr}
             </Typography>
             <Rating
-              value={parseFloat(averageRating)}
+              value={parseFloat(averageRatingStr)}
               precision={0.1}
               readOnly
               emptyIcon={<StarIcon style={{ opacity: 0.25 }} fontSize="inherit" />}
               sx={{ color: "#facc15", mt: 1 }}
             />
             <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
-              {totalReviews} đánh giá
+              {totalReviewsCount} đánh giá
             </Typography>
           </Box>
 

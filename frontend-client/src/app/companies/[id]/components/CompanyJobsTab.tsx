@@ -30,15 +30,15 @@ export default function CompanyJobsTab({ companyId }: CompanyJobsTabProps) {
     size: 20,
   })
 
-  const jobs = data?.data?.result ?? []
+  const rawJobs = data?.data?.result
 
   const sortedJobs = useMemo(() => {
-    const list = [...jobs]
+    const list = rawJobs ? [...rawJobs] : []
     if (sortBy === "salary") {
       list.sort((a, b) => (b.salary ?? 0) - (a.salary ?? 0))
     }
     return list
-  }, [jobs, sortBy])
+  }, [rawJobs, sortBy])
 
   const handleSortChange = (event: SelectChangeEvent) => {
     setSortBy(event.target.value)
