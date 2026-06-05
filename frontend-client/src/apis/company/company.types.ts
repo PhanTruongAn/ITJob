@@ -17,6 +17,13 @@ export interface ICompany {
   description: string
   address: string
   logo: string
+  website?: string
+  phone?: string
+  email?: string
+  rating?: number
+  reviews?: number
+  badge?: string
+  jobCount?: number
 }
 
 export interface IGetListCompanyReq {
@@ -51,3 +58,4 @@ export enum CompanyStatus {
 
 export type ICompanyListRes = IPaginatedData<ICompany>
 export type ICompanyDetailRes = ICompany
+

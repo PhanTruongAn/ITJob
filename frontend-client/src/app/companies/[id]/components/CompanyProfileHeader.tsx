@@ -2,11 +2,14 @@
 import BusinessIcon from "@mui/icons-material/Business"
 import GroupsIcon from "@mui/icons-material/Groups"
 import LocationOnIcon from "@mui/icons-material/LocationOn"
+import StarIcon from "@mui/icons-material/Star"
 import VerifiedIcon from "@mui/icons-material/Verified"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
+import Chip from "@mui/material/Chip"
 import Container from "@mui/material/Container"
 import Paper from "@mui/material/Paper"
+import Rating from "@mui/material/Rating"
 import Stack from "@mui/material/Stack"
 import Typography from "@mui/material/Typography"
 
@@ -17,6 +20,9 @@ interface CompanyProfileHeaderProps {
   location: string
   industry: string
   employeeCount: string
+  rating?: number
+  reviews?: number
+  badge?: string
   isVerified?: boolean
   onFollow?: () => void
   onVisitWebsite?: () => void
@@ -29,6 +35,9 @@ export default function CompanyProfileHeader({
   location,
   industry,
   employeeCount,
+  rating,
+  reviews,
+  badge,
   isVerified = false,
   onFollow,
   onVisitWebsite,
@@ -78,7 +87,7 @@ export default function CompanyProfileHeader({
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={logo}
+              src={logo || "/placeholder-logo.png"}
               alt={`${name} logo`}
               style={{
                 width: 96,
@@ -91,7 +100,7 @@ export default function CompanyProfileHeader({
 
           {/* Company Info */}
           <Box sx={{ flex: 1 }}>
-            <Stack direction="row" alignItems="center" gap={1} mb={0.5}>
+            <Stack direction="row" alignItems="center" gap={1} mb={0.5} flexWrap="wrap">
               <Typography
                 variant="h4"
                 component="h1"
@@ -106,6 +115,19 @@ export default function CompanyProfileHeader({
               {isVerified && (
                 <VerifiedIcon sx={{ color: "#1976d2", fontSize: 24 }} />
               )}
+              {badge && (
+                <Chip
+                  label={badge}
+                  size="small"
+                  sx={{
+                    bgcolor: "warning.main",
+                    color: "white",
+                    fontWeight: "bold",
+                    fontSize: "0.7rem",
+                    height: 22,
+                  }}
+                />
+              )}
             </Stack>
 
             <Typography
@@ -118,38 +140,61 @@ export default function CompanyProfileHeader({
             </Typography>
 
             <Stack direction="row" flexWrap="wrap" gap={2} alignItems="center">
-              <Stack direction="row" alignItems="center" gap={0.5}>
-                <LocationOnIcon
-                  sx={{ fontSize: 18, color: "text.secondary" }}
-                />
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  fontWeight={500}
-                >
-                  {location}
-                </Typography>
-              </Stack>
-              <Stack direction="row" alignItems="center" gap={0.5}>
-                <BusinessIcon sx={{ fontSize: 18, color: "text.secondary" }} />
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  fontWeight={500}
-                >
-                  {industry}
-                </Typography>
-              </Stack>
-              <Stack direction="row" alignItems="center" gap={0.5}>
-                <GroupsIcon sx={{ fontSize: 18, color: "text.secondary" }} />
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  fontWeight={500}
-                >
-                  {employeeCount}
-                </Typography>
-              </Stack>
+              {location && (
+                <Stack direction="row" alignItems="center" gap={0.5}>
+                  <LocationOnIcon
+                    sx={{ fontSize: 18, color: "text.secondary" }}
+                  />
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    fontWeight={500}
+                  >
+                    {location}
+                  </Typography>
+                </Stack>
+              )}
+              {industry && (
+                <Stack direction="row" alignItems="center" gap={0.5}>
+                  <BusinessIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    fontWeight={500}
+                  >
+                    {industry}
+                  </Typography>
+                </Stack>
+              )}
+              {employeeCount && (
+                <Stack direction="row" alignItems="center" gap={0.5}>
+                  <GroupsIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    fontWeight={500}
+                  >
+                    {employeeCount}
+                  </Typography>
+                </Stack>
+              )}
+              {(rating !== undefined || reviews !== undefined) && (
+                <Stack direction="row" alignItems="center" gap={0.5}>
+                  <Rating
+                    value={rating ?? 0}
+                    precision={0.1}
+                    readOnly
+                    size="small"
+                    emptyIcon={
+                      <StarIcon style={{ opacity: 0.25 }} fontSize="inherit" />
+                    }
+                    sx={{ color: "#facc15" }}
+                  />
+                  <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                    {rating?.toFixed(1)} ({reviews ?? 0} đánh giá)
+                  </Typography>
+                </Stack>
+              )}
             </Stack>
           </Box>
         </Box>
@@ -174,20 +219,22 @@ export default function CompanyProfileHeader({
           >
             Follow
           </Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            sx={{
-              px: 3,
-              py: 1.2,
-              fontWeight: "bold",
-              borderRadius: 2,
-              flex: { xs: 1, md: "none" },
-            }}
-            onClick={onVisitWebsite}
-          >
-            Visit Website
-          </Button>
+          {onVisitWebsite && (
+            <Button
+              variant="outlined"
+              color="primary"
+              sx={{
+                px: 3,
+                py: 1.2,
+                fontWeight: "bold",
+                borderRadius: 2,
+                flex: { xs: 1, md: "none" },
+              }}
+              onClick={onVisitWebsite}
+            >
+              Visit Website
+            </Button>
+          )}
         </Stack>
       </Paper>
     </Container>

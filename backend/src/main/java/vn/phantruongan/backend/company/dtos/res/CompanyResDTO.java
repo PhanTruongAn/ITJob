@@ -25,6 +25,9 @@ public class CompanyResDTO {
     private String description;
     private String address;
     private String logo;
+    private String website;
+    private String phone;
+    private String email;
     private Double rating;
     private Integer reviews;
     private String badge;

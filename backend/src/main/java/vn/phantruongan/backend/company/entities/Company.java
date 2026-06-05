@@ -64,6 +64,9 @@ public class Company extends Auditable {
 
     private String address;
     private String logo;
+    private String website;
+    private String phone;
+    private String email;
 
     @org.hibernate.annotations.Formula("(SELECT COALESCE(AVG(r.rating), 4.5) FROM company_reviews r WHERE r.company_id = id AND r.hidden = false)")
     private Double rating;

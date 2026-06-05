@@ -4,13 +4,14 @@ import Footer from "@/components/Footer"
 import AppTheme from "@/shared-theme/AppTheme"
 import {
   Box,
+  CircularProgress,
   Container,
   CssBaseline,
   Grid,
   Stack,
   Typography,
 } from "@mui/material"
-import { useState } from "react"
+import { use, useState } from "react"
 import CompanyAboutTab from "./components/CompanyAboutTab"
 import CompanyReviewsTab from "./components/CompanyReviewsTab"
 import CompanyJobsTab from "./components/CompanyJobsTab"
@@ -19,19 +20,59 @@ import CompanyNavTabs from "./components/CompanyNavTabs"
 import CompanyProfileHeader from "./components/CompanyProfileHeader"
 import CompanySidebarContact from "./components/CompanySidebarContact"
 import CompanySidebarLocations from "./components/CompanySidebarLocations"
+import { useCompanyDetail } from "@/apis/company/company.hooks"
 
-export default function CompanyDetailPage() {
+interface Props {
+  params: Promise<{ id: string }>
+}
+
+export default function CompanyDetailPage({ params }: Props) {
+  const { id } = use(params)
+  const companyId = Number(id)
+
   const [activeTab, setActiveTab] = useState("about")
+  const { data, isLoading, isError } = useCompanyDetail(companyId)
 
-  // Mock data for FPT Software
-  const companyData = {
-    name: "FPT Software",
-    logo: "https://lh3.googleusercontent.com/aida-public/AB6AXuDhNiOsUE8PVn2jTocyJXUkvQxT7rMo_XGPIlApNSBQ8kuCYWG_eQ5aHMxgkpHjQf11DnFDMpAUqYZW5rAOgTY14rTtmfhCJIYxp8yZoggW9l0u-_kiaqX8zcKGClDxaCAizlkr4jV3OzhFAY8l_hsDYlejc8t9jQSuuCo9p-Ee2FCUcO28AkbxO8p8txGJ2uM8IZk-CLCfBN36iO7G4F8LjMbulcHbDo1sUJ0JoIZrWD72oVqdyQXt173r0uHINOAijfcS5aLGPew",
-    tagline: "Leading Global Technology & IT Services Provider",
-    location: "Hanoi, Vietnam",
-    industry: "IT Services",
-    employeeCount: "30,000+ Employees",
-    isVerified: true,
+  const company = data?.data
+
+  if (isLoading) {
+    return (
+      <AppTheme>
+        <CssBaseline />
+        <AppAppBar />
+        <Box
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <CircularProgress size={48} />
+        </Box>
+      </AppTheme>
+    )
+  }
+
+  if (isError || !company) {
+    return (
+      <AppTheme>
+        <CssBaseline />
+        <AppAppBar />
+        <Box
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Typography color="text.secondary" variant="h6">
+            Không tìm thấy thông tin công ty.
+          </Typography>
+        </Box>
+      </AppTheme>
+    )
   }
 
   return (
@@ -55,10 +96,20 @@ export default function CompanyDetailPage() {
         <CompanyCoverHeader />
 
         <CompanyProfileHeader
-          {...companyData}
-          onFollow={() => console.log("Followed")}
-          onVisitWebsite={() =>
-            window.open("https://www.fpt-software.com", "_blank")
+          name={company.name}
+          logo={company.logo}
+          tagline={company.industry ?? ""}
+          location={company.address ?? company.country?.name ?? ""}
+          industry={company.companyType ?? ""}
+          employeeCount={company.companySize ?? ""}
+          rating={company.rating}
+          reviews={company.reviews}
+          badge={company.badge}
+          isVerified={company.status === "APPROVED"}
+          onVisitWebsite={
+            company.website
+              ? () => window.open(company.website, "_blank")
+              : undefined
           }
         />
 
@@ -70,32 +121,55 @@ export default function CompanyDetailPage() {
           <Grid container spacing={5}>
             {/* Left Content Area */}
             <Grid item xs={12} lg={8}>
-              {activeTab === "about" && <CompanyAboutTab />}
-              {activeTab === "jobs" && <CompanyJobsTab />}
-              {activeTab === "reviews" && <CompanyReviewsTab />}
-              {activeTab !== "about" && activeTab !== "jobs" && activeTab !== "reviews" && (
-                <Box
-                  sx={{
-                    p: 4,
-                    textAlign: "center",
-                    bgcolor: "background.paper",
-                    borderRadius: 3,
-                    border: "1px solid",
-                    borderColor: "divider",
-                  }}
-                >
-                  <Typography variant="h6" color="text.secondary">
-                    Nội dung phần {activeTab} đang được cập nhật...
-                  </Typography>
-                </Box>
+              {activeTab === "about" && (
+                <CompanyAboutTab
+                  description={company.description}
+                  workingDays={company.workingDays}
+                  overtime={company.overtime}
+                />
               )}
+              {activeTab === "jobs" && (
+                <CompanyJobsTab companyId={companyId} />
+              )}
+              {activeTab === "reviews" && (
+                <CompanyReviewsTab
+                  rating={company.rating ?? 0}
+                  totalReviews={company.reviews ?? 0}
+                />
+              )}
+              {activeTab !== "about" &&
+                activeTab !== "jobs" &&
+                activeTab !== "reviews" && (
+                  <Box
+                    sx={{
+                      p: 4,
+                      textAlign: "center",
+                      bgcolor: "background.paper",
+                      borderRadius: 3,
+                      border: "1px solid",
+                      borderColor: "divider",
+                    }}
+                  >
+                    <Typography variant="h6" color="text.secondary">
+                      Nội dung phần {activeTab} đang được cập nhật...
+                    </Typography>
+                  </Box>
+                )}
             </Grid>
 
             {/* Sidebar Area */}
             <Grid item xs={12} lg={4}>
               <Stack spacing={4}>
-                <CompanySidebarContact />
-                <CompanySidebarLocations />
+                <CompanySidebarContact
+                  address={company.address}
+                  phone={company.phone}
+                  email={company.email}
+                  website={company.website}
+                />
+                <CompanySidebarLocations
+                  address={company.address}
+                  countryName={company.country?.name}
+                />
               </Stack>
             </Grid>
           </Grid>

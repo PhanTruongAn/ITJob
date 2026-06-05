@@ -5,4 +5,5 @@ export const API_PATHS = {
   USER: `${API_BASE}/users`,
   AUTH: `${API_BASE}/auth`,
   PROFILE: `${API_BASE}/profiles`,
+  JOB: `${API_BASE}/jobs`,
 }

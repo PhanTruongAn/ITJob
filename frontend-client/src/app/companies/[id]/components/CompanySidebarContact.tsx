@@ -4,16 +4,27 @@ import LocationOnIcon from "@mui/icons-material/LocationOn"
 import CallIcon from "@mui/icons-material/Call"
 import MailIcon from "@mui/icons-material/Mail"
 import LanguageIcon from "@mui/icons-material/Language"
-import FacebookIcon from "@mui/icons-material/Facebook"
-import LinkedInIcon from "@mui/icons-material/LinkedIn"
 import Box from "@mui/material/Box"
 import Paper from "@mui/material/Paper"
 import Typography from "@mui/material/Typography"
 import Link from "@mui/material/Link"
 import Stack from "@mui/material/Stack"
-import IconButton from "@mui/material/IconButton"
 
-export default function CompanySidebarContact() {
+interface CompanySidebarContactProps {
+  address?: string
+  phone?: string
+  email?: string
+  website?: string
+}
+
+export default function CompanySidebarContact({
+  address,
+  phone,
+  email,
+  website,
+}: CompanySidebarContactProps) {
+  const hasAnyContact = address || phone || email || website
+
   return (
     <Paper
       elevation={0}
@@ -32,88 +43,70 @@ export default function CompanySidebarContact() {
         </Typography>
       </Stack>
 
-      <Stack spacing={2.5}>
-        <Box display="flex" gap={2} alignItems="flex-start">
-          <LocationOnIcon sx={{ color: "text.secondary", fontSize: 20, mt: 0.2 }} />
-          <Typography variant="body2" color="text.secondary" lineHeight={1.5}>
-            FPT Tower, 10 Pham Van Bach Street, Cau Giay District, Hanoi
-          </Typography>
-        </Box>
-
-        <Box display="flex" gap={2} alignItems="center">
-          <CallIcon sx={{ color: "text.secondary", fontSize: 20 }} />
-          <Typography variant="body2" color="text.secondary">
-            +84 24 3768 9048
-          </Typography>
-        </Box>
-
-        <Box display="flex" gap={2} alignItems="center">
-          <MailIcon sx={{ color: "text.secondary", fontSize: 20 }} />
-          <Link
-            href="mailto:contact@fpt-software.com"
-            underline="hover"
-            sx={{
-              typography: "body2",
-              fontWeight: 500,
-              color: "primary.main",
-            }}
-          >
-            contact@fpt-software.com
-          </Link>
-        </Box>
-
-        <Box display="flex" gap={2} alignItems="center">
-          <LanguageIcon sx={{ color: "text.secondary", fontSize: 20 }} />
-          <Link
-            href="https://www.fpt-software.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            underline="hover"
-            sx={{
-              typography: "body2",
-              fontWeight: 500,
-              color: "primary.main",
-            }}
-          >
-            www.fpt-software.com
-          </Link>
-        </Box>
-      </Stack>
-
-      <Box mt={4}>
-        <Typography
-          variant="caption"
-          fontWeight="bold"
-          color="text.secondary"
-          sx={{ textTransform: "uppercase", letterSpacing: 1, display: "block", mb: 2 }}
-        >
-          Mạng xã hội
+      {!hasAnyContact ? (
+        <Typography variant="body2" color="text.disabled" fontStyle="italic">
+          Chưa có thông tin liên hệ.
         </Typography>
-        <Stack direction="row" gap={1.5}>
-          <IconButton
-            size="small"
-            sx={{
-              bgcolor: "background.default",
-              borderRadius: 2,
-              color: "primary.main",
-              "&:hover": { bgcolor: "action.hover" },
-            }}
-          >
-            <LinkedInIcon />
-          </IconButton>
-          <IconButton
-            size="small"
-            sx={{
-              bgcolor: "background.default",
-              borderRadius: 2,
-              color: "primary.main",
-              "&:hover": { bgcolor: "action.hover" },
-            }}
-          >
-            <FacebookIcon />
-          </IconButton>
+      ) : (
+        <Stack spacing={2.5}>
+          {address && (
+            <Box display="flex" gap={2} alignItems="flex-start">
+              <LocationOnIcon
+                sx={{ color: "text.secondary", fontSize: 20, mt: 0.2 }}
+              />
+              <Typography variant="body2" color="text.secondary" lineHeight={1.5}>
+                {address}
+              </Typography>
+            </Box>
+          )}
+
+          {phone && (
+            <Box display="flex" gap={2} alignItems="center">
+              <CallIcon sx={{ color: "text.secondary", fontSize: 20 }} />
+              <Typography variant="body2" color="text.secondary">
+                {phone}
+              </Typography>
+            </Box>
+          )}
+
+          {email && (
+            <Box display="flex" gap={2} alignItems="center">
+              <MailIcon sx={{ color: "text.secondary", fontSize: 20 }} />
+              <Link
+                href={`mailto:${email}`}
+                underline="hover"
+                sx={{
+                  typography: "body2",
+                  fontWeight: 500,
+                  color: "primary.main",
+                }}
+              >
+                {email}
+              </Link>
+            </Box>
+          )}
+
+          {website && (
+            <Box display="flex" gap={2} alignItems="center">
+              <LanguageIcon sx={{ color: "text.secondary", fontSize: 20 }} />
+              <Link
+                href={website.startsWith("http") ? website : `https://${website}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                underline="hover"
+                sx={{
+                  typography: "body2",
+                  fontWeight: 500,
+                  color: "primary.main",
+                  wordBreak: "break-all",
+                }}
+              >
+                {website.replace(/^https?:\/\//, "")}
+              </Link>
+            </Box>
+          )}
         </Stack>
-      </Box>
+      )}
     </Paper>
   )
 }
