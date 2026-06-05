@@ -78,6 +78,9 @@ export interface ICompany {
   overtime: boolean
   description: string
   logo: string
+  website?: string
+  phone?: string
+  email?: string
   workingDays: DayOfWeek[]
   country: ICountry
 }
@@ -91,6 +94,9 @@ export interface ICreateCompanyDTO {
   overtime: boolean
   description: string
   logo: string
+  website?: string
+  phone?: string
+  email?: string
   workingDays: DayOfWeek[]
   countryId: number
 }

@@ -38,5 +38,11 @@ public class CreateCompanyReqDTO {
 
     private String logo;
 
+    private String website;
+
+    private String phone;
+
+    private String email;
+
     private String badge;
 }

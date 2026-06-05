@@ -170,8 +170,42 @@ const CompanyForm = ({
               </Form.Item>
             </Col>
           </Row>
-          {(type === "edit" || type === "view") && (
-            <Row gutter={[16, 16]}>
+
+          <Row gutter={[16, 16]}>
+            <Col span={12}>
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { type: "email", message: "Please enter a valid email address" },
+                ]}
+              >
+                <Input placeholder="Enter company email" disabled={isView} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="phone"
+                label="Phone Number"
+              >
+                <Input placeholder="Enter company phone number" disabled={isView} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={[16, 16]}>
+            <Col span={12}>
+              <Form.Item
+                name="website"
+                label="Website"
+                rules={[
+                  { type: "url", message: "Please enter a valid URL (e.g. https://example.com)" },
+                ]}
+              >
+                <Input placeholder="Enter company website URL" disabled={isView} />
+              </Form.Item>
+            </Col>
+            {(type === "edit" || type === "view") && (
               <Col span={12}>
                 <Form.Item
                   name="status"
@@ -192,8 +226,8 @@ const CompanyForm = ({
                   </Select>
                 </Form.Item>
               </Col>
-            </Row>
-          )}
+            )}
+          </Row>
         </Col>
 
         <Col span={6}>
