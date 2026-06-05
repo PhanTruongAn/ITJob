@@ -1,6 +1,6 @@
 "use client"
 import BusinessIcon from "@mui/icons-material/Business"
-import CategoryIcon from "@mui/icons-material/Category"
+import LocationOnIcon from "@mui/icons-material/LocationOn"
 import SearchIcon from "@mui/icons-material/Search"
 import {
   Box,
@@ -9,15 +9,25 @@ import {
   InputAdornment,
   MenuItem,
   Select,
-  Stack,
   TextField,
   Typography,
 } from "@mui/material"
-import { useState } from "react"
 
-export default function CompanyHero() {
-  const [keyword, setKeyword] = useState("")
-  const [category, setCategory] = useState("")
+interface CompanyHeroProps {
+  keyword: string
+  setKeyword: (val: string) => void
+  address: string
+  setAddress: (val: string) => void
+  onSearch: () => void
+}
+
+export default function CompanyHero({
+  keyword,
+  setKeyword,
+  address,
+  setAddress,
+  onSearch,
+}: CompanyHeroProps) {
 
   return (
     <Box
@@ -106,15 +116,15 @@ export default function CompanyHero() {
             }}
           />
 
-          {/* Category Select */}
+          {/* Address Select */}
           <Select
             displayEmpty
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
             variant="outlined"
             startAdornment={
                <InputAdornment position="start" sx={{ pl: 1 }}>
-                  <CategoryIcon color="action" />
+                  <LocationOnIcon color="action" />
                </InputAdornment>
             }
             sx={{
@@ -124,11 +134,10 @@ export default function CompanyHero() {
               bgcolor: "transparent",
             }}
           >
-            <MenuItem value="">Tất cả ngành nghề</MenuItem>
-            <MenuItem value="software">Phát triển Phần mềm</MenuItem>
-            <MenuItem value="fintech">Tài chính Công nghệ</MenuItem>
-            <MenuItem value="ai">Trí tuệ Nhân tạo</MenuItem>
-            <MenuItem value="ecommerce">Thương mại điện tử</MenuItem>
+            <MenuItem value="">Tất cả địa điểm</MenuItem>
+            <MenuItem value="Hà Nội">Hà Nội</MenuItem>
+            <MenuItem value="Hồ Chí Minh">TP. Hồ Chí Minh</MenuItem>
+            <MenuItem value="Đà Nẵng">Đà Nẵng</MenuItem>
           </Select>
 
           {/* Search Button */}
@@ -136,6 +145,7 @@ export default function CompanyHero() {
             variant="contained"
             color="primary"
             size="large"
+            onClick={onSearch}
             startIcon={<SearchIcon />}
             sx={{
               px: 4,

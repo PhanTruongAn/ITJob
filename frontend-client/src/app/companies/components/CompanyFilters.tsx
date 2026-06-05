@@ -2,19 +2,23 @@
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance"
 import CodeIcon from "@mui/icons-material/Code"
 import PsychologyIcon from "@mui/icons-material/Psychology"
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart"
-import { Box, Button, Container, Stack } from "@mui/material"
-import { useState } from "react"
+import { Box, Button, Container } from "@mui/material"
+import { CompanyTypeEnum } from "@/apis/company/company.types"
 
-export default function CompanyFilters() {
-  const [activeFilter, setActiveFilter] = useState("all")
+interface CompanyFiltersProps {
+  activeFilter: string
+  onChangeFilter: (filter: string) => void
+}
 
+export default function CompanyFilters({
+  activeFilter,
+  onChangeFilter,
+}: CompanyFiltersProps) {
   const filters = [
     { id: "all", label: "Tất cả", icon: null },
-    { id: "software", label: "Phát triển Phần mềm", icon: <CodeIcon fontSize="small" /> },
-    { id: "fintech", label: "Tài chính", icon: <AccountBalanceIcon fontSize="small" /> },
-    { id: "ai", label: "Trí tuệ Nhân tạo", icon: <PsychologyIcon fontSize="small" /> },
-    { id: "ecommerce", label: "Thương mại điện tử", icon: <ShoppingCartIcon fontSize="small" /> },
+    { id: CompanyTypeEnum.IT_PRODUCT, label: "IT Product", icon: <CodeIcon fontSize="small" /> },
+    { id: CompanyTypeEnum.IT_OUTSOURCING, label: "IT Outsourcing", icon: <AccountBalanceIcon fontSize="small" /> },
+    { id: CompanyTypeEnum.IT_SERVICE_AND_CONSULTING, label: "IT Service & Consulting", icon: <PsychologyIcon fontSize="small" /> },
   ]
 
   return (
@@ -36,7 +40,7 @@ export default function CompanyFilters() {
             variant={activeFilter === filter.id ? "contained" : "outlined"}
             color={activeFilter === filter.id ? "primary" : "inherit"}
             startIcon={filter.icon}
-            onClick={() => setActiveFilter(filter.id)}
+            onClick={() => onChangeFilter(filter.id)}
             sx={{
               borderRadius: "50px",
               px: 3,

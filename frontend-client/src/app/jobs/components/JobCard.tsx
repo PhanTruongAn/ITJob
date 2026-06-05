@@ -3,7 +3,7 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import LocationOnIcon from "@mui/icons-material/LocationOn"
 import PaymentsIcon from "@mui/icons-material/Payments"
 import ScheduleIcon from "@mui/icons-material/Schedule"
-import { Box, Button, Chip, Stack, Typography } from "@mui/material"
+import { Box, Chip, IconButton, Stack, Typography } from "@mui/material"
 import { useRouter } from "next/navigation"
 
 export interface JobCardProps {
@@ -35,19 +35,28 @@ export default function JobCard({
         p: 3,
         border: 1,
         borderColor: "divider",
+        boxShadow: "none",
+        cursor: "pointer",
+        transition: "transform 0.2s, box-shadow 0.3s ease-in-out",
         borderRadius: 2,
         bgcolor: (theme) =>
           theme.palette.mode === "dark" ? "grey.900" : "common.white",
         position: "relative",
-        "&:hover": { boxShadow: 3 },
+        "&:hover": {
+          transform: "translateY(-4px)",
+          boxShadow: 3,
+          "& .job-title": {
+            color: "primary.main",
+          },
+        },
       }}
     >
       {badge && (
         <Box
           sx={{
             position: "absolute",
-            top: 12,
-            right: 12,
+            top: -10,
+            right: -15,
             px: 1.5,
             py: 0.5,
             bgcolor: "error.light",
@@ -75,10 +84,11 @@ export default function JobCard({
           <Typography
             variant="h6"
             fontWeight="bold"
+            className="job-title"
             sx={{
               mb: 0.5,
               cursor: "pointer",
-              "&:hover": { color: "primary.main" },
+              transition: "color 0.2s",
             }}
             onClick={() => router.push(`/jobs/${id || 1}`)}
           >
@@ -114,9 +124,13 @@ export default function JobCard({
             ))}
           </Stack>
         </Box>
-        <Button variant="text" sx={{ alignSelf: "flex-start" }}>
+        <IconButton
+          sx={{
+            "&:hover": { color: "primary.main" },
+          }}
+        >
           <BookmarkBorderIcon />
-        </Button>
+        </IconButton>
       </Stack>
     </Box>
   )

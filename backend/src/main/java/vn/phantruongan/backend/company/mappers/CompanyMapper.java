@@ -18,6 +18,7 @@ public interface CompanyMapper extends BaseMapper<CompanyResDTO, Company> {
 
     Company toEntity(CreateCompanyReqDTO dto);
 
+    @Mapping(target = "jobCount", expression = "java(entity.getJobs() != null ? entity.getJobs().size() : 0)")
     CompanyResDTO toDto(Company entity);
 
     List<CompanyResDTO> toDtoList(List<Company> entities);

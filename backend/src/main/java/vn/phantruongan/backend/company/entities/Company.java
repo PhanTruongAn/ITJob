@@ -65,6 +65,14 @@ public class Company extends Auditable {
     private String address;
     private String logo;
 
+    @org.hibernate.annotations.Formula("(SELECT COALESCE(AVG(r.rating), 4.5) FROM company_reviews r WHERE r.company_id = id AND r.hidden = false)")
+    private Double rating;
+
+    @org.hibernate.annotations.Formula("(SELECT COUNT(r.id) FROM company_reviews r WHERE r.company_id = id AND r.hidden = false)")
+    private Integer reviews;
+
+    private String badge;
+
     @JsonIgnore
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
     private List<User> users;

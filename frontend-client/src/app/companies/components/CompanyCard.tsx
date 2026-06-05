@@ -7,13 +7,13 @@ import { useRouter } from "next/navigation"
 interface CompanyCardProps {
   id: number
   name: string
-  logo: string
-  industry: string
-  rating: number
-  reviews: number
-  description: string
-  jobCount: number
-  badge?: "Hot" | "Top Rated"
+  logo?: string
+  industry?: string
+  rating?: number
+  reviews?: number
+  description?: string
+  jobCount?: number
+  badge?: string
 }
 
 export default function CompanyCard({
@@ -89,12 +89,31 @@ export default function CompanyCard({
             p: 1.5,
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={logo}
-            alt={`${name} logo`}
-            style={{ width: "100%", height: "auto", objectFit: "contain" }}
-          />
+          {logo ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={logo}
+              alt={`${name} logo`}
+              style={{ width: "100%", height: "auto", objectFit: "contain" }}
+            />
+          ) : (
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                bgcolor: "primary.light",
+                color: "primary.contrastText",
+                fontSize: "1.8rem",
+                fontWeight: "bold",
+                borderRadius: 2,
+              }}
+            >
+              {name?.[0]?.toUpperCase()}
+            </Box>
+          )}
         </Box>
       </Box>
 
@@ -129,16 +148,16 @@ export default function CompanyCard({
         </Box>
 
         <Typography variant="body2" color="primary.main" fontWeight={500} mb={1.5}>
-          {industry}
+          {industry || "Công nghệ thông tin"}
         </Typography>
 
         <Box display="flex" alignItems="center" gap={0.5} mb={2}>
           <StarIcon sx={{ color: "warning.main", fontSize: 18 }} />
           <Typography variant="body2" fontWeight="bold">
-            {rating}
+            {rating ?? 4.5}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            ({reviews.toLocaleString()} đánh giá)
+            ({(reviews ?? 120).toLocaleString()} đánh giá)
           </Typography>
         </Box>
 
@@ -154,7 +173,7 @@ export default function CompanyCard({
             height: 40,
           }}
         >
-          {description}
+          {description || "Chưa có thông tin mô tả chi tiết."}
         </Typography>
 
         <Box
@@ -166,7 +185,7 @@ export default function CompanyCard({
           borderColor="divider"
         >
           <Typography variant="body2" color="primary.main" fontWeight="bold">
-            {jobCount} việc làm đang tuyển
+            {jobCount ?? 0} việc làm đang tuyển
           </Typography>
           <IconButton
             size="small"
