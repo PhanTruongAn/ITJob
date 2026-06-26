@@ -44,7 +44,7 @@ import vn.phantruongan.backend.resume.entities.Resume;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@SQLDelete(sql = "UPDATE users SET deleted = true, deleted_at = UTC_TIMESTAMP() WHERE id = ?")
+@SQLDelete(sql = "UPDATE users SET deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class User extends BaseSoftDelete {
     @Id

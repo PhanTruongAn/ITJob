@@ -38,7 +38,7 @@ public class Job extends Auditable {
     private long id;
     private String name;
     private String location;
-    @Column(columnDefinition = "MEDIUMTEXT")
+    @Column(columnDefinition = "TEXT")
     private String description;
     private int quantity;
     private Double salary;

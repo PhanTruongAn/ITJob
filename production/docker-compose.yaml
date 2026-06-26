@@ -13,12 +13,13 @@ services:
       - job-db
 
   job-db:
-    image: mysql:8.0
+    image: postgres:15
     environment:
-      MYSQL_DATABASE: jobhunter
-      MYSQL_ROOT_PASSWORD: 123456
+      POSTGRES_DB: itjob
+      POSTGRES_PASSWORD: "123456"
+      POSTGRES_USER: postgres
     ports:
-      - "3307:3306"
+      - "5432:5432"
     networks:
       - job-network
 
