@@ -3,8 +3,9 @@ import { message } from "antd"
 import { useState } from "react"
 import {
   deleteRecommendation,
+  fetchJobRecommendationById,
   generateRecommendations,
-  updateRecommendationStatus,
+  updateEmailStatus,
 } from "../../../apis/recommendationModule"
 import CustomHooks from "../../../common/hooks/CustomHooks"
 import { QUERY_KEYS } from "../../../common/queryKeys"
@@ -20,6 +21,9 @@ export const useRecommendationState = () => {
     visibleDeleteModal: false,
     selectedId: null,
     selectedRecord: undefined,
+    detailDrawerOpen: false,
+    detailId: null,
+    filters: {},
   })
 
   const updateState = useUpdateState(setState)
@@ -39,11 +43,11 @@ export const useGenerateRecommendations = () => {
   })
 }
 
-export const useUpdateRecommendationStatus = () => {
+export const useUpdateEmailStatus = () => {
   const queryClient = useQueryClient()
   return CustomHooks.useMutation(
-    ({ id, status }: { id: number; status: string }) =>
-      updateRecommendationStatus(id, status),
+    ({ id, emailStatus }: { id: number; emailStatus: string }) =>
+      updateEmailStatus(id, emailStatus),
     {
       onSuccess: () => {
         queryClient.invalidateQueries({
@@ -51,7 +55,7 @@ export const useUpdateRecommendationStatus = () => {
         })
         message.success("Status updated successfully")
       },
-    }
+    },
   )
 }
 
@@ -65,4 +69,12 @@ export const useDeleteRecommendation = () => {
       message.success("Recommendation deleted successfully")
     },
   })
+}
+
+export const useFetchRecommendationDetail = (id: number | null) => {
+  return CustomHooks.useQuery(
+    [QUERY_KEYS.RECOMMENDATION_MODULE, "detail", id],
+    () => fetchJobRecommendationById(id!),
+    { enabled: id !== null },
+  )
 }

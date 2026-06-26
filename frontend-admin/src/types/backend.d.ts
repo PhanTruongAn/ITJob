@@ -170,8 +170,28 @@ export interface IResume {
 
 export interface IJobRecommendation {
   id: number
-  jobTitle: string
+
+  // Subscriber
+  subscriberId: number
   subscriberEmail: string
+
+  // Company
+  companyId: number
+  companyName: string
+
+  // Job
+  jobId: number
+  jobTitle: string
+
+  // Match
+  matchScore: number
+  matchedSkills: string[]
+  reason: string
+
+  // Status
   status: "PENDING" | "SENT" | "CLICKED" | "IGNORED"
+  sentAt: Date | null
+
+  // Audit
   createdAt: Date
 }
