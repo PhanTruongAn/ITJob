@@ -14,7 +14,7 @@ import React, { useEffect, useState } from "react"
 import {
   deleteRecommendation,
   fetchJobRecommendations,
-  updateRecommendationStatus,
+  updateEmailStatus,
 } from "../../../../apis/recommendationModule"
 import CustomHooks from "../../../../common/hooks/CustomHooks"
 import { QUERY_KEYS } from "../../../../common/queryKeys"
@@ -67,7 +67,7 @@ const SubscriberRecommendationsModal: React.FC<
 
   const { mutate: updateStatusMutate } = CustomHooks.useMutation(
     ({ id, status }: { id: number; status: string }) =>
-      updateRecommendationStatus(id, status),
+      updateEmailStatus(id, status),
     {
       onSuccess: () => {
         message.success("Status updated successfully")
