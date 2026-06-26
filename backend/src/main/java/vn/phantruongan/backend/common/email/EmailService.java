@@ -1,6 +1,7 @@
 package vn.phantruongan.backend.common.email;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -13,6 +14,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import vn.phantruongan.backend.recommendation.dtos.res.JobRecommendationResDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +49,38 @@ public class EmailService {
             log.error("Failed to send verification email to '{}': {}", to, e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error sending verify email to '{}': {}", to, e.getMessage());
+        }
+    }
+
+    /**
+     * Gửi email danh sách việc làm gợi ý cho ứng viên (async)
+     */
+    @Async
+    public void sendJobRecommendationsEmail(String to, String name, List<JobRecommendationResDTO> jobs) {
+        if (jobs == null || jobs.isEmpty()) {
+            return;
+        }
+        try {
+            Context context = new Context();
+            context.setVariable("name", name);
+            context.setVariable("jobs", jobs);
+
+            String content = templateEngine.process("job-recommendation", context);
+
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, StandardCharsets.UTF_8.name());
+            helper.setTo(to);
+            helper.setFrom("ITJob <phanan1000@gmail.com>");
+            helper.setSubject("Gợi ý việc làm phù hợp dành riêng cho bạn - ITJob");
+            helper.setText(content, true);
+
+            javaMailSender.send(mimeMessage);
+
+            log.info("Job recommendations email sent to '{}' with {} jobs", to, jobs.size());
+        } catch (MessagingException e) {
+            log.error("Failed to send job recommendations email to '{}': {}", to, e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error sending job recommendations email to '{}': {}", to, e.getMessage());
         }
     }
 }

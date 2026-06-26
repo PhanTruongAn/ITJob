@@ -101,7 +101,7 @@ public class JobService {
         @Transactional
         public JobResDTO updateJob(UpdateJobReqDTO dto) throws InvalidException {
 
-                Job job = jobRepository.findByIdWithSkills(dto.getId())
+                Job job = jobRepository.findById(dto.getId())
                                 .orElseThrow(() -> new InvalidException("Job not found"));
 
                 Company company = companyRepository.findById(dto.getCompanyId())

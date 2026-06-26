@@ -1,5 +1,8 @@
 package vn.phantruongan.backend.recommendation.entities;
 
+import java.time.Instant;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -16,6 +19,7 @@ import lombok.Setter;
 import lombok.ToString;
 import vn.phantruongan.backend.common.Auditable;
 import vn.phantruongan.backend.job.entities.Job;
+import vn.phantruongan.backend.recommendation.enums.EmailStatus;
 import vn.phantruongan.backend.recommendation.enums.RecommendationStatus;
 import vn.phantruongan.backend.subscriber.entities.Subscriber;
 
@@ -23,7 +27,9 @@ import vn.phantruongan.backend.subscriber.entities.Subscriber;
 @Table(name = "job_recommendations", indexes = {
         @Index(name = "idx_recommend_subscriber", columnList = "subscriber_id"),
         @Index(name = "idx_recommend_job", columnList = "job_id"),
-        @Index(name = "idx_recommend_status", columnList = "status")
+        @Index(name = "idx_recommend_status", columnList = "status"),
+        @Index(name = "idx_recommend_created_at", columnList = "created_at"),
+        @Index(name = "idx_recommend_match_score", columnList = "match_score")
 })
 @Getter
 @Setter
@@ -47,4 +53,18 @@ public class JobRecommendation extends Auditable {
     @Enumerated(EnumType.STRING)
     private RecommendationStatus status = RecommendationStatus.PENDING;
 
+    @Enumerated(EnumType.STRING)
+    private EmailStatus emailStatus = EmailStatus.PENDING;
+
+    @Column(name = "match_score")
+    private Double matchScore;
+
+    @Column(name = "matched_skills", columnDefinition = "TEXT")
+    private String matchedSkills; // JSON array, e.g. ["Java","Spring Boot","Docker"]
+
+    @Column(columnDefinition = "TEXT")
+    private String reason; // e.g. "Matched 4/5 required skills"
+
+    @Column(name = "sent_at")
+    private Instant sentAt;
 }

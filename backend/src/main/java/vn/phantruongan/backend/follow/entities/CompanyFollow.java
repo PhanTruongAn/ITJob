@@ -19,17 +19,17 @@ import vn.phantruongan.backend.common.Auditable;
 import vn.phantruongan.backend.company.entities.Company;
 
 @Entity
-@Table(name = "follow_companies", uniqueConstraints = {
-                @UniqueConstraint(name = "uk_follow_candidate_company", columnNames = { "candidate_id", "company_id" })
+@Table(name = "company_follows", uniqueConstraints = {
+                @UniqueConstraint(name = "uk_company_follow_candidate_company", columnNames = { "candidate_id", "company_id" })
 }, indexes = {
-                @Index(name = "idx_follow_company", columnList = "company_id"),
-                @Index(name = "idx_follow_candidate", columnList = "candidate_id"),
-                @Index(name = "idx_follow_candidate_company", columnList = "candidate_id, company_id")
+                @Index(name = "idx_company_follow_company", columnList = "company_id"),
+                @Index(name = "idx_company_follow_candidate", columnList = "candidate_id"),
+                @Index(name = "idx_company_follow_candidate_company", columnList = "candidate_id, company_id")
 })
 @Getter
 @Setter
 @ToString
-public class FollowCompany extends Auditable {
+public class CompanyFollow extends Auditable {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)

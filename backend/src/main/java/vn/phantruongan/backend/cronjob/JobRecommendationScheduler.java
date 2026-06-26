@@ -39,7 +39,7 @@ public class JobRecommendationScheduler implements SchedulingConfigurer {
 
     public void updateSchedule() {
         CronJob config = cronJobService.getJobRecommendationConfig();
-        
+
         if (scheduledFuture != null) {
             scheduledFuture.cancel(false);
         }
@@ -47,9 +47,8 @@ public class JobRecommendationScheduler implements SchedulingConfigurer {
         if (config.getIsEnabled()) {
             log.info("Scheduling job recommendation with cron: {}", config.getCronExpression());
             scheduledFuture = taskRegistrar.getScheduler().schedule(
-                recommendationService::generateJobRecommendations,
-                new CronTrigger(config.getCronExpression())
-            );
+                    recommendationService::generateJobRecommendations,
+                    new CronTrigger(config.getCronExpression()));
         } else {
             log.info("Job recommendation scheduler is disabled");
         }

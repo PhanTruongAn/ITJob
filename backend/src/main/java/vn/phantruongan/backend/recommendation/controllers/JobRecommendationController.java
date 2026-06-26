@@ -5,9 +5,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,8 +23,9 @@ import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.config.web.ApiPaths;
 import vn.phantruongan.backend.cronjob.entities.CronJob;
 import vn.phantruongan.backend.cronjob.services.CronJobService;
+import vn.phantruongan.backend.recommendation.dtos.req.GetJobRecommendationReqDTO;
 import vn.phantruongan.backend.recommendation.dtos.res.JobRecommendationResDTO;
-import vn.phantruongan.backend.recommendation.enums.RecommendationStatus;
+import vn.phantruongan.backend.recommendation.enums.EmailStatus;
 import vn.phantruongan.backend.recommendation.services.JobRecommendationService;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
 import vn.phantruongan.backend.util.annotations.RequirePermission;
@@ -36,6 +40,8 @@ public class JobRecommendationController {
     private final JobRecommendationService jobRecommendationService;
     private final CronJobService cronJobService;
 
+    // ===================== Config =====================
+
     @RequirePermission(resource = ResourceEnum.RECOMMENDATION, action = ActionEnum.READ)
     @GetMapping("/config")
     @ApiMessage("Get job recommendation configuration")
@@ -44,29 +50,38 @@ public class JobRecommendationController {
     }
 
     @RequirePermission(resource = ResourceEnum.RECOMMENDATION, action = ActionEnum.UPDATE)
-    @PatchMapping("/config")
+    @PutMapping("/config")
     @ApiMessage("Update job recommendation configuration")
-    public ResponseEntity<CronJob> updateConfig(
-            @org.springframework.web.bind.annotation.RequestBody CronJob config) {
+    public ResponseEntity<CronJob> updateConfig(@RequestBody CronJob config) {
         return ResponseEntity.ok(cronJobService.updateJobRecommendationConfig(config));
     }
+
+    // ===================== Recommendations =====================
 
     @RequirePermission(resource = ResourceEnum.RECOMMENDATION, action = ActionEnum.READ)
     @GetMapping("/jobs")
     @ApiMessage("Get all job recommendations")
     public ResponseEntity<PaginationResponse<JobRecommendationResDTO>> getAllJobRecommendations(
-            @RequestParam Long subscriberId,
+            @ModelAttribute GetJobRecommendationReqDTO filter,
             @ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(jobRecommendationService.getAllJobRecommendations(subscriberId, pageable));
+        return ResponseEntity.ok(jobRecommendationService.getAllJobRecommendations(filter, pageable));
+    }
+
+    @RequirePermission(resource = ResourceEnum.RECOMMENDATION, action = ActionEnum.READ)
+    @GetMapping("/jobs/{id}")
+    @ApiMessage("Get job recommendation by ID")
+    public ResponseEntity<JobRecommendationResDTO> getJobRecommendationById(@PathVariable Long id)
+            throws InvalidException {
+        return ResponseEntity.ok(jobRecommendationService.getJobRecommendationById(id));
     }
 
     @RequirePermission(resource = ResourceEnum.RECOMMENDATION, action = ActionEnum.UPDATE)
-    @PatchMapping("/jobs/{id}/status")
-    @ApiMessage("Update job recommendation status")
-    public ResponseEntity<JobRecommendationResDTO> updateStatus(
+    @PatchMapping("/jobs/{id}/email-status")
+    @ApiMessage("Update job recommendation email status")
+    public ResponseEntity<JobRecommendationResDTO> updateEmailStatus(
             @PathVariable Long id,
-            @RequestParam RecommendationStatus status) throws InvalidException {
-        return ResponseEntity.ok(jobRecommendationService.updateStatus(id, status));
+            @RequestParam("email-status") EmailStatus emailStatus) throws InvalidException {
+        return ResponseEntity.ok(jobRecommendationService.updateEmailStatus(id, emailStatus));
     }
 
     @RequirePermission(resource = ResourceEnum.RECOMMENDATION, action = ActionEnum.DELETE)
@@ -78,7 +93,7 @@ public class JobRecommendationController {
     }
 
     @RequirePermission(resource = ResourceEnum.RECOMMENDATION, action = ActionEnum.UPDATE)
-    @PostMapping("/jobs/generate")
+    @PostMapping("/generate")
     @ApiMessage("Trigger job recommendation generation")
     public ResponseEntity<Void> generateRecommendations() {
         jobRecommendationService.generateJobRecommendations();

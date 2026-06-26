@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gợi ý việc làm phù hợp - ITJob</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .header {
+            border-bottom: 1px solid #eeeeee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .slogan {
+            font-size: 14px;
+            color: #555555;
+            font-weight: bold;
+            float: right;
+            margin-top: 8px;
+        }
+        .content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333333;
+            clear: both;
+        }
+        .job-card {
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+            background-color: #fafafa;
+        }
+        .job-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin: 0 0 6px 0;
+        }
+        .company-name {
+            font-size: 14px;
+            color: #555555;
+            margin: 0 0 10px 0;
+            font-weight: 500;
+        }
+        .meta-row {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #e8e8e8;
+        }
+        .match-score {
+            background-color: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .match-score.high {
+            background-color: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .reason {
+            font-size: 13px;
+            color: #777777;
+            font-style: italic;
+        }
+        .btn-view {
+            display: inline-block;
+            background-color: #ed1b2f;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+            float: right;
+            margin-top: -5px;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #eeeeee;
+            font-size: 13px;
+            color: #777777;
+            line-height: 1.6;
+        }
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header clearfix">
+            <div class="logo">
+                <span style="background-color: #333; color: white; padding: 4px 8px; border-radius: 4px; margin-right: 2px;">it</span><span style="background-color: #d11124; color: white; padding: 4px 8px; border-radius: 4px;">Job</span>
+            </div>
+            <div class="slogan">Ít Nhưng Mà Chất</div>
+        </div>
+        
+        <div class="content">
+            <p>Xin chào <strong th:text="${name}">User</strong>,</p>
+            <p>Hệ thống ITJob đã tìm thấy các cơ hội việc làm mới rất phù hợp với kỹ năng và sở thích của bạn. Dưới đây là danh sách chi tiết các công việc gợi ý dành riêng cho bạn:</p>
+            
+            <div th:each="job : ${jobs}" class="job-card">
+                <h3 class="job-title" th:text="${job.jobTitle}">Java Software Engineer</h3>
+                <div class="company-name" th:text="${job.companyName}">Công ty ABC</div>
+                
+                <div class="reason" th:text="${job.reason}">Matched 4/5 required skills</div>
+                
+                <div class="meta-row clearfix">
+                    <span th:class="${job.matchScore >= 80} ? 'match-score high' : 'match-score'" 
+                          th:text="'Độ phù hợp: ' + ${#numbers.formatDecimal(job.matchScore, 1, 1)} + '%'">
+                        Độ phù hợp: 85%
+                    </span>
+                    <a th:href="'http://localhost:3000/jobs/' + ${job.jobId}" class="btn-view" style="color: white !important;">Xem chi tiết</a>
+                </div>
+            </div>
+            
+            <p>Chúc bạn nhanh chóng tìm được công việc ưng ý!</p>
+        </div>
+        
+        <div class="footer">
+            <p>Trân trọng,<br>Đội ngũ ITJob</p>
+        </div>
+    </div>
+</body>
+</html>

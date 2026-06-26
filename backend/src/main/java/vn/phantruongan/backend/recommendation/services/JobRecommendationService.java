@@ -1,6 +1,9 @@
 package vn.phantruongan.backend.recommendation.services;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -9,23 +12,30 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
-import vn.phantruongan.backend.job.entities.Job;
-import vn.phantruongan.backend.job.repositories.JobRepository;
-import vn.phantruongan.backend.recommendation.dtos.res.JobRecommendationResDTO;
-import vn.phantruongan.backend.recommendation.entities.JobRecommendation;
-import vn.phantruongan.backend.recommendation.enums.RecommendationStatus;
-import vn.phantruongan.backend.recommendation.repositories.JobRecommendationRepository;
+import vn.phantruongan.backend.common.email.EmailService;
 import vn.phantruongan.backend.cronjob.entities.CronJob;
 import vn.phantruongan.backend.cronjob.services.CronJobService;
+import vn.phantruongan.backend.follow.repositories.CompanyFollowRepository;
+import vn.phantruongan.backend.job.entities.Job;
+import vn.phantruongan.backend.job.repositories.JobRepository;
+import vn.phantruongan.backend.recommendation.dtos.req.GetJobRecommendationReqDTO;
+import vn.phantruongan.backend.recommendation.dtos.req.JobRecommendationEmailReqDTO;
+import vn.phantruongan.backend.recommendation.dtos.res.JobRecommendationResDTO;
+import vn.phantruongan.backend.recommendation.entities.JobRecommendation;
+import vn.phantruongan.backend.recommendation.enums.EmailStatus;
+import vn.phantruongan.backend.recommendation.enums.RecommendationStatus;
+import vn.phantruongan.backend.recommendation.repositories.JobRecommendationRepository;
+import vn.phantruongan.backend.recommendation.specification.JobRecommendationSpecification;
 import vn.phantruongan.backend.subscriber.entities.Subscriber;
 import vn.phantruongan.backend.subscriber.repositories.SubscriberRepository;
 import vn.phantruongan.backend.util.error.InvalidException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -36,11 +46,19 @@ public class JobRecommendationService {
     private final JobRepository jobRepository;
     private final SubscriberRepository subscriberRepository;
     private final CronJobService cronJobService;
+    private final CompanyFollowRepository companyFollowRepository;
+    private final ObjectMapper objectMapper;
+    private final EmailService emailService;
 
-    public PaginationResponse<JobRecommendationResDTO> getAllJobRecommendations(Long subscriberId, Pageable pageable) {
-        Page<JobRecommendation> page = subscriberId != null
-                ? jobRecommendationRepository.findAllBySubscriberId(subscriberId, pageable)
-                : jobRecommendationRepository.findAll(pageable);
+    // =========================================================
+    // CRUD & Query
+    // =========================================================
+
+    public PaginationResponse<JobRecommendationResDTO> getAllJobRecommendations(
+            GetJobRecommendationReqDTO filter, Pageable pageable) {
+
+        JobRecommendationSpecification spec = new JobRecommendationSpecification(filter);
+        Page<JobRecommendation> page = jobRecommendationRepository.findAll(spec, pageable);
 
         List<JobRecommendationResDTO> list = page.getContent()
                 .stream()
@@ -57,20 +75,36 @@ public class JobRecommendationService {
         return response;
     }
 
-    private JobRecommendationResDTO convertToResDTO(JobRecommendation recommendation) {
-        return JobRecommendationResDTO.builder()
-                .id(recommendation.getId())
-                .subscriberEmail(recommendation.getSubscriber().getEmail())
-                .jobTitle(recommendation.getJob().getName())
-                .status(recommendation.getStatus())
-                .createdAt(recommendation.getCreatedAt())
-                .build();
+    public JobRecommendationResDTO getJobRecommendationById(Long id) throws InvalidException {
+        JobRecommendation recommendation = jobRecommendationRepository.findById(id)
+                .orElseThrow(() -> new InvalidException("Không tìm thấy gợi ý công việc"));
+        return convertToResDTO(recommendation);
     }
 
-    public JobRecommendationResDTO updateStatus(Long id, RecommendationStatus status) throws InvalidException {
+    public JobRecommendationResDTO updateRecommendationStatus(Long id, RecommendationStatus status)
+            throws InvalidException {
         JobRecommendation recommendation = jobRecommendationRepository.findById(id)
                 .orElseThrow(() -> new InvalidException("Không tìm thấy gợi ý công việc"));
         recommendation.setStatus(status);
+
+        // Auto-set sentAt when status changes to SENT
+        if (status == RecommendationStatus.APPLIED && recommendation.getSentAt() == null) {
+            recommendation.setSentAt(Instant.now());
+        }
+
+        return convertToResDTO(jobRecommendationRepository.save(recommendation));
+    }
+
+    public JobRecommendationResDTO updateEmailStatus(Long id, EmailStatus status) throws InvalidException {
+        JobRecommendation recommendation = jobRecommendationRepository.findById(id)
+                .orElseThrow(() -> new InvalidException("Không tìm thấy gợi ý công việc"));
+        recommendation.setEmailStatus(status);
+
+        // Auto-set sentAt when status changes to SENT
+        if (status == EmailStatus.SENT && recommendation.getSentAt() == null) {
+            recommendation.setSentAt(Instant.now());
+        }
+
         return convertToResDTO(jobRecommendationRepository.save(recommendation));
     }
 
@@ -81,8 +115,13 @@ public class JobRecommendationService {
         jobRecommendationRepository.deleteById(id);
     }
 
+    // =========================================================
+    // Recommendation Generation Engine
+    // =========================================================
+
     public void generateJobRecommendations() {
         CronJob config = cronJobService.getJobRecommendationConfig();
+
         if (!config.getIsEnabled()) {
             log.info("Job recommendation engine is disabled.");
             return;
@@ -93,10 +132,53 @@ public class JobRecommendationService {
         List<Subscriber> subscribers = subscriberRepository.findAllWithSkills();
         List<Job> jobs = jobRepository.findAllWithSkills();
 
-        log.info("Loaded {} subscribers and {} jobs for recommendation.", subscribers.size(), jobs.size());
+        log.info("Loaded {} subscribers and {} jobs for recommendation.",
+                subscribers.size(), jobs.size());
 
-        // 1. Filter jobs by 24h if enabled
-        if (config.getOnlyLast24h()) {
+        jobs = applyJobFilters(jobs, config);
+
+        if (subscribers.isEmpty() || jobs.isEmpty()) {
+            log.info("No subscribers or jobs to process. Finishing.");
+            return;
+        }
+
+        int batchSize = 50;
+        int batchCount = 0;
+
+        for (int i = 0; i < subscribers.size(); i += batchSize) {
+
+            batchCount++;
+
+            int end = Math.min(i + batchSize, subscribers.size());
+            List<Subscriber> batch = subscribers.subList(i, end);
+
+            log.info("Processing batch {} (subscribers {}-{})",
+                    batchCount, i + 1, end);
+
+            List<JobRecommendationEmailReqDTO> emailQueue = processSubscriberBatch(batch, jobs, config);
+
+            for (JobRecommendationEmailReqDTO email : emailQueue) {
+                emailService.sendJobRecommendationsEmail(
+                        email.getSubscriber().getEmail(),
+                        // email.getSubscriber().getFullName(), un-comment when update table subscriber
+                        null,
+                        email.getRecommendations());
+
+                // List<Long> recommendationIds = email.getRecommendations().stream()
+                // .map(JobRecommendationResDTO::getId)
+                // .collect(Collectors.toList());
+
+                // jobRecommendationRepository.updateEmailStatusByIds(recommendationIds,
+                // EmailStatus.SENT);
+            }
+        }
+
+        log.info("Job recommendation generation completed.");
+    }
+
+    private List<Job> applyJobFilters(List<Job> jobs, CronJob config) {
+        // Filter by last 24h
+        if (Boolean.TRUE.equals(config.getOnlyLast24h())) {
             Instant dayAgo = Instant.now().minus(24, ChronoUnit.HOURS);
             jobs = jobs.stream()
                     .filter(j -> j.getCreatedAt() != null && j.getCreatedAt().isAfter(dayAgo))
@@ -104,36 +186,45 @@ public class JobRecommendationService {
             log.info("Filtered to {} jobs posted in the last 24h", jobs.size());
         }
 
-        if (subscribers.isEmpty() || jobs.isEmpty()) {
-            log.info("No subscribers or jobs to process. Finishing.");
-            return;
+        // Skip inactive jobs
+        if (Boolean.TRUE.equals(config.getSkipInactiveJobs())) {
+            jobs = jobs.stream()
+                    .filter(Job::isActive)
+                    .collect(Collectors.toList());
+            log.info("Filtered to {} active jobs", jobs.size());
         }
 
-        // 2. Process subscribers in batches
-        int batchSize = 50;
-        int batchCount = 0;
-        for (int i = 0; i < subscribers.size(); i += batchSize) {
-            batchCount++;
-            int end = Math.min(i + batchSize, subscribers.size());
-            List<Subscriber> batch = subscribers.subList(i, end);
-            log.info("Processing batch {} (subscribers {}-{})", batchCount, i + 1, end);
-            processSubscriberBatch(batch, jobs, config);
+        // Skip expired jobs (endDate < now)
+        if (Boolean.TRUE.equals(config.getSkipExpiredJobs())) {
+            Instant now = Instant.now();
+            jobs = jobs.stream()
+                    .filter(j -> j.getEndDate() == null || j.getEndDate().isAfter(now))
+                    .collect(Collectors.toList());
+            log.info("Filtered to {} non-expired jobs", jobs.size());
         }
 
-        log.info("Job recommendation generation completed.");
+        return jobs;
     }
 
     @Transactional
-    public void processSubscriberBatch(List<Subscriber> subscribers, List<Job> jobs, CronJob config) {
+    public List<JobRecommendationEmailReqDTO> processSubscriberBatch(
+            List<Subscriber> subscribers,
+            List<Job> jobs,
+            CronJob config) {
+
         List<JobRecommendation> toSave = new ArrayList<>();
+        List<JobRecommendationEmailReqDTO> emailQueue = new ArrayList<>();
 
         for (Subscriber subscriber : subscribers) {
-            long existingPending = jobRecommendationRepository.countBySubscriber_IdAndStatus(subscriber.getId(),
-                    RecommendationStatus.PENDING);
+
+            long existingPending = jobRecommendationRepository
+                    .countBySubscriber_IdAndStatus(
+                            subscriber.getId(),
+                            RecommendationStatus.PENDING);
+
             int canAdd = config.getMaxJobsPerSubscriber() - (int) existingPending;
 
             if (canAdd <= 0) {
-                log.debug("Subscriber {} already has max pending recommendations.", subscriber.getEmail());
                 continue;
             }
 
@@ -143,14 +234,26 @@ public class JobRecommendationService {
                     .collect(Collectors.toSet());
 
             if (subscriberSkillIds.isEmpty()) {
-                log.debug("Subscriber {} has no skills listed.", subscriber.getEmail());
                 continue;
             }
 
+            Set<Long> followedCompanyIdSet = Set.copyOf(
+                    companyFollowRepository.findFollowedCompanyIdsByEmail(subscriber.getEmail()));
+
+            List<JobRecommendationResDTO> emailJobs = new ArrayList<>();
+
             int addedCount = 0;
+
             for (Job job : jobs) {
+
                 if (addedCount >= canAdd)
                     break;
+
+                if (Boolean.TRUE.equals(config.getSkipDuplicates())
+                        && jobRecommendationRepository.existsBySubscriber_IdAndJob_Id(
+                                subscriber.getId(), job.getId())) {
+                    continue;
+                }
 
                 Set<Long> jobSkillIds = job.getJobSkills()
                         .stream()
@@ -160,31 +263,174 @@ public class JobRecommendationService {
                 if (jobSkillIds.isEmpty())
                     continue;
 
-                // Calculate match percentage using IDs
-                long matchingCount = jobSkillIds.stream().filter(subscriberSkillIds::contains).count();
-                double matchPercentage = (double) matchingCount / jobSkillIds.size() * 100;
+                double score = calculateWeightedScore(
+                        subscriber,
+                        subscriberSkillIds,
+                        job,
+                        jobSkillIds,
+                        followedCompanyIdSet,
+                        config);
 
-                if (matchPercentage >= config.getMinMatchPercentage()) {
-                    boolean exists = jobRecommendationRepository.existsBySubscriber_IdAndJob_Id(subscriber.getId(),
-                            job.getId());
-                    if (!exists) {
-                        JobRecommendation recommendation = new JobRecommendation();
-                        recommendation.setSubscriber(subscriber);
-                        recommendation.setJob(job);
-                        recommendation.setStatus(RecommendationStatus.PENDING);
-                        toSave.add(recommendation);
-                        addedCount++;
-                    }
+                if (score < config.getMinMatchPercentage())
+                    continue;
+
+                List<String> matchedSkillNames = job.getJobSkills()
+                        .stream()
+                        .filter(js -> subscriberSkillIds.contains(js.getSkill().getId()))
+                        .map(js -> js.getSkill().getName())
+                        .toList();
+
+                String reason = String.format(
+                        "Matched %d/%d required skills",
+                        matchedSkillNames.size(),
+                        jobSkillIds.size());
+
+                if (job.getCompany() != null &&
+                        followedCompanyIdSet.contains(job.getCompany().getId())) {
+                    reason += " + following company";
                 }
+
+                JobRecommendation recommendation = new JobRecommendation();
+                recommendation.setSubscriber(subscriber);
+                recommendation.setJob(job);
+                recommendation.setEmailStatus(EmailStatus.PENDING);
+                recommendation.setStatus(RecommendationStatus.PENDING);
+                recommendation.setMatchScore(Math.min(score, 100.0));
+                recommendation.setMatchedSkills(toJson(matchedSkillNames));
+                recommendation.setReason(reason);
+
+                toSave.add(recommendation);
+
+                emailJobs.add(JobRecommendationResDTO.builder()
+                        .jobId(job.getId())
+                        .jobTitle(job.getName())
+                        .companyName(job.getCompany().getName())
+                        .matchScore(Math.min(score, 100.0))
+                        .matchedSkills(matchedSkillNames)
+                        .reason(reason)
+                        .build());
+
+                addedCount++;
             }
+
+            if (!emailJobs.isEmpty()) {
+                emailQueue.add(new JobRecommendationEmailReqDTO(subscriber, emailJobs));
+            }
+
             if (addedCount > 0) {
-                log.info("Generated {} recommendations for subscriber {}", addedCount, subscriber.getEmail());
+                log.info("Generated {} recommendations for subscriber {}",
+                        addedCount,
+                        subscriber.getEmail());
             }
         }
 
         if (!toSave.isEmpty()) {
             jobRecommendationRepository.saveAll(toSave);
-            log.info("Saved {} total recommendations for current batch.", toSave.size());
+            log.info("Saved {} recommendations.", toSave.size());
+        }
+
+        return emailQueue;
+    }
+
+    /**
+     * Calculate weighted recommendation score (0–100).
+     * Components:
+     * - skillMatchWeight: % of job's required skills matched by subscriber
+     * - companyFollowWeight: bonus if subscriber follows the company
+     * - industryWeight: placeholder (not yet implemented – defaults to 0)
+     * - locationWeight: placeholder (not yet implemented – defaults to 0)
+     * - salaryWeight: placeholder (not yet implemented – defaults to 0)
+     */
+    private double calculateWeightedScore(
+            Subscriber subscriber, Set<Long> subscriberSkillIds,
+            Job job, Set<Long> jobSkillIds,
+            Set<Long> followedCompanyIds, CronJob config) {
+
+        double score = 0.0;
+        int totalWeight = config.getSkillMatchWeight()
+                + config.getCompanyFollowWeight()
+                + config.getIndustryWeight()
+                + config.getLocationWeight()
+                + config.getSalaryWeight();
+
+        if (totalWeight == 0)
+            totalWeight = 100;
+
+        // 1. Skill match component
+        long matchingCount = jobSkillIds.stream().filter(subscriberSkillIds::contains).count();
+        double skillMatchRatio = (double) matchingCount / jobSkillIds.size(); // 0.0 – 1.0
+        score += skillMatchRatio * config.getSkillMatchWeight();
+
+        // 2. Company follow component (binary: full weight or 0)
+        if (job.getCompany() != null && followedCompanyIds.contains(job.getCompany().getId())) {
+            score += config.getCompanyFollowWeight();
+        }
+
+        // 3. Industry weight — future: compare subscriber industry preference with job
+        // industry
+        // score += industryMatchRatio * config.getIndustryWeight();
+
+        // 4. Location weight — future: compare subscriber preferred location with job
+        // location
+        // score += locationMatchRatio * config.getLocationWeight();
+
+        // 5. Salary weight — future: compare subscriber expected salary range
+        // score += salaryMatchRatio * config.getSalaryWeight();
+
+        // Normalize to 0–100 based on total configured weights
+        return (score / totalWeight) * 100.0;
+    }
+
+    // =========================================================
+    // Helpers
+    // =========================================================
+
+    public JobRecommendationResDTO convertToResDTO(JobRecommendation recommendation) {
+        List<String> matchedSkills = parseJson(recommendation.getMatchedSkills());
+
+        String companyName = null;
+        Long companyId = null;
+        if (recommendation.getJob() != null && recommendation.getJob().getCompany() != null) {
+            companyName = recommendation.getJob().getCompany().getName();
+            companyId = recommendation.getJob().getCompany().getId();
+        }
+
+        return JobRecommendationResDTO.builder()
+                .id(recommendation.getId())
+                .subscriberId(recommendation.getSubscriber() != null ? recommendation.getSubscriber().getId() : null)
+                .subscriberEmail(
+                        recommendation.getSubscriber() != null ? recommendation.getSubscriber().getEmail() : null)
+                .companyId(companyId)
+                .companyName(companyName)
+                .jobId(recommendation.getJob() != null ? recommendation.getJob().getId() : null)
+                .jobTitle(recommendation.getJob() != null ? recommendation.getJob().getName() : null)
+                .matchScore(recommendation.getMatchScore())
+                .matchedSkills(matchedSkills)
+                .reason(recommendation.getReason())
+                .emailStatus(recommendation.getEmailStatus())
+                .sentAt(recommendation.getSentAt())
+                .createdAt(recommendation.getCreatedAt())
+                .build();
+    }
+
+    private String toJson(List<String> list) {
+        try {
+            return objectMapper.writeValueAsString(list);
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to serialize matched skills list", e);
+            return "[]";
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<String> parseJson(String json) {
+        if (json == null || json.isBlank())
+            return List.of();
+        try {
+            return objectMapper.readValue(json, List.class);
+        } catch (JsonProcessingException e) {
+            // fallback: try parsing as comma separated
+            return Arrays.asList(json.replaceAll("[\\[\\]\"]", "").split(","));
         }
     }
 }
