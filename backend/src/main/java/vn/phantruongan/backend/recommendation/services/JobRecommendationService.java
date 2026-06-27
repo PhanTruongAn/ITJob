@@ -16,17 +16,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.transaction.Transactional;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.common.email.EmailService;
+import vn.phantruongan.backend.config.common.RabbitMQConfig;
 import vn.phantruongan.backend.cronjob.entities.CronJob;
 import vn.phantruongan.backend.cronjob.services.CronJobService;
 import vn.phantruongan.backend.follow.repositories.CompanyFollowRepository;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.repositories.JobRepository;
+import vn.phantruongan.backend.recommendation.dtos.RecommendationEmailMessage;
 import vn.phantruongan.backend.recommendation.dtos.req.GetJobRecommendationReqDTO;
-import vn.phantruongan.backend.recommendation.dtos.req.JobRecommendationEmailReqDTO;
 import vn.phantruongan.backend.recommendation.dtos.res.JobRecommendationResDTO;
 import vn.phantruongan.backend.recommendation.entities.JobRecommendation;
 import vn.phantruongan.backend.recommendation.enums.EmailStatus;
@@ -49,6 +51,7 @@ public class JobRecommendationService {
     private final CompanyFollowRepository companyFollowRepository;
     private final ObjectMapper objectMapper;
     private final EmailService emailService;
+    private final RabbitTemplate rabbitTemplate;
 
     // =========================================================
     // CRUD & Query
@@ -146,30 +149,21 @@ public class JobRecommendationService {
         int batchCount = 0;
 
         for (int i = 0; i < subscribers.size(); i += batchSize) {
-
             batchCount++;
-
             int end = Math.min(i + batchSize, subscribers.size());
             List<Subscriber> batch = subscribers.subList(i, end);
 
-            log.info("Processing batch {} (subscribers {}-{})",
-                    batchCount, i + 1, end);
+            log.info("Processing batch {} (subscribers {}-{})", batchCount, i + 1, end);
 
-            List<JobRecommendationEmailReqDTO> emailQueue = processSubscriberBatch(batch, jobs, config);
+            List<RecommendationEmailMessage> messages = processSubscriberBatch(batch, jobs, config);
 
-            for (JobRecommendationEmailReqDTO email : emailQueue) {
-                emailService.sendJobRecommendationsEmail(
-                        email.getSubscriber().getEmail(),
-                        // email.getSubscriber().getFullName(), un-comment when update table subscriber
-                        null,
-                        email.getRecommendations());
-
-                // List<Long> recommendationIds = email.getRecommendations().stream()
-                // .map(JobRecommendationResDTO::getId)
-                // .collect(Collectors.toList());
-
-                // jobRecommendationRepository.updateEmailStatusByIds(recommendationIds,
-                // EmailStatus.SENT);
+            for (RecommendationEmailMessage msg : messages) {
+                rabbitTemplate.convertAndSend(
+                        RabbitMQConfig.EXCHANGE_RECOMMENDATION_EMAIL,
+                        RabbitMQConfig.ROUTING_KEY_RECOMMENDATION_EMAIL,
+                        msg
+                );
+                log.info("Published recommendation email message to RabbitMQ for: {}", msg.getSubscriberEmail());
             }
         }
 
@@ -207,13 +201,12 @@ public class JobRecommendationService {
     }
 
     @Transactional
-    public List<JobRecommendationEmailReqDTO> processSubscriberBatch(
+    public List<RecommendationEmailMessage> processSubscriberBatch(
             List<Subscriber> subscribers,
             List<Job> jobs,
             CronJob config) {
 
         List<JobRecommendation> toSave = new ArrayList<>();
-        List<JobRecommendationEmailReqDTO> emailQueue = new ArrayList<>();
 
         for (Subscriber subscriber : subscribers) {
 
@@ -239,8 +232,6 @@ public class JobRecommendationService {
 
             Set<Long> followedCompanyIdSet = Set.copyOf(
                     companyFollowRepository.findFollowedCompanyIdsByEmail(subscriber.getEmail()));
-
-            List<JobRecommendationResDTO> emailJobs = new ArrayList<>();
 
             int addedCount = 0;
 
@@ -300,21 +291,7 @@ public class JobRecommendationService {
                 recommendation.setReason(reason);
 
                 toSave.add(recommendation);
-
-                emailJobs.add(JobRecommendationResDTO.builder()
-                        .jobId(job.getId())
-                        .jobTitle(job.getName())
-                        .companyName(job.getCompany().getName())
-                        .matchScore(Math.min(score, 100.0))
-                        .matchedSkills(matchedSkillNames)
-                        .reason(reason)
-                        .build());
-
                 addedCount++;
-            }
-
-            if (!emailJobs.isEmpty()) {
-                emailQueue.add(new JobRecommendationEmailReqDTO(subscriber, emailJobs));
             }
 
             if (addedCount > 0) {
@@ -324,12 +301,31 @@ public class JobRecommendationService {
             }
         }
 
+        List<RecommendationEmailMessage> messages = new ArrayList<>();
         if (!toSave.isEmpty()) {
-            jobRecommendationRepository.saveAll(toSave);
-            log.info("Saved {} recommendations.", toSave.size());
+            List<JobRecommendation> saved = jobRecommendationRepository.saveAll(toSave);
+            log.info("Saved {} recommendations.", saved.size());
+
+            // Group saved by subscriber to package into messages
+            java.util.Map<Subscriber, List<JobRecommendation>> grouped = saved.stream()
+                    .collect(Collectors.groupingBy(JobRecommendation::getSubscriber));
+
+            for (java.util.Map.Entry<Subscriber, List<JobRecommendation>> entry : grouped.entrySet()) {
+                Subscriber sub = entry.getKey();
+                List<Long> ids = entry.getValue().stream()
+                        .map(JobRecommendation::getId)
+                        .collect(Collectors.toList());
+
+                messages.add(RecommendationEmailMessage.builder()
+                        .subscriberId(sub.getId())
+                        .subscriberEmail(sub.getEmail())
+                        .subscriberName(null) // or full name if sub has it
+                        .recommendationIds(ids)
+                        .build());
+            }
         }
 
-        return emailQueue;
+        return messages;
     }
 
     /**
@@ -431,6 +427,48 @@ public class JobRecommendationService {
         } catch (JsonProcessingException e) {
             // fallback: try parsing as comma separated
             return Arrays.asList(json.replaceAll("[\\[\\]\"]", "").split(","));
+        }
+    }
+
+    public void reconcilePendingEmails() {
+        log.info("Running pending email reconciliation...");
+        // Only re-queue records that have been attempted before (retryCount > 0).
+        // Fresh records (retryCount = 0) are already in the RabbitMQ queue from the
+        // initial publish — we must NOT republish them or they will be sent multiple times.
+        // Use a 5-minute cutoff to avoid picking up records mid-processing.
+        Instant cutoff = Instant.now().minus(5, ChronoUnit.MINUTES);
+        List<JobRecommendation> pending = jobRecommendationRepository.findPendingForReconciliation(cutoff);
+
+        if (pending.isEmpty()) {
+            log.info("No failed-retry emails found for reconciliation.");
+            return;
+        }
+
+        log.info("Found {} failed-retry recommendations for reconciliation. Republishing to RabbitMQ...", pending.size());
+
+        // Group by subscriber
+        java.util.Map<Subscriber, List<JobRecommendation>> grouped = pending.stream()
+                .collect(Collectors.groupingBy(JobRecommendation::getSubscriber));
+
+        for (java.util.Map.Entry<Subscriber, List<JobRecommendation>> entry : grouped.entrySet()) {
+            Subscriber sub = entry.getKey();
+            List<Long> ids = entry.getValue().stream()
+                    .map(JobRecommendation::getId)
+                    .collect(Collectors.toList());
+
+            RecommendationEmailMessage msg = RecommendationEmailMessage.builder()
+                    .subscriberId(sub.getId())
+                    .subscriberEmail(sub.getEmail())
+                    .subscriberName(null)
+                    .recommendationIds(ids)
+                    .build();
+
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.EXCHANGE_RECOMMENDATION_EMAIL,
+                    RabbitMQConfig.ROUTING_KEY_RECOMMENDATION_EMAIL,
+                    msg
+            );
+            log.info("Republished failed-retry email to RabbitMQ for: {}", sub.getEmail());
         }
     }
 }

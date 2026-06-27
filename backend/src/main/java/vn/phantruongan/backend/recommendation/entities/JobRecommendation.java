@@ -67,4 +67,7 @@ public class JobRecommendation extends Auditable {
 
     @Column(name = "sent_at")
     private Instant sentAt;
+
+    @Column(name = "retry_count", nullable = false)
+    private Integer retryCount = 0;
 }

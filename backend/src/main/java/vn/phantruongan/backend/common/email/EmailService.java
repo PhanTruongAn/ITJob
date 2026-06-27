@@ -53,34 +53,27 @@ public class EmailService {
     }
 
     /**
-     * Gửi email danh sách việc làm gợi ý cho ứng viên (async)
+     * Gửi email danh sách việc làm gợi ý cho ứng viên (synchronous)
      */
-    @Async
-    public void sendJobRecommendationsEmail(String to, String name, List<JobRecommendationResDTO> jobs) {
+    public void sendJobRecommendationsEmail(String to, String name, List<JobRecommendationResDTO> jobs) throws Exception {
         if (jobs == null || jobs.isEmpty()) {
             return;
         }
-        try {
-            Context context = new Context();
-            context.setVariable("name", name);
-            context.setVariable("jobs", jobs);
+        Context context = new Context();
+        context.setVariable("name", name);
+        context.setVariable("jobs", jobs);
 
-            String content = templateEngine.process("job-recommendation", context);
+        String content = templateEngine.process("job-recommendation", context);
 
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, StandardCharsets.UTF_8.name());
-            helper.setTo(to);
-            helper.setFrom("ITJob <phanan1000@gmail.com>");
-            helper.setSubject("Gợi ý việc làm phù hợp dành riêng cho bạn - ITJob");
-            helper.setText(content, true);
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, StandardCharsets.UTF_8.name());
+        helper.setTo(to);
+        helper.setFrom("ITJob <phanan1000@gmail.com>");
+        helper.setSubject("Gợi ý việc làm phù hợp dành riêng cho bạn - ITJob");
+        helper.setText(content, true);
 
-            javaMailSender.send(mimeMessage);
+        javaMailSender.send(mimeMessage);
 
-            log.info("Job recommendations email sent to '{}' with {} jobs", to, jobs.size());
-        } catch (MessagingException e) {
-            log.error("Failed to send job recommendations email to '{}': {}", to, e.getMessage());
-        } catch (Exception e) {
-            log.error("Unexpected error sending job recommendations email to '{}': {}", to, e.getMessage());
-        }
+        log.info("Job recommendations email sent to '{}' with {} jobs", to, jobs.size());
     }
 }
