@@ -29,7 +29,7 @@ interface IState {
 
 const initialState: IState = {
   isAuthenticated: false,
-  isLoading: true,
+  isLoading: typeof window !== "undefined" ? !!localStorage.getItem("access_token") : false,
   // isRefreshToken: false,
   // errorRefreshToken: null,
   user: {
