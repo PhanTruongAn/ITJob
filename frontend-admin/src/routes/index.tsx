@@ -183,6 +183,19 @@ export default function Router() {
             },
           ],
         },
+        {
+          path: "",
+          children: [
+            {
+              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              index: true,
+            },
+            {
+              path: PATH_DASHBOARD.emailAnalytics.list,
+              element: <EmailAnalyticsPage />,
+            },
+          ],
+        },
       ],
     },
     // Thêm route catch-all cho các URL không khớp
@@ -215,3 +228,5 @@ const RecommendationManageList = Loadable(
   lazy(() => import("../page/recommendation"))
 );
 const NotFound = Loadable(lazy(() => import("../page/404/index")));
+const EmailAnalyticsPage = Loadable(lazy(() => import("../page/email-analytics")));
+

@@ -46,4 +46,7 @@ export const PATH_DASHBOARD = {
   recommendationManage: {
     list: path(ROOT_DASHBOARD, "/recommendations"),
   },
+  emailAnalytics: {
+    list: path(ROOT_DASHBOARD, "/email-analytics"),
+  },
 }

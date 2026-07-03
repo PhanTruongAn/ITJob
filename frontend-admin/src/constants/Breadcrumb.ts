@@ -48,4 +48,7 @@ export const BREADCRUMB = {
   //Recommendation
   RECOMMENDATION: "Job Recommendation",
   LIST_RECOMMENDATION: "List recommendation",
+
+  //Email Analytics
+  EMAIL_ANALYTICS: "Email Analytics",
 }

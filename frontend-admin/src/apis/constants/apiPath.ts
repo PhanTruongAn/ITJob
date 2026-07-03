@@ -43,4 +43,8 @@ export const PATH_API = {
   recommendation: {
     root: path(ROOT_API, "/recommendations"),
   },
+  emailAnalytics: {
+    summary: path(ROOT_API, "/admin/email/analytics/summary"),
+    records: path(ROOT_API, "/admin/email/analytics/records"),
+  },
 }
