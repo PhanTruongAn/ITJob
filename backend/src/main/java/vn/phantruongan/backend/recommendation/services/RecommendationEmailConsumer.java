@@ -5,16 +5,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import vn.phantruongan.backend.common.email.EmailService;
 import vn.phantruongan.backend.config.common.RabbitMQConfig;
 import vn.phantruongan.backend.recommendation.dtos.RecommendationEmailMessage;
 import vn.phantruongan.backend.recommendation.dtos.res.JobRecommendationResDTO;
+import vn.phantruongan.backend.recommendation.entities.EmailSendHistory;
 import vn.phantruongan.backend.recommendation.entities.JobRecommendation;
 import vn.phantruongan.backend.recommendation.enums.EmailStatus;
+import vn.phantruongan.backend.recommendation.repositories.EmailSendHistoryRepository;
 import vn.phantruongan.backend.recommendation.repositories.JobRecommendationRepository;
 
 @Component
@@ -25,6 +29,17 @@ public class RecommendationEmailConsumer {
     private final JobRecommendationRepository jobRecommendationRepository;
     private final EmailService emailService;
     private final JobRecommendationService jobRecommendationService;
+    private final EmailSendHistoryRepository emailSendHistoryRepository;
+    private final MeterRegistry meterRegistry;
+
+    @Value("${email.backoff-base-ms:1000}")
+    private int backoffBaseMs;
+
+    @Value("${email.backoff-max-ms:30000}")
+    private int backoffMaxMs;
+
+    @Value("${email.max-retries:3}")
+    private int maxRetries;
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE_RECOMMENDATION_EMAIL)
     public void consumeRecommendationEmail(RecommendationEmailMessage message) {
@@ -36,7 +51,7 @@ public class RecommendationEmailConsumer {
             return;
         }
 
-        // Fetch current recommendations from DB using eager loading (@EntityGraph) to avoid LazyInitializationException
+        // Fetch current recommendations from DB using eager loading (@EntityGraph)
         List<JobRecommendation> recommendations = jobRecommendationRepository.findAllByIdIn(recIds);
         if (recommendations.isEmpty()) {
             log.warn("No JobRecommendations found for IDs {}, skipping.", recIds);
@@ -48,23 +63,34 @@ public class RecommendationEmailConsumer {
                 .map(jobRecommendationService::convertToResDTO)
                 .collect(Collectors.toList());
 
+        int attempt = (recommendations.get(0).getRetryCount() != null
+                ? recommendations.get(0).getRetryCount()
+                : 0) + 1;
+
         try {
             // Send email synchronously
             emailService.sendJobRecommendationsEmail(
                     message.getSubscriberEmail(),
-                    null, // Subscriber full name can be set here if table is updated later
+                    null,
                     resDTOs
             );
 
             // On success, update status in DB
             jobRecommendationRepository.updateEmailStatusAndSentAtByIds(recIds, EmailStatus.SENT, Instant.now());
-            log.info("Successfully processed and sent email to {}", message.getSubscriberEmail());
+
+            // Log send history for each recommendation
+            for (Long recId : recIds) {
+                saveHistory(recId, message.getSubscriberEmail(), EmailStatus.SENT, attempt, null);
+            }
+
+            meterRegistry.counter("email.sent.total").increment();
+            log.info("Successfully processed and sent email to {} (attempt {})", message.getSubscriberEmail(), attempt);
 
         } catch (Exception e) {
             log.error("Failed to send email to '{}': {}", message.getSubscriberEmail(), e.getMessage());
-            handleEmailFailure(recIds, recommendations, e);
+            handleEmailFailure(recIds, recommendations, message.getSubscriberEmail(), attempt, e);
         } finally {
-            // Rate limit throttling: limit to 1000 emails/minute (~70ms delay per subscriber message)
+            // Rate-limit throttling: ~1000 emails/minute
             try {
                 Thread.sleep(70);
             } catch (InterruptedException ie) {
@@ -74,25 +100,70 @@ public class RecommendationEmailConsumer {
         }
     }
 
-    private void handleEmailFailure(List<Long> recIds, List<JobRecommendation> recommendations, Exception e) {
+    private void handleEmailFailure(
+            List<Long> recIds,
+            List<JobRecommendation> recommendations,
+            String subscriberEmail,
+            int attempt,
+            Exception e) {
+
         boolean isTransient = isTransientException(e);
-        int currentRetry = recommendations.get(0).getRetryCount() != null ? recommendations.get(0).getRetryCount() : 0;
+        int currentRetry = recommendations.get(0).getRetryCount() != null
+                ? recommendations.get(0).getRetryCount()
+                : 0;
         int newRetryCount = currentRetry + 1;
 
-        if (isTransient) {
-            if (newRetryCount < 3) {
-                // Keep PENDING, increment retryCount
-                jobRecommendationRepository.updateEmailStatusAndRetryCountByIds(recIds, EmailStatus.PENDING, newRetryCount);
-                log.warn("Email failure is transient. Incremented retryCount to {} and kept status PENDING for IDs {}", newRetryCount, recIds);
-            } else {
-                // Max retries reached, mark as FAILED
-                jobRecommendationRepository.updateEmailStatusAndRetryCountByIds(recIds, EmailStatus.FAILED, newRetryCount);
-                log.error("Max transient retries reached (3). Marked status as FAILED for IDs {}", recIds);
+        if (isTransient && newRetryCount < maxRetries) {
+            // Exponential back-off: min(baseMs * 2^(attempt-1), maxMs)
+            long delay = Math.min((long) backoffBaseMs * (1L << (newRetryCount - 1)), backoffMaxMs);
+            log.warn("Transient failure (attempt {}). Back-off {}ms before next retry. IDs: {}", newRetryCount, delay, recIds);
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                log.warn("Back-off sleep interrupted", ie);
             }
+
+            // Keep PENDING, increment retryCount – reconciliation job will re-queue
+            jobRecommendationRepository.updateEmailStatusAndRetryCountByIds(recIds, EmailStatus.PENDING, newRetryCount);
+
+            // Log failed attempt
+            for (Long recId : recIds) {
+                saveHistory(recId, subscriberEmail, EmailStatus.PENDING, attempt, e.getMessage());
+            }
+            meterRegistry.counter("email.retried.total").increment();
+
         } else {
-            // Permanent failure, mark as FAILED immediately
-            jobRecommendationRepository.updateEmailStatusByIds(recIds, EmailStatus.FAILED);
-            log.error("Email failure is permanent (non-transient). Marked status as FAILED immediately for IDs {}", recIds);
+            // Permanent failure OR max retries exhausted
+            if (isTransient) {
+                log.error("Max transient retries reached ({}). Marking FAILED for IDs: {}", maxRetries, recIds);
+                jobRecommendationRepository.updateEmailStatusAndRetryCountByIds(recIds, EmailStatus.FAILED, newRetryCount);
+            } else {
+                log.error("Permanent (non-transient) failure. Marking FAILED immediately for IDs: {}", recIds);
+                jobRecommendationRepository.updateEmailStatusByIds(recIds, EmailStatus.FAILED);
+            }
+
+            // Log failure history for each recommendation
+            for (Long recId : recIds) {
+                saveHistory(recId, subscriberEmail, EmailStatus.FAILED, attempt, e.getMessage());
+            }
+            meterRegistry.counter("email.failed.total").increment();
+        }
+    }
+
+    private void saveHistory(Long recommendationId, String email, EmailStatus status, int attempt, String errorMessage) {
+        try {
+            EmailSendHistory history = EmailSendHistory.builder()
+                    .recommendationId(recommendationId)
+                    .email(email)
+                    .status(status)
+                    .attempt(attempt)
+                    .createdAt(Instant.now())
+                    .errorMessage(errorMessage)
+                    .build();
+            emailSendHistoryRepository.save(history);
+        } catch (Exception ex) {
+            log.error("Failed to save EmailSendHistory for recommendationId={}: {}", recommendationId, ex.getMessage());
         }
     }
 
@@ -118,7 +189,7 @@ public class RecommendationEmailConsumer {
                         return true;
                     }
                 } catch (Exception ex) {
-                    // ignore and fallback to message pattern check
+                    // ignore, fallback to message check
                 }
             }
 
