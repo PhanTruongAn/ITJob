@@ -1,4 +1,4 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 # 🚀 ITJob — Recruitment & Job Matching Ecosystem
 
@@ -360,22 +360,7 @@ flowchart LR
 - Admin (`roleId = 1L`) bypass toàn bộ permission checks
 - Roles khác (EMPLOYER, CANDIDATE, MANAGER) được validate dynamic từ DB
 
-### 3. JWT Authentication + Google OAuth2
-
-```mermaid
-flowchart TD
-    A["Login Request"] --> B{Auth Type?}
-    B -->|Normal| C["Validate credentials"]
-    B -->|Google| D["Verify Google ID Token"]
-    C --> E["JwtService: Generate Access + Refresh Token"]
-    D --> E
-    E --> F["JWT Claims: email, roleId, permissions"]
-    F --> G["JwtAuthenticationConverter"]
-    G --> H["Map roleId → Spring GrantedAuthority"]
-    H --> I["ROLE_ADMIN (roleId=1) / ROLE_USER"]
-```
-
-### 4. Email Analytics & Monitoring
+### 3. Email Analytics & Monitoring
 
 - **Real-time tracking**: Mỗi SMTP transaction ghi lại attempts, status (`SENT`/`FAILED`/`PENDING`), error messages
 - **Dashboard**: KPI cards, Line/Donut/Bar charts (Chart.js), filterable records table
@@ -383,7 +368,7 @@ flowchart TD
 - **Date range filter**: Lọc analytics theo khoảng thời gian tùy chọn
 - **Auto cleanup**: Tự động xóa history logs quá 180 ngày
 
-### 5. Client-Side Features
+### 4. Client-Side Features
 
 | Feature | Mô tả |
 |---------|-------|
@@ -397,7 +382,7 @@ flowchart TD
 | **Candidate Dashboard** | Theo dõi đơn ứng tuyển, quản lý CV, job invitations |
 | **Google Sign-in** | Đăng nhập nhanh qua Google OAuth2 |
 
-### 6. Admin Management Features
+### 5. Admin Management Features
 
 | Feature | Mô tả |
 |---------|-------|
@@ -459,6 +444,9 @@ spring.datasource.password=your_password
 
 # JWT
 jwt.base64-secret=your_base64_secret_key
+jwt.access-token-validity-in-seconds=10
+#expiration: 7 day
+jwt.refresh-token-validity-in-seconds=604800
 
 # Cloudinary
 cloudinary.cloud-name=your_cloud_name
@@ -470,6 +458,18 @@ spring.mail.host=smtp.gmail.com
 spring.mail.port=587
 spring.mail.username=your_email
 spring.mail.password=your_app_password
+
+# Google OAuth2
+app.google-client-id=your_google_client_id
+
+# Email retry & analytics configuration
+email.max-retries=3
+email.backoff-base-ms=1000
+email.backoff-max-ms=30000
+email.history.retention-days=180
+
+# Cron for cleanup (daily 02:00 AM): second minute hour day month weekday
+email.history.cleanup-cron=0 0 2 * * *
 ```
 
 **Frontend Admin** — Tạo `.env`:
