@@ -21,6 +21,9 @@ import CompanyProfileHeader from "./components/CompanyProfileHeader"
 import CompanySidebarContact from "./components/CompanySidebarContact"
 import CompanySidebarLocations from "./components/CompanySidebarLocations"
 import { useCompanyDetail } from "@/apis/company/company.hooks"
+import { useFollowStatus, useToggleFollowCompany } from "@/apis/follow/follow.hooks"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
 interface Props {
   params: Promise<{ id: string }>
@@ -29,9 +32,30 @@ interface Props {
 export default function CompanyDetailPage({ params }: Props) {
   const { id } = use(params)
   const companyId = Number(id)
+  const router = useRouter()
+  const { data: session } = useSession()
 
   const [activeTab, setActiveTab] = useState("about")
   const { data, isLoading, isError } = useCompanyDetail(companyId)
+
+  // Fetch follow status only if user is logged in
+  const isLoggedIn = !!session?.accessToken
+  const { data: followStatusData, isLoading: isFollowStatusLoading } = useFollowStatus(
+    companyId,
+    isLoggedIn
+  )
+  const isFollowing = !!followStatusData?.data
+
+  const toggleFollowMutation = useToggleFollowCompany()
+
+  const handleFollowToggle = () => {
+    if (!isLoggedIn) {
+      alert("Vui lòng đăng nhập để follow công ty này!")
+      router.push("/signin")
+      return
+    }
+    toggleFollowMutation.mutate(companyId)
+  }
 
   const company = data?.data
 
@@ -106,6 +130,9 @@ export default function CompanyDetailPage({ params }: Props) {
           reviews={company.reviews}
           badge={company.badge}
           isVerified={company.status === "APPROVED"}
+          isFollowing={isFollowing}
+          isFollowingLoading={isFollowStatusLoading || toggleFollowMutation.isPending}
+          onFollow={handleFollowToggle}
           onVisitWebsite={
             company.website
               ? () => window.open(company.website, "_blank")
@@ -133,6 +160,7 @@ export default function CompanyDetailPage({ params }: Props) {
               )}
               {activeTab === "reviews" && (
                 <CompanyReviewsTab
+                  companyId={companyId}
                   rating={company.rating ?? 0}
                   totalReviews={company.reviews ?? 0}
                 />

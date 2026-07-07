@@ -12,6 +12,7 @@ import Paper from "@mui/material/Paper"
 import Rating from "@mui/material/Rating"
 import Stack from "@mui/material/Stack"
 import Typography from "@mui/material/Typography"
+import { COMPANY_TYPE_LABEL } from "../../constants"
 
 interface CompanyProfileHeaderProps {
   name: string
@@ -24,6 +25,8 @@ interface CompanyProfileHeaderProps {
   reviews?: number
   badge?: string
   isVerified?: boolean
+  isFollowing?: boolean
+  isFollowingLoading?: boolean
   onFollow?: () => void
   onVisitWebsite?: () => void
 }
@@ -39,6 +42,8 @@ export default function CompanyProfileHeader({
   reviews,
   badge,
   isVerified = false,
+  isFollowing = false,
+  isFollowingLoading = false,
   onFollow,
   onVisitWebsite,
 }: CompanyProfileHeaderProps) {
@@ -100,7 +105,13 @@ export default function CompanyProfileHeader({
 
           {/* Company Info */}
           <Box sx={{ flex: 1 }}>
-            <Stack direction="row" alignItems="center" gap={1} mb={0.5} flexWrap="wrap">
+            <Stack
+              direction="row"
+              alignItems="center"
+              gap={1}
+              mb={0.5}
+              flexWrap="wrap"
+            >
               <Typography
                 variant="h4"
                 component="h1"
@@ -156,13 +167,15 @@ export default function CompanyProfileHeader({
               )}
               {industry && (
                 <Stack direction="row" alignItems="center" gap={0.5}>
-                  <BusinessIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+                  <BusinessIcon
+                    sx={{ fontSize: 18, color: "text.secondary" }}
+                  />
                   <Typography
                     variant="body2"
                     color="text.secondary"
                     fontWeight={500}
                   >
-                    {industry}
+                    {COMPANY_TYPE_LABEL[industry]}
                   </Typography>
                 </Stack>
               )}
@@ -190,7 +203,11 @@ export default function CompanyProfileHeader({
                     }
                     sx={{ color: "#facc15" }}
                   />
-                  <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    fontWeight={500}
+                  >
                     {rating?.toFixed(1)} ({reviews ?? 0} đánh giá)
                   </Typography>
                 </Stack>
@@ -206,8 +223,9 @@ export default function CompanyProfileHeader({
           width={{ xs: "100%", md: "auto" }}
         >
           <Button
-            variant="contained"
+            variant={isFollowing ? "outlined" : "contained"}
             color="primary"
+            disabled={isFollowingLoading}
             sx={{
               px: 3,
               py: 1.2,
@@ -217,7 +235,7 @@ export default function CompanyProfileHeader({
             }}
             onClick={onFollow}
           >
-            Follow
+            {isFollowingLoading ? "..." : isFollowing ? "Following" : "Follow"}
           </Button>
           {onVisitWebsite && (
             <Button

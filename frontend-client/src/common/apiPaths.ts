@@ -6,4 +6,7 @@ export const API_PATHS = {
   AUTH: `${API_BASE}/auth`,
   PROFILE: `${API_BASE}/profiles`,
   JOB: `${API_BASE}/jobs`,
+  FOLLOW: "/api/v1/follows/companies",
+  REVIEW: "/api/v1/reviews",
+  PUBLIC_REVIEW: "/api/v1/public/reviews/companies",
 }

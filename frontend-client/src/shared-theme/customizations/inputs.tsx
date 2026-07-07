@@ -95,11 +95,11 @@ export const inputsCustomizations: Components<Theme> = {
               backgroundColor: brand[300],
               backgroundImage: `linear-gradient(to bottom, ${alpha(
                 brand[400],
-                0.8
+                0.8,
               )}, ${brand[500]})`,
               boxShadow: `inset 0 2px 0 ${alpha(
                 brand[200],
-                0.2
+                0.2,
               )}, inset 0 -2px 0 ${alpha(brand[700], 0.4)}`,
               border: `1px solid ${brand[500]}`,
               "&:hover": {
@@ -385,7 +385,7 @@ export const inputsCustomizations: Components<Theme> = {
   MuiOutlinedInput: {
     styleOverrides: {
       input: {
-        padding: 0,
+        padding: "8px 0",
       },
       root: ({ theme }) => ({
         padding: "8px 12px",
@@ -413,6 +413,9 @@ export const inputsCustomizations: Components<Theme> = {
             },
             style: {
               height: "2.25rem",
+              "&.MuiInputBase-multiline": {
+                height: "auto",
+              },
             },
           },
           {
@@ -421,6 +424,9 @@ export const inputsCustomizations: Components<Theme> = {
             },
             style: {
               height: "2.5rem",
+              "&.MuiInputBase-multiline": {
+                height: "auto",
+              },
             },
           },
         ],

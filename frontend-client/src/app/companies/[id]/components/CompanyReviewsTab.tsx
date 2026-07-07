@@ -1,84 +1,74 @@
 "use client"
-import Box from "@mui/material/Box"
-import Typography from "@mui/material/Typography"
-import Rating from "@mui/material/Rating"
-import LinearProgress from "@mui/material/LinearProgress"
-import Button from "@mui/material/Button"
+import { useCompanyReviews, useCreateReview } from "@/apis/review/review.hooks"
+import { useUpdateState } from "@/common/hooks/useUpdateState"
 import RateReviewIcon from "@mui/icons-material/RateReview"
-import Avatar from "@mui/material/Avatar"
-import Stack from "@mui/material/Stack"
-import Divider from "@mui/material/Divider"
 import StarIcon from "@mui/icons-material/Star"
-import StarHalfIcon from "@mui/icons-material/StarHalf"
-import { useState } from "react"
+import Avatar from "@mui/material/Avatar"
+import Box from "@mui/material/Box"
+import Button from "@mui/material/Button"
+import CircularProgress from "@mui/material/CircularProgress"
 import Dialog from "@mui/material/Dialog"
-import DialogTitle from "@mui/material/DialogTitle"
-import DialogContent from "@mui/material/DialogContent"
 import DialogActions from "@mui/material/DialogActions"
+import DialogContent from "@mui/material/DialogContent"
+import DialogTitle from "@mui/material/DialogTitle"
+import Divider from "@mui/material/Divider"
+import LinearProgress from "@mui/material/LinearProgress"
+import Pagination from "@mui/material/Pagination"
+import Rating from "@mui/material/Rating"
+import Stack from "@mui/material/Stack"
 import TextField from "@mui/material/TextField"
-
-interface Review {
-  id: number
-  author: string
-  avatar: string
-  avatarBg?: string
-  date: string
-  rating: number
-  title: string
-  pros?: string
-  cons?: string
-  comment?: string
-}
-
-const initialReviews: Review[] = [
-  {
-    id: 1,
-    author: "Ẩn danh",
-    avatar: "A",
-    avatarBg: "grey.400",
-    date: "Đã đăng vào 12 tháng 10, 2023",
-    rating: 5,
-    title: "Môi trường làm việc chuyên nghiệp, cơ hội phát triển tốt",
-    pros: "Quy trình làm việc bài bản, được tham gia vào các dự án lớn với khách hàng quốc tế. Đồng nghiệp thân thiện và sẵn sàng hỗ trợ. Chế độ bảo hiểm và phúc lợi đầy đủ.",
-    cons: "Áp lực công việc đôi khi khá cao vào giai đoạn release dự án.",
-  },
-  {
-    id: 2,
-    author: "Nguyễn Văn Nam",
-    avatar: "N",
-    avatarBg: "primary.light",
-    date: "Đã đăng vào 05 tháng 08, 2023",
-    rating: 4,
-    title: "Nơi tốt để bắt đầu sự nghiệp cho Fresher",
-    comment: "Chương trình đào tạo bài bản cho sinh viên mới ra trường. Có nhiều câu lạc bộ và hoạt động ngoại khóa. Văn phòng hiện đại và đẹp.",
-  },
-]
+import Typography from "@mui/material/Typography"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
 interface CompanyReviewsTabProps {
+  companyId: number
   rating?: number
   totalReviews?: number
 }
 
-export default function CompanyReviewsTab({ rating, totalReviews }: CompanyReviewsTabProps) {
-  const [reviews, setReviews] = useState<Review[]>(initialReviews)
-  const [open, setOpen] = useState(false)
-  const [newReview, setNewReview] = useState({
-    author: "",
+interface ReviewState {
+  page: number
+  open: boolean
+  rating: number
+  comment: string
+}
+
+export default function CompanyReviewsTab({
+  companyId,
+  rating,
+  totalReviews,
+}: CompanyReviewsTabProps) {
+  const { data: session } = useSession()
+  const router = useRouter()
+
+  const { state, updateState } = useUpdateState<ReviewState>({
+    page: 1,
+    open: false,
     rating: 5,
-    title: "",
-    pros: "",
-    cons: "",
     comment: "",
   })
 
-  // Calculate statistics
-  const localTotal = reviews.length
-  const totalReviewsCount = totalReviews !== undefined && totalReviews > 0 ? totalReviews : localTotal
-  const averageRating = rating !== undefined && rating > 0 ? rating : (
-    reviews.reduce((acc, curr) => acc + curr.rating, 0) / (localTotal || 1)
+  // Fetch reviews using react query
+  const pageSize = 10
+  const { data: reviewsData, isLoading } = useCompanyReviews(
+    companyId,
+    state.page,
+    pageSize,
   )
+  const createReviewMutation = useCreateReview()
+
+  const reviews = reviewsData?.data?.result || []
+  const meta = reviewsData?.data?.meta
+
+  // Statistics calculation
+  const totalReviewsCount =
+    meta?.total !== undefined ? meta.total : totalReviews || 0
+  const averageRating = rating !== undefined && rating > 0 ? rating : 0
   const averageRatingStr = averageRating.toFixed(1)
 
+  // We mock the breakdown if no specific counts are returned by backend,
+  // or we can calculate based on current page reviews as an estimate.
   const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
   reviews.forEach((r) => {
     const key = Math.round(r.rating) as 5 | 4 | 3 | 2 | 1
@@ -88,47 +78,58 @@ export default function CompanyReviewsTab({ rating, totalReviews }: CompanyRevie
   })
 
   const getPercentage = (count: number) => {
-    return totalReviewsCount > 0 ? (count / totalReviewsCount) * 100 : 0
+    const pageTotal = reviews.length || 1
+    return (count / pageTotal) * 100
   }
 
   const handleOpenDialog = () => {
-    setOpen(true)
+    if (!session?.accessToken) {
+      alert("Vui lòng đăng nhập để viết đánh giá!")
+      router.push("/signin")
+      return
+    }
+    updateState({ open: true })
   }
 
   const handleCloseDialog = () => {
-    setOpen(false)
+    updateState({ open: false, rating: 5, comment: "" })
   }
 
   const handleSubmitReview = () => {
-    if (!newReview.title) return
+    if (!state.comment.trim() || !session?.user?.id) return
 
-    const reviewToAdd: Review = {
-      id: Date.now(),
-      author: newReview.author || "Ẩn danh",
-      avatar: (newReview.author || "A").trim().charAt(0).toUpperCase(),
-      avatarBg: newReview.author ? "primary.light" : "grey.400",
-      date: `Đã đăng vào ${new Date().toLocaleDateString("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      })}`,
-      rating: newReview.rating,
-      title: newReview.title,
-      pros: newReview.pros || undefined,
-      cons: newReview.cons || undefined,
-      comment: newReview.comment || undefined,
-    }
+    createReviewMutation.mutate(
+      {
+        companyId,
+        userId: Number(session.user.id),
+        rating: state.rating,
+        comment: state.comment,
+      },
+      {
+        onSuccess: (res) => {
+          if (res?.statusCode >= 400) {
+            alert(res.message || "Không thể đăng đánh giá.")
+          } else {
+            handleCloseDialog()
+          }
+        },
+        onError: () => {
+          alert("Có lỗi xảy ra khi gửi đánh giá.")
+        },
+      },
+    )
+  }
 
-    setReviews([reviewToAdd, ...reviews])
-    setNewReview({
-      author: "",
-      rating: 5,
-      title: "",
-      pros: "",
-      cons: "",
-      comment: "",
-    })
-    setOpen(false)
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
+    updateState({ page: value })
+  }
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress />
+      </Box>
+    )
   }
 
   return (
@@ -161,10 +162,17 @@ export default function CompanyReviewsTab({ rating, totalReviews }: CompanyRevie
               value={parseFloat(averageRatingStr)}
               precision={0.1}
               readOnly
-              emptyIcon={<StarIcon style={{ opacity: 0.25 }} fontSize="inherit" />}
+              emptyIcon={
+                <StarIcon style={{ opacity: 0.25 }} fontSize="inherit" />
+              }
               sx={{ color: "#facc15", mt: 1 }}
             />
-            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              display="block"
+              sx={{ mt: 1 }}
+            >
               {totalReviewsCount} đánh giá
             </Typography>
           </Box>
@@ -172,10 +180,21 @@ export default function CompanyReviewsTab({ rating, totalReviews }: CompanyRevie
           <Divider orientation="vertical" flexItem />
 
           {/* Breakdown bars */}
-          <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: 1 }}>
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+            }}
+          >
             {([5, 4, 3, 2, 1] as const).map((star) => (
               <Box key={star} display="flex" alignItems="center" gap={2}>
-                <Typography variant="caption" fontWeight="bold" sx={{ width: 12 }}>
+                <Typography
+                  variant="caption"
+                  fontWeight="bold"
+                  sx={{ width: 12 }}
+                >
                   {star}
                 </Typography>
                 <LinearProgress
@@ -192,7 +211,11 @@ export default function CompanyReviewsTab({ rating, totalReviews }: CompanyRevie
                     },
                   }}
                 />
-                <Typography variant="caption" color="text.secondary" sx={{ minWidth: 24, textAlign: "right" }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ minWidth: 24, textAlign: "right" }}
+                >
                   {ratingCounts[star]}
                 </Typography>
               </Box>
@@ -224,137 +247,141 @@ export default function CompanyReviewsTab({ rating, totalReviews }: CompanyRevie
       </Box>
 
       {/* Reviews List */}
-      <Stack spacing={3}>
-        {reviews.map((review) => (
-          <Box
-            key={review.id}
-            sx={{
-              p: 3,
-              bgcolor: "background.paper",
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: 3,
-              boxShadow: 1,
-              display: "flex",
-              flexDirection: "column",
-              gap: 2.5,
-            }}
-          >
-            {/* Header info */}
-            <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-              <Box display="flex" alignItems="center" gap={2}>
-                <Avatar
-                  sx={{
-                    bgcolor: review.avatarBg || "primary.main",
-                    fontWeight: "bold",
-                    color: "white",
-                  }}
-                >
-                  {review.avatar}
-                </Avatar>
-                <Box>
-                  <Typography variant="subtitle2" fontWeight="bold" color="text.primary">
-                    {review.author}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {review.date}
-                  </Typography>
+      {reviews.length === 0 ? (
+        <Box
+          sx={{
+            p: 6,
+            textAlign: "center",
+            bgcolor: "background.paper",
+            borderRadius: 3,
+            border: "1px solid",
+            borderColor: "divider",
+          }}
+        >
+          <Typography variant="body1" color="text.secondary">
+            Chưa có đánh giá nào cho công ty này. Hãy là người đầu tiên đánh
+            giá!
+          </Typography>
+        </Box>
+      ) : (
+        <Stack spacing={3}>
+          {reviews.map((review) => (
+            <Box
+              key={review.id}
+              sx={{
+                p: 3,
+                bgcolor: "background.paper",
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: 3,
+                boxShadow: 1,
+                display: "flex",
+                flexDirection: "column",
+                gap: 2.5,
+              }}
+            >
+              {/* Header info */}
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="flex-start"
+              >
+                <Box display="flex" alignItems="center" gap={2}>
+                  <Avatar
+                    sx={{
+                      bgcolor: "primary.light",
+                      fontWeight: "bold",
+                      color: "white",
+                    }}
+                  >
+                    {review.userName
+                      ? review.userName.charAt(0).toUpperCase()
+                      : "A"}
+                  </Avatar>
+                  <Box>
+                    <Typography
+                      variant="subtitle2"
+                      fontWeight="bold"
+                      color="text.primary"
+                    >
+                      {review.userName || "Ẩn danh"}
+                    </Typography>
+                  </Box>
                 </Box>
+                <Rating
+                  value={review.rating}
+                  readOnly
+                  sx={{ color: "#facc15" }}
+                  size="small"
+                />
               </Box>
-              <Rating value={review.rating} readOnly sx={{ color: "#facc15" }} size="small" />
-            </Box>
 
-            {/* Title & Comments */}
-            <Stack spacing={1.5}>
-              <Typography variant="body1" fontWeight="bold" color="text.primary">
-                {review.title}
-              </Typography>
-
-              {review.pros && (
-                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
-                  <Box component="strong" sx={{ color: "primary.main", mr: 1 }}>
-                    Ưu điểm:
-                  </Box>
-                  {review.pros}
-                </Typography>
-              )}
-
-              {review.cons && (
-                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
-                  <Box component="strong" sx={{ color: "error.main", mr: 1 }}>
-                    Nhược điểm:
-                  </Box>
-                  {review.cons}
-                </Typography>
-              )}
-
-              {review.comment && (
-                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+              {/* Comments */}
+              <Stack spacing={1.5}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ lineHeight: 1.6, whiteSpace: "pre-line" }}
+                >
                   {review.comment}
                 </Typography>
-              )}
-            </Stack>
-          </Box>
-        ))}
-      </Stack>
+              </Stack>
+            </Box>
+          ))}
+
+          {/* Pagination */}
+          {meta && meta.pages > 1 && (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+              <Pagination
+                count={meta.pages}
+                page={state.page}
+                onChange={handlePageChange}
+                color="primary"
+              />
+            </Box>
+          )}
+        </Stack>
+      )}
 
       {/* Write Review Dialog */}
-      <Dialog open={open} onClose={handleCloseDialog} fullWidth maxWidth="sm">
-        <DialogTitle sx={{ fontWeight: "bold" }}>Viết đánh giá công ty</DialogTitle>
+      <Dialog
+        open={state.open}
+        onClose={handleCloseDialog}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle sx={{ fontWeight: "bold" }}>
+          Viết đánh giá công ty
+        </DialogTitle>
         <DialogContent dividers>
           <Stack spacing={3} sx={{ mt: 1 }}>
             <Box>
-              <Typography variant="body2" fontWeight="bold" color="text.secondary" gutterBottom>
+              <Typography
+                variant="body2"
+                fontWeight="bold"
+                color="text.secondary"
+                gutterBottom
+              >
                 Đánh giá tổng quan
               </Typography>
               <Rating
-                value={newReview.rating}
-                onChange={(_, val) => setNewReview({ ...newReview, rating: val || 5 })}
+                value={state.rating}
+                onChange={(_, val) => updateState({ rating: val || 5 })}
                 sx={{ color: "#facc15" }}
                 size="large"
               />
             </Box>
             <TextField
-              label="Họ và tên (Để trống để đăng ẩn danh)"
-              fullWidth
-              size="small"
-              value={newReview.author}
-              onChange={(e) => setNewReview({ ...newReview, author: e.target.value })}
-            />
-            <TextField
-              label="Tiêu đề đánh giá"
+              label="Nhận xét của bạn"
               fullWidth
               required
-              size="small"
-              value={newReview.title}
-              onChange={(e) => setNewReview({ ...newReview, title: e.target.value })}
-            />
-            <TextField
-              label="Ưu điểm"
-              fullWidth
               multiline
-              rows={2}
-              size="small"
-              value={newReview.pros}
-              onChange={(e) => setNewReview({ ...newReview, pros: e.target.value })}
-            />
-            <TextField
-              label="Nhược điểm"
-              fullWidth
-              multiline
-              rows={2}
-              size="small"
-              value={newReview.cons}
-              onChange={(e) => setNewReview({ ...newReview, cons: e.target.value })}
-            />
-            <TextField
-              label="Ý kiến khác"
-              fullWidth
-              multiline
-              rows={3}
-              size="small"
-              value={newReview.comment}
-              onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+              minRows={4}
+              maxRows={8}
+              InputLabelProps={{ shrink: true }}
+              value={state.comment}
+              onChange={(e) => updateState({ comment: e.target.value })}
+              placeholder="Chia sẻ trải nghiệm làm việc của bạn tại công ty này..."
             />
           </Stack>
         </DialogContent>
@@ -366,9 +393,9 @@ export default function CompanyReviewsTab({ rating, totalReviews }: CompanyRevie
             onClick={handleSubmitReview}
             variant="contained"
             color="primary"
-            disabled={!newReview.title}
+            disabled={!state.comment.trim() || createReviewMutation.isPending}
           >
-            Đăng đánh giá
+            {createReviewMutation.isPending ? "Đang gửi..." : "Đăng đánh giá"}
           </Button>
         </DialogActions>
       </Dialog>

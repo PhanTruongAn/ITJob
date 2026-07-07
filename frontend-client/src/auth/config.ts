@@ -1,4 +1,4 @@
-import { ACCESS_TOKEN_VALIDITY, REFRESH_TOKEN_VALIDITY } from "@/constants/auth"
+import { ACCESS_TOKEN_VALIDITY, REFRESH_TOKEN_VALIDITY_SECONDS } from "@/constants/auth"
 import { UserNextAuth } from "@/types/backend"
 import axios from "axios"
 import NextAuth from "next-auth"
@@ -9,6 +9,21 @@ import GoogleProvider from "next-auth/providers/google"
 const axiosAuth = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
 })
+
+function getJwtExpiry(token?: string): number | null {
+  if (!token) return null;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+    if (payload && typeof payload.exp === 'number') {
+      return payload.exp * 1000;
+    }
+  } catch (e) {
+    console.error("Error parsing JWT for expiry:", e);
+  }
+  return null;
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -57,7 +72,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   session: {
     strategy: "jwt",
-    maxAge: REFRESH_TOKEN_VALIDITY,
+    maxAge: REFRESH_TOKEN_VALIDITY_SECONDS,
   },
 
   secret: process.env.AUTH_SECRET,
@@ -86,7 +101,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.image = user.image
         token.phone = user.phone
         token.address = user.address
-        token.accessTokenExpires = Date.now() + ACCESS_TOKEN_VALIDITY
+        const expiry = getJwtExpiry(user.accessToken)
+        token.accessTokenExpires = expiry ? expiry - 2000 : Date.now() + ACCESS_TOKEN_VALIDITY
 
         return token
       }
@@ -111,7 +127,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             token.image = data.user?.avatar
             token.phone = data.user?.phone
             token.address = data.user?.address
-            token.accessTokenExpires = Date.now() + ACCESS_TOKEN_VALIDITY
+            const expiry = getJwtExpiry(data.access_token)
+            token.accessTokenExpires = expiry ? expiry - 2000 : Date.now() + ACCESS_TOKEN_VALIDITY
           }
 
           return token
@@ -164,7 +181,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (data?.access_token) {
           token.accessToken = data.access_token
           token.refreshToken = data.refresh_token ?? token.refreshToken
-          token.accessTokenExpires = Date.now() + ACCESS_TOKEN_VALIDITY
+          const expiry = getJwtExpiry(data.access_token)
+          token.accessTokenExpires = expiry ? expiry - 2000 : Date.now() + ACCESS_TOKEN_VALIDITY
 
           console.log("Access token refreshed")
 
