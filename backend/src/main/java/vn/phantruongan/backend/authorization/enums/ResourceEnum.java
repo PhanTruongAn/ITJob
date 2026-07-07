@@ -21,7 +21,8 @@ public enum ResourceEnum {
     SUBSCRIBER("Người đăng ký", "/subscribers"),
     SKILL("Kỹ năng", "/skills"),
     COUNTRY("Quốc gia", "/countries"),
-    RECOMMENDATION("Gợi ý công việc", "/recommendations");
+    RECOMMENDATION("Gợi ý công việc", "/recommendations"),
+    COMPANY_FOLLOW("Theo dõi công ty", "/follows/companies");
 
     private final String displayName;
     private final String basePath;

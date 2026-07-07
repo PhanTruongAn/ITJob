@@ -1,7 +1,10 @@
 package vn.phantruongan.backend.follow.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,4 +30,8 @@ public interface CompanyFollowRepository extends JpaRepository<CompanyFollow, Lo
     @Query("SELECT f.company.id FROM CompanyFollow f " +
             "WHERE f.candidate.email = :email AND f.active = true")
     List<Long> findFollowedCompanyIdsByEmail(@Param("email") String email);
+
+    Optional<CompanyFollow> findByCandidateEmailAndCompanyId(String email, Long companyId);
+
+    Page<CompanyFollow> findByCandidateEmailAndActiveTrue(String email, Pageable pageable);
 }

@@ -15,6 +15,8 @@ import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 public interface PermissionRepository extends JpaRepository<Permission, Long>, JpaSpecificationExecutor<Permission> {
     Optional<Permission> findByResourceAndAction(ResourceEnum resource, ActionEnum action);
 
+    java.util.List<Permission> findAllByResource(ResourceEnum resource);
+
     boolean existsByResourceAndAction(ResourceEnum resource, ActionEnum action);
 
     boolean existsByResourceAndActionAndMethodAndApiPath(
