@@ -1,4 +1,4 @@
-import axiosInstance from "@/configs/axiosInstance"
+import axiosPublic from "@/configs/axiosPublic"
 import { IBackendPaginateRes, IBackendRes, IJob } from "@/types/backend"
 import { PATH_API } from "./constants/apiPath"
 
@@ -18,7 +18,7 @@ interface FetchJobsParams {
 export async function fetchJobs(
   params: FetchJobsParams,
 ): Promise<IBackendPaginateRes<IJob[]>> {
-  const response = await axiosInstance.get<IBackendPaginateRes<IJob[]>>(
+  const response = await axiosPublic.get<IBackendPaginateRes<IJob[]>>(
     PATH_API.job.root,
     {
       params: {
@@ -39,14 +39,14 @@ export async function fetchJobs(
 }
 
 export async function getJobById(id: number): Promise<IBackendRes<IJob>> {
-  const response = await axiosInstance.get<IBackendRes<IJob>>(
+  const response = await axiosPublic.get<IBackendRes<IJob>>(
     `${PATH_API.job.root}/${id}`,
   )
   return response.data
 }
 
 export async function getJobLatest(): Promise<IBackendRes<IJob[]>> {
-  const response = await axiosInstance.get<IBackendRes<IJob[]>>(
+  const response = await axiosPublic.get<IBackendRes<IJob[]>>(
     `${PATH_API.job.root}/latest`,
   )
   return response.data

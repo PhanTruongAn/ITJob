@@ -39,7 +39,7 @@ export default function CompanyReviewsTab({
   rating,
   totalReviews,
 }: CompanyReviewsTabProps) {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
 
   const { state, updateState } = useUpdateState<ReviewState>({
@@ -83,7 +83,7 @@ export default function CompanyReviewsTab({
   }
 
   const handleOpenDialog = () => {
-    if (!session?.accessToken) {
+    if (status !== "authenticated") {
       alert("Vui lòng đăng nhập để viết đánh giá!")
       router.push("/signin")
       return
@@ -96,12 +96,12 @@ export default function CompanyReviewsTab({
   }
 
   const handleSubmitReview = () => {
-    if (!state.comment.trim() || !session?.user?.id) return
+    if (!state.comment.trim() || status !== "authenticated") return
 
     createReviewMutation.mutate(
       {
         companyId,
-        userId: Number(session.user.id),
+        userId: Number(session?.user?.id ?? 0),
         rating: state.rating,
         comment: state.comment,
       },

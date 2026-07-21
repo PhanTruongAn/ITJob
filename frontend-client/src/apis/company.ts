@@ -1,4 +1,4 @@
-import axiosInstance from "@/configs/axiosInstance"
+import axiosPublic from "@/configs/axiosPublic"
 import { IBackendPaginateRes, IBackendRes, ICompany } from "@/types/backend"
 import { PATH_API } from "./constants/apiPath"
 
@@ -17,7 +17,7 @@ interface FetchCompaniesParams {
 export async function fetchCompanies(
   params: FetchCompaniesParams,
 ): Promise<IBackendPaginateRes<ICompany[]>> {
-  const response = await axiosInstance.get<IBackendPaginateRes<ICompany[]>>(
+  const response = await axiosPublic.get<IBackendPaginateRes<ICompany[]>>(
     PATH_API.company.root,
     {
       params: {
@@ -39,7 +39,7 @@ export async function fetchCompanies(
 export async function getCompanyById(
   id: number,
 ): Promise<IBackendRes<ICompany>> {
-  const response = await axiosInstance.get<IBackendRes<ICompany>>(
+  const response = await axiosPublic.get<IBackendRes<ICompany>>(
     `${PATH_API.company.root}/${id}`,
   )
   return response.data

@@ -33,13 +33,13 @@ export default function CompanyDetailPage({ params }: Props) {
   const { id } = use(params)
   const companyId = Number(id)
   const router = useRouter()
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
 
   const [activeTab, setActiveTab] = useState("about")
   const { data, isLoading, isError } = useCompanyDetail(companyId)
 
   // Fetch follow status only if user is logged in
-  const isLoggedIn = !!session?.accessToken
+  const isLoggedIn = status === "authenticated"
   const { data: followStatusData, isLoading: isFollowStatusLoading } = useFollowStatus(
     companyId,
     isLoggedIn
@@ -49,7 +49,7 @@ export default function CompanyDetailPage({ params }: Props) {
   const toggleFollowMutation = useToggleFollowCompany()
 
   const handleFollowToggle = () => {
-    if (!isLoggedIn) {
+    if (status !== "authenticated") {
       alert("Vui lòng đăng nhập để follow công ty này!")
       router.push("/signin")
       return

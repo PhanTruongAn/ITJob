@@ -1,4 +1,5 @@
 import { API_PATHS } from "@/common/apiPaths"
+import { fetchPublic } from "@/common/hooks/fetchPublic"
 import { fetchWithAuth } from "@/common/hooks/fetchWithAuth"
 import { IApiResponse, IPaginatedData } from "../common/response.types"
 
@@ -19,7 +20,7 @@ export interface ICreateReviewReq {
 
 export const reviewApi = {
   getReviewsByCompany: (companyId: number, page: number, size: number) =>
-    fetchWithAuth<IApiResponse<IPaginatedData<ICompanyReview>>>(API_PATHS.PUBLIC_REVIEW, {
+    fetchPublic<IApiResponse<IPaginatedData<ICompanyReview>>>(API_PATHS.PUBLIC_REVIEW, {
       method: "GET",
       params: { companyId, page, size },
     }),

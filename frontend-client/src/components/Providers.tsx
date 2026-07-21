@@ -8,6 +8,8 @@ import { SessionProvider } from "next-auth/react"
 import { useState } from "react"
 import { Provider as ReduxProvider } from "react-redux"
 
+import SessionErrorWatcher from "./SessionErrorWatcher"
+
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -26,6 +28,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ReduxProvider store={store}>
       <SessionProvider>
+        <SessionErrorWatcher />
         <QueryClientProvider client={queryClient}>
           {children}
           <ReactQueryDevtools initialIsOpen={false} />

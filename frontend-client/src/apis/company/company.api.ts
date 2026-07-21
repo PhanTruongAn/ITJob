@@ -1,5 +1,5 @@
 import { API_PATHS } from "@/common/apiPaths"
-
+import { fetchPublic } from "@/common/hooks/fetchPublic"
 import { fetchWithAuth } from "@/common/hooks/fetchWithAuth"
 import { IApiResponse } from "../common/response.types"
 import {
@@ -11,13 +11,13 @@ import {
 
 export const companyApi = {
   getList: (params: IGetListCompanyReq) =>
-    fetchWithAuth<IApiResponse<ICompanyListRes>>(API_PATHS.COMPANY, {
+    fetchPublic<IApiResponse<ICompanyListRes>>(API_PATHS.COMPANY, {
       method: "GET",
       params,
     }),
 
   getById: (id: number) =>
-    fetchWithAuth<IApiResponse<ICompanyDetailRes>>(
+    fetchPublic<IApiResponse<ICompanyDetailRes>>(
       `${API_PATHS.COMPANY}/${id}`,
       {
         method: "GET",
@@ -25,19 +25,19 @@ export const companyApi = {
     ),
 
   create: (data: Partial<ICompany>) =>
-    fetchWithAuth<IApiResponse<ICompanyDetailRes>>(API_PATHS.COMPANY, {
+    fetchWithAuth<IApiResponse<ICompanyDetailRes>>("/api/v1/companies", {
       method: "POST",
       data,
     }),
 
   update: (data: Partial<ICompany>) =>
-    fetchWithAuth<IApiResponse<ICompanyDetailRes>>(API_PATHS.COMPANY, {
+    fetchWithAuth<IApiResponse<ICompanyDetailRes>>("/api/v1/companies", {
       method: "PUT",
       data,
     }),
 
   delete: (id: number) =>
-    fetchWithAuth<IApiResponse<boolean>>(`${API_PATHS.COMPANY}/${id}`, {
+    fetchWithAuth<IApiResponse<boolean>>(`/api/v1/companies/${id}`, {
       method: "DELETE",
     }),
 }
