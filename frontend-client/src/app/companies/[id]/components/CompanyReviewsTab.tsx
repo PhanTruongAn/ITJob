@@ -321,7 +321,12 @@ export default function CompanyReviewsTab({
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  sx={{ lineHeight: 1.6, whiteSpace: "pre-line" }}
+                  sx={{
+                    lineHeight: 1.6,
+                    whiteSpace: "pre-line",
+                    wordBreak: "break-word",
+                    overflowWrap: "anywhere",
+                  }}
                 >
                   {review.comment}
                 </Typography>
@@ -372,7 +377,6 @@ export default function CompanyReviewsTab({
               />
             </Box>
             <TextField
-              label="Nhận xét của bạn"
               fullWidth
               required
               multiline

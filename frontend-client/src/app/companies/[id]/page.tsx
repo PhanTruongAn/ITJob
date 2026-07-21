@@ -141,7 +141,12 @@ export default function CompanyDetailPage({ params }: Props) {
         />
 
         <Box sx={{ mt: 4 }}>
-          <CompanyNavTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          <CompanyNavTabs
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            jobCount={company.jobCount}
+            reviewCount={company.reviews}
+          />
         </Box>
 
         <Container maxWidth="lg" sx={{ mt: 5 }}>

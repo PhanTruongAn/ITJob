@@ -3,27 +3,27 @@ import Box from "@mui/material/Box"
 import Container from "@mui/material/Container"
 import Tab from "@mui/material/Tab"
 import Tabs from "@mui/material/Tabs"
-import { useState } from "react"
-
-const tabs = [
-  { label: "Về chúng tôi", value: "about" },
-  { label: "Việc làm", value: "jobs", count: 12 },
-  { label: "Đánh giá", value: "reviews" },
-]
 
 interface CompanyNavTabsProps {
   activeTab?: string
   onTabChange?: (tab: string) => void
+  jobCount?: number
+  reviewCount?: number
 }
 
 export default function CompanyNavTabs({
   activeTab = "about",
   onTabChange,
+  jobCount,
+  reviewCount,
 }: CompanyNavTabsProps) {
-  const [current, setCurrent] = useState(activeTab)
+  const tabs = [
+    { label: "Về chúng tôi", value: "about" },
+    { label: "Việc làm", value: "jobs", count: jobCount },
+    { label: "Đánh giá", value: "reviews", count: reviewCount },
+  ]
 
   const handleChange = (_: React.SyntheticEvent, newValue: string) => {
-    setCurrent(newValue)
     onTabChange?.(newValue)
   }
 
@@ -37,7 +37,7 @@ export default function CompanyNavTabs({
     >
       <Container maxWidth="lg">
         <Tabs
-          value={current}
+          value={activeTab}
           onChange={handleChange}
           textColor="primary"
           indicatorColor="primary"
@@ -58,7 +58,7 @@ export default function CompanyNavTabs({
               label={
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   {tab.label}
-                  {tab.count !== undefined && (
+                  {tab.count !== undefined && tab.count !== null && (
                     <Box
                       component="span"
                       sx={{
