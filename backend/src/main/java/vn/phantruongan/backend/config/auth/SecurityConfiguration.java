@@ -9,6 +9,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import vn.phantruongan.backend.config.ratelimit.RateLimitFilter;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
@@ -20,11 +23,12 @@ public class SecurityConfiguration {
         }
 
         @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint entryPoint)
+        public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint entryPoint, RateLimitFilter rateLimitFilter)
                         throws Exception {
                 http
                                 .csrf(csrf -> csrf.disable())
                                 .cors(Customizer.withDefaults())
+                                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                                 .authorizeHttpRequests(authz -> authz
                                                 .requestMatchers(
                                                                 "/", "/api/v1/auth/login", "/api/v1/auth/refresh",
