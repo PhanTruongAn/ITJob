@@ -2,6 +2,8 @@ package vn.phantruongan.backend.subscriber.services;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -42,6 +44,7 @@ public class SkillService {
         return new PaginationResponse<>(list, meta);
     }
 
+    @CacheEvict(cacheNames = "skills", allEntries = true)
     public SkillResDTO createSkill(CreateSkillReqDTO dto) throws InvalidException {
         Skill skill = skillMapper.toEntity(dto);
         if (skillRepository.existsByName(dto.getName())) {
@@ -58,6 +61,7 @@ public class SkillService {
         return skillMapper.toDto(skill);
     }
 
+    @CacheEvict(cacheNames = "skills", allEntries = true)
     public SkillResDTO updateSkill(UpdateSkillReqDTO dto) throws InvalidException {
         Skill existingSkill = skillRepository.findById(dto.getId())
                 .orElseThrow(() -> new InvalidException("Skill not found"));
@@ -69,6 +73,7 @@ public class SkillService {
 
     }
 
+    @CacheEvict(cacheNames = "skills", allEntries = true)
     public boolean deleteSkillById(long id) throws InvalidException {
         if (id <= 0) {
             throw new InvalidException("Skill ID must be a positive number.");
@@ -82,6 +87,7 @@ public class SkillService {
     }
 
     // Get skill options for dropdowns select
+    @Cacheable(cacheNames = "skills", key = "'options'")
     public List<SkillOptionResDTO> getSkillOptions() {
         return skillOptionMapper.toDtoList(
                 skillRepository.findSkillOptions());

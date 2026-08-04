@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -63,6 +64,7 @@ public class RoleService {
         return roleMapper.toDto(roleSaved);
     }
 
+    @CacheEvict(cacheNames = "permissions", allEntries = true)
     public RoleResDTO updateRole(UpdateRoleReqDTO dto) throws InvalidException {
         Role existingRole = roleRepository.findById(dto.getId())
                 .orElseThrow(() -> new InvalidException("Role not found"));
@@ -80,6 +82,7 @@ public class RoleService {
         return roleMapper.toDetailDto(role);
     }
 
+    @CacheEvict(cacheNames = "permissions", allEntries = true)
     public boolean deleteRoleById(long id) throws InvalidException {
         if (id <= 0) {
             throw new InvalidException("Role ID must be a positive number.");
@@ -93,6 +96,7 @@ public class RoleService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "permissions", allEntries = true)
     public Map<String, Integer> assignPermissionsToRole(AssignPermissionsReqDTO dto) throws InvalidException {
         List<Long> newPermissionIds = dto.getPermissionIds();
         Long roleId = dto.getRoleId();

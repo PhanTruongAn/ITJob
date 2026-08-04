@@ -2,6 +2,7 @@ package vn.phantruongan.backend.publics.job.services;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ public class PublicJobService {
     private final JobRepository jobRepository;
     private final JobMapper jobMapper;
 
+    @Cacheable(cacheNames = "latestJobs", key = "#limit")
     public List<JobResDTO> getLatestJobs(int limit) {
         Pageable pageable = PageRequest.of(
                 0,

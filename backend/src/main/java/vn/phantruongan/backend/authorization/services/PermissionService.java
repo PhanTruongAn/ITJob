@@ -2,6 +2,7 @@ package vn.phantruongan.backend.authorization.services;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,6 +52,7 @@ public class PermissionService {
         return permissionMapper.toDto(roleSaved);
     }
 
+    @CacheEvict(cacheNames = "permissions", allEntries = true)
     public PermissionResDTO updatePermission(UpdatePermissionReqDTO dto) throws InvalidException {
         Permission existingPermission = permissionRepository.findById(dto.getId())
                 .orElseThrow(() -> new InvalidException("Permission not found"));
@@ -68,6 +70,7 @@ public class PermissionService {
         return permissionMapper.toDto(permission);
     }
 
+    @CacheEvict(cacheNames = "permissions", allEntries = true)
     public boolean deletePermissionById(long id) throws InvalidException {
         if (id <= 0) {
             throw new InvalidException("Permission ID must be a positive number.");

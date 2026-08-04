@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -57,6 +59,7 @@ public class JobService {
                 return new PaginationResponse<>(list, meta);
         }
 
+        @CacheEvict(cacheNames = {"jobDetails", "jobs", "latestJobs"}, allEntries = true)
         public JobResDTO createJob(CreateJobReqDTO dto) throws InvalidException {
 
                 Job job = jobMapper.toEntity(dto);
@@ -91,6 +94,7 @@ public class JobService {
                 return jobMapper.toDto(savedJob);
         }
 
+        @Cacheable(cacheNames = "jobDetails", key = "#id")
         public JobResDTO findById(long id) throws InvalidException {
                 Job job = jobRepository.findById(id)
                                 .orElseThrow(() -> new InvalidException("Job not found with id: " + id));
@@ -99,6 +103,7 @@ public class JobService {
         }
 
         @Transactional
+        @CacheEvict(cacheNames = {"jobDetails", "jobs", "latestJobs"}, allEntries = true)
         public JobResDTO updateJob(UpdateJobReqDTO dto) throws InvalidException {
 
                 Job job = jobRepository.findById(dto.getId())
@@ -155,6 +160,7 @@ public class JobService {
                 return jobMapper.toDto(job);
         }
 
+        @CacheEvict(cacheNames = {"jobDetails", "jobs", "latestJobs"}, allEntries = true)
         public boolean deleteJobById(long id) throws InvalidException {
                 if (id <= 0) {
                         throw new InvalidException("Job ID must be a positive number.");

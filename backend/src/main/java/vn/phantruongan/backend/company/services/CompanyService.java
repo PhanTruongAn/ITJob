@@ -2,6 +2,8 @@ package vn.phantruongan.backend.company.services;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -40,6 +42,7 @@ public class CompanyService {
         return false;
     }
 
+    @CacheEvict(cacheNames = "companies", allEntries = true)
     public CompanyResDTO createCompany(CreateCompanyReqDTO dto) throws InvalidException {
         String email = currentUserService.getCurrentUserEmail();
         Company company = companyMapper.toEntity(dto);
@@ -56,6 +59,7 @@ public class CompanyService {
         return companyMapper.toDto(savedCompany);
     }
 
+    @Cacheable(cacheNames = "companyDetails", key = "#id")
     public CompanyResDTO findById(long id) throws InvalidException {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new InvalidException("Company not found with id: " + id));
@@ -63,6 +67,7 @@ public class CompanyService {
         return companyMapper.toDto(company);
     }
 
+    @CacheEvict(cacheNames = {"companyDetails", "companies"}, key = "#dto.id", allEntries = true)
     public CompanyResDTO updateCompany(UpdateCompanyReqDTO dto) throws InvalidException {
         String email = currentUserService.getCurrentUserEmail();
         Company existingCompany = companyRepository.findById(dto.getId())
@@ -89,6 +94,7 @@ public class CompanyService {
         return new PaginationResponse<>(list, meta);
     }
 
+    @CacheEvict(cacheNames = {"companyDetails", "companies"}, key = "#id", allEntries = true)
     public boolean deleteCompanyById(long id) throws InvalidException {
         String email = currentUserService.getCurrentUserEmail();
         if (id <= 0) {
