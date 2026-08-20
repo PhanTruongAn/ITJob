@@ -7,6 +7,7 @@
 [![Java](https://img.shields.io/badge/Java-20-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
 [![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)](https://www.rabbitmq.com/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
@@ -26,47 +27,51 @@
 
 > Dành cho người đọc nhanh — những điểm nổi bật cốt lõi của dự án.
 
-| # | Highlight | Mô tả |
-|---|-----------|-------|
-| 🏗️ | **Kiến trúc Monorepo 3-tier** | Backend REST API + Admin Dashboard + Client Web App, tổ chức theo domain modules |
-| 📨 | **Async Job Recommendation Engine** | RabbitMQ message queue + DLQ + exponential back-off + rate-limited SMTP (≤1000 emails/phút) |
-| 🔐 | **AOP-Driven Dynamic RBAC** | Custom `@RequirePermission` annotation + `PermissionAspect` lookup từ DB, không hardcode role |
-| 📊 | **Email Analytics Dashboard** | KPI summary cards, trend charts (Chart.js), filterable email history, CSV export |
-| 🔑 | **JWT Authentication + Google OAuth2** | Stateless JWT authentication, Google OAuth2 login, refresh token support |
-| ☁️ | **Cloudinary File Storage** | Upload CV/Resume + Avatar qua Cloudinary CDN, không lưu file trên server |
-| 🐳 | **Docker-ready** | Multi-stage Dockerfile + Docker Compose (Backend + PostgreSQL + RabbitMQ) |
-| 🔄 | **GitHub Actions CI/CD** | Auto build & push Docker image cho cả 3 module khi push `master` |
-| 📱 | **Responsive UI** | Material UI (Client) + Ant Design (Admin)
-| 🧪 | **Enterprise Development Patterns** | MapStruct DTO mapping, Spring Filter dynamic queries, Thymeleaf email templates, scheduled cleanup jobs |
+| #   | Highlight                                      | Mô tả                                                                                                      |
+| --- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 🏗️  | **Kiến trúc Monorepo 3-tier**                  | Backend REST API + Admin Dashboard + Client Web App, tổ chức theo domain modules                           |
+| ⚡  | **Redis Multi-domain Caching & Rate Limiting** | Caching dữ liệu công khai, RBAC permissions cache và IP sliding-window rate limiting bảo vệ auth endpoints |
+| 📨  | **Async Job Recommendation Engine**            | RabbitMQ message queue + DLQ + exponential back-off + rate-limited SMTP (≤1000 emails/phút)                |
+| 🔐  | **AOP-Driven Dynamic RBAC**                    | Custom `@RequirePermission` annotation + `PermissionAspect` lookup từ DB/Redis cache, không hardcode role  |
+| 📊  | **Email Analytics Dashboard**                  | KPI summary cards, trend charts (Chart.js), filterable email history, CSV export                           |
+| 🔑  | **JWT Authentication + Google OAuth2**         | Stateless JWT authentication, Google OAuth2 login, refresh token support                                   |
+| ☁️  | **Cloudinary File Storage**                    | Upload CV/Resume + Avatar qua Cloudinary CDN, không lưu file trên server                                   |
+| 🐳  | **Docker-ready**                               | Multi-stage Dockerfile + Docker Compose (Backend + PostgreSQL + Redis + RabbitMQ)                          |
+| 🔄  | **GitHub Actions CI/CD**                       | Auto build & push Docker image cho cả 3 module khi push `master`                                           |
+| 📱  | **Responsive UI**                              | Material UI (Client) + Ant Design (Admin)                                                                  |
+| 🧪  | **Enterprise Development Patterns**            | MapStruct DTO mapping, Spring Filter dynamic queries, Thymeleaf email templates, scheduled cleanup jobs    |
 
 ---
 
 ## 📸 Screenshots
 
-
 ### Admin Dashboard
+
 <!-- ![Admin Dashboard](docs/screenshots/admin-dashboard.png) -->
 
-
 ### Email Analytics
+
 ![Email Analytics](docs/screenshots/email-analytics.png)
 
-
 ### Job Recommendation Management
+
 ![Job Recommendation](docs/screenshots/job-recommendation-config.png)
 ![Job Recommendation](docs/screenshots/job-recommendation-history.png)
 
 ### Client — Homepage
+
 ![Client Homepage](docs/screenshots/client-homepage.png)
 
-
 ### Client — Job Search & Detail
+
 ![Job Search](docs/screenshots/client-job-search.png)
 ![Job Detail](docs/screenshots/client-job-detail.png)
 
 ### Client — Company Search & Profile
+
 ![Company Search](docs/screenshots/client-company-search.png)
 ![Company Profile](docs/screenshots/client-company-detail.png)
+
 ---
 
 ## 🏗️ System Architecture
@@ -98,6 +103,7 @@ graph TD
     %% Storage & Messaging
     subgraph StorageQueue ["Storage & Middleware"]
         DB[("PostgreSQL 15")]
+        RDS[("Redis 7<br/>Cache & Rate Limit")]
         RMQ["RabbitMQ 3<br/>+ DLQ"]
         CLD["Cloudinary CDN"]
     end
@@ -118,8 +124,9 @@ graph TD
     %% Controllers to Services & DB
     AC & JC & CC & RC & EAC -->|"Business Logic"| Services
     Services -->|"JPA / Hibernate"| DB
+    Services -->|"Spring Cache / Rate Limit"| RDS
     RC -->|"Upload CV"| CLD
-    AOP -->|"Permission Lookup"| DB
+    AOP -->|"Permission Lookup"| DB & RDS
 
     %% Queue flow
     JRS -->|"Publish Message"| RMQ
@@ -135,58 +142,59 @@ graph TD
 
 ### Backend — Spring Boot REST API
 
-| Category | Technologies |
-|----------|-------------|
-| **Language & Runtime** | Java 20, Gradle 8.4 (Kotlin DSL) |
-| **Core Framework** | Spring Boot 3.3.2, Spring Web, Spring Security |
-| **Authentication** | OAuth2 Resource Server (JWT/JWS), Google OAuth2 Client |
-| **Data Access** | Spring Data JPA, Hibernate, PostgreSQL 15 |
-| **Messaging** | Spring AMQP, RabbitMQ 3 (Exchange + Queue + DLQ) |
-| **API Docs** | SpringDoc OpenAPI 2.5 (Swagger UI) |
-| **DTO Mapping** | MapStruct 1.5.5, Lombok |
-| **File Storage** | Cloudinary HTTP 1.39 |
-| **Email** | Spring Mail, Thymeleaf Templates |
-| **Monitoring** | Spring Boot Actuator |
-| **Query DSL** | Spring Filter JPA 3.1.7 (TurkRaft) |
-| **Validation** | Spring Boot Starter Validation (Jakarta Bean Validation) |
-| **Testing** | JUnit 5, Spring Security Test |
+| Category                    | Technologies                                                                              |
+| --------------------------- | ----------------------------------------------------------------------------------------- |
+| **Language & Runtime**      | Java 20, Gradle 8.4 (Kotlin DSL)                                                          |
+| **Core Framework**          | Spring Boot 3.3.2, Spring Web, Spring Security                                            |
+| **Authentication**          | OAuth2 Resource Server (JWT/JWS), Google OAuth2 Client                                    |
+| **Data Access**             | Spring Data JPA, Hibernate, PostgreSQL 15                                                 |
+| **Caching & Rate Limiting** | Spring Data Redis 3.3, Redis 7 (Jackson JSR-310 Serialization, IP Sliding Window Counter) |
+| **Messaging**               | Spring AMQP, RabbitMQ 3 (Exchange + Queue + DLQ)                                          |
+| **API Docs**                | SpringDoc OpenAPI 2.5 (Swagger UI)                                                        |
+| **DTO Mapping**             | MapStruct 1.5.5, Lombok                                                                   |
+| **File Storage**            | Cloudinary HTTP 1.39                                                                      |
+| **Email**                   | Spring Mail, Thymeleaf Templates                                                          |
+| **Monitoring**              | Spring Boot Actuator                                                                      |
+| **Query DSL**               | Spring Filter JPA 3.1.7 (TurkRaft)                                                        |
+| **Validation**              | Spring Boot Starter Validation (Jakarta Bean Validation)                                  |
+| **Testing**                 | JUnit 5, Spring Security Test                                                             |
 
 ### Frontend Admin — Vite Dashboard
 
-| Category | Technologies |
-|----------|-------------|
-| **Core** | React 18, TypeScript 5.6, Vite 6 |
-| **UI Library** | Ant Design (AntD) 5.23 |
-| **State Management** | Redux Toolkit 2.6, React Redux 9 |
-| **Data Fetching** | TanStack React Query 5 |
-| **Charts** | Chart.js 4.5, React-Chartjs-2 5.3 |
-| **Routing** | React Router DOM 7 |
-| **Forms** | React Hook Form 7 |
-| **Animations** | Framer Motion 12, Lottie React |
-| **Rich Text** | Quill 2, MDEditor 4 |
-| **Utilities** | Axios 1.7, Day.js, Lodash, jwt-decode, async-mutex |
+| Category             | Technologies                                       |
+| -------------------- | -------------------------------------------------- |
+| **Core**             | React 18, TypeScript 5.6, Vite 6                   |
+| **UI Library**       | Ant Design (AntD) 5.23                             |
+| **State Management** | Redux Toolkit 2.6, React Redux 9                   |
+| **Data Fetching**    | TanStack React Query 5                             |
+| **Charts**           | Chart.js 4.5, React-Chartjs-2 5.3                  |
+| **Routing**          | React Router DOM 7                                 |
+| **Forms**            | React Hook Form 7                                  |
+| **Animations**       | Framer Motion 12, Lottie React                     |
+| **Rich Text**        | Quill 2, MDEditor 4                                |
+| **Utilities**        | Axios 1.7, Day.js, Lodash, jwt-decode, async-mutex |
 
 ### Frontend Client — Next.js Web App
 
-| Category | Technologies |
-|----------|-------------|
-| **Core** | React 18, Next.js 15 (App Router, Turbopack) |
-| **UI Library** | Material UI (MUI) 6, Emotion |
-| **State Management** | Redux Toolkit 2.5, React Redux 9 |
-| **Data Fetching** | TanStack React Query 5 |
-| **Authentication** | Next-Auth 5 (Beta) + Custom Middleware |
-| **Styling** | TailwindCSS 3.4 |
-| **HTTP Client** | Axios 1.7, async-mutex (token refresh) |
+| Category             | Technologies                                 |
+| -------------------- | -------------------------------------------- |
+| **Core**             | React 18, Next.js 15 (App Router, Turbopack) |
+| **UI Library**       | Material UI (MUI) 6, Emotion                 |
+| **State Management** | Redux Toolkit 2.5, React Redux 9             |
+| **Data Fetching**    | TanStack React Query 5                       |
+| **Authentication**   | Next-Auth 5 (Beta) + Custom Middleware       |
+| **Styling**          | TailwindCSS 3.4                              |
+| **HTTP Client**      | Axios 1.7, async-mutex (token refresh)       |
 
 ### DevOps & Infrastructure
 
-| Category | Technologies |
-|----------|-------------|
-| **Containerization** | Docker (Multi-stage build), Docker Compose |
-| **CI/CD** | GitHub Actions (3 workflows: backend, admin, client) |
-| **Database** | PostgreSQL 15 (Docker) |
-| **Message Broker** | RabbitMQ 3 Management (Docker) |
-| **File CDN** | Cloudinary |
+| Category             | Technologies                                         |
+| -------------------- | ---------------------------------------------------- |
+| **Containerization** | Docker (Multi-stage build), Docker Compose           |
+| **CI/CD**            | GitHub Actions (3 workflows: backend, admin, client) |
+| **Database**         | PostgreSQL 15 (Docker)                               |
+| **Message Broker**   | RabbitMQ 3 Management (Docker)                       |
+| **File CDN**         | Cloudinary                                           |
 
 ---
 
@@ -336,6 +344,7 @@ sequenceDiagram
 ```
 
 **Chi tiết kỹ thuật:**
+
 - **Rate limiting**: Delay 70ms giữa các email → tối đa ~857 emails/phút (dưới ngưỡng 1,000/phút)
 - **Exponential back-off**: `Math.min(1000 × 2^(retryCount-1), 30000)ms`
 - **DLQ routing**: Non-transient errors chuyển vào `recommendation.email.queue.dlq`
@@ -370,31 +379,47 @@ flowchart LR
 
 ### 4. Client-Side Features
 
-| Feature | Mô tả |
-|---------|-------|
+| Feature                 | Mô tả                                                                    |
+| ----------------------- | ------------------------------------------------------------------------ |
 | **Job Search & Filter** | Tìm kiếm việc làm theo keyword, location, category với Spring Filter DSL |
-| **Job Application** | Ứng tuyển trực tiếp, upload CV qua Cloudinary |
-| **Company Profiles** | Xem thông tin công ty, đánh giá, reviews từ ứng viên |
-| **Bookmarks** | Lưu việc làm/công ty yêu thích |
-| **Follow Companies** | Theo dõi công ty để nhận thông báo việc làm mới |
-| **Job Alerts** | Đăng ký subscriber nhận email thông báo việc phù hợp |
-| **Email Verification** | Xác thực email qua Thymeleaf template |
-| **Candidate Dashboard** | Theo dõi đơn ứng tuyển, quản lý CV, job invitations |
-| **Google Sign-in** | Đăng nhập nhanh qua Google OAuth2 |
+| **Job Application**     | Ứng tuyển trực tiếp, upload CV qua Cloudinary                            |
+| **Company Profiles**    | Xem thông tin công ty, đánh giá, reviews từ ứng viên                     |
+| **Bookmarks**           | Lưu việc làm/công ty yêu thích                                           |
+| **Follow Companies**    | Theo dõi công ty để nhận thông báo việc làm mới                          |
+| **Job Alerts**          | Đăng ký subscriber nhận email thông báo việc phù hợp                     |
+| **Email Verification**  | Xác thực email qua Thymeleaf template                                    |
+| **Candidate Dashboard** | Theo dõi đơn ứng tuyển, quản lý CV, job invitations                      |
+| **Google Sign-in**      | Đăng nhập nhanh qua Google OAuth2                                        |
 
 ### 5. Admin Management Features
 
-| Feature | Mô tả |
-|---------|-------|
-| **User Management** | CRUD users, assign roles, view activity |
-| **Company Management** | Verify, create, edit employer profiles |
-| **Job Moderation** | Review, approve/reject job postings |
-| **Resume Review** | Xem và tải xuống CV ứng viên |
-| **Role & Permission Config** | Dynamic RBAC configuration UI |
-| **Skill Management** | Quản lý danh sách skills cho matching |
-| **Subscriber Management** | Quản lý email subscribers |
-| **Country & Location Data** | Quản lý dữ liệu địa lý |
-| **Review Moderation** | Kiểm duyệt reviews/ratings |
+| Feature                      | Mô tả                                   |
+| ---------------------------- | --------------------------------------- |
+| **User Management**          | CRUD users, assign roles, view activity |
+| **Company Management**       | Verify, create, edit employer profiles  |
+| **Job Moderation**           | Review, approve/reject job postings     |
+| **Resume Review**            | Xem và tải xuống CV ứng viên            |
+| **Role & Permission Config** | Dynamic RBAC configuration UI           |
+| **Skill Management**         | Quản lý danh sách skills cho matching   |
+| **Subscriber Management**    | Quản lý email subscribers               |
+| **Country & Location Data**  | Quản lý dữ liệu địa lý                  |
+| **Review Moderation**        | Kiểm duyệt reviews/ratings              |
+
+### 6. Redis Caching & Sliding Window Rate Limiting Engine
+
+Tích hợp Redis 7 nâng cao hiệu năng hệ thống và bảo vệ chống spam/DDoS:
+
+- **Multi-Domain Caching với TTL linh hoạt**:
+  - `permissions`: 1 giờ (Cache kết quả kiểm tra quyền AOP RBAC)
+  - `companies` & `companyDetails`: 30 phút (Cache hồ sơ công ty)
+  - `jobs`, `jobDetails` & `latestJobs`: 15 phút (Cache danh sách & chi tiết việc làm)
+  - `skills` & `countries`: 24 giờ (Cache dữ liệu danh mục tĩnh)
+- **Automatic Cache Eviction**: Tự động xóa cache (`@CacheEvict`) khi tạo/sửa/xóa việc làm, công ty, phân quyền hoặc danh mục để đảm bảo tính đồng bộ dữ liệu.
+- **IP-Based Sliding Window Rate Limiter**:
+  - Chặn spam trên các endpoint nhạy cảm: `/login`, `/register`, `/google` (giới hạn 10 req/phút/IP), `/refresh` (30 req/phút/IP).
+  - Tự động trả về HTTP `429 Too Many Requests` khi vượt ngưỡng.
+  - Cơ chế **Fail-Open**: Nếu Redis sự cố, hệ thống vẫn duy trì hoạt động (High Availability).
+- **Jackson JSR-310 (JavaTimeModule) Support**: Khởi tạo `ObjectMapper` tùy chỉnh cho `RedisTemplate` hỗ trợ serialize/deserialize mượt mà tất cả các kiểu ngày/giờ Java 8+ (`Instant`, `LocalDateTime`, `LocalDate`).
 
 ---
 
@@ -404,8 +429,8 @@ flowchart LR
 
 - **Java 20+** (hoặc JDK tương thích)
 - **Node.js 18+** & npm
-- **Docker** (cho PostgreSQL & RabbitMQ)
-- **PostgreSQL 15** (hoặc dùng Docker)
+- **Docker** (cho PostgreSQL, Redis & RabbitMQ)
+- **PostgreSQL 15** & **Redis 7** (hoặc dùng Docker)
 
 ### 1. Clone Repository
 
@@ -417,35 +442,48 @@ cd ITJob
 ### 2. Start Infrastructure (Docker)
 
 ```bash
-# Chạy PostgreSQL + RabbitMQ
+# Chạy PostgreSQL + Redis + RabbitMQ
 cd production
-docker-compose up -d job-db rabbitmq
+docker-compose up -d job-db redis rabbitmq
 
-# Hoặc chạy RabbitMQ standalone
-docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+# Hoặc chạy Redis standalone
+docker run -d --name itjob-redis -p 6379:6379 redis:alpine
 ```
 
-> **Nếu container đã tồn tại:** `docker start rabbitmq` hoặc `docker start job-db`
+> **Nếu container đã tồn tại:** `docker start itjob-redis` hoặc `docker start rabbitmq`
 
 ### 3. Configure Environment
 
 **Backend** — Copy và chỉnh sửa config:
+
 ```bash
 cd backend/src/main/resources
 cp application-example.properties application.properties
 ```
 
 Cập nhật các giá trị trong `application.properties`:
+
 ```properties
 # Database
 spring.datasource.url=jdbc:postgresql://localhost:5432/itjob
 spring.datasource.username=your_username
 spring.datasource.password=your_password
 
+# Redis Configuration
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
+spring.cache.type=redis
+spring.cache.redis.key-prefix=itjob:
+
+# Rate Limiting Configuration
+app.rate-limit.auth.max-requests=10
+app.rate-limit.auth.window-seconds=60
+app.rate-limit.refresh.max-requests=30
+app.rate-limit.refresh.window-seconds=60
+
 # JWT
 jwt.base64-secret=your_base64_secret_key
-jwt.access-token-validity-in-seconds=10
-#expiration: 7 day
+jwt.access-token-validity-in-seconds=86400
 jwt.refresh-token-validity-in-seconds=604800
 
 # Cloudinary
@@ -473,12 +511,14 @@ email.history.cleanup-cron=0 0 2 * * *
 ```
 
 **Frontend Admin** — Tạo `.env`:
+
 ```bash
 # frontend-admin/.env
 VITE_BACKEND_URL=http://localhost:8080/
 ```
 
 **Frontend Client** — Tạo `.env`:
+
 ```bash
 # frontend-client/.env
 NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
@@ -526,11 +566,11 @@ docker-compose up -d
 
 Mỗi module có GitHub Actions workflow riêng, trigger khi push `master`:
 
-| Workflow | Trigger Path | Action |
-|----------|-------------|--------|
-| `backend-dev-ci.yml` | `backend/**` | Build Docker → Push `phantruongan2611/itjob-backend:latest` |
-| `frontend-admin-dev.ci.yml` | `frontend-admin/**` | Build Docker → Push to Docker Hub |
-| `frondend-client-dev.ci.yml` | `frontend-client/**` | Build Docker → Push to Docker Hub |
+| Workflow                     | Trigger Path         | Action                                                      |
+| ---------------------------- | -------------------- | ----------------------------------------------------------- |
+| `backend-dev-ci.yml`         | `backend/**`         | Build Docker → Push `phantruongan2611/itjob-backend:latest` |
+| `frontend-admin-dev.ci.yml`  | `frontend-admin/**`  | Build Docker → Push to Docker Hub                           |
+| `frondend-client-dev.ci.yml` | `frontend-client/**` | Build Docker → Push to Docker Hub                           |
 
 ---
 
@@ -544,8 +584,8 @@ Mỗi module có GitHub Actions workflow riêng, trigger khi push `master`:
 - [ ] **Transactional Outbox Pattern** — Ngăn dual-write inconsistency giữa SQL inserts và RabbitMQ enqueue
 - [ ] **Notification System** — Real-time push notifications (WebSocket/SSE)
 - [ ] **Advanced Search** — Elasticsearch integration cho full-text search
-- [ ] **API Rate Limiting** — Implement rate limiting cho public endpoints
-- [ ] **Caching Layer** — Redis caching cho frequently accessed data
+- [x] **API Rate Limiting** — IP-based sliding window rate limiting cho auth endpoints với Redis
+- [x] **Caching Layer** — Redis caching đa miền (multi-domain TTLs) cho dynamic RBAC permissions, companies, jobs và metadata
 
 ---
 
