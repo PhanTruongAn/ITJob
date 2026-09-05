@@ -16,14 +16,16 @@ import {
 import React, { useEffect, useState } from "react"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import CustomDropdown from "../components/CustomDropdown"
+import LanguageSwitcher from "../components/LanguageSwitcher"
 import { useAppSelector } from "../redux/hooks"
 import { getDropdownItems } from "./constants"
-import navItems from "./dashboard/navbar/NavItem"
+import { useNavItems } from "./dashboard/navbar/NavItem"
 import { useLogout } from "./hooks"
 
 const { Header, Sider, Content } = Layout
 
 const LayoutAdmin: React.FC = () => {
+  const navItems = useNavItems()
   const location = useLocation()
   const [activeMenu, setActiveMenu] = useState<string>("")
   const [collapsed, setCollapsed] = useState<boolean>(false)
@@ -127,6 +129,7 @@ const LayoutAdmin: React.FC = () => {
 
           <div style={{ marginRight: 30 }}>
             <Space size="middle">
+              <LanguageSwitcher />
               <Badge count={1} color="#ff686b" dot>
                 <NotificationOutlined style={{ fontSize: 20 }} />
               </Badge>

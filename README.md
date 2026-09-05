@@ -580,7 +580,7 @@ Mỗi module có GitHub Actions workflow riêng, trigger khi push `master`:
 
 - [ ] **Interactive Resume Builder** — Trình tạo CV.
 - [ ] **Resume Parsing AI** — OCR/Parsing tự động extract skills từ PDF resume uploads
-- [ ] **Multi-language Support** — i18n cho cả Admin và Client
+- [x] **Multi-language Support** — i18n cho cả Admin và Client
 - [ ] **Transactional Outbox Pattern** — Ngăn dual-write inconsistency giữa SQL inserts và RabbitMQ enqueue
 - [ ] **Notification System** — Real-time push notifications (WebSocket/SSE)
 - [ ] **Advanced Search** — Elasticsearch integration cho full-text search

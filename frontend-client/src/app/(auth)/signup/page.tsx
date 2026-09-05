@@ -14,10 +14,12 @@ import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 import axios from "axios"
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { Card } from "./components/Card"
 import { Container } from "./components/Container"
 
 export default function SignUp() {
+  const { t } = useTranslation()
   const [emailError, setEmailError] = React.useState(false)
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("")
   const [passwordError, setPasswordError] = React.useState(false)
@@ -50,7 +52,7 @@ export default function SignUp() {
 
     if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
       setEmailError(true)
-      setEmailErrorMessage("Vui lòng nhập địa chỉ email hợp lệ.")
+      setEmailErrorMessage(t("auth.valEmailErr", "Vui lòng nhập địa chỉ email hợp lệ."))
       isValid = false
     } else {
       setEmailError(false)
@@ -59,7 +61,7 @@ export default function SignUp() {
 
     if (!password.value || password.value.length < 6) {
       setPasswordError(true)
-      setPasswordErrorMessage("Mật khẩu phải có ít nhất 6 ký tự.")
+      setPasswordErrorMessage(t("auth.valPasswordErr", "Mật khẩu phải có ít nhất 6 ký tự."))
       isValid = false
     } else {
       setPasswordError(false)
@@ -68,7 +70,7 @@ export default function SignUp() {
 
     if (!name.value || name.value.length < 1) {
       setNameError(true)
-      setNameErrorMessage("Họ tên là bắt buộc.")
+      setNameErrorMessage(t("auth.valNameErr", "Họ tên là bắt buộc."))
       isValid = false
     } else {
       setNameError(false)
@@ -96,7 +98,7 @@ export default function SignUp() {
       setRegisteredEmail(email)
     } catch (err: any) {
       const msg =
-        err?.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại."
+        err?.response?.data?.message || t("auth.registerFailed", "Đăng ký thất bại. Vui lòng thử lại.")
       setAlertMessage(msg)
       setOpenAlert(true)
     } finally {
@@ -124,14 +126,13 @@ export default function SignUp() {
         >
           <MarkEmailReadIcon sx={{ fontSize: 80, color: "grey.400" }} />
           <Typography variant="h4" fontWeight={700}>
-            Verify your email address
+            {t("auth.verifyEmailTitle", "Verify your email address")}
           </Typography>
           <Typography color="text.secondary" fontSize={16}>
-            {`We've sent a verification email to `}
-            <strong>{registeredEmail}</strong>
-            {`.`}
+            {t("auth.verifyEmailSent", "We've sent a verification email to")}{" "}
+            <strong>{registeredEmail}</strong>.
             <br />
-            {`If you don't see any email, please look at Spam or Junk folder.`}
+            {t("auth.verifyEmailCheckSpam", "If you don't see any email, please look at Spam or Junk folder.")}
           </Typography>
         </Box>
       </AppTheme>
@@ -161,7 +162,7 @@ export default function SignUp() {
             variant="h4"
             sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
           >
-            Đăng ký
+            {t("auth.registerTitle", "Đăng ký")}
           </Typography>
           <Box
             component="form"
@@ -169,7 +170,7 @@ export default function SignUp() {
             sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
             <FormControl>
-              <FormLabel htmlFor="name">Tên đầy đủ</FormLabel>
+              <FormLabel htmlFor="name">{t("auth.fullName", "Tên đầy đủ")}</FormLabel>
               <TextField
                 autoComplete="name"
                 name="name"
@@ -183,7 +184,7 @@ export default function SignUp() {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="email">Email</FormLabel>
+              <FormLabel htmlFor="email">{t("auth.email", "Email")}</FormLabel>
               <TextField
                 required
                 fullWidth
@@ -198,7 +199,7 @@ export default function SignUp() {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="password">Mật khẩu</FormLabel>
+              <FormLabel htmlFor="password">{t("auth.password", "Mật khẩu")}</FormLabel>
               <TextField
                 required
                 fullWidth
@@ -220,7 +221,7 @@ export default function SignUp() {
               variant="contained"
               disabled={loading}
             >
-              {loading ? "Đang đăng ký..." : "Đăng ký"}
+              {loading ? t("auth.registering", "Đăng ký...") : t("auth.registerTitle", "Đăng ký")}
             </Button>
           </Box>
         </Card>

@@ -29,6 +29,8 @@ import { signOut, useSession } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as React from "react"
+import { useTranslation } from "react-i18next"
+import LanguageSwitcher from "./LanguageSwitcher"
 import Sitemark from "./SitemarkIcon"
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: "flex",
@@ -45,6 +47,7 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 }))
 
 export default function AppAppBar() {
+  const { t } = useTranslation()
   const { data: session } = useSession()
   const [open, setOpen] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
@@ -53,8 +56,8 @@ export default function AppAppBar() {
     setOpen(newOpen)
   }
   const mainMenu = [
-    { label: "Công việc", href: "/jobs" },
-    { label: "Công ty", href: "/companies" },
+    { label: t("nav.jobs", "Công việc"), href: "/jobs" },
+    { label: t("nav.companies", "Công ty"), href: "/companies" },
   ]
   return (
     <AppBar
@@ -96,15 +99,15 @@ export default function AppAppBar() {
             }}
           >
             <Button color="primary" variant="text" size="medium">
-              Nhà tuyển dụng
+              {t("nav.employer", "Nhà tuyển dụng")}
             </Button>
             {!session ? (
               <>
                 <Button color="primary" variant="text" size="medium">
-                  <Link href="/signin">Đăng nhập</Link>
+                  <Link href="/signin">{t("nav.signin", "Đăng nhập")}</Link>
                 </Button>
                 <Button color="primary" variant="contained" size="medium">
-                  <Link href="/signup">Đăng ký</Link>
+                  <Link href="/signup">{t("nav.register", "Đăng ký")}</Link>
                 </Button>
               </>
             ) : (
@@ -150,49 +153,51 @@ export default function AppAppBar() {
                   <Divider sx={{ my: 0.5 }} />
                   <MenuItem component={Link} href="/candidate/dashboard">
                     <ListItemIcon><DashboardIcon fontSize="small" /></ListItemIcon>
-                    Dashboard
+                    {t("nav.dashboard", "Dashboard")}
                   </MenuItem>
                   <MenuItem component={Link} href="/candidate/cv-attachment">
                     <ListItemIcon><DescriptionIcon fontSize="small" /></ListItemIcon>
-                    CV Attachment
+                    {t("nav.cvAttachment", "CV Attachment")}
                   </MenuItem>
                   <MenuItem component={Link} href="/candidate/itviec-profile">
                     <ListItemIcon><AccountCircleIcon fontSize="small" /></ListItemIcon>
-                    ITviec Profile
+                    {t("nav.profile", "Profile")}
                   </MenuItem>
                   <MenuItem component={Link} href="/candidate/my-jobs">
                      <ListItemIcon><WorkIcon fontSize="small" /></ListItemIcon>
-                     My Jobs
+                     {t("nav.myJobs", "My Jobs")}
                   </MenuItem>
                   <MenuItem component={Link} href="/candidate/job-invitations">
                     <ListItemIcon><MailIcon fontSize="small" /></ListItemIcon>
-                    Job Invitation
+                    {t("nav.jobInvitations", "Job Invitations")}
                   </MenuItem>
                   <MenuItem component={Link} href="/candidate/email-subscriptions">
                     <ListItemIcon><SubscriptionsIcon fontSize="small" /></ListItemIcon>
-                    Email Subscriptions
+                    {t("nav.emailSubscriptions", "Email Subscriptions")}
                   </MenuItem>
                   <MenuItem component={Link} href="/candidate/notifications">
                     <ListItemIcon><NotificationsIcon fontSize="small" /></ListItemIcon>
-                    Notifications
+                    {t("nav.notifications", "Notifications")}
                   </MenuItem>
                   <MenuItem component={Link} href="/candidate/settings">
                     <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
-                    Settings
+                    {t("nav.settings", "Settings")}
                   </MenuItem>
                   <Divider sx={{ my: 0.5 }} />
                   <MenuItem onClick={() => signOut()} sx={{ color: 'error.main' }}>
                     <ListItemIcon sx={{ color: 'inherit' }}>
                       <LogoutIcon fontSize="small" />
                     </ListItemIcon>
-                    Sign Out
+                    {t("nav.signout", "Sign Out")}
                   </MenuItem>
                 </Menu>
               </>
             )}
+            <LanguageSwitcher />
             <ColorModeIconDropdown />
           </Box>
-          <Box sx={{ display: { xs: "flex", md: "none" }, gap: 1 }}>
+          <Box sx={{ display: { xs: "flex", md: "none" }, gap: 1, alignItems: "center" }}>
+            <LanguageSwitcher />
             <ColorModeIconDropdown size="medium" />
             <IconButton aria-label="Menu button" onClick={toggleDrawer(true)}>
               <MenuIcon />
@@ -237,12 +242,12 @@ export default function AppAppBar() {
                   <>
                     <MenuItem>
                       <Button color="primary" variant="contained" fullWidth>
-                        <Link href="/signup">Đăng ký</Link>
+                        <Link href="/signup">{t("nav.register", "Đăng ký")}</Link>
                       </Button>
                     </MenuItem>
                     <MenuItem>
                       <Button color="primary" variant="outlined" fullWidth>
-                        <Link href="/signin">Đăng nhập</Link>
+                        <Link href="/signin">{t("nav.signin", "Đăng nhập")}</Link>
                       </Button>
                     </MenuItem>
                   </>
@@ -264,7 +269,7 @@ export default function AppAppBar() {
                         fullWidth
                         onClick={() => signOut()}
                       >
-                        Đăng xuất
+                        {t("nav.signout", "Đăng xuất")}
                       </Button>
                     </MenuItem>
                   </>

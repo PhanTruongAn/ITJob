@@ -1,38 +1,40 @@
-import { Button, Form, Image, Input } from "antd";
-import React, { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import backgroundImage from "../../assets/background-login.webp";
-import logo from "../../assets/logo.png";
-import { useAppSelector } from "../../redux/hooks";
-import { PATH_DASHBOARD } from "../../routes/paths";
-import { useAuthLogin } from "./common/hooks";
-import "./style.css";
+import { Button, Form, Image, Input } from "antd"
+import React, { useEffect } from "react"
+import { useTranslation } from "react-i18next"
+import { useLocation, useNavigate } from "react-router-dom"
+import backgroundImage from "../../assets/background-login.webp"
+import logo from "../../assets/logo.png"
+import { useAppSelector } from "../../redux/hooks"
+import { PATH_DASHBOARD } from "../../routes/paths"
+import { useAuthLogin } from "./common/hooks"
+import "./style.css"
 type FieldType = {
-  email?: string;
-  password?: string;
-};
+  email?: string
+  password?: string
+}
 
 const Login: React.FC = () => {
-  const navigate = useNavigate();
-  const [form] = Form.useForm();
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const [form] = Form.useForm()
   const isAuthenticated = useAppSelector(
     (state) => state.account.isAuthenticated
-  );
-  const { mutate, isPending } = useAuthLogin();
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const callback = params?.get("callback");
+  )
+  const { mutate, isPending } = useAuthLogin()
+  const location = useLocation()
+  const params = new URLSearchParams(location.search)
+  const callback = params?.get("callback")
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(PATH_DASHBOARD.userManage.list);
+      navigate(PATH_DASHBOARD.userManage.list)
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated])
 
   const onFinish = async (values: any) => {
-    const { email, password } = values;
-    mutate({ username: email, password });
-  };
+    const { email, password } = values
+    mutate({ username: email, password })
+  }
 
   return (
     <div className="container-login">
@@ -45,7 +47,7 @@ const Login: React.FC = () => {
             <Image width={100} height={40} src={logo} preview={false} />
             <div className="title">CUSTOMER ADMIN SITE</div>
           </div>
-          <div className="title-2">Welcome to ITJob Customer</div>
+          <div className="title-2">{t("admin.welcome", "Welcome to ITJob Customer")}</div>
 
           <Form
             style={{ padding: "30px" }}
@@ -56,21 +58,21 @@ const Login: React.FC = () => {
             <Form.Item<FieldType>
               label={null}
               name="email"
-              rules={[{ required: true, message: "Please input your email!" }]}
+              rules={[{ required: true, message: t("common.valEmailErr", "Please input your email!") }]}
             >
-              <Input placeholder="Email" size="large" />
+              <Input placeholder={t("common.email", "Email")} size="large" />
             </Form.Item>
             <Form.Item<FieldType>
               label={null}
               name="password"
               rules={[
-                { required: true, message: "Please input your password!" },
+                { required: true, message: t("common.valPasswordErr", "Please input your password!") },
               ]}
             >
-              <Input.Password placeholder="Password" size="large" />
+              <Input.Password placeholder={t("common.password", "Password")} size="large" />
             </Form.Item>
             <Form.Item>
-              <a style={{ float: "right" }}>Forgot password?</a>
+              <a style={{ float: "right" }}>{t("common.forgotPassword", "Forgot password?")}</a>
             </Form.Item>
             <Form.Item>
               <Button
@@ -79,17 +81,17 @@ const Login: React.FC = () => {
                 style={{ outline: "none", width: "100%" }}
                 loading={isPending}
               >
-                Sign in
+                {t("admin.logout", "Sign in") === "Đăng xuất" ? "Đăng nhập" : "Sign in"}
               </Button>
             </Form.Item>
             <Form.Item style={{ textAlign: "center" }}>
-              Don't have an account. <a>Sign-up</a>
+              {t("common.dontHaveAccount", "Don't have an account.")} <a>{t("admin.signup", "Sign-up")}</a>
             </Form.Item>
           </Form>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 export default Login;

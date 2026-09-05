@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "home": "Home",
+    "jobs": "Jobs",
+    "companies": "Companies",
+    "about": "About Us",
+    "faq": "FAQ",
+    "signin": "Sign In",
+    "register": "Register",
+    "signout": "Sign Out",
+    "profile": "Profile",
+    "dashboard": "Dashboard",
+    "myJobs": "My Jobs",
+    "cvAttachment": "CV Management",
+    "jobInvitations": "Job Invitations",
+    "emailSubscriptions": "Email Subscriptions",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "employer": "For Employers"
+  },
+  "home": {
+    "topEmployers": "Top Employers"
+  },
+  "hero": {
+    "title": "Find Your Dream IT Job",
+    "subtitle": "Discover thousands of top tech opportunities from leading technology companies in Vietnam.",
+    "searchPlaceholder": "Job title, skill, company...",
+    "locationPlaceholder": "All Locations",
+    "selectCity": "Select City",
+    "searchBtn": "Search",
+    "suggestions": "Suggested for you:"
+  },
+  "common": {
+    "language": "Language",
+    "vietnamese": "Vietnamese",
+    "english": "English",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "apply": "Apply Now",
+    "viewMore": "View More",
+    "viewDetail": "View Detail",
+    "all": "All",
+    "or": "or"
+  },
+  "auth": {
+    "loginTitle": "Sign In",
+    "registerTitle": "Register",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full Name",
+    "forgotPassword": "Forgot password?",
+    "rememberMe": "Remember me",
+    "googleLogin": "Sign in with Google",
+    "facebookLogin": "Sign in with Facebook",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "loginSuccess": "Login successful!",
+    "loginFailed": "Login failed. Please check your credentials.",
+    "registerSuccess": "Registration successful!",
+    "registerFailed": "Registration failed. Please try again.",
+    "registering": "Registering...",
+    "resetPasswordTitle": "Reset password",
+    "resetPasswordDesc": "Enter your account's email address, and we'll send you a link to reset your password.",
+    "continue": "Continue",
+    "verifyEmailTitle": "Verify your email address",
+    "verifyEmailSent": "We've sent a verification email to",
+    "verifyEmailCheckSpam": "If you don't see any email, please look at Spam or Junk folder.",
+    "valEmailErr": "Please enter a valid email address.",
+    "valPasswordErr": "Password must be at least 6 characters long.",
+    "valNameErr": "Full name is required."
+  }
+}

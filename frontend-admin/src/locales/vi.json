@@ -1,0 +1,43 @@
+{
+  "admin": {
+    "title": "Quản trị hệ thống",
+    "dashboard": "Bảng điều khiển",
+    "users": "Quản lý Người dùng",
+    "companies": "Quản lý Công ty",
+    "jobs": "Quản lý Việc làm",
+    "resumes": "Quản lý Hồ sơ CV",
+    "skills": "Quản lý Kỹ năng",
+    "subscribers": "Đăng ký nhận tin",
+    "roles": "Quản lý Vai trò",
+    "permissions": "Quản lý Phân quyền",
+    "reviews": "Quản lý Đánh giá",
+    "countries": "Quản lý Quốc gia",
+    "recommendations": "Gợi ý việc làm",
+    "emailAnalytics": "Thống kê Email",
+    "logout": "Đăng xuất",
+    "welcome": "Chào mừng đến với ITJob Admin",
+    "signup": "Đăng ký"
+  },
+  "common": {
+    "language": "Ngôn ngữ",
+    "vietnamese": "Tiếng Việt",
+    "english": "Tiếng Anh",
+    "search": "Tìm kiếm",
+    "create": "Tạo mới",
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "actions": "Thao tác",
+    "status": "Trạng thái",
+    "createdAt": "Ngày tạo",
+    "updatedAt": "Ngày cập nhật",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "confirmDelete": "Bạn có chắc chắn muốn xóa bản ghi này?",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "forgotPassword": "Quên mật khẩu?",
+    "dontHaveAccount": "Chưa có tài khoản.",
+    "valEmailErr": "Vui lòng nhập email của bạn!",
+    "valPasswordErr": "Vui lòng nhập mật khẩu của bạn!"
+  }
+}

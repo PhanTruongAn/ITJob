@@ -20,6 +20,7 @@ import Typography from "@mui/material/Typography"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import ForgotPassword from "./ForgotPassword"
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -40,6 +41,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }))
 
 export default function SignInCard() {
+  const { t } = useTranslation()
   const router = useRouter()
   const [emailError, setEmailError] = React.useState(false)
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("")
@@ -88,7 +90,7 @@ export default function SignInCard() {
     })
 
     if (res?.ok && !res?.error) {
-      setAlertMessage("Đăng nhập thành công!")
+      setAlertMessage(t("auth.loginSuccess", "Đăng nhập thành công!"))
       setAlertStatus("success")
       setOpenAlert(true)
 
@@ -96,7 +98,7 @@ export default function SignInCard() {
         router.push(`${process.env.NEXT_PUBLIC_FE_URL}`)
       }, 1000)
     } else {
-      setAlertMessage("Đăng nhập thất bại. Vui lòng kiểm tra lại.")
+      setAlertMessage(t("auth.loginFailed", "Đăng nhập thất bại. Vui lòng kiểm tra lại."))
       setAlertStatus("error")
       setOpenAlert(true)
     }
@@ -110,7 +112,7 @@ export default function SignInCard() {
 
     if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
       setEmailError(true)
-      setEmailErrorMessage("Please enter a valid email address.")
+      setEmailErrorMessage(t("auth.valEmailErr", "Please enter a valid email address."))
       isValid = false
     } else {
       setEmailError(false)
@@ -119,7 +121,7 @@ export default function SignInCard() {
 
     if (!password.value || password.value.length < 3) {
       setPasswordError(true)
-      setPasswordErrorMessage("Password must be at least 3 characters long.")
+      setPasswordErrorMessage(t("auth.valPasswordErr", "Password must be at least 3 characters long."))
       isValid = false
     } else {
       setPasswordError(false)
@@ -154,7 +156,7 @@ export default function SignInCard() {
         variant="h4"
         sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
       >
-        Đăng nhập
+        {t("auth.loginTitle", "Đăng nhập")}
       </Typography>
       <Box
         component="form"
@@ -163,7 +165,7 @@ export default function SignInCard() {
         sx={{ display: "flex", flexDirection: "column", width: "100%", gap: 2 }}
       >
         <FormControl>
-          <FormLabel htmlFor="email">Email</FormLabel>
+          <FormLabel htmlFor="email">{t("auth.email", "Email")}</FormLabel>
           <TextField
             error={emailError}
             helperText={emailErrorMessage}
@@ -181,7 +183,7 @@ export default function SignInCard() {
         </FormControl>
         <FormControl>
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <FormLabel htmlFor="password">Mật khẩu</FormLabel>
+            <FormLabel htmlFor="password">{t("auth.password", "Mật khẩu")}</FormLabel>
             <Link
               component="button"
               type="button"
@@ -189,7 +191,7 @@ export default function SignInCard() {
               variant="body2"
               sx={{ alignSelf: "baseline" }}
             >
-              Quên mật khẩu?
+              {t("auth.forgotPassword", "Quên mật khẩu?")}
             </Link>
           </Box>
           <TextField
@@ -209,7 +211,7 @@ export default function SignInCard() {
         </FormControl>
         <FormControlLabel
           control={<Checkbox value="remember" color="primary" />}
-          label="Ghi nhớ tôi"
+          label={t("auth.rememberMe", "Ghi nhớ tôi")}
         />
         <ForgotPassword open={open} handleClose={handleClose} />
         <Button
@@ -218,18 +220,18 @@ export default function SignInCard() {
           variant="contained"
           onClick={validateInputs}
         >
-          Đăng nhập
+          {t("auth.loginTitle", "Đăng nhập")}
         </Button>
         <Typography sx={{ textAlign: "center" }}>
-          Chưa có tài khoản?{" "}
+          {t("auth.dontHaveAccount", "Chưa có tài khoản?")}{" "}
           <span>
             <Link href="/signup" variant="body2" sx={{ alignSelf: "center" }}>
-              Đăng ký
+              {t("auth.registerTitle", "Đăng ký")}
             </Link>
           </span>
         </Typography>
       </Box>
-      <Divider>hoặc</Divider>
+      <Divider>{t("common.or", "hoặc")}</Divider>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Button
           fullWidth
@@ -241,10 +243,10 @@ export default function SignInCard() {
             })
           }
         >
-          Đăng nhập với Google
+          {t("auth.googleLogin", "Đăng nhập với Google")}
         </Button>
         <Button fullWidth variant="outlined" startIcon={<FacebookIcon />}>
-          Đăng nhập với Facebook
+          {t("auth.facebookLogin", "Đăng nhập với Facebook")}
         </Button>
       </Box>
     </Card>

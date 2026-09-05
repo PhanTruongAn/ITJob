@@ -8,8 +8,10 @@ import Grid from "@mui/material/Grid2"
 import Skeleton from "@mui/material/Skeleton"
 import Typography from "@mui/material/Typography"
 import { useQuery } from "@tanstack/react-query"
+import { useTranslation } from "react-i18next"
 
 export default function TopEmployers() {
+  const { t } = useTranslation()
   const { data, isLoading } = useQuery({
     queryKey: ["companies", "top"],
     queryFn: () => fetchCompanies({ page: 1, pageSize: 6 }),
@@ -26,7 +28,7 @@ export default function TopEmployers() {
     <Box sx={{ py: 8, bgcolor: "background.paper" }}>
       <Container maxWidth="lg">
         <Typography variant="h2" textAlign="center" gutterBottom sx={{ mb: 6 }}>
-          Nhà tuyển dụng hàng đầu
+          {t("home.topEmployers", "Nhà tuyển dụng hàng đầu")}
         </Typography>
         <Grid container spacing={4}>
           {isLoading

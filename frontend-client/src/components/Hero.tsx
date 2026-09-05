@@ -12,6 +12,7 @@ import Stack from "@mui/material/Stack"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 // const StyledBox = styled("div")(({ theme }) => ({
 //   alignSelf: "center",
 //   width: "100%",
@@ -42,6 +43,7 @@ import * as React from "react"
 // }));
 
 export default function Hero() {
+  const { t } = useTranslation()
   const [cities, setCities] = React.useState("")
   const [chipSelected, setChipSelected] = React.useState("")
   const vietnam_cities = ["Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Other"]
@@ -151,7 +153,7 @@ export default function Hero() {
               id="search-value"
               hiddenLabel
               variant="outlined"
-              placeholder="Nhập từ khóa theo kỹ năng, công ty, ..."
+              placeholder={t("hero.searchPlaceholder", "Nhập từ khóa theo kỹ năng, công ty, ...")}
               fullWidth
               sx={{
                 "& .MuiInputBase-root": {
@@ -167,7 +169,7 @@ export default function Hero() {
               sx={{ minWidth: "fit-content" }}
               startIcon={<SearchIcon />}
             >
-              Tìm kiếm
+              {t("hero.searchBtn", "Tìm kiếm")}
             </Button>
           </Stack>
 

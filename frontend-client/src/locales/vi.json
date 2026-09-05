@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "jobs": "Việc làm",
+    "companies": "Công ty",
+    "about": "Về chúng tôi",
+    "faq": "Hỏi đáp",
+    "signin": "Đăng nhập",
+    "register": "Đăng ký",
+    "signout": "Đăng xuất",
+    "profile": "Hồ sơ cá nhân",
+    "dashboard": "Bảng điều khiển",
+    "myJobs": "Việc của tôi",
+    "cvAttachment": "Quản lý CV",
+    "jobInvitations": "Lời mời làm việc",
+    "emailSubscriptions": "Đăng ký nhận email",
+    "notifications": "Thông báo",
+    "settings": "Cài đặt",
+    "employer": "Nhà tuyển dụng"
+  },
+  "home": {
+    "topEmployers": "Nhà tuyển dụng hàng đầu"
+  },
+  "hero": {
+    "title": "Tìm kiếm công việc IT mơ ước của bạn",
+    "subtitle": "Khám phá hàng ngàn cơ hội việc làm IT hàng đầu từ các công ty công nghệ hàng đầu tại Việt Nam.",
+    "searchPlaceholder": "Nhập từ khóa theo kỹ năng, công ty, ...",
+    "locationPlaceholder": "Tất cả các thành phố",
+    "selectCity": "Chọn thành phố",
+    "searchBtn": "Tìm kiếm",
+    "suggestions": "Gợi ý cho bạn:"
+  },
+  "common": {
+    "language": "Ngôn ngữ",
+    "vietnamese": "Tiếng Việt",
+    "english": "Tiếng Anh",
+    "loading": "Đang tải...",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "apply": "Ứng tuyển ngay",
+    "viewMore": "Xem thêm",
+    "viewDetail": "Xem chi tiết",
+    "all": "Tất cả",
+    "or": "hoặc"
+  },
+  "auth": {
+    "loginTitle": "Đăng nhập",
+    "registerTitle": "Đăng ký",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "fullName": "Họ và tên",
+    "forgotPassword": "Quên mật khẩu?",
+    "rememberMe": "Ghi nhớ tôi",
+    "googleLogin": "Đăng nhập với Google",
+    "facebookLogin": "Đăng nhập với Facebook",
+    "alreadyHaveAccount": "Đã có tài khoản?",
+    "dontHaveAccount": "Chưa có tài khoản?",
+    "loginSuccess": "Đăng nhập thành công!",
+    "loginFailed": "Đăng nhập thất bại. Vui lòng kiểm tra lại.",
+    "registerSuccess": "Đăng ký thành công!",
+    "registerFailed": "Đăng ký thất bại. Vui lòng thử lại.",
+    "registering": "Đang đăng ký...",
+    "resetPasswordTitle": "Đặt lại mật khẩu",
+    "resetPasswordDesc": "Nhập địa chỉ email tài khoản của bạn và chúng tôi sẽ gửi liên kết để đặt lại mật khẩu.",
+    "continue": "Tiếp tục",
+    "verifyEmailTitle": "Xác thực địa chỉ email",
+    "verifyEmailSent": "Chúng tôi đã gửi email xác thực đến",
+    "verifyEmailCheckSpam": "Nếu bạn không thấy email nào, vui lòng kiểm tra thư mục Spam hoặc Rác.",
+    "valEmailErr": "Vui lòng nhập địa chỉ email hợp lệ.",
+    "valPasswordErr": "Mật khẩu phải có ít nhất 6 ký tự.",
+    "valNameErr": "Họ tên là bắt buộc."
+  }
+}

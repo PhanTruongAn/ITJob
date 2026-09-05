@@ -132,7 +132,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           return token
-        } catch (err) {
+        } catch (err: any) {
           console.error("Google backend login error:", err)
           return token
         }
@@ -184,8 +184,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const expiry = getJwtExpiry(data.access_token)
           token.accessTokenExpires = expiry ? expiry - 2000 : Date.now() + ACCESS_TOKEN_VALIDITY
 
-          console.log("Access token refreshed")
-
           return token
         }
 
@@ -193,7 +191,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           ...token,
           error: "RefreshAccessTokenError",
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Refresh token error:", err)
 
         return {

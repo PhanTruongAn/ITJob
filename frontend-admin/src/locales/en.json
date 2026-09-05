@@ -1,0 +1,43 @@
+{
+  "admin": {
+    "title": "Admin Console",
+    "dashboard": "Dashboard",
+    "users": "User Management",
+    "companies": "Company Management",
+    "jobs": "Job Management",
+    "resumes": "Resume Management",
+    "skills": "Skill Management",
+    "subscribers": "Subscribers",
+    "roles": "Role Management",
+    "permissions": "Permission Management",
+    "reviews": "Review Moderation",
+    "countries": "Country Data",
+    "recommendations": "Job Recommendation",
+    "emailAnalytics": "Email Analytics",
+    "logout": "Sign Out",
+    "welcome": "Welcome to ITJob Admin",
+    "signup": "Sign-up"
+  },
+  "common": {
+    "language": "Language",
+    "vietnamese": "Vietnamese",
+    "english": "English",
+    "search": "Search",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "actions": "Actions",
+    "status": "Status",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirmDelete": "Are you sure you want to delete this record?",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "dontHaveAccount": "Don't have an account.",
+    "valEmailErr": "Please input your email!",
+    "valPasswordErr": "Please input your password!"
+  }
+}

@@ -1,6 +1,7 @@
 // app/Providers.tsx
 "use client"
 
+import "@/i18n/config"
 import { store } from "@/redux/store"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools" // đúng v5
