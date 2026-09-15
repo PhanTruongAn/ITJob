@@ -109,6 +109,11 @@ public class AuthService {
         userInfo.setAvatar(user.getAvatar());
         userInfo.setPhone(user.getPhone());
         userInfo.setAddress(user.getAddress());
+
+        if (user.getRole() != null) {
+            userInfo.setRole(new ResLoginDTO.RoleDTO(user.getRole().getId(), user.getRole().getName()));
+        }
+
         res.setUser(userInfo);
         res.setAccessToken(accessToken);
         // refreshToken không bỏ vào body -> chỉ set cookie ở controller
@@ -209,11 +214,17 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
+        GetAccountResDTO.RoleDTO roleDTO = null;
+        if (user.getRole() != null) {
+            roleDTO = new GetAccountResDTO.RoleDTO(user.getRole().getId(), user.getRole().getName());
+        }
+
         return GetAccountResDTO.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
                 .avatar(user.getAvatar())
+                .role(roleDTO)
                 .build();
     }
 }

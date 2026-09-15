@@ -57,7 +57,11 @@ public class FollowPermissionInitializer {
         }
 
         // 2. Gán các quyền cho CANDIDATE role
-        List<ResourceEnum> resources = List.of(ResourceEnum.COMPANY_FOLLOW, ResourceEnum.COMPANY_REVIEW);
+        List<ResourceEnum> resources = List.of(
+                ResourceEnum.COMPANY_FOLLOW,
+                ResourceEnum.COMPANY_REVIEW,
+                ResourceEnum.JOB_SAVED,
+                ResourceEnum.COMPANY_SAVED);
 
         int linkedCount = 0;
         for (ResourceEnum res : resources) {

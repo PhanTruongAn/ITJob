@@ -24,6 +24,10 @@ interface IState {
     email: string
     name: string
     avatar?: string
+    role?: {
+      id: number
+      name: string
+    }
   }
 }
 
@@ -37,6 +41,10 @@ const initialState: IState = {
     email: "",
     name: "",
     avatar: "",
+    role: {
+      id: 0,
+      name: "",
+    },
   },
 }
 
