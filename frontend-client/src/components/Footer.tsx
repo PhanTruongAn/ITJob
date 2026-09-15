@@ -8,6 +8,7 @@ import IconButton from "@mui/material/IconButton"
 import Link from "@mui/material/Link"
 import Stack from "@mui/material/Stack"
 import Typography from "@mui/material/Typography"
+import { useTranslation } from "react-i18next"
 import SitemarkIcon from "./SitemarkIcon"
 function Copyright() {
   return (
@@ -23,6 +24,7 @@ function Copyright() {
 }
 
 export default function Footer() {
+  const { t } = useTranslation()
   return (
     <Container
       sx={{
@@ -111,19 +113,19 @@ export default function Footer() {
           }}
         >
           <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-            Sản phẩm
+            {t("footer.product", "Sản phẩm")}
           </Typography>
           <Link color="text.secondary" variant="body2" href="#">
-            Tính năng
+            {t("footer.features", "Tính năng")}
           </Link>
           <Link color="text.secondary" variant="body2" href="#">
-            Điểm nổi bật
+            {t("footer.highlights", "Điểm nổi bật")}
           </Link>
           <Link color="text.secondary" variant="body2" href="#">
-            Giá cả
+            {t("footer.pricing", "Giá cả")}
           </Link>
           <Link color="text.secondary" variant="body2" href="#">
-            Câu hỏi thường gặp
+            {t("footer.FAQ", "Câu hỏi thường gặp")}
           </Link>
         </Box>
         <Box
@@ -134,16 +136,16 @@ export default function Footer() {
           }}
         >
           <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-            Công ty
+            {t("footer.company", "Công ty")}
           </Typography>
           <Link color="text.secondary" variant="body2" href="#">
-            Trang chủ
+            {t("nav.home", "Trang chủ")}
           </Link>
           <Link color="text.secondary" variant="body2" href="#">
-            Về chúng tôi
+            {t("footer.aboutUs", "Về chúng tôi")}
           </Link>
           <Link color="text.secondary" variant="body2" href="#">
-            Thông cáo báo chí
+            {t("footer.press", "Thông cáo báo chí")}
           </Link>
         </Box>
         <Box
@@ -154,16 +156,16 @@ export default function Footer() {
           }}
         >
           <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-            Pháp lý
+            {t("footer.legal", "Pháp lý")}
           </Typography>
           <Link color="text.secondary" variant="body2" href="#">
-            Điều khoản
+            {t("footer.terms", "Điều khoản")}
           </Link>
           <Link color="text.secondary" variant="body2" href="#">
-            Quyền riêng tư
+            {t("footer.privacyPolicy", "Quyền riêng tư")}
           </Link>
           <Link color="text.secondary" variant="body2" href="#">
-            Liên
+            {t("footer.contactUs", "Liên hệ")}
           </Link>
         </Box>
       </Box>

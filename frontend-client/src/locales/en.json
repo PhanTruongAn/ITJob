@@ -18,6 +18,21 @@
     "settings": "Settings",
     "employer": "For Employers"
   },
+  "footer": {
+    "product": "Product",
+    "features": "Features",
+    "highlights": "Highlights",
+    "pricing": "Pricing",
+    "FAQ": "FAQ",
+    "resources": "Resource",
+    "company": "Company",
+    "aboutUs": "About us",
+    "contactUs": "Contact us",
+    "press": "Press",
+    "legal": "Legal",
+    "privacyPolicy": "Privacy Policy",
+    "terms": "Terms"
+  },
   "home": {
     "topEmployers": "Top Employers"
   },

@@ -18,6 +18,21 @@
     "settings": "Cài đặt",
     "employer": "Nhà tuyển dụng"
   },
+  "footer": {
+    "product": "Sản phẩm",
+    "features": "Tính năng nổi bật",
+    "highlights": "Điểm nổi bật",
+    "pricing": "Giá cả",
+    "FAQ": "Câu hỏi thường gặp",
+    "resources": "Tài nguyên",
+    "company": "Công ty",
+    "aboutUs": "Về chúng tôi",
+    "contactUs": "Liên hệ chúng tôi",
+    "press": "Thông cáo báo chí",
+    "legal": "Pháp lý",
+    "terms": "Điều khoản",
+    "privacyPolicy": "Chính sách bảo mật"
+  },
   "home": {
     "topEmployers": "Nhà tuyển dụng hàng đầu"
   },

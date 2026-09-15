@@ -1,16 +1,16 @@
 "use client"
 import ColorModeIconDropdown from "@/shared-theme/ColorModeIconDropdown"
+import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded"
-import MenuIcon from "@mui/icons-material/Menu"
 import DashboardIcon from "@mui/icons-material/Dashboard"
 import DescriptionIcon from "@mui/icons-material/Description"
-import AccountCircleIcon from "@mui/icons-material/AccountCircle"
-import WorkIcon from "@mui/icons-material/Work"
+import LogoutIcon from "@mui/icons-material/Logout"
 import MailIcon from "@mui/icons-material/Mail"
-import SubscriptionsIcon from "@mui/icons-material/Subscriptions"
+import MenuIcon from "@mui/icons-material/Menu"
 import NotificationsIcon from "@mui/icons-material/Notifications"
 import SettingsIcon from "@mui/icons-material/Settings"
-import LogoutIcon from "@mui/icons-material/Logout"
+import SubscriptionsIcon from "@mui/icons-material/Subscriptions"
+import WorkIcon from "@mui/icons-material/Work"
 import AppBar from "@mui/material/AppBar"
 import Avatar from "@mui/material/Avatar"
 import Box from "@mui/material/Box"
@@ -19,9 +19,9 @@ import Container from "@mui/material/Container"
 import Divider from "@mui/material/Divider"
 import Drawer from "@mui/material/Drawer"
 import IconButton from "@mui/material/IconButton"
+import ListItemIcon from "@mui/material/ListItemIcon"
 import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
-import ListItemIcon from "@mui/material/ListItemIcon"
 import { alpha, styled } from "@mui/material/styles"
 import Toolbar from "@mui/material/Toolbar"
 import Typography from "@mui/material/Typography"
@@ -132,15 +132,15 @@ export default function AppAppBar() {
                   PaperProps={{
                     elevation: 0,
                     sx: {
-                      overflow: 'visible',
-                      filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.12))',
+                      overflow: "visible",
+                      filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.12))",
                       mt: 1.5,
                       minWidth: 220,
                       borderRadius: 2,
                     },
                   }}
-                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                  transformOrigin={{ horizontal: "right", vertical: "top" }}
+                  anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
                 >
                   <Box sx={{ px: 2, py: 1.5 }}>
                     <Typography variant="subtitle2" fontWeight="bold">
@@ -152,40 +152,62 @@ export default function AppAppBar() {
                   </Box>
                   <Divider sx={{ my: 0.5 }} />
                   <MenuItem component={Link} href="/candidate/dashboard">
-                    <ListItemIcon><DashboardIcon fontSize="small" /></ListItemIcon>
+                    <ListItemIcon>
+                      <DashboardIcon fontSize="small" />
+                    </ListItemIcon>
                     {t("nav.dashboard", "Dashboard")}
                   </MenuItem>
                   <MenuItem component={Link} href="/candidate/cv-attachment">
-                    <ListItemIcon><DescriptionIcon fontSize="small" /></ListItemIcon>
+                    <ListItemIcon>
+                      <DescriptionIcon fontSize="small" />
+                    </ListItemIcon>
                     {t("nav.cvAttachment", "CV Attachment")}
                   </MenuItem>
                   <MenuItem component={Link} href="/candidate/itviec-profile">
-                    <ListItemIcon><AccountCircleIcon fontSize="small" /></ListItemIcon>
+                    <ListItemIcon>
+                      <AccountCircleIcon fontSize="small" />
+                    </ListItemIcon>
                     {t("nav.profile", "Profile")}
                   </MenuItem>
                   <MenuItem component={Link} href="/candidate/my-jobs">
-                     <ListItemIcon><WorkIcon fontSize="small" /></ListItemIcon>
-                     {t("nav.myJobs", "My Jobs")}
+                    <ListItemIcon>
+                      <WorkIcon fontSize="small" />
+                    </ListItemIcon>
+                    {t("nav.myJobs", "My Jobs")}
                   </MenuItem>
                   <MenuItem component={Link} href="/candidate/job-invitations">
-                    <ListItemIcon><MailIcon fontSize="small" /></ListItemIcon>
+                    <ListItemIcon>
+                      <MailIcon fontSize="small" />
+                    </ListItemIcon>
                     {t("nav.jobInvitations", "Job Invitations")}
                   </MenuItem>
-                  <MenuItem component={Link} href="/candidate/email-subscriptions">
-                    <ListItemIcon><SubscriptionsIcon fontSize="small" /></ListItemIcon>
+                  <MenuItem
+                    component={Link}
+                    href="/candidate/email-subscriptions"
+                  >
+                    <ListItemIcon>
+                      <SubscriptionsIcon fontSize="small" />
+                    </ListItemIcon>
                     {t("nav.emailSubscriptions", "Email Subscriptions")}
                   </MenuItem>
                   <MenuItem component={Link} href="/candidate/notifications">
-                    <ListItemIcon><NotificationsIcon fontSize="small" /></ListItemIcon>
+                    <ListItemIcon>
+                      <NotificationsIcon fontSize="small" />
+                    </ListItemIcon>
                     {t("nav.notifications", "Notifications")}
                   </MenuItem>
                   <MenuItem component={Link} href="/candidate/settings">
-                    <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
+                    <ListItemIcon>
+                      <SettingsIcon fontSize="small" />
+                    </ListItemIcon>
                     {t("nav.settings", "Settings")}
                   </MenuItem>
                   <Divider sx={{ my: 0.5 }} />
-                  <MenuItem onClick={() => signOut()} sx={{ color: 'error.main' }}>
-                    <ListItemIcon sx={{ color: 'inherit' }}>
+                  <MenuItem
+                    onClick={() => signOut()}
+                    sx={{ color: "error.main" }}
+                  >
+                    <ListItemIcon sx={{ color: "inherit" }}>
                       <LogoutIcon fontSize="small" />
                     </ListItemIcon>
                     {t("nav.signout", "Sign Out")}
@@ -196,7 +218,13 @@ export default function AppAppBar() {
             <LanguageSwitcher />
             <ColorModeIconDropdown />
           </Box>
-          <Box sx={{ display: { xs: "flex", md: "none" }, gap: 1, alignItems: "center" }}>
+          <Box
+            sx={{
+              display: { xs: "flex", md: "none" },
+              gap: 1,
+              alignItems: "center",
+            }}
+          >
             <LanguageSwitcher />
             <ColorModeIconDropdown size="medium" />
             <IconButton aria-label="Menu button" onClick={toggleDrawer(true)}>
@@ -242,12 +270,16 @@ export default function AppAppBar() {
                   <>
                     <MenuItem>
                       <Button color="primary" variant="contained" fullWidth>
-                        <Link href="/signup">{t("nav.register", "Đăng ký")}</Link>
+                        <Link href="/signup">
+                          {t("nav.register", "Đăng ký")}
+                        </Link>
                       </Button>
                     </MenuItem>
                     <MenuItem>
                       <Button color="primary" variant="outlined" fullWidth>
-                        <Link href="/signin">{t("nav.signin", "Đăng nhập")}</Link>
+                        <Link href="/signin">
+                          {t("nav.signin", "Đăng nhập")}
+                        </Link>
                       </Button>
                     </MenuItem>
                   </>
