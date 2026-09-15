@@ -33,3 +33,19 @@ export const useDeleteReview = () => {
     },
   })
 }
+
+export const useUpdateReview = () => {
+  const queryClient = useQueryClient()
+  return CustomHooks.useMutation(
+    (data: { id: number; hidden?: boolean; comment?: string; rating?: number }) =>
+      import("../../../apis/reviewModule").then((m) => m.updateReview(data)),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.REVIEW_MODULE],
+        })
+        message.success("Updated review successfully")
+      },
+    }
+  )
+}

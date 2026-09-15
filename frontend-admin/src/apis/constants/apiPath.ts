@@ -29,7 +29,7 @@ export const PATH_API = {
     root: path(ROOT_API, "/subscribers"),
   },
   review: {
-    root: path(ROOT_API, "/reviews/companies"),
+    root: path(ROOT_API, "/reviews"),
   },
   permission: {
     root: path(ROOT_API, "/permissions"),

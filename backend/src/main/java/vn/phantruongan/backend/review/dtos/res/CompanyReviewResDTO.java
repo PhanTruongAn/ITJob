@@ -7,8 +7,11 @@ import lombok.Setter;
 @Setter
 public class CompanyReviewResDTO {
     private Long id;
+    private Long companyId;
+    private String companyName;
     private String userName;
     private Integer rating;
     private String comment;
     private boolean hidden;
 }
+

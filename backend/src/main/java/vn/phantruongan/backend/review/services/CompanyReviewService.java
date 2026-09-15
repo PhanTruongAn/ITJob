@@ -31,7 +31,12 @@ public class CompanyReviewService {
 
     // get all reviews with pagination
     public PaginationResponse<CompanyReviewResDTO> getAllReviewsByCompanyId(Long companyId, Pageable pageable) {
-        Page<CompanyReview> page = companyReviewRepository.findAllByCompany_IdAndHiddenFalse(companyId, pageable);
+        Page<CompanyReview> page;
+        if (companyId != null && companyId > 0) {
+            page = companyReviewRepository.findAllByCompany_IdAndHiddenFalse(companyId, pageable);
+        } else {
+            page = companyReviewRepository.findAll(pageable);
+        }
 
         List<CompanyReviewResDTO> list = companyReviewMapper.toDtoList(page.getContent());
 
@@ -67,7 +72,15 @@ public class CompanyReviewService {
         CompanyReview review = companyReviewRepository.findById(dto.getId())
                 .orElseThrow(() -> new InvalidException("Review not found"));
 
-        companyReviewMapper.updateEntityFromDto(dto, review);
+        if (dto.getRating() != null) {
+            review.setRating(dto.getRating());
+        }
+        if (dto.getComment() != null) {
+            review.setComment(dto.getComment());
+        }
+        if (dto.getHidden() != null) {
+            review.setHidden(dto.getHidden());
+        }
 
         companyReviewRepository.save(review);
 

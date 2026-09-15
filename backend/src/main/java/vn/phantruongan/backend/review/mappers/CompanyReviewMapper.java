@@ -18,6 +18,8 @@ public interface CompanyReviewMapper {
     CompanyReview toEntity(CreateCompanyReviewReqDTO dto);
 
     @Mapping(source = "user.name", target = "userName")
+    @Mapping(source = "company.id", target = "companyId")
+    @Mapping(source = "company.name", target = "companyName")
     CompanyReviewResDTO toDto(CompanyReview entity);
 
     List<CompanyReviewResDTO> toDtoList(List<CompanyReview> entities);

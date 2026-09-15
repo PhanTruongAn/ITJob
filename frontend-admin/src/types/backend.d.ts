@@ -134,9 +134,13 @@ export interface ISubscriber {
 
 export interface ICompanyReview {
   id: number
-  companyId: number
-  content: string
+  companyId?: number
+  companyName?: string
+  userName?: string
+  content?: string
+  comment?: string
   rating: number
+  hidden?: boolean
 }
 
 export interface IPermission {

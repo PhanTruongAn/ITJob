@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -39,10 +40,10 @@ public class CompanyReviewController {
     private final CompanyReviewService companyReviewService;
 
     @RequirePermission(resource = ResourceEnum.COMPANY_REVIEW, action = ActionEnum.READ)
-    @GetMapping("/companies")
+    @GetMapping()
     @ApiMessage("Get all review of company")
     public ResponseEntity<PaginationResponse<CompanyReviewResDTO>> getAllCompanies(
-            @ParameterObject long companyId,
+            @RequestParam(required = false) Long companyId,
             @ParameterObject Pageable pageable) {
 
         PaginationResponse<CompanyReviewResDTO> result = companyReviewService.getAllReviewsByCompanyId(companyId,
