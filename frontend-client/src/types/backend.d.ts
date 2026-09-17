@@ -68,3 +68,18 @@ export interface IAccountRes {
   phone?: string
   address?: string
 }
+
+export interface IFile {
+  id: number
+  fileName: string
+  fileKey: string
+  fileUrl: string
+  fileType: string
+  fileExtension: string
+  fileSize: number
+  category: 'CV' | 'EXCEL' | 'AVATAR' | 'ATTACHMENT' | 'OTHER'
+  isDefault: boolean
+  createdAt?: string
+  createdBy?: string
+}
+

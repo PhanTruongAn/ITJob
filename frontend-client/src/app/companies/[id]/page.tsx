@@ -3,11 +3,13 @@ import AppAppBar from "@/components/AppAppBar"
 import Footer from "@/components/Footer"
 import AppTheme from "@/shared-theme/AppTheme"
 import {
+  Alert,
   Box,
   CircularProgress,
   Container,
   CssBaseline,
   Grid,
+  Snackbar,
   Stack,
   Typography,
 } from "@mui/material"
@@ -36,6 +38,16 @@ export default function CompanyDetailPage({ params }: Props) {
   const { data: session, status } = useSession()
 
   const [activeTab, setActiveTab] = useState("about")
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean
+    message: string
+    severity: "success" | "error" | "info" | "warning"
+  }>({
+    open: false,
+    message: "",
+    severity: "success",
+  })
+
   const { data, isLoading, isError } = useCompanyDetail(companyId)
 
   // Fetch follow status only if user is logged in
@@ -47,17 +59,50 @@ export default function CompanyDetailPage({ params }: Props) {
   const isFollowing = !!followStatusData?.data
 
   const toggleFollowMutation = useToggleFollowCompany()
+  const company = data?.data
 
   const handleFollowToggle = () => {
     if (status !== "authenticated") {
-      alert("Vui lòng đăng nhập để follow công ty này!")
-      router.push("/signin")
+      setSnackbar({
+        open: true,
+        message: "Vui lòng đăng nhập để theo dõi công ty này!",
+        severity: "warning",
+      })
+      setTimeout(() => {
+        router.push("/signin")
+      }, 1500)
       return
     }
-    toggleFollowMutation.mutate(companyId)
-  }
 
-  const company = data?.data
+    toggleFollowMutation.mutate(companyId, {
+      onSuccess: (res) => {
+        const isActive = res?.data?.active
+        const companyName = company?.name || res?.data?.companyName || "công ty"
+        if (isActive) {
+          setSnackbar({
+            open: true,
+            message: `Đã theo dõi công ty ${companyName} thành công!`,
+            severity: "success",
+          })
+        } else {
+          setSnackbar({
+            open: true,
+            message: `Đã hủy theo dõi công ty ${companyName}.`,
+            severity: "info",
+          })
+        }
+      },
+      onError: (error: any) => {
+        setSnackbar({
+          open: true,
+          message:
+            error?.response?.data?.message ||
+            "Có lỗi xảy ra khi thực hiện thao tác theo dõi.",
+          severity: "error",
+        })
+      },
+    })
+  }
 
   if (isLoading) {
     return (
@@ -208,6 +253,22 @@ export default function CompanyDetailPage({ params }: Props) {
           </Grid>
         </Container>
       </Box>
+
+      {/* Follow / Unfollow Snackbar Notification */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+      >
+        <Alert
+          severity={snackbar.severity}
+          variant="filled"
+          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+          sx={{ width: "100%", borderRadius: 2 }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
 
       <Box
         sx={{

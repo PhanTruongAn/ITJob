@@ -1,57 +1,115 @@
 "use client"
-import { Box, Grid, Stack, Typography } from "@mui/material"
-import { useRef } from "react"
-import ManagedDocuments, { CVFile } from "./components/ManagedDocuments"
+import { Alert, Box, CircularProgress, Grid, Snackbar, Stack, Typography } from "@mui/material"
+import { useCallback, useEffect, useState } from "react"
+import ManagedDocuments from "./components/ManagedDocuments"
 import ProTipCard from "./components/ProTipCard"
-import RecentActivityTimeline, {
-  ActivityItem,
-} from "./components/RecentActivityTimeline"
+import RecentActivityTimeline, { ActivityItem } from "./components/RecentActivityTimeline"
 import StorageStatus from "./components/StorageStatus"
 import UploadDropzone from "./components/UploadDropzone"
+import { deleteCv, getUserCvs, setDefaultCv, uploadCv } from "@/apis/file"
+import { IFile } from "@/types/backend"
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-const cvFiles: CVFile[] = [
-  {
-    id: 1,
-    name: "Senior_FE_Engineer_2024.pdf",
-    type: "pdf",
-    uploadedAt: "Oct 24, 2024",
-    size: "1.2 MB",
-    isDefault: true,
-  },
-  {
-    id: 2,
-    name: "Cloud_Architect_Profile.docx",
-    type: "docx",
-    uploadedAt: "Aug 12, 2024",
-    size: "850 KB",
-  },
-  {
-    id: 3,
-    name: "General_IT_CV_V2.pdf",
-    type: "pdf",
-    uploadedAt: "Jan 05, 2024",
-    size: "2.1 MB",
-  },
-]
-
-const activityItems: ActivityItem[] = [
-  { id: 1, label: "CV Viewed by Google", time: "2 hours ago", type: "view" },
-  {
-    id: 2,
-    label: "New Upload: FE_2024.pdf",
-    time: "Yesterday",
-    type: "upload",
-  },
-  { id: 3, label: "CV Downloaded", time: "Oct 20, 2024", type: "download" },
-]
-
-// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function CVAttachmentPage() {
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [cvFiles, setCvFiles] = useState<IFile[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isUploading, setIsUploading] = useState<boolean>(false)
 
-  const handleSelectClick = () => {
-    inputRef.current?.click()
+  const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
+    open: false,
+    message: "",
+    severity: "success",
+  })
+
+  const [activityItems, setActivityItems] = useState<ActivityItem[]>([
+    { id: 1, label: "Hệ thống đã sẵn sàng hỗ trợ tải CV lên AWS S3", time: "Vừa xong", type: "upload" },
+  ])
+
+  const fetchCvs = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await getUserCvs()
+      if (res.data) {
+        setCvFiles(res.data)
+      }
+    } catch (err: any) {
+      console.error("Error fetching CVs:", err)
+      const errorMsg = err?.response?.data?.message || "Không thể tải danh sách CV."
+      setToast({ open: true, message: errorMsg, severity: "error" })
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchCvs()
+  }, [fetchCvs])
+
+  const handleFileUpload = async (file: File) => {
+    try {
+      setIsUploading(true)
+      const res = await uploadCv(file)
+      if (res.data) {
+        setToast({
+          open: true,
+          message: `Đã tải thành công CV "${file.name}" lên AWS S3!`,
+          severity: "success",
+        })
+        setActivityItems((prev) => [
+          { id: Date.now(), label: `Tải lên CV mới: ${file.name}`, time: "Vừa xong", type: "upload" },
+          ...prev,
+        ])
+        await fetchCvs()
+      }
+    } catch (err: any) {
+      console.error("Upload error:", err)
+      const errorMsg = err?.response?.data?.message || "Không thể tải CV lên. Vui lòng thử lại."
+      setToast({ open: true, message: errorMsg, severity: "error" })
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleSetDefault = async (id: number) => {
+    try {
+      const res = await setDefaultCv(id)
+      if (res.data) {
+        setToast({
+          open: true,
+          message: `Đã thiết lập CV "${res.data.fileName}" làm mặc định.`,
+          severity: "success",
+        })
+        await fetchCvs()
+      }
+    } catch (err: any) {
+      console.error("Set default error:", err)
+      const errorMsg = err?.response?.data?.message || "Không thể thiết lập CV mặc định."
+      setToast({ open: true, message: errorMsg, severity: "error" })
+    }
+  }
+
+  const handleDelete = async (id: number) => {
+    const targetFile = cvFiles.find((f) => f.id === id)
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa CV "${targetFile?.fileName || ""}" khỏi hệ thống và AWS S3?`)) {
+      return
+    }
+
+    try {
+      await deleteCv(id)
+      setToast({
+        open: true,
+        message: "Đã xóa CV khỏi AWS S3 và cơ sở dữ liệu.",
+        severity: "success",
+      })
+      setActivityItems((prev) => [
+        { id: Date.now(), label: `Đã xóa CV: ${targetFile?.fileName}`, time: "Vừa xong", type: "download" },
+        ...prev,
+      ])
+      await fetchCvs()
+    } catch (err: any) {
+      console.error("Delete error:", err)
+      const errorMsg = err?.response?.data?.message || "Không thể xóa CV."
+      setToast({ open: true, message: errorMsg, severity: "error" })
+    }
   }
 
   return (
@@ -67,8 +125,7 @@ export default function CVAttachmentPage() {
           CV Attachment
         </Typography>
         <Typography variant="body1" color="text.secondary" maxWidth={600}>
-          Upload and manage multiple versions of your curriculum vitae. Keep
-          your profile updated for the best job matching opportunities.
+          Upload và quản lý các phiên bản hồ sơ CV của bạn. Tệp tin được lưu trữ bảo mật trên AWS S3 (Giới hạn tối đa 10MB/file).
         </Typography>
       </Box>
 
@@ -78,12 +135,22 @@ export default function CVAttachmentPage() {
           <Stack spacing={4}>
             {/* Upload Dropzone */}
             <UploadDropzone
-              inputRef={inputRef}
-              onSelectClick={handleSelectClick}
+              onFileUpload={handleFileUpload}
+              isUploading={isUploading}
             />
 
             {/* Managed Documents */}
-            <ManagedDocuments files={cvFiles} />
+            {isLoading ? (
+              <Box display="flex" justifyContent="center" py={4}>
+                <CircularProgress color="primary" />
+              </Box>
+            ) : (
+              <ManagedDocuments
+                files={cvFiles}
+                onSetDefault={handleSetDefault}
+                onDelete={handleDelete}
+              />
+            )}
           </Stack>
         </Grid>
 
@@ -101,6 +168,23 @@ export default function CVAttachmentPage() {
           </Stack>
         </Grid>
       </Grid>
+
+      {/* Snackbar Notification Toast */}
+      <Snackbar
+        open={toast.open}
+        autoHideDuration={4000}
+        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setToast((prev) => ({ ...prev, open: false }))}
+          severity={toast.severity}
+          variant="filled"
+          sx={{ width: "100%", borderRadius: 2 }}
+        >
+          {toast.message}
+        </Alert>
+      </Snackbar>
     </Box>
   )
 }
