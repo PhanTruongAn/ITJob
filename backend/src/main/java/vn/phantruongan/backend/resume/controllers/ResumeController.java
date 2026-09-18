@@ -52,32 +52,6 @@ public class ResumeController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/by-user")
-    @ApiMessage("Ứng tuyển công việc thành công")
-    @Operation(summary = "Ứng viên nộp hồ sơ CV vào công việc")
-    public ResponseEntity<ResumeResDTO> applyResume(@Valid @RequestBody CreateResumeReqDTO dto)
-            throws InvalidException {
-
-        ResumeResDTO newResume = resumeService.createResume(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newResume);
-    }
-
-    @GetMapping("/by-user")
-    @ApiMessage("Lấy danh sách CV đã ứng tuyển của tôi thành công")
-    @Operation(summary = "Lấy danh sách các đơn đã ứng tuyển của candidate hiện tại")
-    public ResponseEntity<List<ResumeResDTO>> getMyResumes() throws InvalidException {
-        List<ResumeResDTO> list = resumeService.getMyResumes();
-        return ResponseEntity.ok(list);
-    }
-
-    @GetMapping("/check-applied")
-    @ApiMessage("Kiểm tra trạng thái ứng tuyển thành công")
-    @Operation(summary = "Kiểm tra xem Candidate hiện tại đã ứng tuyển công việc này chưa")
-    public ResponseEntity<ResumeResDTO> checkApplied(@RequestParam("jobId") long jobId) throws InvalidException {
-        ResumeResDTO appliedResume = resumeService.checkApplied(jobId);
-        return ResponseEntity.ok(appliedResume);
-    }
-
     @RequirePermission(resource = ResourceEnum.RESUME, action = ActionEnum.CREATE)
     @PostMapping()
     @ApiMessage("Create new resume")

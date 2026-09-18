@@ -14,4 +14,7 @@ export const PATH_API = {
   profile: {
     root: BASE + "/profiles",
   },
+  resume: {
+    root: BASE + "/resumes",
+  },
 }
