@@ -22,6 +22,10 @@ public interface ResumeMapper extends BaseMapper<ResumeResDTO, Resume> {
 
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "job.id", target = "jobId")
+    @Mapping(source = "job.name", target = "jobName")
+    @Mapping(source = "job.company.id", target = "companyId")
+    @Mapping(source = "job.company.name", target = "companyName")
+    @Mapping(source = "job.company.logo", target = "companyLogo")
     ResumeResDTO toDto(Resume entity);
 
     List<ResumeResDTO> toDtoList(List<Resume> entities);

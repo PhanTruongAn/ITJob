@@ -53,18 +53,52 @@ public class ResumeService {
         }
 
         public ResumeResDTO createResume(CreateResumeReqDTO dto) throws InvalidException {
-                Resume resume = resumeMapper.toEntity(dto);
+                User user;
+                if (dto.getUserId() != null) {
+                        user = userRepository.findById(dto.getUserId())
+                                        .orElseThrow(() -> new InvalidException("User not found with id: " + dto.getUserId()));
+                } else {
+                        String email = currentUserService.getCurrentUserEmail();
+                        user = userRepository.findByEmail(email)
+                                        .orElseThrow(() -> new InvalidException("Không tìm thấy thông tin người dùng đang đăng nhập."));
+                }
 
-                User user = userRepository.findById(dto.getUserId())
-                                .orElseThrow(() -> new InvalidException("User not found with id: " + dto.getUserId()));
                 Job job = jobRepository.findById(dto.getJobId())
                                 .orElseThrow(() -> new InvalidException("Job not found with id: " + dto.getJobId()));
 
+                if (resumeRepository.existsByUserIdAndJobId(user.getId(), job.getId())) {
+                        throw new InvalidException("Bạn đã ứng tuyển vào công việc này trước đó rồi.");
+                }
+
+                Resume resume = resumeMapper.toEntity(dto);
                 resume.setUser(user);
                 resume.setJob(job);
+                if (dto.getStatus() == null) {
+                        resume.setStatus(ResumeEnum.PENDING);
+                }
+                if (dto.getNote() != null) {
+                        resume.setNote(dto.getNote().trim());
+                }
 
                 Resume saved = resumeRepository.save(resume);
                 return resumeMapper.toDto(saved);
+        }
+
+        public List<ResumeResDTO> getMyResumes() throws InvalidException {
+                String email = currentUserService.getCurrentUserEmail();
+                User user = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new InvalidException("Không tìm thấy thông tin người dùng đang đăng nhập."));
+                List<Resume> list = resumeRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+                return resumeMapper.toDtoList(list);
+        }
+
+        public ResumeResDTO checkApplied(long jobId) throws InvalidException {
+                String email = currentUserService.getCurrentUserEmail();
+                User user = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new InvalidException("Không tìm thấy thông tin người dùng đang đăng nhập."));
+                return resumeRepository.findByUserIdAndJobId(user.getId(), jobId)
+                                .map(resumeMapper::toDto)
+                                .orElse(null);
         }
 
         public ResumeResDTO findById(long id) throws InvalidException {

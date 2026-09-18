@@ -25,10 +25,10 @@ public class CreateResumeReqDTO {
 
     private String url;
 
-    @NotNull(message = "Resume status must not be null")
+    private String note;
+
     private ResumeEnum status;
 
-    @NotNull(message = "User ID must not be null")
     private Long userId;
 
     @NotNull(message = "Job ID must not be null")

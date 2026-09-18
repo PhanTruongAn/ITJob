@@ -83,3 +83,33 @@ export interface IFile {
   createdBy?: string
 }
 
+export interface IResume {
+  id: number
+  candidateName: string
+  phoneNumber: string
+  note?: string
+  email: string
+  url: string
+  status: 'PENDING' | 'REVIEWING' | 'APPROVED' | 'REJECTED'
+  userId: number
+  jobId: number
+  jobName?: string
+  companyId?: number
+  companyName?: string
+  companyLogo?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface ICreateResumeReq {
+  candidateName: string
+  phoneNumber: string
+  email: string
+  url: string
+  jobId: number
+  note?: string
+  status?: 'PENDING' | 'REVIEWING' | 'APPROVED' | 'REJECTED'
+  userId?: number
+}
+
+

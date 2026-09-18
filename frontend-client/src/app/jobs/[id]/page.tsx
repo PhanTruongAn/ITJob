@@ -1,4 +1,5 @@
 "use client"
+
 import AppAppBar from "@/components/AppAppBar"
 import Footer from "@/components/Footer"
 import AppTheme from "@/shared-theme/AppTheme"
@@ -7,10 +8,14 @@ import MedicalServicesIcon from "@mui/icons-material/MedicalServices"
 import PaymentsIcon from "@mui/icons-material/Payments"
 import TimerIcon from "@mui/icons-material/Timer"
 import { Alert, Box, Container, CssBaseline, Grid, Snackbar } from "@mui/material"
-import { useState } from "react"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useCallback, useEffect, useState } from "react"
+import ApplyJobModal from "./components/ApplyJobModal"
 import JobDescriptionSection from "./components/JobDescriptionSection"
 import JobDetailHeader from "./components/JobDetailHeader"
 import JobDetailSidebar from "./components/JobDetailSidebar"
+import { checkJobApplied } from "@/apis/resume"
 
 // Mock details for job
 const jobDetails = {
@@ -77,17 +82,59 @@ const similarJobs = [
 ]
 
 export default function JobDetailPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
   const [isBookmarked, setIsBookmarked] = useState(false)
+  const [isApplied, setIsApplied] = useState(false)
+  const [openApplyModal, setOpenApplyModal] = useState(false)
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
-    severity: "success",
+    severity: "success" as "success" | "info" | "error" | "warning",
   })
 
-  const handleApply = () => {
+  // Check if current user has already applied for this job
+  useEffect(() => {
+    if (status !== "authenticated") return
+
+    let isMounted = true
+    checkJobApplied(jobDetails.id)
+      .then((res) => {
+        if (isMounted && res.data) {
+          setIsApplied(true)
+        }
+      })
+      .catch((err) => {
+        console.error("Check applied error:", err)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [status])
+
+  const handleApplyClick = () => {
+    if (!session?.user) {
+      setSnackbar({
+        open: true,
+        message: "Vui lòng đăng nhập tài khoản ứng viên để ứng tuyển công việc này.",
+        severity: "warning",
+      })
+      setTimeout(() => {
+        router.push("/signin")
+      }, 1500)
+      return
+    }
+    setOpenApplyModal(true)
+  }
+
+  const handleApplySuccess = () => {
+    setIsApplied(true)
     setSnackbar({
       open: true,
-      message: "Ứng tuyển thành công! Nhà tuyển dụng sẽ liên hệ bạn sớm.",
+      message: "Ứng tuyển thành công! Nhà tuyển dụng sẽ xem xét hồ sơ của bạn sớm nhất.",
       severity: "success",
     })
   }
@@ -121,8 +168,9 @@ export default function JobDetailPage() {
           <JobDetailHeader
             job={jobDetails}
             isBookmarked={isBookmarked}
+            isApplied={isApplied}
             onBookmarkToggle={() => setIsBookmarked(!isBookmarked)}
-            onApply={handleApply}
+            onApply={handleApplyClick}
           />
 
           {/* Grid Layout */}
@@ -144,6 +192,16 @@ export default function JobDetailPage() {
         </Container>
       </Box>
 
+      {/* Apply Job Modal */}
+      <ApplyJobModal
+        open={openApplyModal}
+        onClose={() => setOpenApplyModal(false)}
+        jobId={jobDetails.id}
+        jobTitle={jobDetails.title}
+        companyName={jobDetails.company}
+        onSuccess={handleApplySuccess}
+      />
+
       {/* Snackbar notification */}
       <Snackbar
         open={snackbar.open}
@@ -151,7 +209,7 @@ export default function JobDetailPage() {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
       >
         <Alert
-          severity={snackbar.severity as any}
+          severity={snackbar.severity}
           variant="filled"
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           sx={{ width: "100%" }}
@@ -172,3 +230,4 @@ export default function JobDetailPage() {
     </AppTheme>
   )
 }
+

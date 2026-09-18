@@ -18,6 +18,8 @@ import {
   Typography,
 } from "@mui/material"
 
+import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+
 interface JobDetails {
   title: string
   company: string
@@ -31,6 +33,7 @@ interface JobDetails {
 interface JobDetailHeaderProps {
   job: JobDetails
   isBookmarked: boolean
+  isApplied?: boolean
   onBookmarkToggle: () => void
   onApply: () => void
 }
@@ -38,6 +41,7 @@ interface JobDetailHeaderProps {
 export default function JobDetailHeader({
   job,
   isBookmarked,
+  isApplied = false,
   onBookmarkToggle,
   onApply,
 }: JobDetailHeaderProps) {
@@ -185,7 +189,9 @@ export default function JobDetailHeader({
           >
             <Button
               variant="contained"
-              color="primary"
+              color={isApplied ? "success" : "primary"}
+              disabled={isApplied}
+              startIcon={isApplied ? <CheckCircleIcon /> : undefined}
               onClick={onApply}
               sx={{
                 flexGrow: 1,
@@ -195,10 +201,10 @@ export default function JobDetailHeader({
                 borderRadius: 2,
                 textTransform: "none",
                 boxShadow: "none",
-                "&:hover": { bgcolor: "primary.dark", boxShadow: "none" },
+                "&:hover": { bgcolor: isApplied ? "success.main" : "primary.dark", boxShadow: "none" },
               }}
             >
-              Apply Now
+              {isApplied ? "Đã ứng tuyển" : "Apply Now"}
             </Button>
             <IconButton
               onClick={onBookmarkToggle}

@@ -1,5 +1,7 @@
 package vn.phantruongan.backend.resume.controllers;
 
+import java.util.List;
+
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +50,32 @@ public class ResumeController {
 
         PaginationResponse<ResumeResDTO> result = resumeService.getAllResumes(dto, pageable);
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/by-user")
+    @ApiMessage("Ứng tuyển công việc thành công")
+    @Operation(summary = "Ứng viên nộp hồ sơ CV vào công việc")
+    public ResponseEntity<ResumeResDTO> applyResume(@Valid @RequestBody CreateResumeReqDTO dto)
+            throws InvalidException {
+
+        ResumeResDTO newResume = resumeService.createResume(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newResume);
+    }
+
+    @GetMapping("/by-user")
+    @ApiMessage("Lấy danh sách CV đã ứng tuyển của tôi thành công")
+    @Operation(summary = "Lấy danh sách các đơn đã ứng tuyển của candidate hiện tại")
+    public ResponseEntity<List<ResumeResDTO>> getMyResumes() throws InvalidException {
+        List<ResumeResDTO> list = resumeService.getMyResumes();
+        return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/check-applied")
+    @ApiMessage("Kiểm tra trạng thái ứng tuyển thành công")
+    @Operation(summary = "Kiểm tra xem Candidate hiện tại đã ứng tuyển công việc này chưa")
+    public ResponseEntity<ResumeResDTO> checkApplied(@RequestParam("jobId") long jobId) throws InvalidException {
+        ResumeResDTO appliedResume = resumeService.checkApplied(jobId);
+        return ResponseEntity.ok(appliedResume);
     }
 
     @RequirePermission(resource = ResourceEnum.RESUME, action = ActionEnum.CREATE)

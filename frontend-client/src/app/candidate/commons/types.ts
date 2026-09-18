@@ -4,6 +4,10 @@ export type AppStatus =
   | "reviewing"
   | "not_selected"
   | "applied"
+  | "PENDING"
+  | "REVIEWING"
+  | "APPROVED"
+  | "REJECTED"
 
 export interface StatusDetail {
   label: string
@@ -17,4 +21,8 @@ export const statusConfig: Record<AppStatus, StatusDetail> = {
   reviewing: { label: "Reviewing", color: "#334155", bg: "#f1f5f9" },
   not_selected: { label: "Not Selected", color: "#991b1b", bg: "#fee2e2" },
   applied: { label: "Applied", color: "#0369a1", bg: "#e0f2fe" },
+  PENDING: { label: "Đang chờ xử lý", color: "#0369a1", bg: "#e0f2fe" },
+  REVIEWING: { label: "Đang xem xét", color: "#334155", bg: "#f1f5f9" },
+  APPROVED: { label: "Đã duyệt", color: "#166534", bg: "#dcfce7" },
+  REJECTED: { label: "Từ chối", color: "#991b1b", bg: "#fee2e2" },
 }

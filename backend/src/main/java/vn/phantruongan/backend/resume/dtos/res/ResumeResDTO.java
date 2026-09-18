@@ -1,5 +1,7 @@
 package vn.phantruongan.backend.resume.dtos.res;
 
+import java.time.Instant;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.phantruongan.backend.resume.enums.ResumeEnum;
@@ -16,4 +18,10 @@ public class ResumeResDTO {
     private ResumeEnum status;
     private Long userId;
     private Long jobId;
+    private String jobName;
+    private Long companyId;
+    private String companyName;
+    private String companyLogo;
+    private Instant createdAt;
+    private Instant updatedAt;
 }
