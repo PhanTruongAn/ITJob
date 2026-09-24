@@ -3,87 +3,59 @@
 import AppAppBar from "@/components/AppAppBar"
 import Footer from "@/components/Footer"
 import AppTheme from "@/shared-theme/AppTheme"
-import LaptopMacIcon from "@mui/icons-material/LaptopMac"
-import MedicalServicesIcon from "@mui/icons-material/MedicalServices"
-import PaymentsIcon from "@mui/icons-material/Payments"
-import TimerIcon from "@mui/icons-material/Timer"
-import { Alert, Box, Container, CssBaseline, Grid, Snackbar } from "@mui/material"
+import { fetchJobs, getJobById } from "@/apis/job"
+import { getCompanyById } from "@/apis/company"
+import { checkJobApplied } from "@/apis/resume"
+import { ICompany, IJob } from "@/types/backend"
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  CssBaseline,
+  Grid,
+  Snackbar,
+  Stack,
+  Typography,
+} from "@mui/material"
+import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 import ApplyJobModal from "./components/ApplyJobModal"
 import JobDescriptionSection from "./components/JobDescriptionSection"
 import JobDetailHeader from "./components/JobDetailHeader"
 import JobDetailSidebar from "./components/JobDetailSidebar"
-import { checkJobApplied } from "@/apis/resume"
 
-// Mock details for job
-const jobDetails = {
-  id: 1,
-  title: "Senior Full Stack Engineer",
-  company: "CloudNexus Solutions",
-  logo: "https://lh3.googleusercontent.com/aida-public/AB6AXuDnMCjxMRkjPVoT3-eFgSccKBJRLUmfaolmdeV7eTgpct3hWgo_bsLNfe-08du959fzx_3lSyBFiQEtimLK5kTNMAjN9jdgWjT0VOMNZkldBaWYWAyN7Ja8lrYdzLhT8WzYJA87zK4OqI-9_DdRbpYoYRhbAVGq68uwiQGvH3mYX3Dd1ITYZsoaJ9YxObBmH17fozXcMdKY9OQCgLGDyqsEpJiO3-kb4XveoEM5J05orioxDOrrj6shaQtiRSemhcJGoGBNn0cHOrU",
-  location: "Ho Chi Minh City",
-  minSalary: 3500,
-  maxSalary: 5000,
-  postedTime: "2 days ago",
-  companySize: "500+ employees",
-  website: "cloudnexus.io",
-  companyDesc:
-    "CloudNexus Solutions is a leading global technology provider specializing in cloud infrastructure management and enterprise-grade SaaS platforms.",
-  description:
-    "We are looking for a Senior Full Stack Engineer to join our core architecture team at CloudNexus Solutions. In this role, you will lead the development of high-scale cloud-native applications that serve millions of users globally. You will be responsible for defining technical standards, mentoring junior developers, and collaborating with product managers to deliver world-class enterprise software solutions.",
-  responsibilities: [
-    "Architect and implement scalable backend services using Node.js and Microservices architecture.",
-    "Develop responsive, high-performance web frontends using React and modern state management.",
-    "Optimize cloud infrastructure on AWS, ensuring security, reliability, and cost-efficiency.",
-    "Conduct thorough code reviews and maintain high standards for automated testing and documentation.",
-  ],
-  requirementsTags: ["React", "Node.js", "AWS", "TypeScript", "PostgreSQL"],
-  requirements: [
-    "Minimum 5+ years of experience in full-stack development with a focus on modern JS frameworks.",
-    "Strong proficiency in React.js and ecosystem (Redux, Hooks, Next.js).",
-    "Hands-on experience with AWS services (EC2, S3, Lambda, RDS).",
-    "Excellent problem-solving skills and ability to work in an Agile environment.",
-  ],
-  benefits: [
-    {
-      name: "Premium Insurance",
-      icon: <MedicalServicesIcon color="success" />,
-    },
-    { name: "13th-month salary", icon: <PaymentsIcon color="success" /> },
-    { name: "Flexible hours", icon: <TimerIcon color="success" /> },
-    { name: "Work from home", icon: <LaptopMacIcon color="success" /> },
-  ],
+function formatTimeAgo(dateStr?: string): string {
+  if (!dateStr) return "Mới đăng"
+  try {
+    const diff = Date.now() - new Date(dateStr).getTime()
+    const minutes = Math.floor(diff / 60000)
+    if (minutes < 60) return `${minutes} phút trước`
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return `${hours} giờ trước`
+    const days = Math.floor(hours / 24)
+    if (days < 30) return `${days} ngày trước`
+    const months = Math.floor(days / 30)
+    return `${months} tháng trước`
+  } catch {
+    return "Mới đăng"
+  }
 }
 
-const similarJobs = [
-  {
-    id: 101,
-    title: "Lead Backend Engineer",
-    company: "NexusCore Tech",
-    location: "Ho Chi Minh City",
-    salary: "$4,000 - $6,000",
-  },
-  {
-    id: 102,
-    title: "Senior Frontend Developer",
-    company: "Alpha Dynamics",
-    location: "District 1",
-    salary: "$3,000 - $4,500",
-  },
-  {
-    id: 103,
-    title: "Solutions Architect",
-    company: "CloudNexus Solutions",
-    location: "Remote",
-    salary: "$5,000 - $7,500",
-  },
-]
-
 export default function JobDetailPage() {
-  const { data: session, status } = useSession()
+  const params = useParams()
   const router = useRouter()
+  const jobId = Number(params?.id)
+
+  const { data: session, status } = useSession()
+
+  const [job, setJob] = useState<IJob | null>(null)
+  const [company, setCompany] = useState<ICompany | null>(null)
+  const [similarJobs, setSimilarJobs] = useState<IJob[]>([])
+  const [loading, setLoading] = useState(true)
 
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [isApplied, setIsApplied] = useState(false)
@@ -95,25 +67,71 @@ export default function JobDetailPage() {
     severity: "success" as "success" | "info" | "error" | "warning",
   })
 
+  // Load job details and company info
+  const loadJobData = useCallback(async () => {
+    if (!jobId || isNaN(jobId)) {
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+    try {
+      const res = await getJobById(jobId)
+      if (res?.data) {
+        const jobData = res.data
+        setJob(jobData)
+
+        // Fetch company details if companyId exists
+        if (jobData.companyId) {
+          getCompanyById(jobData.companyId)
+            .then((cRes) => {
+              if (cRes?.data) setCompany(cRes.data)
+            })
+            .catch(() => {})
+        }
+      } else {
+        setJob(null)
+      }
+    } catch {
+      setJob(null)
+    } finally {
+      setLoading(false)
+    }
+  }, [jobId])
+
+  useEffect(() => {
+    loadJobData()
+  }, [loadJobData])
+
+  // Fetch similar / recommended jobs for sidebar
+  useEffect(() => {
+    fetchJobs({ pageSize: 4 })
+      .then((res) => {
+        if (res?.data?.result) {
+          // Exclude current job from similar jobs list
+          setSimilarJobs(res.data.result.filter((j) => j.id !== jobId))
+        }
+      })
+      .catch(() => {})
+  }, [jobId])
+
   // Check if current user has already applied for this job
   useEffect(() => {
-    if (status !== "authenticated") return
+    if (status !== "authenticated" || !jobId) return
 
     let isMounted = true
-    checkJobApplied(jobDetails.id)
+    checkJobApplied(jobId)
       .then((res) => {
-        if (isMounted && res.data) {
+        if (isMounted && res?.data) {
           setIsApplied(true)
         }
       })
-      .catch((err) => {
-        console.error("Check applied error:", err)
-      })
+      .catch(() => {})
 
     return () => {
       isMounted = false
     }
-  }, [status])
+  }, [status, jobId])
 
   const handleApplyClick = () => {
     if (!session?.user) {
@@ -140,13 +158,59 @@ export default function JobDetailPage() {
   }
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href)
-    setSnackbar({
-      open: true,
-      message: "Đã sao chép liên kết vào bộ nhớ tạm!",
-      severity: "info",
-    })
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href)
+      setSnackbar({
+        open: true,
+        message: "Đã sao chép liên kết vào bộ nhớ tạm!",
+        severity: "info",
+      })
+    }
   }
+
+  // Formatting job data for Header
+  const headerJob = job
+    ? {
+        title: job.name,
+        company: job.companyName || company?.name || "Công ty chưa cập nhật",
+        logo: job.companyLogo || company?.logo || "",
+        location: job.location || "Chưa cập nhật địa điểm",
+        salaryText: job.salary ? `$${job.salary.toLocaleString()}` : "Thỏa thuận",
+        postedTime: formatTimeAgo(job.startDate),
+        jobType: job.jobType,
+        level: job.level,
+      }
+    : null
+
+  // Formatting job data for Description Section
+  const descriptionJob = job
+    ? {
+        description: job.description || "Chưa có mô tả chi tiết.",
+        requirementsTags:
+          job.jobSkills
+            ?.map((js) => js?.skillName)
+            .filter((name): name is string => Boolean(name)) ?? [],
+      }
+    : null
+
+  // Formatting job & company data for Sidebar
+  const sidebarJob = {
+    companyId: company?.id || job?.companyId,
+    companySize: company?.address ? "50 - 200 nhân viên" : "100+ nhân viên",
+    website: company?.name ? `${company.name.toLowerCase().replace(/\s+/g, "")}.com` : "N/A",
+    companyDesc: company?.description || "Chưa có thông tin mô tả chi tiết về công ty.",
+  }
+
+  const formattedSimilarJobs = similarJobs.map((simJob) => ({
+    id: simJob.id,
+    title: simJob.name,
+    company: simJob.companyName || "Công ty",
+    companyLogo: simJob.companyLogo || "",
+    location: simJob.location || "Việt Nam",
+    salary: simJob.salary ? `$${simJob.salary.toLocaleString()}` : "Thỏa thuận",
+    jobType: simJob.jobType,
+    level: simJob.level,
+  }))
 
   return (
     <AppTheme>
@@ -158,49 +222,84 @@ export default function JobDetailPage() {
         sx={{
           minHeight: "100vh",
           bgcolor: (theme) =>
-            theme.palette.mode === "dark" ? "grey.900" : "grey.50",
+            theme.palette.mode === "dark" ? "grey.950" : "rgb(243, 245, 247)",
           pt: 12,
           pb: 10,
         }}
       >
         <Container maxWidth="lg">
-          {/* Header */}
-          <JobDetailHeader
-            job={jobDetails}
-            isBookmarked={isBookmarked}
-            isApplied={isApplied}
-            onBookmarkToggle={() => setIsBookmarked(!isBookmarked)}
-            onApply={handleApplyClick}
-          />
+          {loading ? (
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              py={15}
+            >
+              <CircularProgress size={44} />
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                Đang tải chi tiết công việc...
+              </Typography>
+            </Box>
+          ) : !job ? (
+            <Box py={10} textAlign="center">
+              <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+                Không tìm thấy thông tin công việc hoặc công việc này đã ngừng tuyển dụng.
+              </Alert>
+              <Button
+                variant="contained"
+                startIcon={<ArrowBackIcon />}
+                onClick={() => router.push("/jobs")}
+                sx={{ borderRadius: 2 }}
+              >
+                Quay lại danh sách việc làm
+              </Button>
+            </Box>
+          ) : (
+            <>
+              {/* Header */}
+              {headerJob && (
+                <JobDetailHeader
+                  job={headerJob}
+                  isBookmarked={isBookmarked}
+                  isApplied={isApplied}
+                  onBookmarkToggle={() => setIsBookmarked(!isBookmarked)}
+                  onApply={handleApplyClick}
+                />
+              )}
 
-          {/* Grid Layout */}
-          <Grid container spacing={4}>
-            {/* Left Content Area */}
-            <Grid item xs={12} lg={8}>
-              <JobDescriptionSection job={jobDetails} />
-            </Grid>
+              {/* Grid Layout */}
+              <Grid container spacing={4}>
+                {/* Left Content Area */}
+                <Grid item xs={12} lg={8}>
+                  {descriptionJob && <JobDescriptionSection job={descriptionJob} />}
+                </Grid>
 
-            {/* Sidebar */}
-            <Grid item xs={12} lg={4}>
-              <JobDetailSidebar
-                job={jobDetails}
-                similarJobs={similarJobs}
-                onCopyLink={handleCopyLink}
-              />
-            </Grid>
-          </Grid>
+                {/* Sidebar */}
+                <Grid item xs={12} lg={4}>
+                  <JobDetailSidebar
+                    job={sidebarJob}
+                    similarJobs={formattedSimilarJobs}
+                    onCopyLink={handleCopyLink}
+                  />
+                </Grid>
+              </Grid>
+            </>
+          )}
         </Container>
       </Box>
 
       {/* Apply Job Modal */}
-      <ApplyJobModal
-        open={openApplyModal}
-        onClose={() => setOpenApplyModal(false)}
-        jobId={jobDetails.id}
-        jobTitle={jobDetails.title}
-        companyName={jobDetails.company}
-        onSuccess={handleApplySuccess}
-      />
+      {job && (
+        <ApplyJobModal
+          open={openApplyModal}
+          onClose={() => setOpenApplyModal(false)}
+          jobId={job.id}
+          jobTitle={job.name}
+          companyName={job.companyName || company?.name || ""}
+          onSuccess={handleApplySuccess}
+        />
+      )}
 
       {/* Snackbar notification */}
       <Snackbar

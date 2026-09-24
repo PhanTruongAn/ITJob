@@ -119,7 +119,11 @@ export default function JobList({
                 }
                 location={job.location ?? ""}
                 timeAgo={formatTimeAgo(job.startDate)}
-                tags={job.jobSkills?.map((js) => js.skillName) ?? []}
+                tags={
+                  job.jobSkills
+                    ?.map((js) => js?.skillName)
+                    .filter((name): name is string => Boolean(name)) ?? []
+                }
                 jobType={job.jobType}
                 level={job.level}
               />

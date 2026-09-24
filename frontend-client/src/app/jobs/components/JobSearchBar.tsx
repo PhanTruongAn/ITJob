@@ -136,9 +136,9 @@ export default function JobSearchBar({ onSearch }: JobSearchBarProps) {
               Gợi ý:
             </Box>
           </Box>
-          {suggestions.map((s) => (
+          {suggestions.map((s, index) => (
             <Chip
-              key={s}
+              key={`${s}-${index}`}
               label={s}
               size="small"
               onClick={() => handleSuggestionClick(s)}

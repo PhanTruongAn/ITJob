@@ -106,9 +106,9 @@ export default function HotJobs() {
                         </Typography>
                       </Stack>
                       <Stack direction="row" spacing={0.5} flexWrap="wrap">
-                        {job.skills?.slice(0, 3).map((skill: any) => (
+                        {job.skills?.slice(0, 3).map((skill: any, idx: number) => (
                           <Chip
-                            key={skill}
+                            key={`${skill}-${idx}`}
                             label={skill}
                             size="small"
                             variant="outlined"

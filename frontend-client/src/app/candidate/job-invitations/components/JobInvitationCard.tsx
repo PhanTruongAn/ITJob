@@ -195,9 +195,9 @@ export default function JobInvitationCard({
               gap={3}
             >
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                {tags.map((tag) => (
+                {tags.map((tag, index) => (
                   <Chip
-                    key={tag}
+                    key={`${tag}-${index}`}
                     label={tag}
                     size="small"
                     sx={{

@@ -23,11 +23,14 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 interface JobDetails {
   title: string
   company: string
-  logo: string
+  logo?: string
   location: string
-  minSalary: number
-  maxSalary: number
+  minSalary?: number
+  maxSalary?: number
+  salaryText?: string
   postedTime: string
+  jobType?: string
+  level?: string
 }
 
 interface JobDetailHeaderProps {
@@ -105,21 +108,26 @@ export default function JobDetailHeader({
                 height: 80,
                 borderRadius: 2,
                 bgcolor: (theme) =>
-                  theme.palette.mode === "dark" ? "grey.800" : "grey.100",
-                p: 1.5,
+                  theme.palette.mode === "dark" ? "grey.800" : "common.white",
+                p: job.logo ? 1 : 0,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 border: "1px solid",
                 borderColor: "divider",
+                flexShrink: 0,
               }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={job.logo}
-                alt={job.company}
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-              />
+              {job.logo ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={job.logo}
+                  alt={job.company}
+                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                />
+              ) : (
+                <BusinessIcon sx={{ color: "grey.400", fontSize: 36 }} />
+              )}
             </Box>
             <Box>
               <Typography
@@ -162,8 +170,11 @@ export default function JobDetailHeader({
                 >
                   <PaymentsIcon fontSize="small" />
                   <Typography variant="body2">
-                    ${job.minSalary.toLocaleString()} - $
-                    {job.maxSalary.toLocaleString()}
+                    {job.salaryText
+                      ? job.salaryText
+                      : job.minSalary && job.maxSalary
+                      ? `$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`
+                      : "Thỏa thuận"}
                   </Typography>
                 </Box>
                 <Chip

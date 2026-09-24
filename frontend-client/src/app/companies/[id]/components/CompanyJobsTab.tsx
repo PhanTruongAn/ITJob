@@ -211,9 +211,9 @@ export default function CompanyJobsTab({ companyId }: CompanyJobsTabProps) {
                   {/* Skills */}
                   {job.jobSkills && job.jobSkills.length > 0 && (
                     <Stack direction="row" gap={1} flexWrap="wrap">
-                      {job.jobSkills.map((skill) => (
+                      {job.jobSkills.map((skill, idx) => (
                         <Chip
-                          key={skill.id}
+                          key={skill.id ?? `${skill.name}-${idx}`}
                           label={skill.name}
                           size="small"
                           sx={{

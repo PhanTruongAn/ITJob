@@ -101,9 +101,9 @@ export default function RecommendedJobs({ jobs }: RecommendedJobsProps) {
 
             {/* Skill Tags */}
             <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
-              {job.tags.map((tag) => (
+              {job.tags.map((tag, index) => (
                 <Chip
-                  key={tag}
+                  key={`${tag}-${index}`}
                   label={tag}
                   size="small"
                   sx={{

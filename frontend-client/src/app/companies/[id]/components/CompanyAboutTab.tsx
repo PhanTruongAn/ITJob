@@ -87,9 +87,9 @@ export default function CompanyAboutTab({
                     </Typography>
                   </Stack>
                   <Stack direction="row" flexWrap="wrap" gap={1}>
-                    {workingDays.map((day) => (
+                    {workingDays.map((day, index) => (
                       <Chip
-                        key={day}
+                        key={`${day}-${index}`}
                         label={DAY_LABELS[day] ?? day}
                         size="small"
                         variant="outlined"

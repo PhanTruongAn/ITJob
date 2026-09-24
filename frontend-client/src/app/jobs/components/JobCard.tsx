@@ -178,9 +178,9 @@ export default function JobCard({
                 }}
               />
             )}
-            {tags.map((tag) => (
+            {tags?.filter(Boolean).map((tag, index) => (
               <Chip
-                key={tag}
+                key={`${tag}-${index}`}
                 label={tag}
                 size="small"
                 sx={{ bgcolor: "grey.100", color: "text.primary", mb: 0.5 }}
