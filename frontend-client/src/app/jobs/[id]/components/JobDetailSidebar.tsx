@@ -74,32 +74,7 @@ export default function JobDetailSidebar({
           About the Company
         </Typography>
         <Stack spacing={2.5}>
-          <Box
-            display="flex"
-            alignItems="center"
-            gap={2}
-            p={2}
-            sx={{ bgcolor: "grey.50", borderRadius: 2 }}
-          >
-            <GroupsIcon sx={{ color: "primary.main" }} />
-            <Box>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ textTransform: "uppercase", fontWeight: "bold" }}
-              >
-                Size
-              </Typography>
-              <Typography
-                variant="body2"
-                fontWeight="bold"
-                color="text.primary"
-              >
-                {job.companySize}
-              </Typography>
-            </Box>
-          </Box>
-
+          {/* Website */}
           <Box
             display="flex"
             alignItems="center"
@@ -261,22 +236,37 @@ export default function JobDetailSidebar({
             >
               <Stack direction="row" spacing={1.5} alignItems="flex-start">
                 {/* Logo or Icon */}
-                <Avatar
-                  src={simJob.companyLogo}
-                  variant="rounded"
+                <Box
                   sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 2,
+                    width: 44,
+                    height: 44,
+                    borderRadius: 2.5,
                     border: "1px solid",
                     borderColor: "divider",
                     bgcolor: "common.white",
-                    p: simJob.companyLogo ? 0.5 : 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    p: 0.5,
                     flexShrink: 0,
+                    overflow: "hidden",
                   }}
                 >
-                  <WorkOutlineIcon sx={{ color: "grey.400", fontSize: 20 }} />
-                </Avatar>
+                  {simJob.companyLogo ? (
+                    <Box
+                      component="img"
+                      src={simJob.companyLogo}
+                      alt={simJob.companyName || simJob.title}
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                      }}
+                    />
+                  ) : (
+                    <WorkOutlineIcon sx={{ color: "grey.400", fontSize: 20 }} />
+                  )}
+                </Box>
 
                 {/* Details */}
                 <Box flex={1} minWidth={0}>

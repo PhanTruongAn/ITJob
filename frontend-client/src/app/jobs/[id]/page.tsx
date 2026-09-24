@@ -179,6 +179,11 @@ export default function JobDetailPage() {
         postedTime: formatTimeAgo(job.startDate),
         jobType: job.jobType,
         level: job.level,
+        quantity: job.quantity,
+        endDate: job.endDate,
+        isActive: job.isActive,
+        rating: company?.rating,
+        reviews: company?.reviews,
       }
     : null
 
@@ -190,15 +195,26 @@ export default function JobDetailPage() {
           job.jobSkills
             ?.map((js) => js?.skillName)
             .filter((name): name is string => Boolean(name)) ?? [],
+        companyInfo: {
+          industry: company?.industry,
+          companySize: company?.companySize,
+          workingDays: company?.workingDays,
+          overtime: company?.overtime,
+          address: company?.address,
+        },
       }
     : null
 
   // Formatting job & company data for Sidebar
   const sidebarJob = {
     companyId: company?.id || job?.companyId,
-    companySize: company?.address ? "50 - 200 nhân viên" : "100+ nhân viên",
-    website: company?.name ? `${company.name.toLowerCase().replace(/\s+/g, "")}.com` : "N/A",
+    companySize: company?.companySize || "50 - 200 nhân viên",
+    website: company?.website || (company?.name ? `${company.name.toLowerCase().replace(/\s+/g, "")}.com` : "N/A"),
     companyDesc: company?.description || "Chưa có thông tin mô tả chi tiết về công ty.",
+    industry: company?.industry,
+    address: company?.address,
+    overtime: company?.overtime,
+    workingDays: company?.workingDays,
   }
 
   const formattedSimilarJobs = similarJobs.map((simJob) => ({

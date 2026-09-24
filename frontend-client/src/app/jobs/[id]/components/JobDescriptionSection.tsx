@@ -1,5 +1,10 @@
 "use client"
+import AccessTimeIcon from "@mui/icons-material/AccessTime"
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth"
+import CategoryIcon from "@mui/icons-material/Category"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+import GroupsIcon from "@mui/icons-material/Groups"
+import LocationOnIcon from "@mui/icons-material/LocationOn"
 import TerminalIcon from "@mui/icons-material/Terminal"
 import {
   Avatar,
@@ -13,9 +18,38 @@ import {
 } from "@mui/material"
 import { ReactNode } from "react"
 
+const DAY_LABELS: Record<string, string> = {
+  MONDAY: "T2",
+  TUESDAY: "T3",
+  WEDNESDAY: "T4",
+  THURSDAY: "T5",
+  FRIDAY: "T6",
+  SATURDAY: "T7",
+  SUNDAY: "CN",
+}
+
+function formatWorkingDays(days?: string[]): string {
+  if (!days || days.length === 0) return "Thứ 2 - Thứ 6"
+  if (days.includes("MONDAY") && days.includes("FRIDAY") && days.length === 5) {
+    return "Thứ 2 - Thứ 6"
+  }
+  if (days.includes("MONDAY") && days.includes("SATURDAY") && days.length === 6) {
+    return "Thứ 2 - Thứ 7"
+  }
+  return days.map((d) => DAY_LABELS[d] ?? d).join(", ")
+}
+
 interface BenefitItem {
   name: string
   icon: ReactNode
+}
+
+export interface CompanyInfo {
+  industry?: string
+  companySize?: string
+  workingDays?: string[]
+  overtime?: boolean
+  address?: string
 }
 
 interface JobDetails {
@@ -24,6 +58,7 @@ interface JobDetails {
   requirementsTags?: string[]
   requirements?: string[]
   benefits?: BenefitItem[]
+  companyInfo?: CompanyInfo
 }
 
 interface JobDescriptionSectionProps {
@@ -33,6 +68,8 @@ interface JobDescriptionSectionProps {
 export default function JobDescriptionSection({
   job,
 }: JobDescriptionSectionProps) {
+  const info = job.companyInfo
+
   return (
     <Card
       elevation={0}
@@ -45,7 +82,7 @@ export default function JobDescriptionSection({
       }}
     >
       {/* Description */}
-      <Box mb={job.responsibilities?.length || job.requirements?.length ? 4 : 0}>
+      <Box mb={4}>
         <Typography
           variant="h6"
           fontWeight="bold"
@@ -57,10 +94,201 @@ export default function JobDescriptionSection({
         <Typography
           variant="body1"
           color="text.secondary"
-          sx={{ lineHeight: 1.8, whitespace: "pre-line" }}
+          sx={{ lineHeight: 1.8, whiteSpace: "pre-line" }}
         >
           {job.description || "Chưa có mô tả chi tiết."}
         </Typography>
+      </Box>
+
+      {/* Work Environment & Company Info */}
+      <Box mb={4}>
+        <Stack direction="row" alignItems="center" spacing={1} mb={2.5}>
+          <Box
+            sx={{
+              width: 4,
+              height: 20,
+              bgcolor: "primary.main",
+              borderRadius: 1,
+            }}
+          />
+          <Typography variant="h6" fontWeight="bold" color="text.primary">
+            Thông tin môi trường làm việc
+          </Typography>
+        </Stack>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <Box
+              display="flex"
+              alignItems="center"
+              gap={2}
+              p={2}
+              sx={{
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark" ? "grey.900" : "grey.50",
+                borderRadius: 2,
+                border: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <CategoryIcon sx={{ color: "primary.main" }} />
+              <Box>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ textTransform: "uppercase", fontWeight: "bold" }}
+                >
+                  Lĩnh vực
+                </Typography>
+                <Typography
+                  variant="body2"
+                  fontWeight="bold"
+                  color="text.primary"
+                >
+                  {info?.industry || "Software Development Outsourcing"}
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Box
+              display="flex"
+              alignItems="center"
+              gap={2}
+              p={2}
+              sx={{
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark" ? "grey.900" : "grey.50",
+                borderRadius: 2,
+                border: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <GroupsIcon sx={{ color: "primary.main" }} />
+              <Box>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ textTransform: "uppercase", fontWeight: "bold" }}
+                >
+                  Quy mô
+                </Typography>
+                <Typography
+                  variant="body2"
+                  fontWeight="bold"
+                  color="text.primary"
+                >
+                  {info?.companySize || "100 - 500 nhân viên"}
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Box
+              display="flex"
+              alignItems="center"
+              gap={2}
+              p={2}
+              sx={{
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark" ? "grey.900" : "grey.50",
+                borderRadius: 2,
+                border: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <CalendarMonthIcon sx={{ color: "primary.main" }} />
+              <Box>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ textTransform: "uppercase", fontWeight: "bold" }}
+                >
+                  Thời gian làm việc
+                </Typography>
+                <Typography
+                  variant="body2"
+                  fontWeight="bold"
+                  color="text.primary"
+                >
+                  {formatWorkingDays(info?.workingDays)}
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Box
+              display="flex"
+              alignItems="center"
+              gap={2}
+              p={2}
+              sx={{
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark" ? "grey.900" : "grey.50",
+                borderRadius: 2,
+                border: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <AccessTimeIcon sx={{ color: "primary.main" }} />
+              <Box>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ textTransform: "uppercase", fontWeight: "bold" }}
+                >
+                  Chế độ OT
+                </Typography>
+                <Typography
+                  variant="body2"
+                  fontWeight="bold"
+                  color="text.primary"
+                >
+                  {info?.overtime ? "Có OT" : "Không OT"}
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+
+          {info?.address && (
+            <Grid item xs={12}>
+              <Box
+                display="flex"
+                alignItems="center"
+                gap={2}
+                p={2}
+                sx={{
+                  bgcolor: (theme) =>
+                    theme.palette.mode === "dark" ? "grey.900" : "grey.50",
+                  borderRadius: 2,
+                  border: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
+                <LocationOnIcon sx={{ color: "primary.main" }} />
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ textTransform: "uppercase", fontWeight: "bold" }}
+                  >
+                    Địa điểm làm việc
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    fontWeight="bold"
+                    color="text.primary"
+                  >
+                    {info.address}
+                  </Typography>
+                </Box>
+              </Box>
+            </Grid>
+          )}
+        </Grid>
       </Box>
 
       {/* Responsibilities */}

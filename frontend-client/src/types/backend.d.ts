@@ -44,6 +44,16 @@ export interface ICompany {
   address: string
   description: string
   logo?: string
+  website?: string
+  phone?: string
+  email?: string
+  companyType?: string
+  companySize?: string
+  industry?: string
+  overtime?: boolean
+  workingDays?: string[]
+  rating?: number
+  reviews?: number
 }
 
 export interface UserNextAuth {
