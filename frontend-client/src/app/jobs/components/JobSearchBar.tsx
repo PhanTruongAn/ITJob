@@ -16,11 +16,17 @@ const suggestions = ["ReactJS", "Node.js", "Senior Java", "DevOps"]
 
 interface JobSearchBarProps {
   onSearch?: (keyword: string, location: string) => void
+  initialKeyword?: string
+  initialLocation?: string
 }
 
-export default function JobSearchBar({ onSearch }: JobSearchBarProps) {
-  const [keyword, setKeyword] = useState("")
-  const [location, setLocation] = useState("")
+export default function JobSearchBar({
+  onSearch,
+  initialKeyword = "",
+  initialLocation = "",
+}: JobSearchBarProps) {
+  const [keyword, setKeyword] = useState(initialKeyword)
+  const [location, setLocation] = useState(initialLocation)
 
   const handleSearch = () => {
     onSearch?.(keyword, location)
@@ -58,7 +64,7 @@ export default function JobSearchBar({ onSearch }: JobSearchBarProps) {
               }}
             />
             <InputBase
-              placeholder="Tên công việc, kỹ năng, công ty..."
+              placeholder="Tên công việc, công ty..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}

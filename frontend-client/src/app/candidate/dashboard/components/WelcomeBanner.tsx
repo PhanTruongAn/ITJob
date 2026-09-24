@@ -97,7 +97,7 @@ export default function WelcomeBanner({ userName }: WelcomeBannerProps) {
             </Button>
             <Button
               component={Link}
-              href="/candidate/itviec-profile"
+              href="/candidate/profile"
               variant="outlined"
               sx={{
                 color: "white",

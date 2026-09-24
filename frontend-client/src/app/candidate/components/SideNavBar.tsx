@@ -2,7 +2,6 @@
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 import DashboardIcon from "@mui/icons-material/Dashboard"
 import DescriptionIcon from "@mui/icons-material/Description"
-import LogoutIcon from "@mui/icons-material/Logout"
 import MailIcon from "@mui/icons-material/Mail"
 import NotificationsIcon from "@mui/icons-material/Notifications"
 import SettingsIcon from "@mui/icons-material/Settings"
@@ -17,23 +16,58 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material"
-import { signOut, useSession } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useTranslation } from "react-i18next"
 
 export default function SideNavBar() {
   const { data: session } = useSession()
   const pathname = usePathname()
+  const { t } = useTranslation()
 
   const navItems = [
-    { label: "Dashboard", href: "/candidate/dashboard", icon: <DashboardIcon fontSize="small" /> },
-    { label: "CV Attachment", href: "/candidate/cv-attachment", icon: <DescriptionIcon fontSize="small" /> },
-    { label: "ITviec Profile", href: "/candidate/itviec-profile", icon: <AccountCircleIcon fontSize="small" /> },
-    { label: "My Jobs", href: "/candidate/my-jobs", icon: <WorkIcon fontSize="small" /> },
-    { label: "Job Invitation", href: "/candidate/job-invitations", icon: <MailIcon fontSize="small" />, badge: 0 },
-    { label: "Email Subscriptions", href: "/candidate/email-subscriptions", icon: <SubscriptionsIcon fontSize="small" /> },
-    { label: "Notifications", href: "/candidate/notifications", icon: <NotificationsIcon fontSize="small" /> },
-    { label: "Settings", href: "/candidate/settings", icon: <SettingsIcon fontSize="small" /> },
+    {
+      label: t("nav.dashboard", "Dashboard"),
+      href: "/candidate/dashboard",
+      icon: <DashboardIcon fontSize="small" />,
+    },
+    {
+      label: t("nav.cvAttachment", "CV Management"),
+      href: "/candidate/cv-attachment",
+      icon: <DescriptionIcon fontSize="small" />,
+    },
+    {
+      label: t("nav.profile", "Profile"),
+      href: "/candidate/profile",
+      icon: <AccountCircleIcon fontSize="small" />,
+    },
+    {
+      label: t("nav.myJobs", "My Jobs"),
+      href: "/candidate/my-jobs",
+      icon: <WorkIcon fontSize="small" />,
+    },
+    {
+      label: t("nav.jobInvitations", "Job Invitations"),
+      href: "/candidate/job-invitations",
+      icon: <MailIcon fontSize="small" />,
+      badge: 0,
+    },
+    {
+      label: t("nav.emailSubscriptions", "Email Subscriptions"),
+      href: "/candidate/email-subscriptions",
+      icon: <SubscriptionsIcon fontSize="small" />,
+    },
+    {
+      label: t("nav.notifications", "Notifications"),
+      href: "/candidate/notifications",
+      icon: <NotificationsIcon fontSize="small" />,
+    },
+    {
+      label: t("nav.settings", "Settings"),
+      href: "/candidate/settings",
+      icon: <SettingsIcon fontSize="small" />,
+    },
   ]
 
   return (
@@ -58,11 +92,30 @@ export default function SideNavBar() {
     >
       {/* Greeting Section */}
       <Box sx={{ mb: 3, px: 2, pt: 1 }}>
-        <Typography variant="body2" color="text.secondary" fontWeight={600} display="flex" alignItems="center" gap={1}>
-          <span role="img" aria-label="wave" style={{ color: "#e53935", fontSize: "1.1rem" }}>👋🏻</span> Welcome
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          fontWeight={600}
+          display="flex"
+          alignItems="center"
+          gap={1}
+        >
+          <span
+            role="img"
+            aria-label="wave"
+            style={{ color: "#e53935", fontSize: "1.1rem" }}
+          >
+            👋🏻
+          </span>{" "}
+          {t("nav.welcome", "Welcome")}
         </Typography>
-        <Typography variant="h6" fontWeight={800} mt={0.5} sx={{ color: "text.primary", fontSize: "1.25rem" }}>
-           {session?.user?.name || "Phan Trường An"}
+        <Typography
+          variant="h6"
+          fontWeight={800}
+          mt={0.5}
+          sx={{ color: "text.primary", fontSize: "1.25rem" }}
+        >
+          {session?.user?.name || "Phan Trường An"}
         </Typography>
       </Box>
 
@@ -70,8 +123,10 @@ export default function SideNavBar() {
       <Box sx={{ flexGrow: 1 }}>
         <List disablePadding>
           {navItems.map((item) => {
-            const isActive = pathname === item.href || (item.label === 'Dashboard' && pathname === '/candidate') // fallback
-            
+            const isActive =
+              pathname === item.href ||
+              (item.href === "/candidate/dashboard" && pathname === "/candidate") // fallback
+
             return (
               <ListItem key={item.label} disablePadding sx={{ mb: 0.5 }}>
                 <ListItemButton
@@ -84,7 +139,7 @@ export default function SideNavBar() {
                     px: 2,
                     "&.Mui-selected": {
                       bgcolor: "#fff0f0", // Very light red
-                      color: "#e53935",   // Red text/icon
+                      color: "#e53935", // Red text/icon
                       "& .MuiListItemIcon-root": {
                         color: "#e53935",
                       },
@@ -105,7 +160,7 @@ export default function SideNavBar() {
                   >
                     {item.icon}
                   </ListItemIcon>
-                  
+
                   <ListItemText
                     primary={item.label}
                     primaryTypographyProps={{

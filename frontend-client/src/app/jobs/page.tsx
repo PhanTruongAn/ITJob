@@ -10,6 +10,7 @@ import { getPublicSkills } from "@/apis/skill"
 import { IJob, ISkill } from "@/types/backend"
 import { Box, CssBaseline, Stack } from "@mui/material"
 import { Container } from "@mui/system"
+import { useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 
 const PAGE_SIZE = 10
@@ -37,12 +38,20 @@ const defaultFilters: JobFilters = {
 }
 
 export default function JobsPage() {
+  const searchParams = useSearchParams()
+  const initialKeyword = searchParams.get("keyword") || ""
+  const initialLocation = searchParams.get("location") || ""
+
   const [skills, setSkills] = useState<ISkill[]>([])
   const [jobs, setJobs] = useState<IJob[]>([])
   const [totalPages, setTotalPages] = useState(1)
   const [totalElements, setTotalElements] = useState(0)
   const [loading, setLoading] = useState(false)
-  const [filters, setFilters] = useState<JobFilters>(defaultFilters)
+  const [filters, setFilters] = useState<JobFilters>({
+    ...defaultFilters,
+    keyword: initialKeyword,
+    location: initialLocation,
+  })
 
   // Load skills once on mount
   useEffect(() => {
@@ -143,7 +152,11 @@ export default function JobsPage() {
         ]}
       >
         <Container maxWidth={false} sx={{ maxWidth: 1400, px: 3, py: 12 }}>
-          <JobSearchBar onSearch={handleSearch} />
+          <JobSearchBar
+            onSearch={handleSearch}
+            initialKeyword={initialKeyword}
+            initialLocation={initialLocation}
+          />
           <Stack
             direction={{ xs: "column", lg: "row" }}
             spacing={4}

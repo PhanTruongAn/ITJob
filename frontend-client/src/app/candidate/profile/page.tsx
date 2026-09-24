@@ -103,7 +103,7 @@ export default function ITviecProfilePage() {
           color="primary.main"
           gutterBottom
         >
-          ITviec Profile
+          My Profile
         </Typography>
         <Typography variant="body1" color="text.secondary">
           Manage your professional profile, personal information, and security

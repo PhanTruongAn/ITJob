@@ -256,7 +256,7 @@ export default function JobDetailSidebar({
                     <Box
                       component="img"
                       src={simJob.companyLogo}
-                      alt={simJob.companyName || simJob.title}
+                      alt={simJob.company || simJob.title}
                       sx={{
                         width: "100%",
                         height: "100%",

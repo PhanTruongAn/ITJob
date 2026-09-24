@@ -163,7 +163,7 @@ export default function AppAppBar() {
                     </ListItemIcon>
                     {t("nav.cvAttachment", "CV Attachment")}
                   </MenuItem>
-                  <MenuItem component={Link} href="/candidate/itviec-profile">
+                  <MenuItem component={Link} href="/candidate/profile">
                     <ListItemIcon>
                       <AccountCircleIcon fontSize="small" />
                     </ListItemIcon>

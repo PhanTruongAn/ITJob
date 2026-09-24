@@ -88,7 +88,7 @@ const initialNotifications: NotificationItem[] = [
     time: "3 days ago",
     unread: false,
     iconType: "verified",
-    detailsLink: "/candidate/itviec-profile",
+    detailsLink: "/candidate/profile",
   },
 ]
 

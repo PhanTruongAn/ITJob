@@ -11,7 +11,7 @@ export default function QuickActions() {
     {
       title: "Update ITviec Profile",
       desc: "Edit details, location, phone & settings.",
-      href: "/candidate/itviec-profile",
+      href: "/candidate/profile",
       icon: <PersonOutlineIcon />,
       avatarBg: "primary.light",
       avatarColor: "primary.main",
