@@ -121,6 +121,8 @@ export default function JobsPage() {
             pt: "calc(40px + var(--template-frame-height, 0px))",
             position: "relative",
             minHeight: "100vh",
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark" ? "grey.950" : "rgb(243, 245, 247)",
           },
           (theme) => ({
             "&::before": {
@@ -130,7 +132,7 @@ export default function JobsPage() {
               zIndex: -1,
               inset: 0,
               backgroundImage:
-                "radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))",
+                "radial-gradient(ellipse at 50% 50%, rgb(243, 245, 247), rgb(235, 238, 242))",
               backgroundRepeat: "no-repeat",
               ...theme.applyStyles("dark", {
                 backgroundImage:

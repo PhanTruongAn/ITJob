@@ -28,6 +28,7 @@ export interface JobCardProps {
   id?: number | string
   title: string
   company: string
+  companyLogo?: string
   salary: string
   location: string
   timeAgo: string
@@ -41,6 +42,7 @@ export default function JobCard({
   id,
   title,
   company,
+  companyLogo,
   salary,
   location,
   timeAgo,
@@ -62,7 +64,7 @@ export default function JobCard({
         transition: "transform 0.2s, box-shadow 0.3s ease-in-out",
         borderRadius: 2,
         bgcolor: (theme) =>
-          theme.palette.mode === "dark" ? "grey.900" : "common.white",
+          theme.palette.mode === "dark" ? "grey.900" : "rgb(253, 251, 245)",
         position: "relative",
         "&:hover": {
           transform: "translateY(-4px)",
@@ -96,16 +98,28 @@ export default function JobCard({
           sx={{
             width: 64,
             height: 64,
-            bgcolor: "grey.100",
+            bgcolor: "common.white",
+            border: 1,
+            borderColor: "divider",
             borderRadius: 1,
             overflow: "hidden",
             flexShrink: 0,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            p: companyLogo ? 0.5 : 0,
           }}
         >
-          <WorkOutlineIcon sx={{ color: "grey.400", fontSize: 28 }} />
+          {companyLogo ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={companyLogo}
+              alt={company}
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            />
+          ) : (
+            <WorkOutlineIcon sx={{ color: "grey.400", fontSize: 28 }} />
+          )}
         </Box>
         <Box flex={1} minWidth={0}>
           <Typography

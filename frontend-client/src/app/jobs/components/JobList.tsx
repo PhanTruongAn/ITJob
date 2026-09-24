@@ -113,6 +113,7 @@ export default function JobList({
                 id={job.id}
                 title={job.name}
                 company={job.companyName ?? ""}
+                companyLogo={job.companyLogo}
                 salary={
                   job.salary ? `$${job.salary.toLocaleString()}` : "Thỏa thuận"
                 }

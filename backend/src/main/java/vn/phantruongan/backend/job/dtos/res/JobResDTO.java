@@ -24,5 +24,6 @@ public class JobResDTO {
     private boolean active;
     private Long companyId;
     private String companyName;
+    private String companyLogo;
     private List<JobSkillResDTO> jobSkills;
 }

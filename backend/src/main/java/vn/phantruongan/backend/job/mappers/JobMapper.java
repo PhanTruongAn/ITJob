@@ -22,6 +22,7 @@ public interface JobMapper extends BaseMapper<JobResDTO, Job> {
 
     @Mapping(source = "company.id", target = "companyId")
     @Mapping(source = "company.name", target = "companyName")
+    @Mapping(source = "company.logo", target = "companyLogo")
     JobResDTO toDto(Job entity);
 
     List<JobResDTO> toDtoList(List<Job> entities);
