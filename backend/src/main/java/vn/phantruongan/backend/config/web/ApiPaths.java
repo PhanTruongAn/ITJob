@@ -28,5 +28,7 @@ public class ApiPaths {
     public static final String PUBLIC_BOOKMARKS = PUBLIC + "/bookmarks";
     public static final String PUBLIC_REVIEWS = PUBLIC + "/reviews";
     public static final String PUBLIC_RECOMMENDATIONS = PUBLIC + "/recommendations";
+    public static final String PUBLIC_SKILLS = PUBLIC + "/skills";
 
 }
+

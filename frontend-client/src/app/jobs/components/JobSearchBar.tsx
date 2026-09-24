@@ -14,9 +14,22 @@ import { useState } from "react"
 
 const suggestions = ["ReactJS", "Node.js", "Senior Java", "DevOps"]
 
-export default function JobSearchBar() {
+interface JobSearchBarProps {
+  onSearch?: (keyword: string, location: string) => void
+}
+
+export default function JobSearchBar({ onSearch }: JobSearchBarProps) {
   const [keyword, setKeyword] = useState("")
   const [location, setLocation] = useState("")
+
+  const handleSearch = () => {
+    onSearch?.(keyword, location)
+  }
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setKeyword(suggestion)
+    onSearch?.(suggestion, location)
+  }
 
   return (
     <Box
@@ -48,6 +61,7 @@ export default function JobSearchBar() {
               placeholder="Tên công việc, kỹ năng, công ty..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               sx={{
                 width: "100%",
                 pl: 5,
@@ -71,6 +85,8 @@ export default function JobSearchBar() {
                 top: "50%",
                 transform: "translateY(-50%)",
                 color: "text.secondary",
+                zIndex: 1,
+                pointerEvents: "none",
               }}
             />
             <Select
@@ -88,10 +104,10 @@ export default function JobSearchBar() {
               }}
             >
               <MenuItem value="">Tất cả địa điểm</MenuItem>
-              <MenuItem value="hcm">Hồ Chí Minh</MenuItem>
-              <MenuItem value="hn">Hà Nội</MenuItem>
-              <MenuItem value="dn">Đà Nẵng</MenuItem>
-              <MenuItem value="remote">Remote</MenuItem>
+              <MenuItem value="Hồ Chí Minh">Hồ Chí Minh</MenuItem>
+              <MenuItem value="Hà Nội">Hà Nội</MenuItem>
+              <MenuItem value="Đà Nẵng">Đà Nẵng</MenuItem>
+              <MenuItem value="Remote">Remote</MenuItem>
             </Select>
           </Box>
 
@@ -99,6 +115,7 @@ export default function JobSearchBar() {
             variant="contained"
             color="primary"
             startIcon={<SearchIcon />}
+            onClick={handleSearch}
             sx={{ height: 56, fontWeight: "bold" }}
           >
             Tìm kiếm
@@ -124,6 +141,7 @@ export default function JobSearchBar() {
               key={s}
               label={s}
               size="small"
+              onClick={() => handleSuggestionClick(s)}
               sx={{
                 bgcolor: "primary.light",
                 color: "primary.main",

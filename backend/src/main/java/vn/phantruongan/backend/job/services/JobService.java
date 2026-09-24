@@ -11,7 +11,9 @@ import java.util.stream.Collectors;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +49,19 @@ public class JobService {
 
         public PaginationResponse<JobResDTO> getAllJobs(GetListJobReqDTO dto, Pageable pageable) {
                 Specification<Job> spec = new JobSpecification(dto);
-                Page<Job> page = jobRepository.findAll(spec, pageable);
+
+                // Build sort from sortBy param if provided, otherwise fallback to pageable sort
+                Sort sort = pageable.getSort();
+                if (dto.getSortBy() != null) {
+                        sort = switch (dto.getSortBy()) {
+                                case "salary_desc" -> Sort.by("salary").descending();
+                                case "salary_asc" -> Sort.by("salary").ascending();
+                                default -> Sort.by("createdAt").descending(); // newest
+                        };
+                }
+
+                Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+                Page<Job> page = jobRepository.findAll(spec, sortedPageable);
                 List<JobResDTO> list = jobMapper.toDtoList(page.getContent());
 
                 PaginationResponse.Meta meta = new PaginationResponse.Meta(

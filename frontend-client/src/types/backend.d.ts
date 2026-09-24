@@ -27,12 +27,15 @@ export interface IJob {
   salary: number
   quantity: number
   level: string
+  jobType?: string
   description: string
   startDate: string
   endDate: string
   isActive: boolean
-  company?: ICompany
-  skills?: any[]
+  companyId?: number
+  companyName?: string
+  companyLogo?: string
+  jobSkills?: { skillId: number; skillName: string }[]
 }
 
 export interface ICompany {
@@ -112,4 +115,9 @@ export interface ICreateResumeReq {
   userId?: number
 }
 
-
+export interface ISkill {
+  id: number
+  name: string
+  category?: string
+  description?: string
+}

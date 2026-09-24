@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.phantruongan.backend.job.enums.JobTypeEnum;
 import vn.phantruongan.backend.job.enums.LevelEnum;
 
 @Data
@@ -37,6 +38,8 @@ public class CreateJobReqDTO {
 
     @NotNull(message = "Job level must not be null")
     private LevelEnum level;
+
+    private JobTypeEnum jobType;
 
     @NotNull(message = "Start date must not be null")
     private Instant startDate;

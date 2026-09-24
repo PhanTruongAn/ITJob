@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 import vn.phantruongan.backend.common.Auditable;
 import vn.phantruongan.backend.company.entities.Company;
+import vn.phantruongan.backend.job.enums.JobTypeEnum;
 import vn.phantruongan.backend.job.enums.LevelEnum;
 import vn.phantruongan.backend.resume.entities.Resume;
 
@@ -45,6 +46,9 @@ public class Job extends Auditable {
 
     @Enumerated(EnumType.STRING)
     private LevelEnum level;
+
+    @Enumerated(EnumType.STRING)
+    private JobTypeEnum jobType;
 
     private Instant startDate;
     private Instant endDate;

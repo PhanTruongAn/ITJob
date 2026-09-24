@@ -8,11 +8,15 @@ interface FetchJobsParams {
   name?: string
   companyId?: number
   level?: string
+  levels?: string[]
+  jobType?: string
+  jobTypes?: string[]
   location?: string
   minSalary?: number
   maxSalary?: number
   skillId?: number
-  sort?: string
+  skillIds?: number[]
+  sortBy?: string
 }
 
 export async function fetchJobs(
@@ -24,19 +28,24 @@ export async function fetchJobs(
       params: {
         page: params.page,
         size: params.pageSize,
-        name: params.name,
-        companyId: params.companyId,
-        level: params.level,
-        location: params.location,
-        minSalary: params.minSalary,
-        maxSalary: params.maxSalary,
-        skillId: params.skillId,
-        sort: params.sort,
+        name: params.name || undefined,
+        companyId: params.companyId || undefined,
+        level: params.level || undefined,
+        levels: params.levels && params.levels.length > 0 ? params.levels : undefined,
+        jobType: params.jobType || undefined,
+        jobTypes: params.jobTypes && params.jobTypes.length > 0 ? params.jobTypes : undefined,
+        location: params.location || undefined,
+        minSalary: params.minSalary || undefined,
+        maxSalary: params.maxSalary || undefined,
+        skillId: params.skillId || undefined,
+        skillIds: params.skillIds && params.skillIds.length > 0 ? params.skillIds : undefined,
+        sortBy: params.sortBy || undefined,
       },
     },
   )
   return response.data
 }
+
 
 export async function getJobById(id: number): Promise<IBackendRes<IJob>> {
   const response = await axiosPublic.get<IBackendRes<IJob>>(

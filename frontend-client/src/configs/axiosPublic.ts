@@ -5,7 +5,11 @@ const axiosPublic = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  paramsSerializer: {
+    indexes: null, // serialize arrays as key=1&key=2 instead of key[]=1&key[]=2
+  },
 })
+
 
 // Simple response interceptor to reject errors
 axiosPublic.interceptors.response.use(

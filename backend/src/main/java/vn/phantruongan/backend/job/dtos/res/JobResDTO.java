@@ -5,6 +5,7 @@ import java.util.List;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.phantruongan.backend.job.enums.JobTypeEnum;
 import vn.phantruongan.backend.job.enums.LevelEnum;
 
 @Data
@@ -17,6 +18,7 @@ public class JobResDTO {
     private int quantity;
     private Double salary;
     private LevelEnum level;
+    private JobTypeEnum jobType;
     private Instant startDate;
     private Instant endDate;
     private boolean active;

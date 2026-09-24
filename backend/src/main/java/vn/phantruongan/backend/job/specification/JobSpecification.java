@@ -25,7 +25,6 @@ public class JobSpecification implements Specification<Job> {
         this.dtoFilter = dtoFilter;
     }
 
-    // Implementation details would go here
     @Override
     @Nullable
     public Predicate toPredicate(Root<Job> root, @Nullable CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -48,8 +47,16 @@ public class JobSpecification implements Specification<Job> {
             predicates.add(cb.lessThanOrEqualTo(root.get("salary"), dtoFilter.getMaxSalary()));
         }
 
-        if (dtoFilter.getLevel() != null) {
+        if (dtoFilter.getLevels() != null && !dtoFilter.getLevels().isEmpty()) {
+            predicates.add(root.get("level").in(dtoFilter.getLevels()));
+        } else if (dtoFilter.getLevel() != null) {
             predicates.add(cb.equal(root.get("level"), dtoFilter.getLevel()));
+        }
+
+        if (dtoFilter.getJobTypes() != null && !dtoFilter.getJobTypes().isEmpty()) {
+            predicates.add(root.get("jobType").in(dtoFilter.getJobTypes()));
+        } else if (dtoFilter.getJobType() != null) {
+            predicates.add(cb.equal(root.get("jobType"), dtoFilter.getJobType()));
         }
 
         if (dtoFilter.getCompanyId() != null) {
@@ -57,11 +64,21 @@ public class JobSpecification implements Specification<Job> {
             predicates.add(cb.equal(companyJoin.get("id"), dtoFilter.getCompanyId()));
         }
 
+        // Filter by single skillId (legacy support)
         if (dtoFilter.getSkillId() != null) {
-            Join<Job, JobSkill> jobSkillJoin = root.join("jobSkills", JoinType.LEFT);
+            Join<Job, JobSkill> jobSkillJoin = root.join("jobSkills", JoinType.INNER);
             predicates.add(cb.equal(jobSkillJoin.get("skill").get("id"), dtoFilter.getSkillId()));
+            if (query != null) query.distinct(true);
+        }
+
+        // Filter by multiple skillIds (OR logic: job must have at least one of the given skills)
+        if (dtoFilter.getSkillIds() != null && !dtoFilter.getSkillIds().isEmpty()) {
+            Join<Job, JobSkill> jobSkillJoin = root.join("jobSkills", JoinType.INNER);
+            predicates.add(jobSkillJoin.get("skill").get("id").in(dtoFilter.getSkillIds()));
+            if (query != null) query.distinct(true);
         }
 
         return cb.and(predicates.toArray(new Predicate[0]));
     }
 }
+
