@@ -8,10 +8,10 @@ import AppTheme from "@/shared-theme/AppTheme"
 import { fetchJobs } from "@/apis/job"
 import { getPublicSkills } from "@/apis/skill"
 import { IJob, ISkill } from "@/types/backend"
-import { Box, CssBaseline, Stack } from "@mui/material"
+import { Box, CircularProgress, CssBaseline, Stack } from "@mui/material"
 import { Container } from "@mui/system"
 import { useSearchParams } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
+import { Suspense, useCallback, useEffect, useState } from "react"
 
 const PAGE_SIZE = 10
 
@@ -37,7 +37,7 @@ const defaultFilters: JobFilters = {
   page: 1,
 }
 
-export default function JobsPage() {
+function JobsContent() {
   const searchParams = useSearchParams()
   const initialKeyword = searchParams.get("keyword") || ""
   const initialLocation = searchParams.get("location") || ""
@@ -90,7 +90,6 @@ export default function JobsPage() {
       setLoading(false)
     }
   }, [])
-
 
   useEffect(() => {
     loadJobs(filters)
@@ -185,5 +184,26 @@ export default function JobsPage() {
         <Footer />
       </Box>
     </AppTheme>
+  )
+}
+
+export default function JobsPage() {
+  return (
+    <Suspense
+      fallback={
+        <Box
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <CircularProgress color="error" />
+        </Box>
+      }
+    >
+      <JobsContent />
+    </Suspense>
   )
 }
