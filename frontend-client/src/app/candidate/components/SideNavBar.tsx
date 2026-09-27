@@ -38,6 +38,11 @@ export default function SideNavBar() {
       icon: <DescriptionIcon fontSize="small" />,
     },
     {
+      label: t("nav.cvBuilder", "Resume Builder (Interactive)"),
+      href: "/candidate/cv-builder",
+      icon: <SettingsIcon fontSize="small" />,
+    },
+    {
       label: t("nav.profile", "Profile"),
       href: "/candidate/profile",
       icon: <AccountCircleIcon fontSize="small" />,

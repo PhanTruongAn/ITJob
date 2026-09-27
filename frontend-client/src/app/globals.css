@@ -19,3 +19,47 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ── Print Media Styles for Interactive Resume Builder ───────────────────── */
+@media print {
+  /* Hide all web app UI controls, headers, footers, sidebars & editor panels */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* Display ONLY the A4 CV Canvas element and its child elements */
+  #cv-a4-canvas,
+  #cv-a4-canvas * {
+    visibility: visible !important;
+  }
+
+  /* Reset layout position to top-left of paper with exact colors */
+  #cv-a4-canvas {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    box-shadow: none !important;
+    transform: none !important;
+    margin: 0 !important;
+    background-color: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Standard A4 Portrait Page configuration */
+  @page {
+    size: A4 portrait;
+    margin: 0mm;
+  }
+
+  html, body {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+  }
+}
