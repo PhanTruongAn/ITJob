@@ -18,6 +18,7 @@ public class ApiPaths {
     public static final String REVIEWS = BASE + "/reviews";
     public static final String RECOMMENDATIONS = BASE + "/recommendations";
     public static final String FOLLOWS = BASE + "/follows";
+    public static final String CANDIDATE_CVS = BASE + "/candidate/cvs";
 
     // API paths for public
     public static final String PUBLIC = BASE + "/public";

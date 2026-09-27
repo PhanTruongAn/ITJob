@@ -22,7 +22,8 @@ public enum ResourceEnum {
     SKILL("Kỹ năng", "/skills"),
     COUNTRY("Quốc gia", "/countries"),
     RECOMMENDATION("Gợi ý công việc", "/recommendations"),
-    COMPANY_FOLLOW("Theo dõi công ty", "/follows/companies");
+    COMPANY_FOLLOW("Theo dõi công ty", "/follows/companies"),
+    CANDIDATE_CV("Quản lý CV tương tác", "/candidate/cvs");
 
     private final String displayName;
     private final String basePath;

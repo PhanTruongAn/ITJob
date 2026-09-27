@@ -29,9 +29,14 @@ public class JobSpecification implements Specification<Job> {
     @Nullable
     public Predicate toPredicate(Root<Job> root, @Nullable CriteriaQuery<?> query, CriteriaBuilder cb) {
         List<Predicate> predicates = new ArrayList<>();
+        Join<Job, Company> companyJoin = null;
 
         if (dtoFilter.getName() != null && !dtoFilter.getName().isBlank()) {
-            predicates.add(cb.like(cb.lower(root.get("name")), "%" + dtoFilter.getName().toLowerCase().trim() + "%"));
+            String keywordPattern = "%" + dtoFilter.getName().toLowerCase().trim() + "%";
+            companyJoin = root.join("company", JoinType.LEFT);
+            Predicate matchJobName = cb.like(cb.lower(root.get("name")), keywordPattern);
+            Predicate matchCompanyName = cb.like(cb.lower(companyJoin.get("name")), keywordPattern);
+            predicates.add(cb.or(matchJobName, matchCompanyName));
         }
 
         if (dtoFilter.getLocation() != null && !dtoFilter.getLocation().isBlank()) {
@@ -60,7 +65,9 @@ public class JobSpecification implements Specification<Job> {
         }
 
         if (dtoFilter.getCompanyId() != null) {
-            Join<Job, Company> companyJoin = root.join("company");
+            if (companyJoin == null) {
+                companyJoin = root.join("company", JoinType.LEFT);
+            }
             predicates.add(cb.equal(companyJoin.get("id"), dtoFilter.getCompanyId()));
         }
 
