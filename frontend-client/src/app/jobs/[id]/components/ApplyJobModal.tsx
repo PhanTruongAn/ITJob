@@ -4,6 +4,7 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -12,7 +13,6 @@ import {
   Divider,
   FormControl,
   FormControlLabel,
-  FormLabel,
   Grid,
   IconButton,
   Paper,
@@ -27,13 +27,17 @@ import {
 import CloseIcon from "@mui/icons-material/Close"
 import CloudUploadIcon from "@mui/icons-material/CloudUpload"
 import DescriptionIcon from "@mui/icons-material/Description"
-import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+import DrawIcon from "@mui/icons-material/Draw"
 import SendIcon from "@mui/icons-material/Send"
+import StarIcon from "@mui/icons-material/Star"
 import { useSession } from "next-auth/react"
+import Link from "next/link"
 import React, { useCallback, useEffect, useState } from "react"
 import { getUserCvs, uploadCv } from "@/apis/file"
+import { getMyCandidateCvs } from "@/apis/cvBuilder"
 import { applyJob } from "@/apis/resume"
 import { IFile } from "@/types/backend"
+import { ICandidateCv } from "@/types/cvBuilder"
 
 interface ApplyJobModalProps {
   open: boolean
@@ -57,8 +61,10 @@ export default function ApplyJobModal({
 
   const [tabIndex, setTabIndex] = useState<number>(0)
   const [cvList, setCvList] = useState<IFile[]>([])
+  const [builderCvList, setBuilderCvList] = useState<ICandidateCv[]>([])
   const [selectedCvUrl, setSelectedCvUrl] = useState<string>("")
   const [loadingCvs, setLoadingCvs] = useState<boolean>(false)
+  const [loadingBuilderCvs, setLoadingBuilderCvs] = useState<boolean>(false)
   const [uploading, setUploading] = useState<boolean>(false)
   const [submitting, setSubmitting] = useState<boolean>(false)
 
@@ -97,12 +103,28 @@ export default function ApplyJobModal({
     }
   }, [])
 
+  // Fetch CV Builder entries
+  const fetchBuilderCvs = useCallback(async () => {
+    try {
+      setLoadingBuilderCvs(true)
+      const res = await getMyCandidateCvs()
+      if (res.data) {
+        setBuilderCvList(res.data)
+      }
+    } catch (err: any) {
+      console.error("Failed to load builder CVs:", err)
+    } finally {
+      setLoadingBuilderCvs(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (open) {
       fetchCvs()
+      fetchBuilderCvs()
       setErrorMessage("")
     }
-  }, [open, fetchCvs])
+  }, [open, fetchCvs, fetchBuilderCvs])
 
   // Handle direct file upload from modal
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -265,6 +287,12 @@ export default function ApplyJobModal({
           >
             <Tab label="CV đã lưu" />
             <Tab label="Tải CV mới" />
+            <Tab
+              label="CV từ Builder"
+              icon={<DrawIcon sx={{ fontSize: 18 }} />}
+              iconPosition="start"
+              sx={{ fontWeight: 600 }}
+            />
           </Tabs>
 
           {tabIndex === 0 && (
@@ -402,6 +430,143 @@ export default function ApplyJobModal({
                   </Stack>
                 )}
               </Paper>
+            </Box>
+          )}
+
+          {/* Tab 2: CV từ Builder */}
+          {tabIndex === 2 && (
+            <Box mb={4}>
+              {loadingBuilderCvs ? (
+                <Box display="flex" justifyContent="center" py={3}>
+                  <CircularProgress size={30} />
+                </Box>
+              ) : builderCvList.length > 0 ? (
+                <FormControl component="fieldset" fullWidth>
+                  <RadioGroup
+                    value={selectedCvUrl}
+                    onChange={(e) => setSelectedCvUrl(e.target.value)}
+                  >
+                    <Stack spacing={1.5}>
+                      {builderCvList
+                        .filter((bcv) => !!bcv.pdfUrl)
+                        .map((bcv) => (
+                          <Paper
+                            key={bcv.id}
+                            variant="outlined"
+                            onClick={() => bcv.pdfUrl && setSelectedCvUrl(bcv.pdfUrl)}
+                            sx={{
+                              p: 2,
+                              borderRadius: 2,
+                              cursor: "pointer",
+                              borderColor:
+                                selectedCvUrl === bcv.pdfUrl
+                                  ? "primary.main"
+                                  : "divider",
+                              bgcolor:
+                                selectedCvUrl === bcv.pdfUrl
+                                  ? "action.hover"
+                                  : "background.paper",
+                              transition: "all 0.2s",
+                            }}
+                          >
+                            <FormControlLabel
+                              value={bcv.pdfUrl || ""}
+                              control={<Radio size="small" />}
+                              label={
+                                <Box display="flex" alignItems="center" gap={1.5}>
+                                  <DrawIcon color="primary" />
+                                  <Box>
+                                    <Typography variant="subtitle2" fontWeight={600}>
+                                      {bcv.title}
+                                      {bcv.isDefault && (
+                                        <Chip
+                                          icon={<StarIcon sx={{ fontSize: "14px !important" }} />}
+                                          label="CV Mặc Định"
+                                          color="primary"
+                                          size="small"
+                                          sx={{
+                                            ml: 1,
+                                            fontWeight: 700,
+                                            fontSize: "10px",
+                                            height: 20,
+                                          }}
+                                        />
+                                      )}
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                      Mẫu: {bcv.templateId || "modern-it"} • Cập nhật:{" "}
+                                      {bcv.updatedAt
+                                        ? new Date(bcv.updatedAt).toLocaleDateString("vi-VN")
+                                        : "Gần đây"}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+                              }
+                              sx={{ width: "100%", m: 0 }}
+                            />
+                          </Paper>
+                        ))}
+
+                      {/* Show builder CVs without pdfUrl as disabled */}
+                      {builderCvList
+                        .filter((bcv) => !bcv.pdfUrl)
+                        .map((bcv) => (
+                          <Paper
+                            key={bcv.id}
+                            variant="outlined"
+                            sx={{
+                              p: 2,
+                              borderRadius: 2,
+                              opacity: 0.6,
+                              borderColor: "divider",
+                              bgcolor: "grey.50",
+                            }}
+                          >
+                            <Box display="flex" alignItems="center" justifyContent="space-between">
+                              <Box display="flex" alignItems="center" gap={1.5}>
+                                <DrawIcon color="disabled" />
+                                <Box>
+                                  <Typography variant="subtitle2" fontWeight={600} color="text.secondary">
+                                    {bcv.title}
+                                  </Typography>
+                                  <Typography variant="caption" color="text.disabled">
+                                    Chưa xuất PDF — Vui lòng vào CV Builder và bấm &quot;Tải về PDF&quot; trước
+                                  </Typography>
+                                </Box>
+                              </Box>
+                              <Button
+                                component={Link}
+                                href={`/candidate/cv-builder/${bcv.id}`}
+                                size="small"
+                                variant="outlined"
+                                sx={{ fontSize: 11, textTransform: "none", whiteSpace: "nowrap" }}
+                              >
+                                Mở Builder
+                              </Button>
+                            </Box>
+                          </Paper>
+                        ))}
+                    </Stack>
+                  </RadioGroup>
+                </FormControl>
+              ) : (
+                <Stack spacing={2} alignItems="center" py={3}>
+                  <DrawIcon sx={{ fontSize: 48, color: "text.disabled" }} />
+                  <Typography variant="body2" color="text.secondary" textAlign="center">
+                    Bạn chưa tạo CV nào trong Interactive Resume Builder.
+                  </Typography>
+                  <Button
+                    component={Link}
+                    href="/candidate/cv-builder"
+                    variant="outlined"
+                    size="small"
+                    startIcon={<DrawIcon />}
+                    sx={{ textTransform: "none" }}
+                  >
+                    Tạo CV mới ngay
+                  </Button>
+                </Stack>
+              )}
             </Box>
           )}
 

@@ -5,11 +5,11 @@ import {
   CheckCircle,
   Code,
   Description,
+  Download,
   ExpandMore,
   FolderSpecial,
   Palette,
   Person,
-  PictureAsPdf,
   School,
   Work,
   ZoomIn,
@@ -38,7 +38,8 @@ import {
 import { useParams, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { getCandidateCvById, updateCandidateCv } from "@/apis/cvBuilder"
+import { getCandidateCvById, updateCandidateCv, syncCandidateCvPdf } from "@/apis/cvBuilder"
+import { uploadCv } from "@/apis/file"
 import { ICandidateCv, ICvContent, ICvThemeConfig } from "@/types/cvBuilder"
 import { CvRenderer } from "../components/CvRenderer"
 import { CertificatesForm } from "../components/forms/CertificatesForm"
@@ -49,6 +50,7 @@ import { ProjectsForm } from "../components/forms/ProjectsForm"
 import { SkillsForm } from "../components/forms/SkillsForm"
 import { SummaryForm } from "../components/forms/SummaryForm"
 import { ThemeSettingsForm } from "../components/forms/ThemeSettingsForm"
+import { downloadCvPdf, exportCvToPdf } from "../utils/exportPdf"
 import {
   DEFAULT_CV_CONTENT,
   DEFAULT_THEME_CONFIG,
@@ -76,6 +78,7 @@ export default function CvEditorPage() {
   const [saveState, setSaveState] = useState<"saved" | "saving" | "error">(
     "saved",
   )
+  const [isExporting, setIsExporting] = useState(false)
 
   const [toast, setToast] = useState<{
     open: boolean
@@ -174,8 +177,49 @@ export default function CvEditorPage() {
     triggerAutoSave(content, themeConfig, title, newTpl)
   }
 
-  const handlePrintPdf = () => {
-    window.print()
+  const handleExportPdf = async () => {
+    try {
+      setIsExporting(true)
+      const safeName = (title || "cv").replace(/[^a-zA-Z0-9_\-\s]/g, "").trim().replace(/\s+/g, "_")
+
+      // 1. Generate PDF blob once
+      const pdfBlob = await exportCvToPdf(safeName || "cv")
+
+      // 2. Trigger browser file download
+      const url = URL.createObjectURL(pdfBlob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `${safeName || "cv"}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+
+      // 3. Automatically sync PDF to AWS S3 in the background for online job application
+      try {
+        const pdfFile = new File([pdfBlob], `${safeName || "cv"}.pdf`, { type: "application/pdf" })
+        const uploadRes = await uploadCv(pdfFile)
+
+        const uploadedUrl = (uploadRes.data as any)?.fileUrl || (typeof uploadRes.data === "string" ? uploadRes.data : undefined)
+        if (uploadedUrl) {
+          const syncRes = await syncCandidateCvPdf(cvId, uploadedUrl)
+          if (syncRes.data) {
+            setCv(syncRes.data)
+          } else {
+            setCv((prev) => (prev ? { ...prev, pdfUrl: uploadedUrl } : null))
+          }
+        }
+        setToast({ open: true, message: "Đã xuất và lưu CV lên hệ thống thành công!", severity: "success" })
+      } catch (uploadErr) {
+        console.warn("Background S3 upload warning:", uploadErr)
+        setToast({ open: true, message: "Đã tải file PDF về máy thành công!", severity: "success" })
+      }
+    } catch (err) {
+      console.error("PDF export error:", err)
+      setToast({ open: true, message: "Lỗi khi xuất PDF. Vui lòng thử lại.", severity: "error" })
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   if (isLoading) {
@@ -300,16 +344,17 @@ export default function CvEditorPage() {
             </Tooltip>
           </Box>
 
-          {/* Print / Export PDF */}
+          {/* Export & Sync PDF */}
           <Button
             variant="contained"
             color="primary"
             size="small"
-            startIcon={<PictureAsPdf />}
-            onClick={handlePrintPdf}
+            startIcon={isExporting ? <CircularProgress size={16} color="inherit" /> : <Download />}
+            onClick={handleExportPdf}
+            disabled={isExporting}
             sx={{ fontWeight: 800 }}
           >
-            Xuất PDF
+            {isExporting ? "Đang tạo PDF..." : "Tải về PDF"}
           </Button>
         </Box>
       </Paper>

@@ -99,6 +99,10 @@ export async function syncCandidateCvPdf(
   pdfUrl?: string,
   thumbnailUrl?: string
 ): Promise<IBackendRes<ICandidateCv>> {
+  if (pdfUrl) {
+    // Fail-safe: Update via PUT endpoint with JSON body
+    await updateCandidateCv(id, { pdfUrl, thumbnailUrl })
+  }
   const response = await axiosInstance.post<IBackendRes<ICandidateCv>>(
     `/api/v1/candidate/cvs/${id}/sync-pdf`,
     null,

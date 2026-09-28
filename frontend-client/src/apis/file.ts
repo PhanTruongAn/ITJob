@@ -7,12 +7,7 @@ export async function uploadCv(file: File): Promise<IBackendRes<IFile>> {
 
   const response = await axiosInstance.post<IBackendRes<IFile>>(
     "/api/v1/file/cvs/upload",
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    },
+    formData
   )
   return response.data
 }
