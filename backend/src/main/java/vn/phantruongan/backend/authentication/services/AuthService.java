@@ -47,7 +47,6 @@ public class AuthService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final EmailService emailService;
 
-    private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60L;
 
     public RegisterResDTO register(RegisterReqDTO dto) throws BadRequestException {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
@@ -167,7 +166,7 @@ public class AuthService {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(REFRESH_TOKEN_EXPIRATION)
+                .maxAge(jwtService.getRefreshTokenValidityInSeconds())
                 .sameSite("None")
                 .build();
 
