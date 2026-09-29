@@ -9,10 +9,9 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 // Khai báo rõ basePackages rỗng để Spring Data Redis không scan JPA repositories
@@ -24,10 +23,17 @@ public class RedisConfig {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        BasicPolymorphicTypeValidator validator = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType("vn.phantruongan.backend.company.dtos.res.")
+                .allowIfSubType(vn.phantruongan.backend.company.entities.Country.class)
+                .allowIfSubType("vn.phantruongan.backend.job.dtos.res.")
+                .allowIfSubType("vn.phantruongan.backend.subscriber.dtos.res.")
+                .allowIfSubType(java.util.ArrayList.class)
+                .build();
         mapper.activateDefaultTyping(
-                LaissezFaireSubTypeValidator.instance,
+                validator,
                 ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
+                com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY
         );
         return new GenericJackson2JsonRedisSerializer(mapper);
     }

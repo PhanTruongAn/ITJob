@@ -35,7 +35,7 @@ public class PublicResumeController {
     @Operation(summary = "Ứng viên nộp hồ sơ CV vào công việc")
     public ResponseEntity<ResumeResDTO> applyResume(@Valid @RequestBody CreateResumeReqDTO dto)
             throws InvalidException {
-        ResumeResDTO newResume = resumeService.createResume(dto);
+        ResumeResDTO newResume = resumeService.createResumeForCurrentCandidate(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(newResume);
     }
 
@@ -44,7 +44,7 @@ public class PublicResumeController {
     @Operation(summary = "Ứng viên nộp hồ sơ CV vào công việc")
     public ResponseEntity<ResumeResDTO> applyResumeByUser(@Valid @RequestBody CreateResumeReqDTO dto)
             throws InvalidException {
-        ResumeResDTO newResume = resumeService.createResume(dto);
+        ResumeResDTO newResume = resumeService.createResumeForCurrentCandidate(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(newResume);
     }
 

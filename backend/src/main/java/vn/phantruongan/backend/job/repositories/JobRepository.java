@@ -30,5 +30,12 @@ public interface JobRepository extends JpaRepository<Job, Long>, JpaSpecificatio
     })
     Optional<Job> findById(Long id);
 
+    @EntityGraph(attributePaths = {
+            "company",
+            "jobSkills",
+            "jobSkills.skill"
+    })
+    Optional<Job> findByIdAndCompany_Id(Long id, Long companyId);
+
     Page<Job> findByIsActive(boolean isActive, Pageable pageable);
 }

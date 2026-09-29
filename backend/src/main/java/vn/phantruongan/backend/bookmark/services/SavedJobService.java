@@ -63,7 +63,9 @@ public class SavedJobService {
 
     // Unsave job
     public void unsaveJob(Long savedJobId) {
-        SavedJob savedJob = savedJobRepository.findById(savedJobId)
+        User candidate = userRepository.findByEmail(currentUserService.getCurrentUserEmail())
+                .orElseThrow(() -> new InvalidException("User not found"));
+        SavedJob savedJob = savedJobRepository.findByIdAndCandidateId(savedJobId, candidate.getId())
                 .orElseThrow(() -> new InvalidException("Saved job not found"));
         savedJobRepository.delete(savedJob);
     }

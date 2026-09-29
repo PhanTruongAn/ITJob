@@ -66,7 +66,9 @@ public class SavedCompanyService {
 
     // Unsave company
     public void unsaveCompany(Long savedCompanyId) {
-        SavedCompany savedCompany = savedCompanyRepository.findById(savedCompanyId)
+        User candidate = userRepository.findByEmail(currentUserService.getCurrentUserEmail())
+                .orElseThrow(() -> new InvalidException("User not found"));
+        SavedCompany savedCompany = savedCompanyRepository.findByIdAndCandidateId(savedCompanyId, candidate.getId())
                 .orElseThrow(() -> new InvalidException("Saved company not found"));
         savedCompanyRepository.delete(savedCompany);
     }

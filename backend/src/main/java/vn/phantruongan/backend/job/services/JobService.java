@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
+import vn.phantruongan.backend.common.security.EmployerOwnershipService;
 import vn.phantruongan.backend.company.entities.Company;
 import vn.phantruongan.backend.company.repositories.CompanyRepository;
 import vn.phantruongan.backend.job.dtos.req.job.CreateJobReqDTO;
@@ -36,6 +37,8 @@ import vn.phantruongan.backend.job.specification.JobSpecification;
 import vn.phantruongan.backend.subscriber.entities.Skill;
 import vn.phantruongan.backend.subscriber.repositories.SkillRepository;
 import vn.phantruongan.backend.util.error.InvalidException;
+import vn.phantruongan.backend.util.error.PermissionDeniedException;
+import vn.phantruongan.backend.resume.repositories.ResumeRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +49,8 @@ public class JobService {
         private final SkillRepository skillRepository;
         private final JobMapper jobMapper;
         private final JobSkillMapper jobSkillMapper;
+        private final EmployerOwnershipService ownershipService;
+        private final ResumeRepository resumeRepository;
 
         public PaginationResponse<JobResDTO> getAllJobs(GetListJobReqDTO dto, Pageable pageable) {
                 Specification<Job> spec = new JobSpecification(dto);
@@ -73,12 +78,25 @@ public class JobService {
                 return new PaginationResponse<>(list, meta);
         }
 
+        public PaginationResponse<JobResDTO> getJobsForManagement(GetListJobReqDTO dto, Pageable pageable) {
+                if (ownershipService.isEmployer()) {
+                        dto.setCompanyId(ownershipService.employerCompanyId());
+                }
+                return getAllJobs(dto, pageable);
+        }
+
+        public JobResDTO findJobForManagement(long id) throws InvalidException {
+                return jobMapper.toDto(ownershipService.findJobForMutation(id));
+        }
+
         @CacheEvict(cacheNames = {"jobDetails", "jobs", "latestJobs"}, allEntries = true)
         public JobResDTO createJob(CreateJobReqDTO dto) throws InvalidException {
 
                 Job job = jobMapper.toEntity(dto);
 
-                Company company = companyRepository.findById(dto.getCompanyId())
+                Company company = ownershipService.isEmployer()
+                                ? ownershipService.findEmployerCompany(dto.getCompanyId())
+                                : companyRepository.findById(dto.getCompanyId())
                                 .orElseThrow(() -> new InvalidException(
                                                 "Company not found with id: " + dto.getCompanyId()));
                 job.setCompany(company);
@@ -120,11 +138,18 @@ public class JobService {
         @CacheEvict(cacheNames = {"jobDetails", "jobs", "latestJobs"}, allEntries = true)
         public JobResDTO updateJob(UpdateJobReqDTO dto) throws InvalidException {
 
-                Job job = jobRepository.findById(dto.getId())
-                                .orElseThrow(() -> new InvalidException("Job not found"));
+                Job job = ownershipService.findJobForMutation(dto.getId());
 
-                Company company = companyRepository.findById(dto.getCompanyId())
-                                .orElseThrow(() -> new InvalidException("Company not found"));
+                if (ownershipService.isEmployer()
+                                && (job.getCompany() == null || job.getCompany().getId() != dto.getCompanyId())) {
+                        throw new PermissionDeniedException(
+                                        "Employer cannot move a job to another company");
+                }
+
+                Company company = ownershipService.isEmployer()
+                                ? ownershipService.findEmployerCompany(dto.getCompanyId())
+                                : companyRepository.findById(dto.getCompanyId())
+                                                .orElseThrow(() -> new InvalidException("Company not found"));
 
                 job.setCompany(company);
                 jobMapper.updateEntityFromDto(dto, job);
@@ -180,8 +205,12 @@ public class JobService {
                         throw new InvalidException("Job ID must be a positive number.");
                 }
 
-                Job job = jobRepository.findById(id)
-                                .orElseThrow(() -> new InvalidException("Job not found."));
+                Job job = ownershipService.findJobForMutation(id);
+
+                if (ownershipService.isEmployer() && resumeRepository.existsByJob_Id(id)) {
+                        throw new InvalidException(
+                                        "Jobs with applications cannot be deleted; deactivate the job to preserve application history.");
+                }
 
                 jobRepository.delete(job);
                 return true;
