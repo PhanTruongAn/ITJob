@@ -10,6 +10,7 @@ declare module "next-auth" {
       id: string
       phone?: string
       address?: string
+      role?: string
     } & DefaultSession["user"]
   }
 
@@ -20,6 +21,7 @@ declare module "next-auth" {
     image?: string
     phone?: string
     address?: string
+    role?: string
   }
 }
 
@@ -34,5 +36,6 @@ declare module "next-auth/jwt" {
     image?: string
     phone?: string
     address?: string
+    role?: string
   }
 }

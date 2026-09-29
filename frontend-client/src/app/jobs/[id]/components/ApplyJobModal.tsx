@@ -38,6 +38,7 @@ import { getMyCandidateCvs } from "@/apis/cvBuilder"
 import { applyJob } from "@/apis/resume"
 import { IFile } from "@/types/backend"
 import { ICandidateCv } from "@/types/cvBuilder"
+import { getRequestErrorMessage } from "@/common/security/frontendSecurity.mjs"
 
 interface ApplyJobModalProps {
   open: boolean
@@ -186,7 +187,10 @@ export default function ApplyJobModal({
         onClose()
       }
     } catch (err: any) {
-      const msg = err?.response?.data?.message || "Ứng tuyển thất bại. Vui lòng thử lại."
+      const msg = getRequestErrorMessage(err, {
+        forbidden: "Tài khoản hiện tại không có quyền ứng tuyển. Vui lòng đăng nhập bằng tài khoản ứng viên.",
+        fallback: "Ứng tuyển thất bại. Vui lòng thử lại.",
+      })
       setErrorMessage(msg)
     } finally {
       setSubmitting(false)

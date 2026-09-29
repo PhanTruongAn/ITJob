@@ -32,6 +32,7 @@ import * as React from "react"
 import { useTranslation } from "react-i18next"
 import LanguageSwitcher from "./LanguageSwitcher"
 import Sitemark from "./SitemarkIcon"
+import { isCandidateRole } from "@/common/security/frontendSecurity.mjs"
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -151,57 +152,42 @@ export default function AppAppBar() {
                     </Typography>
                   </Box>
                   <Divider sx={{ my: 0.5 }} />
-                  <MenuItem component={Link} href="/candidate/dashboard">
-                    <ListItemIcon>
-                      <DashboardIcon fontSize="small" />
-                    </ListItemIcon>
-                    {t("nav.dashboard", "Dashboard")}
-                  </MenuItem>
-                  <MenuItem component={Link} href="/candidate/cv-attachment">
-                    <ListItemIcon>
-                      <DescriptionIcon fontSize="small" />
-                    </ListItemIcon>
-                    {t("nav.cvAttachment", "CV Attachment")}
-                  </MenuItem>
-                  <MenuItem component={Link} href="/candidate/profile">
-                    <ListItemIcon>
-                      <AccountCircleIcon fontSize="small" />
-                    </ListItemIcon>
-                    {t("nav.profile", "Profile")}
-                  </MenuItem>
-                  <MenuItem component={Link} href="/candidate/my-jobs">
-                    <ListItemIcon>
-                      <WorkIcon fontSize="small" />
-                    </ListItemIcon>
-                    {t("nav.myJobs", "My Jobs")}
-                  </MenuItem>
-                  <MenuItem component={Link} href="/candidate/job-invitations">
-                    <ListItemIcon>
-                      <MailIcon fontSize="small" />
-                    </ListItemIcon>
-                    {t("nav.jobInvitations", "Job Invitations")}
-                  </MenuItem>
-                  <MenuItem
-                    component={Link}
-                    href="/candidate/email-subscriptions"
-                  >
-                    <ListItemIcon>
-                      <SubscriptionsIcon fontSize="small" />
-                    </ListItemIcon>
-                    {t("nav.emailSubscriptions", "Email Subscriptions")}
-                  </MenuItem>
-                  <MenuItem component={Link} href="/candidate/notifications">
-                    <ListItemIcon>
-                      <NotificationsIcon fontSize="small" />
-                    </ListItemIcon>
-                    {t("nav.notifications", "Notifications")}
-                  </MenuItem>
-                  <MenuItem component={Link} href="/candidate/settings">
-                    <ListItemIcon>
-                      <SettingsIcon fontSize="small" />
-                    </ListItemIcon>
-                    {t("nav.settings", "Settings")}
-                  </MenuItem>
+                  {isCandidateRole(session.user?.role) && (
+                    <>
+                      <MenuItem component={Link} href="/candidate/dashboard">
+                        <ListItemIcon><DashboardIcon fontSize="small" /></ListItemIcon>
+                        {t("nav.dashboard", "Dashboard")}
+                      </MenuItem>
+                      <MenuItem component={Link} href="/candidate/cv-attachment">
+                        <ListItemIcon><DescriptionIcon fontSize="small" /></ListItemIcon>
+                        {t("nav.cvAttachment", "CV Attachment")}
+                      </MenuItem>
+                      <MenuItem component={Link} href="/candidate/profile">
+                        <ListItemIcon><AccountCircleIcon fontSize="small" /></ListItemIcon>
+                        {t("nav.profile", "Profile")}
+                      </MenuItem>
+                      <MenuItem component={Link} href="/candidate/my-jobs">
+                        <ListItemIcon><WorkIcon fontSize="small" /></ListItemIcon>
+                        {t("nav.myJobs", "My Jobs")}
+                      </MenuItem>
+                      <MenuItem component={Link} href="/candidate/job-invitations">
+                        <ListItemIcon><MailIcon fontSize="small" /></ListItemIcon>
+                        {t("nav.jobInvitations", "Job Invitations")}
+                      </MenuItem>
+                      <MenuItem component={Link} href="/candidate/email-subscriptions">
+                        <ListItemIcon><SubscriptionsIcon fontSize="small" /></ListItemIcon>
+                        {t("nav.emailSubscriptions", "Email Subscriptions")}
+                      </MenuItem>
+                      <MenuItem component={Link} href="/candidate/notifications">
+                        <ListItemIcon><NotificationsIcon fontSize="small" /></ListItemIcon>
+                        {t("nav.notifications", "Notifications")}
+                      </MenuItem>
+                      <MenuItem component={Link} href="/candidate/settings">
+                        <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
+                        {t("nav.settings", "Settings")}
+                      </MenuItem>
+                    </>
+                  )}
                   <Divider sx={{ my: 0.5 }} />
                   <MenuItem
                     onClick={() => signOut()}

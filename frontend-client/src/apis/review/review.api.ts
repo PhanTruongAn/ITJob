@@ -13,7 +13,6 @@ export interface ICompanyReview {
 
 export interface ICreateReviewReq {
   companyId: number
-  userId: number
   rating: number
   comment: string
 }

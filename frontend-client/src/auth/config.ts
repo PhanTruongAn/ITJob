@@ -56,6 +56,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               image: data.user.avatar || null,
               phone: data.user.phone || null,
               address: data.user.address || null,
+              role: data.user.role?.name,
               accessToken: data.access_token,
               refreshToken: data.refresh_token,
             }
@@ -101,6 +102,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.image = user.image
         token.phone = user.phone
         token.address = user.address
+        token.role = user.role
         const expiry = getJwtExpiry(user.accessToken)
         token.accessTokenExpires = expiry ? expiry - 2000 : Date.now() + ACCESS_TOKEN_VALIDITY
 
@@ -127,6 +129,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             token.image = data.user?.avatar
             token.phone = data.user?.phone
             token.address = data.user?.address
+            token.role = data.user?.role?.name
             const expiry = getJwtExpiry(data.access_token)
             token.accessTokenExpires = expiry ? expiry - 2000 : Date.now() + ACCESS_TOKEN_VALIDITY
           }
@@ -218,6 +221,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.image = token.image as string | undefined
       session.user.phone = token.phone as string | undefined
       session.user.address = token.address as string | undefined
+      session.user.role = token.role as string | undefined
 
       return session
     },
