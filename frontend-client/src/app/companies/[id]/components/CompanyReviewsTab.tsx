@@ -1,5 +1,6 @@
 "use client"
 import { useCompanyReviews, useCreateReview } from "@/apis/review/review.hooks"
+import { getRequestErrorMessage } from "@/common/security/frontendSecurity.mjs"
 import { useUpdateState } from "@/common/hooks/useUpdateState"
 import RateReviewIcon from "@mui/icons-material/RateReview"
 import StarIcon from "@mui/icons-material/Star"
@@ -101,7 +102,6 @@ export default function CompanyReviewsTab({
     createReviewMutation.mutate(
       {
         companyId,
-        userId: Number(session?.user?.id ?? 0),
         rating: state.rating,
         comment: state.comment,
       },
@@ -113,8 +113,11 @@ export default function CompanyReviewsTab({
             handleCloseDialog()
           }
         },
-        onError: () => {
-          alert("Có lỗi xảy ra khi gửi đánh giá.")
+        onError: (error: any) => {
+          alert(getRequestErrorMessage(error, {
+            forbidden: "Tài khoản hiện tại không có quyền đăng đánh giá.",
+            fallback: "Có lỗi xảy ra khi gửi đánh giá.",
+          }))
         },
       },
     )

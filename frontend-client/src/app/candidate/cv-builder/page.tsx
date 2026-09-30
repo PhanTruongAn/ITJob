@@ -19,6 +19,11 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material"
 import {
   Add,
@@ -30,6 +35,7 @@ import {
   PictureAsPdf,
   MoreVert,
   Article,
+  WarningAmber,
 } from "@mui/icons-material"
 import {
   getMyCandidateCvs,
@@ -52,6 +58,17 @@ export default function CvBuilderDashboardPage() {
     open: false,
     message: "",
     severity: "success",
+  })
+
+  // Delete confirmation dialog state
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean
+    cvId: number | null
+    title: string
+  }>({
+    open: false,
+    cvId: null,
+    title: "",
   })
 
   // Action Menu anchor state
@@ -107,7 +124,7 @@ export default function CvBuilderDashboardPage() {
   const handleSetDefault = async (id: number) => {
     try {
       await setDefaultCandidateCv(id)
-      setToast({ open: true, message: "Đã đặt làm CV mặc định!", severity: "success" })
+      setToast({ open: true, message: "Đã đặt làm CV mặc định thành công!", severity: "success" })
       fetchCvs()
     } catch (err: any) {
       setToast({ open: true, message: "Không thể đặt làm mặc định.", severity: "error" })
@@ -128,16 +145,22 @@ export default function CvBuilderDashboardPage() {
     handleCloseMenu()
   }
 
-  const handleDelete = async (id: number, title: string) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa bản CV "${title}"?`)) return
+  const handleOpenDeleteDialog = (id: number, title: string) => {
+    handleCloseMenu()
+    setDeleteDialog({ open: true, cvId: id, title })
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!deleteDialog.cvId) return
     try {
-      await deleteCandidateCv(id)
-      setToast({ open: true, message: "Xóa CV thành công!", severity: "success" })
+      await deleteCandidateCv(deleteDialog.cvId)
+      setToast({ open: true, message: "Đã xóa bản CV thành công!", severity: "success" })
       fetchCvs()
     } catch (err: any) {
       setToast({ open: true, message: "Không thể xóa CV.", severity: "error" })
+    } finally {
+      setDeleteDialog({ open: false, cvId: null, title: "" })
     }
-    handleCloseMenu()
   }
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>, id: number) => {
@@ -199,79 +222,92 @@ export default function CvBuilderDashboardPage() {
         </Card>
       ) : (
         <Grid container spacing={3}>
-          {cvList.map((cv) => (
-            <Grid item xs={12} sm={6} md={4} key={cv.id}>
-              <Card
-                sx={{
-                  borderRadius: 3,
-                  position: "relative",
-                  transition: "all 0.2s ease-in-out",
-                  "&:hover": {
-                    boxShadow: 6,
-                    transform: "translateY(-4px)",
-                  },
-                }}
-              >
-                <CardContent sx={{ p: 3 }}>
-                  <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-                    <Box display="flex" alignItems="center" gap={1}>
-                      {cv.isDefault && (
+          {cvList.map((cv) => {
+            const isDefaultCv = Boolean(cv.isDefault || (cv as any).default)
+            return (
+              <Grid item xs={12} sm={6} md={4} key={cv.id}>
+                <Card
+                  sx={{
+                    borderRadius: 3,
+                    position: "relative",
+                    transition: "all 0.25s ease-in-out",
+                    border: isDefaultCv ? "2px solid" : "1px solid",
+                    borderColor: isDefaultCv ? "primary.main" : "grey.200",
+                    bgcolor: isDefaultCv ? "rgba(237, 27, 47, 0.02)" : "background.paper",
+                    boxShadow: isDefaultCv ? "0 8px 24px rgba(237, 27, 47, 0.15)" : 1,
+                    "&:hover": {
+                      boxShadow: isDefaultCv
+                        ? "0 12px 28px rgba(237, 27, 47, 0.25)"
+                        : "0 8px 20px rgba(0, 0, 0, 0.08)",
+                      transform: "translateY(-4px)",
+                    },
+                  }}
+                >
+                  <CardContent sx={{ p: 3 }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
+                      <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
+                        {isDefaultCv && (
+                          <Chip
+                            icon={<Star sx={{ fontSize: "16px !important", color: "#fff !important" }} />}
+                            label="CV Mặc Định"
+                            color="primary"
+                            size="small"
+                            sx={{
+                              fontWeight: 800,
+                              fontSize: "11px",
+                              boxShadow: "0 2px 8px rgba(237, 27, 47, 0.35)",
+                            }}
+                          />
+                        )}
                         <Chip
-                          icon={<Star sx={{ fontSize: 16 }} />}
-                          label="CV Mặc Định"
-                          color="primary"
+                          label={cv.templateId || "modern-it"}
+                          variant="outlined"
                           size="small"
-                          sx={{ fontWeight: 700 }}
+                          sx={{ textTransform: "capitalize", fontSize: "11px" }}
                         />
-                      )}
-                      <Chip
-                        label={cv.templateId || "modern-it"}
-                        variant="outlined"
-                        size="small"
-                        sx={{ textTransform: "capitalize" }}
-                      />
-                    </Box>
-                    <IconButton size="small" onClick={(e) => handleOpenMenu(e, cv.id)}>
-                      <MoreVert />
-                    </IconButton>
-                  </Box>
-
-                  <Typography variant="h6" fontWeight={800} noWrap gutterBottom title={cv.title}>
-                    {cv.title}
-                  </Typography>
-
-                  <Typography variant="caption" color="text.secondary" display="block">
-                    Cập nhật lần cuối: {cv.updatedAt ? new Date(cv.updatedAt).toLocaleDateString("vi-VN") : "Gần đây"}
-                  </Typography>
-                </CardContent>
-
-                <CardActions sx={{ px: 3, pb: 3, pt: 0, justifyContent: "space-between" }}>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    startIcon={<Edit />}
-                    onClick={() => router.push(`/candidate/cv-builder/${cv.id}`)}
-                    sx={{ fontWeight: 700 }}
-                  >
-                    Chỉnh Sửa CV
-                  </Button>
-                  {cv.pdfUrl && (
-                    <Tooltip title="Tải xuống PDF">
-                      <IconButton
-                        component="a"
-                        href={cv.pdfUrl}
-                        target="_blank"
-                        size="small"
-                        color="primary"
-                      >
-                        <PictureAsPdf />
+                      </Box>
+                      <IconButton size="small" onClick={(e) => handleOpenMenu(e, cv.id)}>
+                        <MoreVert />
                       </IconButton>
-                    </Tooltip>
-                  )}
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
+                    </Box>
+
+                    <Typography variant="h6" fontWeight={800} noWrap gutterBottom title={cv.title}>
+                      {cv.title}
+                    </Typography>
+
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      Cập nhật lần cuối: {cv.updatedAt ? new Date(cv.updatedAt).toLocaleDateString("vi-VN") : "Gần đây"}
+                    </Typography>
+                  </CardContent>
+
+                  <CardActions sx={{ px: 3, pb: 3, pt: 0, justifyContent: "space-between" }}>
+                    <Button
+                      variant={isDefaultCv ? "contained" : "outlined"}
+                      size="small"
+                      startIcon={<Edit />}
+                      onClick={() => router.push(`/candidate/cv-builder/${cv.id}`)}
+                      sx={{ fontWeight: 700 }}
+                    >
+                      Chỉnh Sửa CV
+                    </Button>
+                    {cv.pdfUrl && (
+                      <Tooltip title="Tải xuống PDF">
+                        <IconButton
+                          component="a"
+                          href={cv.pdfUrl}
+                          target="_blank"
+                          size="small"
+                          color="primary"
+                        >
+                          <PictureAsPdf />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </CardActions>
+                </Card>
+              </Grid>
+            )
+          })}
         </Grid>
       )}
 
@@ -281,34 +317,38 @@ export default function CvBuilderDashboardPage() {
         open={Boolean(menuAnchorEl)}
         onClose={handleCloseMenu}
       >
-        {activeCvId && (
-          <>
-            <MenuItem onClick={() => router.push(`/candidate/cv-builder/${activeCvId}`)}>
-              <ListItemIcon><Edit fontSize="small" /></ListItemIcon>
-              <ListItemText>Chỉnh Sửa</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={() => handleDuplicate(activeCvId)}>
-              <ListItemIcon><FileCopy fontSize="small" /></ListItemIcon>
-              <ListItemText>Nhân Bản CV</ListItemText>
-            </MenuItem>
-            {cvList.find((c) => c.id === activeCvId)?.isDefault ? null : (
-              <MenuItem onClick={() => handleSetDefault(activeCvId)}>
-                <ListItemIcon><StarBorder fontSize="small" /></ListItemIcon>
-                <ListItemText>Đặt Làm Mặc Định</ListItemText>
-              </MenuItem>
-            )}
-            <MenuItem
-              onClick={() => {
-                const target = cvList.find((c) => c.id === activeCvId)
-                if (target) handleDelete(target.id, target.title)
-              }}
-              sx={{ color: "error.main" }}
-            >
-              <ListItemIcon><Delete fontSize="small" color="error" /></ListItemIcon>
-              <ListItemText>Xóa CV</ListItemText>
-            </MenuItem>
-          </>
-        )}
+        {activeCvId
+          ? [
+              <MenuItem key="edit" onClick={() => router.push(`/candidate/cv-builder/${activeCvId}`)}>
+                <ListItemIcon><Edit fontSize="small" /></ListItemIcon>
+                <ListItemText>Chỉnh Sửa</ListItemText>
+              </MenuItem>,
+              <MenuItem key="duplicate" onClick={() => handleDuplicate(activeCvId)}>
+                <ListItemIcon><FileCopy fontSize="small" /></ListItemIcon>
+                <ListItemText>Nhân Bản CV</ListItemText>
+              </MenuItem>,
+              !Boolean(
+                cvList.find((c) => c.id === activeCvId)?.isDefault ||
+                  (cvList.find((c) => c.id === activeCvId) as any)?.default
+              ) && (
+                <MenuItem key="set-default" onClick={() => handleSetDefault(activeCvId)}>
+                  <ListItemIcon><StarBorder fontSize="small" color="primary" /></ListItemIcon>
+                  <ListItemText sx={{ color: "primary.main", fontWeight: 700 }}>Đặt Làm Mặc Định</ListItemText>
+                </MenuItem>
+              ),
+              <MenuItem
+                key="delete"
+                onClick={() => {
+                  const target = cvList.find((c) => c.id === activeCvId)
+                  if (target) handleOpenDeleteDialog(target.id, target.title)
+                }}
+                sx={{ color: "error.main" }}
+              >
+                <ListItemIcon><Delete fontSize="small" color="error" /></ListItemIcon>
+                <ListItemText>Xóa CV</ListItemText>
+              </MenuItem>,
+            ].filter(Boolean)
+          : []}
       </Menu>
 
       {/* Create CV Dialog */}
@@ -317,6 +357,43 @@ export default function CvBuilderDashboardPage() {
         onClose={() => setIsCreateOpen(false)}
         onCreate={handleCreateCv}
       />
+
+      {/* Delete Confirmation MUI Dialog */}
+      <Dialog
+        open={deleteDialog.open}
+        onClose={() => setDeleteDialog({ open: false, cvId: null, title: "" })}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1.5, pb: 1 }}>
+          <WarningAmber color="error" fontSize="medium" />
+          <Typography variant="h6" fontWeight={800} color="error.main">
+            Xác Nhận Xóa CV
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText variant="body2" color="text.primary" sx={{ mt: 1 }}>
+            Bạn có chắc chắn muốn xóa bản CV <strong>"{deleteDialog.title}"</strong> không? Hành động này sẽ xóa dữ liệu khỏi hệ thống và không thể hoàn tác.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 1 }}>
+          <Button
+            onClick={() => setDeleteDialog({ open: false, cvId: null, title: "" })}
+            color="inherit"
+            variant="outlined"
+          >
+            Hủy Bỏ
+          </Button>
+          <Button
+            onClick={handleConfirmDelete}
+            color="error"
+            variant="contained"
+            sx={{ fontWeight: 700 }}
+          >
+            Xóa Vĩnh Viễn
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Snackbar Toast */}
       <Snackbar

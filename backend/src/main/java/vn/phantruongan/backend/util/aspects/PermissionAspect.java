@@ -10,6 +10,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import vn.phantruongan.backend.authorization.services.PermissionService;
+import vn.phantruongan.backend.authentication.entities.User;
+import vn.phantruongan.backend.authentication.repositories.UserRepository;
 import vn.phantruongan.backend.util.annotations.RequirePermission;
 import vn.phantruongan.backend.util.error.PermissionDeniedException;
 
@@ -18,9 +20,11 @@ import vn.phantruongan.backend.util.error.PermissionDeniedException;
 public class PermissionAspect {
 
     private final PermissionService permissionService;
+    private final UserRepository userRepository;
 
-    public PermissionAspect(PermissionService permissionService) {
+    public PermissionAspect(PermissionService permissionService, UserRepository userRepository) {
         this.permissionService = permissionService;
+        this.userRepository = userRepository;
     }
 
     @Around("@annotation(requirePermission)")
@@ -38,19 +42,23 @@ public class PermissionAspect {
             throw new BadCredentialsException("Invalid authentication principal");
         }
 
-        // Lấy roleId từ JWT claim (do bạn đã set trong SecurityUtil)
-        Long roleId = jwt.getClaim("roleId");
-        if (roleId == null) {
-            throw new BadCredentialsException("Role ID not found in token");
+        // Resolve the current role from the database so role changes take effect
+        // immediately instead of waiting for the access token to expire.
+        User user = userRepository.findByEmail(jwt.getSubject())
+                .orElseThrow(() -> new BadCredentialsException("Authenticated user no longer exists"));
+        if (user.getRole() == null) {
+            throw new BadCredentialsException("User has no assigned role");
+        }
+        if (!user.getRole().isActive()) {
+            throw new PermissionDeniedException("User role is inactive");
         }
 
-        // Nếu roleId = 1 (ADMIN) thì bỏ qua check permission
-        if (roleId == 1L) {
+        if ("ADMIN".equalsIgnoreCase(user.getRole().getName())) {
             return joinPoint.proceed();
         }
 
         // Kiểm tra quyền theo resource và action trong annotation
-        boolean allowed = permissionService.hasPermission(roleId,
+        boolean allowed = permissionService.hasPermission(user.getRole().getId(),
                 requirePermission.resource(),
                 requirePermission.action());
 

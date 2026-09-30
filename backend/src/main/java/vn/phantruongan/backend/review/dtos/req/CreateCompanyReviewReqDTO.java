@@ -12,9 +12,6 @@ public class CreateCompanyReviewReqDTO {
     @NotNull(message = "Company ID must not be null")
     private Long companyId;
 
-    @NotNull(message = "User ID must not be null")
-    private Long userId;
-
     @NotNull(message = "Rating must not be null")
     @Min(value = 1, message = "Rating must be from 1 to 5")
     private Integer rating;

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authentication.entities.User;
 import vn.phantruongan.backend.authentication.repositories.UserRepository;
+import vn.phantruongan.backend.common.security.CurrentUserService;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.company.entities.Company;
 import vn.phantruongan.backend.company.repositories.CompanyRepository;
@@ -19,6 +20,7 @@ import vn.phantruongan.backend.review.entities.CompanyReview;
 import vn.phantruongan.backend.review.mappers.CompanyReviewMapper;
 import vn.phantruongan.backend.review.repositories.CompanyReviewRepository;
 import vn.phantruongan.backend.util.error.InvalidException;
+import vn.phantruongan.backend.util.error.PermissionDeniedException;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class CompanyReviewService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final CompanyReviewMapper companyReviewMapper;
+    private final CurrentUserService currentUserService;
 
     // get all reviews with pagination
     public PaginationResponse<CompanyReviewResDTO> getAllReviewsByCompanyId(Long companyId, Pageable pageable) {
@@ -51,7 +54,7 @@ public class CompanyReviewService {
 
     // create a new review
     public CompanyReviewResDTO createReview(CreateCompanyReviewReqDTO dto) {
-        User user = userRepository.findById(dto.getUserId())
+        User user = userRepository.findByEmail(currentUserService.getCurrentUserEmail())
                 .orElseThrow(() -> new InvalidException("User not found"));
 
         Company company = companyRepository.findById(dto.getCompanyId())
@@ -69,8 +72,9 @@ public class CompanyReviewService {
 
     // update an existing review
     public CompanyReviewResDTO updateReview(UpdateCompanyReviewReqDTO dto) {
-        CompanyReview review = companyReviewRepository.findById(dto.getId())
-                .orElseThrow(() -> new InvalidException("Review not found"));
+        User actor = currentUser();
+        boolean privileged = isPrivileged(actor);
+        CompanyReview review = findReviewForActor(dto.getId(), actor, privileged);
 
         if (dto.getRating() != null) {
             review.setRating(dto.getRating());
@@ -78,7 +82,7 @@ public class CompanyReviewService {
         if (dto.getComment() != null) {
             review.setComment(dto.getComment());
         }
-        if (dto.getHidden() != null) {
+        if (privileged && dto.getHidden() != null) {
             review.setHidden(dto.getHidden());
         }
 
@@ -97,10 +101,29 @@ public class CompanyReviewService {
 
     // delete a review
     public void deleteReview(Long id) {
-        CompanyReview review = companyReviewRepository.findById(id)
-                .orElseThrow(() -> new InvalidException("Review not found"));
+        User actor = currentUser();
+        CompanyReview review = findReviewForActor(id, actor, isPrivileged(actor));
 
         companyReviewRepository.delete(review);
+    }
+
+    private User currentUser() {
+        return userRepository.findByEmail(currentUserService.getCurrentUserEmail())
+                .orElseThrow(() -> new InvalidException("User not found"));
+    }
+
+    private boolean isPrivileged(User user) {
+        String roleName = user.getRole() == null ? "" : user.getRole().getName();
+        return "ADMIN".equalsIgnoreCase(roleName) || "MANAGER".equalsIgnoreCase(roleName);
+    }
+
+    private CompanyReview findReviewForActor(Long id, User actor, boolean privileged) {
+        if (privileged) {
+            return companyReviewRepository.findById(id)
+                    .orElseThrow(() -> new InvalidException("Review not found"));
+        }
+        return companyReviewRepository.findByIdAndUser_Id(id, actor.getId())
+                .orElseThrow(() -> new PermissionDeniedException("Review does not belong to the current user"));
     }
 
 }

@@ -17,9 +17,15 @@ import vn.phantruongan.backend.company.entities.Country;
 
 public class CompanySpecification implements Specification<Company> {
     private final GetListCompanyReqDTO dtoFilter;
+    private final Long ownerUserId;
 
     public CompanySpecification(GetListCompanyReqDTO dtoFilter) {
+        this(dtoFilter, null);
+    }
+
+    public CompanySpecification(GetListCompanyReqDTO dtoFilter, Long ownerUserId) {
         this.dtoFilter = dtoFilter;
+        this.ownerUserId = ownerUserId;
     }
 
     @Override
@@ -28,6 +34,12 @@ public class CompanySpecification implements Specification<Company> {
             CriteriaBuilder cb) {
 
         List<Predicate> predicates = new ArrayList<>();
+
+        if (ownerUserId != null) {
+            Join<Company, vn.phantruongan.backend.authentication.entities.User> userJoin = root.join("users");
+            predicates.add(cb.equal(userJoin.get("id"), ownerUserId));
+            if (query != null) query.distinct(true);
+        }
 
         if (dtoFilter.getName() != null) {
             predicates.add(cb.like(cb.lower(root.get("name")), "%" + dtoFilter.getName().toLowerCase() + "%"));

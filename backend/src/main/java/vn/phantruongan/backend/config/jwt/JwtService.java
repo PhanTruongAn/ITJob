@@ -50,6 +50,10 @@ public class JwtService {
     @Value("${jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
+    public long getRefreshTokenValidityInSeconds() {
+        return refreshTokenExpiration;
+    }
+
     private SecretKey getSecretKey() {
         byte[] keyBytes = Base64.from(jwtKey).decode();
         return new SecretKeySpec(keyBytes, 0, keyBytes.length, JWT_ALGORITHM.getName());

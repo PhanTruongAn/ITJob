@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authorization.dtos.req.permission.CreatePermissionReqDTO;
@@ -84,6 +85,7 @@ public class PermissionService {
     }
 
     // Kiểm tra quyền theo key
+    @Transactional(readOnly = true)
     @Cacheable(cacheNames = "permissions", key = "#roleId + '_' + #resource + '_' + #action")
     public boolean hasPermission(Long roleId, ResourceEnum resource, ActionEnum action) {
 
@@ -92,7 +94,7 @@ public class PermissionService {
 
         String permissionKey = resource + "_" + action;
 
-        return role.getRolePermissions().stream()
+        return role.isActive() && role.getRolePermissions().stream()
                 .anyMatch(rp -> rp.getPermission().getPermissionKey().equals(permissionKey));
     }
 }

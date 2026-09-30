@@ -18,15 +18,15 @@ export const CvRenderer: React.FC<CvRendererProps> = ({
   templateId = "modern-it",
   scale = 1,
 }) => {
-  const getFontSizeClass = (fontSize?: string) => {
+  const getFontSizePx = (fontSize?: string) => {
     switch (fontSize) {
       case "sm":
-        return "text-[12px]"
+        return "11.5px"
       case "lg":
-        return "text-[15px]"
+        return "15px"
       case "md":
       default:
-        return "text-[13px]"
+        return "13px"
     }
   }
 
@@ -46,11 +46,10 @@ export const CvRenderer: React.FC<CvRendererProps> = ({
     <div className="flex justify-center items-start overflow-auto p-4 sm:p-8 bg-gray-200/60 dark:bg-gray-950/80 min-h-screen">
       <div
         id="cv-a4-canvas"
-        className={`w-[210mm] min-h-[297mm] bg-white shadow-2xl transition-all duration-300 ${getFontSizeClass(
-          themeConfig.fontSize
-        )}`}
+        className="w-[210mm] min-h-[297mm] bg-white shadow-2xl transition-all duration-300"
         style={{
           fontFamily: themeConfig.fontFamily || "Inter, sans-serif",
+          fontSize: getFontSizePx(themeConfig.fontSize),
           transform: scale !== 1 ? `scale(${scale})` : undefined,
           transformOrigin: "top center",
         }}

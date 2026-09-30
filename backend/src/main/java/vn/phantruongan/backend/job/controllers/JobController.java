@@ -43,7 +43,7 @@ public class JobController {
             @ParameterObject GetListJobReqDTO dto,
             @ParameterObject Pageable pageable) {
 
-        PaginationResponse<JobResDTO> result = jobService.getAllJobs(dto, pageable);
+        PaginationResponse<JobResDTO> result = jobService.getJobsForManagement(dto, pageable);
         return ResponseEntity.ok(result);
     }
 
@@ -71,7 +71,7 @@ public class JobController {
     @GetMapping("/{id}")
     @ApiMessage("Get job by id")
     public ResponseEntity<JobResDTO> findJobById(@PathVariable("id") long id) throws InvalidException {
-        JobResDTO job = jobService.findById(id);
+        JobResDTO job = jobService.findJobForManagement(id);
         return ResponseEntity.ok(job);
     }
 

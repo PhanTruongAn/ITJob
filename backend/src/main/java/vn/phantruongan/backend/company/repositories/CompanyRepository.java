@@ -1,5 +1,7 @@
 package vn.phantruongan.backend.company.repositories;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -11,4 +13,6 @@ public interface CompanyRepository extends JpaRepository<Company, Long>, JpaSpec
     public boolean existsByNameAndCountry_Id(String name, long countryId);
 
     public boolean existsById(Long id);
+
+    Optional<Company> findByIdAndUsers_Id(Long id, Long userId);
 }

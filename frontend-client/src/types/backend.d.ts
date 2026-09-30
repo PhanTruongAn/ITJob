@@ -63,6 +63,7 @@ export interface UserNextAuth {
   image?: string
   phone?: string
   address?: string
+  role?: string
   accessToken?: string
   refreshToken?: string
 }
@@ -80,6 +81,10 @@ export interface IAccountRes {
   avatar?: string
   phone?: string
   address?: string
+  role?: {
+    id: number
+    name: string
+  }
 }
 
 export interface IFile {

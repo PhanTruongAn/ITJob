@@ -27,6 +27,12 @@ axiosInstance.interceptors.request.use(async (config) => {
     config.headers.Authorization = `Bearer ${session.accessToken}`
   }
 
+  // If request payload is FormData, remove hardcoded Content-Type to let browser generate boundary
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"]
+    delete config.headers["content-type"]
+  }
+
   return config
 })
 
