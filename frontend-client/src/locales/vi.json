@@ -16,6 +16,8 @@
     "jobInvitations": "Lời mời làm việc",
     "emailSubscriptions": "Đăng ký nhận email",
     "notifications": "Thông báo",
+    "savedJobs": "Công việc đã lưu",
+    "savedCompanies": "Công ty đã lưu",
     "settings": "Cài đặt",
     "employer": "Nhà tuyển dụng",
     "welcome": "Xin chào"
@@ -59,6 +61,27 @@
     "viewDetail": "Xem chi tiết",
     "all": "Tất cả",
     "or": "hoặc"
+  },
+  "bookmarks": {
+    "savedJobs": "Công việc đã lưu",
+    "savedCompanies": "Công ty đã lưu",
+    "saveJob": "Lưu công việc",
+    "removeJob": "Bỏ lưu công việc",
+    "saveCompany": "Lưu công ty",
+    "removeCompany": "Bỏ lưu công ty",
+    "jobSaved": "Đã lưu công việc thành công.",
+    "jobRemoved": "Đã bỏ lưu công việc.",
+    "companySaved": "Đã lưu công ty thành công.",
+    "companyRemoved": "Đã bỏ lưu công ty.",
+    "jobError": "Không thể cập nhật danh sách công việc đã lưu. Vui lòng thử lại.",
+    "companyError": "Không thể cập nhật danh sách công ty đã lưu. Vui lòng thử lại.",
+    "stateError": "Không thể tải trạng thái đã lưu. Vui lòng thử lại sau.",
+    "jobsEmpty": "Bạn chưa lưu công việc nào.",
+    "companiesEmpty": "Bạn chưa lưu công ty nào.",
+    "loadJobsError": "Không thể tải danh sách công việc đã lưu.",
+    "loadCompaniesError": "Không thể tải danh sách công ty đã lưu.",
+    "retry": "Thử lại",
+    "negotiable": "Thỏa thuận"
   },
   "auth": {
     "loginTitle": "Đăng nhập",

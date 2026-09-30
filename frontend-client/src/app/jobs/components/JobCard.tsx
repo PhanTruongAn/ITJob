@@ -1,11 +1,12 @@
 "use client"
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import LocationOnIcon from "@mui/icons-material/LocationOn"
 import PaymentsIcon from "@mui/icons-material/Payments"
 import ScheduleIcon from "@mui/icons-material/Schedule"
 import WorkOutlineIcon from "@mui/icons-material/WorkOutline"
-import { Box, Chip, IconButton, Stack, Typography } from "@mui/material"
+import { Box, Chip, Stack, Typography } from "@mui/material"
 import { useRouter } from "next/navigation"
+import SavedItemButton from "@/components/SavedItemButton"
+import { ISavedJob } from "@/apis/bookmark/bookmark.types"
 
 const JOB_TYPE_LABELS: Record<string, string> = {
   FULL_TIME: "Full-time",
@@ -36,6 +37,7 @@ export interface JobCardProps {
   badge?: string
   jobType?: string
   level?: string
+  savedRecord?: ISavedJob
 }
 
 export default function JobCard({
@@ -50,6 +52,7 @@ export default function JobCard({
   badge,
   jobType,
   level,
+  savedRecord,
 }: JobCardProps) {
   const router = useRouter()
 
@@ -188,14 +191,17 @@ export default function JobCard({
             ))}
           </Stack>
         </Box>
-        <IconButton
-          sx={{
-            alignSelf: "flex-start",
-            "&:hover": { color: "primary.main" },
-          }}
-        >
-          <BookmarkBorderIcon />
-        </IconButton>
+        {id !== undefined && (
+          <SavedItemButton
+            kind="job"
+            resourceId={Number(id)}
+            savedRecordOverride={savedRecord}
+            sx={{
+              alignSelf: "flex-start",
+              "&:hover": { color: "primary.main" },
+            }}
+          />
+        )}
       </Stack>
     </Box>
   )

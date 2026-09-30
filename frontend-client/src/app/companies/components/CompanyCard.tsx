@@ -3,6 +3,8 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward"
 import StarIcon from "@mui/icons-material/Star"
 import { Box, Card, CardContent, IconButton, Typography } from "@mui/material"
 import { useRouter } from "next/navigation"
+import SavedItemButton from "@/components/SavedItemButton"
+import { ISavedCompany } from "@/apis/bookmark/bookmark.types"
 
 interface CompanyCardProps {
   id: number
@@ -14,6 +16,7 @@ interface CompanyCardProps {
   description?: string
   jobCount?: number
   badge?: string
+  savedRecord?: ISavedCompany
 }
 
 export default function CompanyCard({
@@ -26,6 +29,7 @@ export default function CompanyCard({
   description,
   jobCount,
   badge,
+  savedRecord,
 }: CompanyCardProps) {
   const router = useRouter()
 
@@ -147,19 +151,29 @@ export default function CompanyCard({
           )}
         </Box>
 
-        <Typography variant="body2" color="primary.main" fontWeight={500} mb={1.5}>
-          {industry || "Công nghệ thông tin"}
-        </Typography>
+        {industry && (
+          <Typography variant="body2" color="primary.main" fontWeight={500} mb={1.5}>
+            {industry}
+          </Typography>
+        )}
 
-        <Box display="flex" alignItems="center" gap={0.5} mb={2}>
-          <StarIcon sx={{ color: "warning.main", fontSize: 18 }} />
-          <Typography variant="body2" fontWeight="bold">
-            {rating ?? 4.5}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            ({(reviews ?? 120).toLocaleString()} đánh giá)
-          </Typography>
-        </Box>
+        {(rating !== undefined || reviews !== undefined) && (
+          <Box display="flex" alignItems="center" gap={0.5} mb={2}>
+            {rating !== undefined && (
+              <>
+                <StarIcon sx={{ color: "warning.main", fontSize: 18 }} />
+                <Typography variant="body2" fontWeight="bold">
+                  {rating}
+                </Typography>
+              </>
+            )}
+            {reviews !== undefined && (
+              <Typography variant="caption" color="text.secondary">
+                ({reviews.toLocaleString()} đánh giá)
+              </Typography>
+            )}
+          </Box>
+        )}
 
         <Typography
           variant="body2"
@@ -187,6 +201,11 @@ export default function CompanyCard({
           <Typography variant="body2" color="primary.main" fontWeight="bold">
             {jobCount ?? 0} việc làm đang tuyển
           </Typography>
+          <SavedItemButton
+            kind="company"
+            resourceId={id}
+            savedRecordOverride={savedRecord}
+          />
           <IconButton
             size="small"
             color="inherit"

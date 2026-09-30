@@ -9,4 +9,5 @@ export const API_PATHS = {
   FOLLOW: "/api/v1/follows/companies",
   REVIEW: "/api/v1/reviews",
   PUBLIC_REVIEW: "/api/v1/public/reviews/companies",
+  BOOKMARKS: "/api/v1/bookmarks",
 }

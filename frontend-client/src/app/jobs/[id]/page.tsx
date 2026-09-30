@@ -57,7 +57,6 @@ export default function JobDetailPage() {
   const [similarJobs, setSimilarJobs] = useState<IJob[]>([])
   const [loading, setLoading] = useState(true)
 
-  const [isBookmarked, setIsBookmarked] = useState(false)
   const [isApplied, setIsApplied] = useState(false)
   const [openApplyModal, setOpenApplyModal] = useState(false)
 
@@ -276,10 +275,9 @@ export default function JobDetailPage() {
               {/* Header */}
               {headerJob && (
                 <JobDetailHeader
+                  jobId={job.id}
                   job={headerJob}
-                  isBookmarked={isBookmarked}
                   isApplied={isApplied}
-                  onBookmarkToggle={() => setIsBookmarked(!isBookmarked)}
                   onApply={handleApplyClick}
                 />
               )}

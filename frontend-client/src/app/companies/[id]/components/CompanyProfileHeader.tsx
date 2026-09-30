@@ -13,8 +13,10 @@ import Rating from "@mui/material/Rating"
 import Stack from "@mui/material/Stack"
 import Typography from "@mui/material/Typography"
 import { COMPANY_TYPE_LABEL } from "../../constants"
+import SavedItemButton from "@/components/SavedItemButton"
 
 interface CompanyProfileHeaderProps {
+  companyId: number
   name: string
   logo: string
   tagline: string
@@ -32,6 +34,7 @@ interface CompanyProfileHeaderProps {
 }
 
 export default function CompanyProfileHeader({
+  companyId,
   name,
   logo,
   tagline,
@@ -222,6 +225,20 @@ export default function CompanyProfileHeader({
           flexShrink={0}
           width={{ xs: "100%", md: "auto" }}
         >
+          <SavedItemButton
+            kind="company"
+            resourceId={companyId}
+            showLabel
+            sx={{
+              px: 2,
+              py: 1.2,
+              fontWeight: "bold",
+              borderRadius: 2,
+              border: "1px solid",
+              borderColor: "divider",
+              flex: { xs: 1, md: "none" },
+            }}
+          />
           <Button
             variant={isFollowing ? "outlined" : "contained"}
             color="primary"

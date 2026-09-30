@@ -16,6 +16,8 @@
     "jobInvitations": "Job Invitations",
     "emailSubscriptions": "Email Subscriptions",
     "notifications": "Notifications",
+    "savedJobs": "Saved Jobs",
+    "savedCompanies": "Saved Companies",
     "settings": "Settings",
     "employer": "For Employers",
     "welcome": "Welcome"
@@ -59,6 +61,27 @@
     "viewDetail": "View Detail",
     "all": "All",
     "or": "or"
+  },
+  "bookmarks": {
+    "savedJobs": "Saved jobs",
+    "savedCompanies": "Saved companies",
+    "saveJob": "Save job",
+    "removeJob": "Remove from saved jobs",
+    "saveCompany": "Save company",
+    "removeCompany": "Remove from saved companies",
+    "jobSaved": "Job saved successfully.",
+    "jobRemoved": "Job removed from saved jobs.",
+    "companySaved": "Company saved successfully.",
+    "companyRemoved": "Company removed from saved companies.",
+    "jobError": "Unable to update saved jobs. Please try again.",
+    "companyError": "Unable to update saved companies. Please try again.",
+    "stateError": "Saved status could not be loaded. Please try again later.",
+    "jobsEmpty": "You have not saved any jobs yet.",
+    "companiesEmpty": "You have not saved any companies yet.",
+    "loadJobsError": "Saved jobs could not be loaded.",
+    "loadCompaniesError": "Saved companies could not be loaded.",
+    "retry": "Retry",
+    "negotiable": "Negotiable"
   },
   "auth": {
     "loginTitle": "Sign In",

@@ -1,6 +1,4 @@
 "use client"
-import BookmarkIcon from "@mui/icons-material/Bookmark"
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import BusinessIcon from "@mui/icons-material/Business"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
@@ -17,11 +15,11 @@ import {
   Button,
   Card,
   Chip,
-  IconButton,
   Link,
   Stack,
   Typography,
 } from "@mui/material"
+import SavedItemButton from "@/components/SavedItemButton"
 
 const JOB_TYPE_LABELS: Record<string, string> = {
   FULL_TIME: "Full-time",
@@ -51,18 +49,16 @@ interface JobDetails {
 }
 
 interface JobDetailHeaderProps {
+  jobId: number
   job: JobDetails
-  isBookmarked: boolean
   isApplied?: boolean
-  onBookmarkToggle: () => void
   onApply: () => void
 }
 
 export default function JobDetailHeader({
+  jobId,
   job,
-  isBookmarked,
   isApplied = false,
-  onBookmarkToggle,
   onApply,
 }: JobDetailHeaderProps) {
   const isExpired = job.endDate ? new Date(job.endDate).getTime() < Date.now() : false
@@ -344,26 +340,17 @@ export default function JobDetailHeader({
                 ? "Đã hết hạn tuyển dụng"
                 : "Apply Now"}
             </Button>
-            <IconButton
-              onClick={onBookmarkToggle}
+            <SavedItemButton
+              kind="job"
+              resourceId={jobId}
               sx={{
                 border: "1px solid",
                 borderColor: "divider",
                 borderRadius: 2,
-                color: isBookmarked ? "error.main" : "text.secondary",
-                bgcolor: isBookmarked
-                  ? "rgba(220, 38, 38, 0.05)"
-                  : "transparent",
                 p: 1.5,
-                "&:hover": {
-                  bgcolor: isBookmarked
-                    ? "rgba(220, 38, 38, 0.1)"
-                    : "action.hover",
-                },
+                "&:hover": { bgcolor: "action.hover" },
               }}
-            >
-              {isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-            </IconButton>
+            />
           </Stack>
         </Box>
       </Card>
