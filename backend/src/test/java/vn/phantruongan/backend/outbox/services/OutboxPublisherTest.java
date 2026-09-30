@@ -23,6 +23,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.core.ReturnedMessage;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -66,15 +69,27 @@ class OutboxPublisherTest {
 
         ArgumentCaptor<RecommendationEmailMessage> messageCaptor =
                 ArgumentCaptor.forClass(RecommendationEmailMessage.class);
+        ArgumentCaptor<MessagePostProcessor> postProcessorCaptor =
+                ArgumentCaptor.forClass(MessagePostProcessor.class);
         verify(rabbitTemplate).convertAndSend(
                 eq(RabbitMQConfig.EXCHANGE_RECOMMENDATION_EMAIL),
                 eq(RabbitMQConfig.ROUTING_KEY_RECOMMENDATION_EMAIL),
                 messageCaptor.capture(),
+                postProcessorCaptor.capture(),
                 any(CorrelationData.class));
         assertEquals(5L, messageCaptor.getValue().getSubscriberId());
         assertEquals("candidate@example.test", messageCaptor.getValue().getSubscriberEmail());
         assertEquals("Candidate", messageCaptor.getValue().getSubscriberName());
         assertEquals(List.of(91L, 92L), messageCaptor.getValue().getRecommendationIds());
+        Message outbound = postProcessorCaptor.getValue()
+                .postProcessMessage(new Message(new byte[0], new MessageProperties()));
+        assertEquals("recommendation-email-outbox-17", outbound.getMessageProperties().getMessageId());
+        assertEquals("17", outbound.getMessageProperties().getHeaders()
+                .get(RabbitMQConfig.HEADER_OUTBOX_EVENT_ID));
+        assertEquals(1, outbound.getMessageProperties().getHeaders()
+                .get(RabbitMQConfig.HEADER_EMAIL_ATTEMPT));
+        assertEquals(RabbitMQConfig.ROUTING_KEY_RECOMMENDATION_EMAIL,
+                outbound.getMessageProperties().getHeaders().get(RabbitMQConfig.HEADER_ORIGINAL_ROUTING_KEY));
         verify(outboxEventService).markPublished(17L, event.getClaimToken());
         verify(outboxEventService, never()).scheduleRetry(anyLong(), any(), any(), anyString());
     }
@@ -89,11 +104,12 @@ class OutboxPublisherTest {
             if (message.getSubscriberId() == 5L) {
                 throw new IllegalStateException("broker unavailable");
             }
-            CorrelationData correlationData = invocation.getArgument(3);
+            CorrelationData correlationData = invocation.getArgument(4);
             correlationData.getFuture().complete(new CorrelationData.Confirm(true, null));
             return null;
         }).when(rabbitTemplate).convertAndSend(
-                anyString(), anyString(), any(RecommendationEmailMessage.class), any(CorrelationData.class));
+                anyString(), anyString(), any(RecommendationEmailMessage.class), any(MessagePostProcessor.class),
+                any(CorrelationData.class));
 
         Instant before = Instant.now();
         publisher.publishPendingEvents();
@@ -133,11 +149,12 @@ class OutboxPublisherTest {
         when(correlationData.getReturned()).thenReturn(returned);
         doReturn(correlationData).when(publisher).createCorrelationData(event);
         doAnswer(invocation -> {
-            CorrelationData sentCorrelationData = invocation.getArgument(3);
+            CorrelationData sentCorrelationData = invocation.getArgument(4);
             sentCorrelationData.getFuture().complete(new CorrelationData.Confirm(true, null));
             return null;
         }).when(rabbitTemplate).convertAndSend(
-                anyString(), anyString(), any(RecommendationEmailMessage.class), any(CorrelationData.class));
+                anyString(), anyString(), any(RecommendationEmailMessage.class), any(MessagePostProcessor.class),
+                any(CorrelationData.class));
 
         publisher.publishPendingEvents();
 
@@ -156,7 +173,8 @@ class OutboxPublisherTest {
         verify(outboxEventService).claimDueEvents(eq(10), leaseCaptor.capture());
         assertEquals(120, leaseCaptor.getValue().toSeconds());
         verify(rabbitTemplate, never()).convertAndSend(
-                anyString(), anyString(), any(RecommendationEmailMessage.class), any(CorrelationData.class));
+                anyString(), anyString(), any(RecommendationEmailMessage.class), any(MessagePostProcessor.class),
+                any(CorrelationData.class));
     }
 
     @Test
@@ -180,12 +198,13 @@ class OutboxPublisherTest {
 
     private void confirmPublishes(boolean ack) {
         doAnswer(invocation -> {
-            CorrelationData correlationData = invocation.getArgument(3);
+            CorrelationData correlationData = invocation.getArgument(4);
             correlationData.getFuture().complete(new CorrelationData.Confirm(ack,
                     ack ? null : "negative confirmation"));
             return null;
         }).when(rabbitTemplate).convertAndSend(
-                anyString(), anyString(), any(RecommendationEmailMessage.class), any(CorrelationData.class));
+                anyString(), anyString(), any(RecommendationEmailMessage.class), any(MessagePostProcessor.class),
+                any(CorrelationData.class));
     }
 
     private OutboxEvent event(long id, long subscriberId, int retryCount) {

@@ -9,6 +9,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -29,6 +30,12 @@ public class RabbitMQConfig {
     public static final String QUEUE_RECOMMENDATION_EMAIL_DLQ = "recommendation.email.queue.dlq";
     public static final String EXCHANGE_RECOMMENDATION_EMAIL_DLQ = "recommendation.email.exchange.dlq";
     public static final String QUEUE_RECOMMENDATION_EMAIL_RETRY = "recommendation.email.retry.queue";
+    public static final String HEADER_OUTBOX_EVENT_ID = "x-outbox-event-id";
+    public static final String HEADER_EMAIL_ATTEMPT = "x-email-attempt";
+    public static final String HEADER_ORIGINAL_ROUTING_KEY = "x-original-routing-key";
+    public static final String HEADER_FAILURE_CATEGORY = "x-itjob-failure-category";
+    public static final String HEADER_FAILURE_REASON = "x-itjob-failure-reason";
+    public static final String HEADER_FAILURE_AT = "x-itjob-failure-at";
 
     // DLQ Exchange & Queue
 
@@ -86,7 +93,7 @@ public class RabbitMQConfig {
 
     @Bean
     public Binding bindingRecommendationEmail(
-            Queue recommendationEmailQueue,
+            @Qualifier("recommendationEmailQueue") Queue recommendationEmailQueue,
             TopicExchange recommendationEmailExchange) {
         return BindingBuilder.bind(recommendationEmailQueue)
                 .to(recommendationEmailExchange)

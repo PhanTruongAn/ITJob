@@ -73,6 +73,16 @@ public class OutboxPublisher {
                     RabbitMQConfig.EXCHANGE_RECOMMENDATION_EMAIL,
                     RabbitMQConfig.ROUTING_KEY_RECOMMENDATION_EMAIL,
                     message,
+                    outgoing -> {
+                        String eventId = event.getId().toString();
+                        outgoing.getMessageProperties().setMessageId("recommendation-email-outbox-" + eventId);
+                        outgoing.getMessageProperties().setHeader(RabbitMQConfig.HEADER_OUTBOX_EVENT_ID, eventId);
+                        outgoing.getMessageProperties().setHeader(RabbitMQConfig.HEADER_EMAIL_ATTEMPT, 1);
+                        outgoing.getMessageProperties().setHeader(
+                                RabbitMQConfig.HEADER_ORIGINAL_ROUTING_KEY,
+                                RabbitMQConfig.ROUTING_KEY_RECOMMENDATION_EMAIL);
+                        return outgoing;
+                    },
                     correlationData);
 
             CorrelationData.Confirm confirm = correlationData.getFuture()
@@ -87,7 +97,7 @@ public class OutboxPublisher {
             }
 
             // A crash after this broker confirmation and before the database update can cause a republish.
-            // This is at-least-once delivery; consumer idempotency is handled in a later phase.
+            // The consumer ledger suppresses duplicate sends when its delivery state is known.
             if (!outboxEventService.markPublished(event.getId(), event.getClaimToken())) {
                 log.warn("Outbox event {} was confirmed but its claim expired before it could be marked published",
                         event.getId());
