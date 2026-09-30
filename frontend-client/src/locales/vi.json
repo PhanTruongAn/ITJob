@@ -113,7 +113,10 @@
       "REJECTED": "Từ chối"
     },
     "recommendedJobs": "Công việc phù hợp với bạn",
-    "recommendationsUnavailable": "Hiện chưa có gợi ý việc làm cá nhân hóa.",
+    "loadingRecommendations": "Đang tải gợi ý việc làm",
+    "recommendationsLoadError": "Không thể tải danh sách gợi ý.",
+    "noRecommendations": "Hiện chưa có gợi ý việc làm dành cho bạn.",
+    "matchScore": "Phù hợp {{score}}%",
     "browseJobs": "Tìm việc"
   },
   "auth": {

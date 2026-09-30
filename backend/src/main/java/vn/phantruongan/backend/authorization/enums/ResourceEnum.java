@@ -22,6 +22,7 @@ public enum ResourceEnum {
     SKILL("Kỹ năng", "/skills"),
     COUNTRY("Quốc gia", "/countries"),
     RECOMMENDATION("Gợi ý công việc", "/recommendations"),
+    CANDIDATE_RECOMMENDATION("Gợi ý việc làm cho ứng viên", "/recommendations/candidate"),
     COMPANY_FOLLOW("Theo dõi công ty", "/follows/companies"),
     CANDIDATE_CV("Quản lý CV tương tác", "/candidate/cvs");
 

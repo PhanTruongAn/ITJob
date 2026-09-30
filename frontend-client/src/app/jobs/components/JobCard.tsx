@@ -5,8 +5,10 @@ import ScheduleIcon from "@mui/icons-material/Schedule"
 import WorkOutlineIcon from "@mui/icons-material/WorkOutline"
 import { Box, Chip, Stack, Typography } from "@mui/material"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import SavedItemButton from "@/components/SavedItemButton"
 import { ISavedJob } from "@/apis/bookmark/bookmark.types"
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome"
 
 const JOB_TYPE_LABELS: Record<string, string> = {
   FULL_TIME: "Full-time",
@@ -38,6 +40,7 @@ export interface JobCardProps {
   jobType?: string
   level?: string
   savedRecord?: ISavedJob
+  compact?: boolean
 }
 
 export default function JobCard({
@@ -53,8 +56,152 @@ export default function JobCard({
   jobType,
   level,
   savedRecord,
+  compact = false,
 }: JobCardProps) {
   const router = useRouter()
+  const visibleTags = tags?.filter(Boolean).slice(0, 3) ?? []
+  const remainingTagCount = Math.max((tags?.filter(Boolean).length ?? 0) - visibleTags.length, 0)
+
+  if (compact) {
+    return (
+      <Box
+        sx={{
+          p: 1.75,
+          border: 1,
+          borderColor: "divider",
+          borderRadius: 2,
+          bgcolor: (theme) =>
+            theme.palette.mode === "dark" ? "grey.900" : "rgb(253, 251, 245)",
+          transition: "border-color 0.2s, box-shadow 0.2s",
+          "&:hover": { borderColor: "primary.light", boxShadow: 1 },
+        }}
+      >
+        <Stack direction="row" spacing={1.5} alignItems="flex-start">
+          <Box
+            sx={{
+              width: 54,
+              height: 54,
+              bgcolor: "common.white",
+              border: 1,
+              borderColor: "divider",
+              borderRadius: 1.5,
+              overflow: "hidden",
+              flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              p: companyLogo ? 0.5 : 0,
+            }}
+          >
+            {companyLogo ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={companyLogo}
+                alt={company}
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              />
+            ) : (
+              <WorkOutlineIcon sx={{ color: "grey.400", fontSize: 25 }} />
+            )}
+          </Box>
+
+          <Box flex={1} minWidth={0}>
+            <Stack direction="row" spacing={1} alignItems="flex-start">
+              <Box flex={1} minWidth={0}>
+                <Typography
+                  component={Link}
+                  href={`/jobs/${id ?? 1}`}
+                  variant="subtitle1"
+                  fontWeight={700}
+                  color="text.primary"
+                  sx={{
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: 2,
+                    overflow: "hidden",
+                    lineHeight: 1.35,
+                    textDecoration: "none",
+                    "&:hover": { color: "primary.main" },
+                  }}
+                >
+                  {title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" noWrap sx={{ mt: 0.25 }}>
+                  {company}
+                </Typography>
+              </Box>
+              {id !== undefined && (
+                <SavedItemButton
+                  kind="job"
+                  resourceId={Number(id)}
+                  savedRecordOverride={savedRecord}
+                  sx={{ flexShrink: 0, mt: -0.5, mr: -0.75 }}
+                />
+              )}
+            </Stack>
+
+            <Stack
+              direction="row"
+              alignItems="center"
+              flexWrap="wrap"
+              columnGap={1.5}
+              rowGap={0.5}
+              sx={{ mt: 1 }}
+            >
+              <Stack direction="row" spacing={0.5} alignItems="center" minWidth={0}>
+                <PaymentsIcon fontSize="small" color="action" />
+                <Typography variant="caption" color="success.main" noWrap>
+                  {salary}
+                </Typography>
+              </Stack>
+              <Stack direction="row" spacing={0.5} alignItems="center" minWidth={0}>
+                <LocationOnIcon fontSize="small" color="action" />
+                <Typography variant="caption" color="text.secondary" noWrap>
+                  {location}
+                </Typography>
+              </Stack>
+              {timeAgo && (
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <AutoAwesomeIcon fontSize="small" color="action" />
+                  <Typography variant="caption" color="text.secondary" noWrap>
+                    {timeAgo}
+                  </Typography>
+                </Stack>
+              )}
+            </Stack>
+
+            <Stack direction="row" flexWrap="wrap" gap={0.75} sx={{ mt: 1 }}>
+              {jobType && (
+                <Chip
+                  label={JOB_TYPE_LABELS[jobType] ?? jobType}
+                  size="small"
+                  sx={{ height: 24, bgcolor: "primary.light", color: "primary.main", fontWeight: 600 }}
+                />
+              )}
+              {level && (
+                <Chip
+                  label={level}
+                  size="small"
+                  sx={{ height: 24, bgcolor: LEVEL_COLORS[level] ?? "grey.100", color: "text.primary" }}
+                />
+              )}
+              {visibleTags.map((tag, index) => (
+                <Chip
+                  key={`${tag}-${index}`}
+                  label={tag}
+                  size="small"
+                  sx={{ height: 24, bgcolor: "grey.100", color: "text.primary" }}
+                />
+              ))}
+              {remainingTagCount > 0 && (
+                <Chip label={`+${remainingTagCount}`} size="small" sx={{ height: 24 }} />
+              )}
+            </Stack>
+          </Box>
+        </Stack>
+      </Box>
+    )
+  }
 
   return (
     <Box

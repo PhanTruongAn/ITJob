@@ -5,4 +5,5 @@ export const QUERY_KEYS = Object.freeze({
   FOLLOW_MODULE: "follows",
   REVIEW_MODULE: "reviews",
   BOOKMARK_MODULE: "bookmarks",
+  RECOMMENDATION_MODULE: "recommendations",
 })

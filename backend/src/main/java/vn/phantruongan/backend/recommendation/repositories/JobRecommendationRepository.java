@@ -27,6 +27,14 @@ public interface JobRecommendationRepository
     @Query("SELECT r FROM JobRecommendation r WHERE r.subscriber.id = :subscriberId")
     Page<JobRecommendation> findAllBySubscriberId(@Param("subscriberId") Long subscriberId, Pageable pageable);
 
+    @Query(value = "SELECT r FROM JobRecommendation r " +
+            "JOIN FETCH r.job j LEFT JOIN FETCH j.company " +
+            "WHERE r.subscriber.id = :subscriberId AND j.isActive = true",
+            countQuery = "SELECT COUNT(r) FROM JobRecommendation r " +
+                    "JOIN r.job j WHERE r.subscriber.id = :subscriberId AND j.isActive = true")
+    Page<JobRecommendation> findCandidateVisibleBySubscriberId(
+            @Param("subscriberId") Long subscriberId, Pageable pageable);
+
     boolean existsBySubscriber_IdAndJob_Id(Long subscriberId, Long jobId);
 
     long countBySubscriber_IdAndStatus(Long subscriberId, RecommendationStatus status);

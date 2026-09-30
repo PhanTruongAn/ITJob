@@ -21,6 +21,7 @@ import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 import vn.phantruongan.backend.authorization.repositories.PermissionRepository;
 import vn.phantruongan.backend.authorization.repositories.RolePermissionRepository;
 import vn.phantruongan.backend.authorization.repositories.RoleRepository;
+import vn.phantruongan.backend.config.web.ApiPaths;
 
 @Component
 @RequiredArgsConstructor
@@ -50,6 +51,8 @@ public class FollowPermissionInitializer {
         ensurePermission(followPermissions, ResourceEnum.COMPANY_FOLLOW, ActionEnum.CREATE, MethodEnum.POST, "/api/v1/follows/companies");
         ensurePermission(followPermissions, ResourceEnum.COMPANY_FOLLOW, ActionEnum.READ, MethodEnum.GET, "/api/v1/follows/companies");
         ensurePermission(followPermissions, ResourceEnum.COMPANY_FOLLOW, ActionEnum.READ, MethodEnum.GET, "/api/v1/follows/companies/{companyId}/status");
+        ensurePermission(followPermissions, ResourceEnum.CANDIDATE_RECOMMENDATION, ActionEnum.READ,
+                MethodEnum.GET, ApiPaths.RECOMMENDATIONS + "/candidate");
 
         if (!followPermissions.isEmpty()) {
             permissionRepository.saveAll(followPermissions);
@@ -61,7 +64,8 @@ public class FollowPermissionInitializer {
                 ResourceEnum.COMPANY_FOLLOW,
                 ResourceEnum.COMPANY_REVIEW,
                 ResourceEnum.JOB_SAVED,
-                ResourceEnum.COMPANY_SAVED);
+                ResourceEnum.COMPANY_SAVED,
+                ResourceEnum.CANDIDATE_RECOMMENDATION);
 
         int linkedCount = 0;
         for (ResourceEnum res : resources) {

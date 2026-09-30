@@ -113,7 +113,10 @@
       "REJECTED": "Rejected"
     },
     "recommendedJobs": "Jobs you may like",
-    "recommendationsUnavailable": "Personalized recommendations are not available yet.",
+    "loadingRecommendations": "Loading recommendations",
+    "recommendationsLoadError": "Recommendations could not be loaded.",
+    "noRecommendations": "There are no recommendations for you yet.",
+    "matchScore": "{{score}}% match",
     "browseJobs": "Browse Jobs"
   },
   "auth": {
