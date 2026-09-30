@@ -2,12 +2,14 @@
 import SearchIcon from "@mui/icons-material/Search"
 import { Box, Button, Grid, Stack, Typography } from "@mui/material"
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
 
 interface WelcomeBannerProps {
   userName?: string | null
 }
 
 export default function WelcomeBanner({ userName }: WelcomeBannerProps) {
+  const { t } = useTranslation()
   return (
     <Box
       sx={{
@@ -58,7 +60,7 @@ export default function WelcomeBanner({ userName }: WelcomeBannerProps) {
             variant="body2"
             sx={{ opacity: 0.8, fontWeight: 600, mb: 1, letterSpacing: 0.5 }}
           >
-            CANDIDATE DASHBOARD
+            {t("dashboard.title")}
           </Typography>
           <Typography
             variant="h3"
@@ -71,14 +73,15 @@ export default function WelcomeBanner({ userName }: WelcomeBannerProps) {
               WebkitTextFillColor: "transparent",
             }}
           >
-            👋🏻 Welcome back, {userName || "Phan Trường An"}!
+            {t("dashboard.welcomeBack", {
+              name: userName || t("dashboard.candidate"),
+            })}
           </Typography>
           <Typography
             variant="body1"
             sx={{ opacity: 0.8, maxWidth: 600, mb: 3 }}
           >
-            Here&apos;s an overview of your job search progress. Update your
-            profile info and review application updates below.
+            {t("dashboard.description")}
           </Typography>
           <Stack direction="row" spacing={2}>
             <Button
@@ -93,7 +96,7 @@ export default function WelcomeBanner({ userName }: WelcomeBannerProps) {
                 borderRadius: 2,
               }}
             >
-              Find Jobs
+              {t("dashboard.findJobs")}
             </Button>
             <Button
               component={Link}
@@ -112,7 +115,7 @@ export default function WelcomeBanner({ userName }: WelcomeBannerProps) {
                 },
               }}
             >
-              Update Profile
+              {t("dashboard.updateProfile")}
             </Button>
           </Stack>
         </Grid>

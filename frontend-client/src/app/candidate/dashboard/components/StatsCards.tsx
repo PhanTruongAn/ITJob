@@ -1,42 +1,80 @@
 "use client"
+
+import { useSavedItemIndex } from "@/apis/bookmark/bookmark.hooks"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import FavoriteIcon from "@mui/icons-material/Favorite"
 import MailIcon from "@mui/icons-material/Mail"
 import SendIcon from "@mui/icons-material/Send"
-import { Box, Card, CardActionArea, Grid, Typography } from "@mui/material"
+import {
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CircularProgress,
+  Grid,
+  Typography,
+} from "@mui/material"
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
 
 interface StatsCardsProps {
   appliedCount?: number
-  savedCount?: number
-  invitationCount?: number
+  appliedLoading: boolean
+  appliedError: boolean
+  retryApplications: () => void
 }
 
 export default function StatsCards({
-  appliedCount = 3,
-  savedCount = 0,
-  invitationCount = 0,
+  appliedCount,
+  appliedLoading,
+  appliedError,
+  retryApplications,
 }: StatsCardsProps) {
+  const { t } = useTranslation()
+  const savedJobsQuery = useSavedItemIndex("job")
+  const savedCompaniesQuery = useSavedItemIndex("company")
+
   const cards = [
     {
-      label: "Applied Jobs",
+      key: "applications",
+      label: t("dashboard.appliedJobs"),
       count: appliedCount,
-      href: "/candidate/my-jobs?status=applied",
+      isLoading: appliedLoading,
+      isError: appliedError,
+      onRetry: retryApplications,
+      href: "/candidate/my-jobs",
       icon: <SendIcon fontSize="small" />,
       iconBg: "#cee4fe",
       iconColor: "#0a4c9c",
     },
     {
-      label: "Saved Jobs",
-      count: savedCount,
-      href: "/candidate/my-jobs",
+      key: "savedJobs",
+      label: t("dashboard.savedJobs"),
+      count: savedJobsQuery.data?.length,
+      isLoading: savedJobsQuery.isLoading,
+      isError: savedJobsQuery.isError,
+      onRetry: () => void savedJobsQuery.refetch(),
+      href: "/candidate/saved-jobs",
       icon: <FavoriteIcon fontSize="small" />,
       iconBg: "#fab2b2ff",
       iconColor: "#991b1b",
     },
     {
-      label: "Job invitations",
-      count: invitationCount,
+      key: "savedCompanies",
+      label: t("dashboard.savedCompanies"),
+      count: savedCompaniesQuery.data?.length,
+      isLoading: savedCompaniesQuery.isLoading,
+      isError: savedCompaniesQuery.isError,
+      onRetry: () => void savedCompaniesQuery.refetch(),
+      href: "/candidate/saved-companies",
+      icon: <FavoriteIcon fontSize="small" />,
+      iconBg: "#e9d5ff",
+      iconColor: "#6b21a8",
+    },
+    {
+      key: "invitations",
+      label: t("dashboard.invitations"),
+      unavailable: true,
       href: "/candidate/job-invitations",
       icon: <MailIcon fontSize="small" />,
       iconBg: "#d4f7d4ff",
@@ -47,7 +85,7 @@ export default function StatsCards({
   return (
     <Grid container spacing={3} mb={4}>
       {cards.map((card) => (
-        <Grid item xs={12} sm={4} key={card.label}>
+        <Grid item xs={12} sm={6} key={card.key}>
           <Card
             sx={{
               borderRadius: 3,
@@ -84,7 +122,15 @@ export default function StatsCards({
                 />
               </Box>
               <Typography variant="h3" fontWeight={900} color="text.primary">
-                {card.count}
+                {card.unavailable ? (
+                  "—"
+                ) : card.isLoading ? (
+                  <CircularProgress size={24} />
+                ) : card.isError || card.count === undefined ? (
+                  "—"
+                ) : (
+                  card.count
+                )}
               </Typography>
               <Typography
                 variant="body2"
@@ -94,7 +140,22 @@ export default function StatsCards({
               >
                 {card.label}
               </Typography>
+              {card.unavailable && (
+                <Typography variant="caption" color="text.secondary">
+                  {t("dashboard.notAvailable")}
+                </Typography>
+              )}
             </CardActionArea>
+            {!card.unavailable && card.isError && (
+              <Box px={2} pb={1.5}>
+                <Typography variant="caption" color="error.main" display="block">
+                  {t("dashboard.countLoadError")}
+                </Typography>
+                <Button size="small" onClick={card.onRetry}>
+                  {t("dashboard.retry")}
+                </Button>
+              </Box>
+            )}
           </Card>
         </Grid>
       ))}

@@ -1,13 +1,13 @@
 "use client"
-import { AppStatus, statusConfig } from "@/app/candidate/commons/types"
+
+import { IResume } from "@/types/backend"
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward"
-import LocationOnIcon from "@mui/icons-material/LocationOn"
-import PaymentsIcon from "@mui/icons-material/Payments"
 import {
   Avatar,
   Box,
   Button,
   Chip,
+  CircularProgress,
   Divider,
   List,
   ListItem,
@@ -16,25 +16,31 @@ import {
   Typography,
 } from "@mui/material"
 import Link from "next/link"
-
-export interface RecentApplication {
-  id: number
-  jobTitle: string
-  company: string
-  logo: string
-  location: string
-  appliedTime: string
-  salary?: string
-  status: AppStatus
-}
+import { useTranslation } from "react-i18next"
 
 interface RecentApplicationsProps {
-  applications: RecentApplication[]
+  applications: IResume[]
+  isLoading: boolean
+  isError: boolean
+  onRetry: () => void
+}
+
+const statusColors: Record<IResume["status"], { color: string; bg: string }> = {
+  PENDING: { color: "#0369a1", bg: "#e0f2fe" },
+  REVIEWING: { color: "#334155", bg: "#f1f5f9" },
+  APPROVED: { color: "#166534", bg: "#dcfce7" },
+  REJECTED: { color: "#991b1b", bg: "#fee2e2" },
 }
 
 export default function RecentApplications({
   applications,
+  isLoading,
+  isError,
+  onRetry,
 }: RecentApplicationsProps) {
+  const { t, i18n } = useTranslation()
+  const locale = i18n.resolvedLanguage?.startsWith("en") ? "en-US" : "vi-VN"
+
   return (
     <Paper
       sx={{
@@ -52,7 +58,7 @@ export default function RecentApplications({
         mb={3}
       >
         <Typography variant="h6" fontWeight="bold" color="primary.main">
-          Recent Applications
+          {t("dashboard.recentApplications")}
         </Typography>
         <Button
           component={Link}
@@ -61,121 +67,117 @@ export default function RecentApplications({
           endIcon={<ArrowForwardIcon fontSize="small" />}
           sx={{ fontWeight: "bold" }}
         >
-          View All
+          {t("dashboard.viewAll")}
         </Button>
       </Box>
 
-      <List disablePadding>
-        {applications.map((app, index) => {
-          const statusDetail = statusConfig[app.status]
-          return (
-            <Box key={app.id}>
-              {index > 0 && <Divider sx={{ my: 2 }} />}
-              <ListItem
-                disableGutters
-                sx={{
-                  display: "flex",
-                  flexDirection: { xs: "column", sm: "row" },
-                  alignItems: { xs: "flex-start", sm: "center" },
-                  gap: 2,
-                  p: 1,
-                  borderRadius: 2,
-                  "&:hover": {
-                    bgcolor: (t) =>
-                      t.palette.mode === "dark"
-                        ? "rgba(255,255,255,0.03)"
-                        : "grey.50",
-                  },
-                  transition: "bgcolor 0.2s ease",
-                }}
-              >
-                {/* Logo */}
-                <Avatar
-                  src={app.logo}
-                  variant="rounded"
-                  sx={{
-                    width: 48,
-                    height: 48,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    bgcolor: "white",
-                    p: 0.5,
-                  }}
-                />
+      {isLoading ? (
+        <Box display="flex" justifyContent="center" py={4}>
+          <CircularProgress size={28} />
+        </Box>
+      ) : isError ? (
+        <Box textAlign="center" py={2}>
+          <Typography color="error.main" mb={1}>
+            {t("dashboard.applicationsLoadError")}
+          </Typography>
+          <Button onClick={onRetry}>{t("dashboard.retry")}</Button>
+        </Box>
+      ) : applications.length === 0 ? (
+        <Box textAlign="center" py={3}>
+          <Typography color="text.secondary">
+            {t("dashboard.noApplications")}
+          </Typography>
+          <Button component={Link} href="/jobs" sx={{ mt: 1 }}>
+            {t("dashboard.findJobs")}
+          </Button>
+        </Box>
+      ) : (
+        <List disablePadding>
+          {applications.map((application, index) => {
+            const status = statusColors[application.status]
+            const appliedDate = application.createdAt
+              ? new Date(application.createdAt)
+              : undefined
+            const formattedDate =
+              appliedDate && !Number.isNaN(appliedDate.getTime())
+                ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(
+                    appliedDate,
+                  )
+                : t("dashboard.dateUnavailable")
 
-                {/* Job Title & Company */}
-                <Box flexGrow={1}>
-                  <Typography
-                    variant="body1"
-                    fontWeight="bold"
-                    color="text.primary"
-                  >
-                    {app.jobTitle}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {app.company}
-                  </Typography>
-                  <Stack
-                    direction="row"
-                    spacing={2}
-                    alignItems="center"
-                    mt={0.5}
-                  >
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      display="flex"
-                      alignItems="center"
-                      gap={0.5}
-                    >
-                      <LocationOnIcon sx={{ fontSize: "0.9rem" }} />{" "}
-                      {app.location}
-                    </Typography>
-                    {app.salary && (
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        display="flex"
-                        alignItems="center"
-                        gap={0.5}
-                      >
-                        <PaymentsIcon sx={{ fontSize: "0.9rem" }} />{" "}
-                        {app.salary}
-                      </Typography>
-                    )}
-                  </Stack>
-                </Box>
-
-                {/* Right Details: Time & Status */}
-                <Box
+            return (
+              <Box key={application.id}>
+                {index > 0 && <Divider sx={{ my: 2 }} />}
+                <ListItem
+                  disableGutters
                   sx={{
                     display: "flex",
-                    flexDirection: "column",
-                    alignItems: { xs: "flex-start", sm: "flex-end" },
-                    gap: 1,
-                    mt: { xs: 1, sm: 0 },
-                    width: { xs: "100%", sm: "auto" },
+                    flexDirection: { xs: "column", sm: "row" },
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    gap: 2,
+                    p: 1,
+                    borderRadius: 2,
+                    "&:hover": {
+                      bgcolor: (theme) =>
+                        theme.palette.mode === "dark"
+                          ? "rgba(255,255,255,0.03)"
+                          : "grey.50",
+                    },
+                    transition: "bgcolor 0.2s ease",
                   }}
                 >
-                  <Typography variant="caption" color="text.secondary">
-                    Applied {app.appliedTime}
-                  </Typography>
-                  <Chip
-                    label={statusDetail.label}
-                    size="small"
+                  <Avatar
+                    src={application.companyLogo || undefined}
+                    variant="rounded"
                     sx={{
-                      color: statusDetail.color,
-                      bgcolor: statusDetail.bg,
-                      fontWeight: "bold",
-                      borderRadius: 1.5,
+                      width: 48,
+                      height: 48,
+                      border: "1px solid",
+                      borderColor: "divider",
+                      bgcolor: "white",
+                      p: 0.5,
                     }}
                   />
-                </Box>
-              </ListItem>
-            </Box>
-          )
-        })}
-      </List>
+
+                  <Box flexGrow={1} minWidth={0}>
+                    <Typography
+                      variant="body1"
+                      fontWeight="bold"
+                      color="text.primary"
+                    >
+                      {application.jobName ||
+                        t("dashboard.jobFallback", { id: application.jobId })}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {application.companyName || t("dashboard.companyFallback")}
+                    </Typography>
+                  </Box>
+
+                  <Stack
+                    alignItems={{ xs: "flex-start", sm: "flex-end" }}
+                    spacing={1}
+                    sx={{ width: { xs: "100%", sm: "auto" } }}
+                  >
+                    <Typography variant="caption" color="text.secondary">
+                      {t("dashboard.appliedOn", { date: formattedDate })}
+                    </Typography>
+                    <Chip
+                      label={t(`dashboard.status.${application.status}`)}
+                      size="small"
+                      sx={{
+                        color: status.color,
+                        bgcolor: status.bg,
+                        fontWeight: "bold",
+                        borderRadius: 1.5,
+                      }}
+                    />
+                  </Stack>
+                </ListItem>
+              </Box>
+            )
+          })}
+        </List>
+      )}
     </Paper>
   )
 }
