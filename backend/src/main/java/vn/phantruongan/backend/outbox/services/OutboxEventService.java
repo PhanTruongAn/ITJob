@@ -1,12 +1,15 @@
 package vn.phantruongan.backend.outbox.services;
 
 import java.time.Instant;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,6 +51,29 @@ public class OutboxEventService {
         }
 
         outboxEventRepository.saveAll(events);
+    }
+
+    @Transactional
+    public List<OutboxEvent> claimDueEvents(int batchSize, Duration claimLease) {
+        Instant now = Instant.now();
+        List<OutboxEvent> events = outboxEventRepository.findDueEventsForClaim(
+                RECOMMENDATION_EMAIL_EVENT, now, now.minus(claimLease), PageRequest.of(0, batchSize));
+
+        for (OutboxEvent event : events) {
+            event.setClaimedAt(now);
+            event.setClaimToken(UUID.randomUUID());
+        }
+        return events;
+    }
+
+    @Transactional
+    public boolean markPublished(Long id, UUID claimToken) {
+        return outboxEventRepository.markPublishedIfClaimed(id, claimToken, Instant.now()) == 1;
+    }
+
+    @Transactional
+    public boolean scheduleRetry(Long id, UUID claimToken, Instant nextAttemptAt, String lastError) {
+        return outboxEventRepository.rescheduleIfClaimed(id, claimToken, nextAttemptAt, lastError) == 1;
     }
 
     private String serialize(RecommendationEmailMessage message) {

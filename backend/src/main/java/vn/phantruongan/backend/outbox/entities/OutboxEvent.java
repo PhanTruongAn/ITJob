@@ -1,6 +1,7 @@
 package vn.phantruongan.backend.outbox.entities;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -50,6 +51,12 @@ public class OutboxEvent extends Auditable {
 
     @Column(name = "next_attempt_at", nullable = false)
     private Instant nextAttemptAt;
+
+    @Column(name = "claimed_at")
+    private Instant claimedAt;
+
+    @Column(name = "claim_token")
+    private UUID claimToken;
 
     @Column(name = "published_at")
     private Instant publishedAt;
