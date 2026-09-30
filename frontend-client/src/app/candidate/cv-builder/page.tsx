@@ -1,52 +1,55 @@
 "use client"
-import React, { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
 import {
-  Box,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  CardActions,
-  Button,
-  Chip,
-  IconButton,
-  CircularProgress,
-  Snackbar,
-  Alert,
-  Tooltip,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-} from "@mui/material"
+  createCandidateCv,
+  deleteCandidateCv,
+  duplicateCandidateCv,
+  getMyCandidateCvs,
+  setDefaultCandidateCv,
+} from "@/apis/cvBuilder"
+import { ICandidateCv } from "@/types/cvBuilder"
 import {
   Add,
+  Article,
+  Delete,
   Edit,
+  FileCopy,
+  MoreVert,
+  PictureAsPdf,
   Star,
   StarBorder,
-  FileCopy,
-  Delete,
-  PictureAsPdf,
-  MoreVert,
-  Article,
   WarningAmber,
 } from "@mui/icons-material"
 import {
-  getMyCandidateCvs,
-  createCandidateCv,
-  setDefaultCandidateCv,
-  duplicateCandidateCv,
-  deleteCandidateCv,
-} from "@/apis/cvBuilder"
-import { ICandidateCv } from "@/types/cvBuilder"
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Grid,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Snackbar,
+  Tooltip,
+  Typography,
+} from "@mui/material"
+import { useRouter } from "next/navigation"
+import React, { useCallback, useEffect, useState } from "react"
 import { CreateCvDialog } from "./components/CreateCvDialog"
-import { DEFAULT_CV_CONTENT, DEFAULT_THEME_CONFIG } from "./constants/defaultCvData"
+import {
+  DEFAULT_CV_CONTENT,
+  DEFAULT_THEME_CONFIG,
+} from "./constants/defaultCvData"
 
 export default function CvBuilderDashboardPage() {
   const router = useRouter()
@@ -54,7 +57,11 @@ export default function CvBuilderDashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
 
-  const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
+  const [toast, setToast] = useState<{
+    open: boolean
+    message: string
+    severity: "success" | "error"
+  }>({
     open: false,
     message: "",
     severity: "success",
@@ -108,7 +115,11 @@ export default function CvBuilderDashboardPage() {
         isDefault: cvList.length === 0,
       })
       if (res.data) {
-        setToast({ open: true, message: "Tạo CV mới thành công!", severity: "success" })
+        setToast({
+          open: true,
+          message: "Tạo CV mới thành công!",
+          severity: "success",
+        })
         router.push(`/candidate/cv-builder/${res.data.id}`)
       }
     } catch (err: any) {
@@ -124,10 +135,18 @@ export default function CvBuilderDashboardPage() {
   const handleSetDefault = async (id: number) => {
     try {
       await setDefaultCandidateCv(id)
-      setToast({ open: true, message: "Đã đặt làm CV mặc định thành công!", severity: "success" })
+      setToast({
+        open: true,
+        message: "Đã đặt làm CV mặc định thành công!",
+        severity: "success",
+      })
       fetchCvs()
     } catch (err: any) {
-      setToast({ open: true, message: "Không thể đặt làm mặc định.", severity: "error" })
+      setToast({
+        open: true,
+        message: "Không thể đặt làm mặc định.",
+        severity: "error",
+      })
     }
     handleCloseMenu()
   }
@@ -136,11 +155,19 @@ export default function CvBuilderDashboardPage() {
     try {
       const res = await duplicateCandidateCv(id)
       if (res.data) {
-        setToast({ open: true, message: "Nhân bản CV thành công!", severity: "success" })
+        setToast({
+          open: true,
+          message: "Nhân bản CV thành công!",
+          severity: "success",
+        })
         fetchCvs()
       }
     } catch (err: any) {
-      setToast({ open: true, message: "Không thể nhân bản CV.", severity: "error" })
+      setToast({
+        open: true,
+        message: "Không thể nhân bản CV.",
+        severity: "error",
+      })
     }
     handleCloseMenu()
   }
@@ -154,7 +181,11 @@ export default function CvBuilderDashboardPage() {
     if (!deleteDialog.cvId) return
     try {
       await deleteCandidateCv(deleteDialog.cvId)
-      setToast({ open: true, message: "Đã xóa bản CV thành công!", severity: "success" })
+      setToast({
+        open: true,
+        message: "Đã xóa bản CV thành công!",
+        severity: "success",
+      })
       fetchCvs()
     } catch (err: any) {
       setToast({ open: true, message: "Không thể xóa CV.", severity: "error" })
@@ -176,13 +207,24 @@ export default function CvBuilderDashboardPage() {
   return (
     <Box>
       {/* Header Bar */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={4}
+      >
         <Box>
-          <Typography variant="h4" fontWeight={900} color="primary" gutterBottom>
+          <Typography
+            variant="h4"
+            fontWeight={900}
+            color="primary"
+            gutterBottom
+          >
             Interactive Resume Builder
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Tạo & chỉnh sửa CV trực quan tiêu chuẩn ITJob. Xuất file PDF chất lượng cao ứng tuyển ngay!
+            Tạo & chỉnh sửa CV trực quan tiêu chuẩn ITJob. Xuất file PDF chất
+            lượng cao ứng tuyển ngay!
           </Typography>
         </Box>
         <Button
@@ -203,13 +245,27 @@ export default function CvBuilderDashboardPage() {
         </Box>
       ) : cvList.length === 0 ? (
         /* Empty State */
-        <Card sx={{ p: 6, textAlign: "center", borderRadius: 3, borderStyle: "dashed" }}>
+        <Card
+          sx={{
+            p: 6,
+            textAlign: "center",
+            borderRadius: 3,
+            borderStyle: "dashed",
+          }}
+        >
           <Article sx={{ fontSize: 64, color: "text.disabled", mb: 2 }} />
           <Typography variant="h6" fontWeight={700} gutterBottom>
             Bạn chưa tạo bản CV Interactive nào
           </Typography>
-          <Typography variant="body2" color="text.secondary" mb={3} maxWidth={500} mx="auto">
-            Hãy bắt đầu tạo CV chuyên nghiệp đầu tiên với các mẫu giao diện được tối ưu hóa cho ngành IT.
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            mb={3}
+            maxWidth={500}
+            mx="auto"
+          >
+            Hãy bắt đầu tạo CV chuyên nghiệp đầu tiên với các mẫu giao diện được
+            tối ưu hóa cho ngành IT.
           </Typography>
           <Button
             variant="contained"
@@ -233,8 +289,12 @@ export default function CvBuilderDashboardPage() {
                     transition: "all 0.25s ease-in-out",
                     border: isDefaultCv ? "2px solid" : "1px solid",
                     borderColor: isDefaultCv ? "primary.main" : "grey.200",
-                    bgcolor: isDefaultCv ? "rgba(237, 27, 47, 0.02)" : "background.paper",
-                    boxShadow: isDefaultCv ? "0 8px 24px rgba(237, 27, 47, 0.15)" : 1,
+                    bgcolor: isDefaultCv
+                      ? "rgba(237, 27, 47, 0.02)"
+                      : "background.paper",
+                    boxShadow: isDefaultCv
+                      ? "0 8px 24px rgba(237, 27, 47, 0.15)"
+                      : 1,
                     "&:hover": {
                       boxShadow: isDefaultCv
                         ? "0 12px 28px rgba(237, 27, 47, 0.25)"
@@ -244,11 +304,28 @@ export default function CvBuilderDashboardPage() {
                   }}
                 >
                   <CardContent sx={{ p: 3 }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-                      <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
+                    <Box
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="flex-start"
+                      mb={2}
+                    >
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        gap={1}
+                        flexWrap="wrap"
+                      >
                         {isDefaultCv && (
                           <Chip
-                            icon={<Star sx={{ fontSize: "16px !important", color: "#fff !important" }} />}
+                            icon={
+                              <Star
+                                sx={{
+                                  fontSize: "16px !important",
+                                  color: "#fff !important",
+                                }}
+                              />
+                            }
                             label="CV Mặc Định"
                             color="primary"
                             size="small"
@@ -266,26 +343,51 @@ export default function CvBuilderDashboardPage() {
                           sx={{ textTransform: "capitalize", fontSize: "11px" }}
                         />
                       </Box>
-                      <IconButton size="small" onClick={(e) => handleOpenMenu(e, cv.id)}>
+                      <IconButton
+                        size="small"
+                        onClick={(e) => handleOpenMenu(e, cv.id)}
+                      >
                         <MoreVert />
                       </IconButton>
                     </Box>
 
-                    <Typography variant="h6" fontWeight={800} noWrap gutterBottom title={cv.title}>
+                    <Typography
+                      variant="h6"
+                      fontWeight={800}
+                      noWrap
+                      gutterBottom
+                      title={cv.title}
+                    >
                       {cv.title}
                     </Typography>
 
-                    <Typography variant="caption" color="text.secondary" display="block">
-                      Cập nhật lần cuối: {cv.updatedAt ? new Date(cv.updatedAt).toLocaleDateString("vi-VN") : "Gần đây"}
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      display="block"
+                    >
+                      Cập nhật lần cuối:
+                      {cv.updatedAt
+                        ? new Date(cv.updatedAt).toLocaleDateString("vi-VN")
+                        : "Gần đây"}
                     </Typography>
                   </CardContent>
 
-                  <CardActions sx={{ px: 3, pb: 3, pt: 0, justifyContent: "space-between" }}>
+                  <CardActions
+                    sx={{
+                      px: 3,
+                      pb: 3,
+                      pt: 0,
+                      justifyContent: "space-between",
+                    }}
+                  >
                     <Button
                       variant={isDefaultCv ? "contained" : "outlined"}
                       size="small"
                       startIcon={<Edit />}
-                      onClick={() => router.push(`/candidate/cv-builder/${cv.id}`)}
+                      onClick={() =>
+                        router.push(`/candidate/cv-builder/${cv.id}`)
+                      }
                       sx={{ fontWeight: 700 }}
                     >
                       Chỉnh Sửa CV
@@ -319,21 +421,40 @@ export default function CvBuilderDashboardPage() {
       >
         {activeCvId
           ? [
-              <MenuItem key="edit" onClick={() => router.push(`/candidate/cv-builder/${activeCvId}`)}>
-                <ListItemIcon><Edit fontSize="small" /></ListItemIcon>
+              <MenuItem
+                key="edit"
+                onClick={() =>
+                  router.push(`/candidate/cv-builder/${activeCvId}`)
+                }
+              >
+                <ListItemIcon>
+                  <Edit fontSize="small" />
+                </ListItemIcon>
                 <ListItemText>Chỉnh Sửa</ListItemText>
               </MenuItem>,
-              <MenuItem key="duplicate" onClick={() => handleDuplicate(activeCvId)}>
-                <ListItemIcon><FileCopy fontSize="small" /></ListItemIcon>
+              <MenuItem
+                key="duplicate"
+                onClick={() => handleDuplicate(activeCvId)}
+              >
+                <ListItemIcon>
+                  <FileCopy fontSize="small" />
+                </ListItemIcon>
                 <ListItemText>Nhân Bản CV</ListItemText>
               </MenuItem>,
               !Boolean(
                 cvList.find((c) => c.id === activeCvId)?.isDefault ||
-                  (cvList.find((c) => c.id === activeCvId) as any)?.default
+                (cvList.find((c) => c.id === activeCvId) as any)?.default,
               ) && (
-                <MenuItem key="set-default" onClick={() => handleSetDefault(activeCvId)}>
-                  <ListItemIcon><StarBorder fontSize="small" color="primary" /></ListItemIcon>
-                  <ListItemText sx={{ color: "primary.main", fontWeight: 700 }}>Đặt Làm Mặc Định</ListItemText>
+                <MenuItem
+                  key="set-default"
+                  onClick={() => handleSetDefault(activeCvId)}
+                >
+                  <ListItemIcon>
+                    <StarBorder fontSize="small" color="primary" />
+                  </ListItemIcon>
+                  <ListItemText sx={{ color: "primary.main", fontWeight: 700 }}>
+                    Đặt Làm Mặc Định
+                  </ListItemText>
                 </MenuItem>
               ),
               <MenuItem
@@ -344,7 +465,9 @@ export default function CvBuilderDashboardPage() {
                 }}
                 sx={{ color: "error.main" }}
               >
-                <ListItemIcon><Delete fontSize="small" color="error" /></ListItemIcon>
+                <ListItemIcon>
+                  <Delete fontSize="small" color="error" />
+                </ListItemIcon>
                 <ListItemText>Xóa CV</ListItemText>
               </MenuItem>,
             ].filter(Boolean)
@@ -365,20 +488,30 @@ export default function CvBuilderDashboardPage() {
         maxWidth="xs"
         fullWidth
       >
-        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1.5, pb: 1 }}>
+        <DialogTitle
+          sx={{ display: "flex", alignItems: "center", gap: 1.5, pb: 1 }}
+        >
           <WarningAmber color="error" fontSize="medium" />
           <Typography variant="h6" fontWeight={800} color="error.main">
             Xác Nhận Xóa CV
           </Typography>
         </DialogTitle>
         <DialogContent>
-          <DialogContentText variant="body2" color="text.primary" sx={{ mt: 1 }}>
-            Bạn có chắc chắn muốn xóa bản CV <strong>"{deleteDialog.title}"</strong> không? Hành động này sẽ xóa dữ liệu khỏi hệ thống và không thể hoàn tác.
+          <DialogContentText
+            variant="body2"
+            color="text.primary"
+            sx={{ mt: 1 }}
+          >
+            Bạn có chắc chắn muốn xóa bản CV
+            <strong>&quot;{deleteDialog.title}&quot;</strong> không? Hành động
+            này sẽ xóa dữ liệu khỏi hệ thống và không thể hoàn tác.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 1 }}>
           <Button
-            onClick={() => setDeleteDialog({ open: false, cvId: null, title: "" })}
+            onClick={() =>
+              setDeleteDialog({ open: false, cvId: null, title: "" })
+            }
             color="inherit"
             variant="outlined"
           >

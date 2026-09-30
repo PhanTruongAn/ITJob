@@ -1,20 +1,21 @@
 "use client"
-import React from "react"
 import { ICvContent, ICvThemeConfig } from "@/types/cvBuilder"
 import {
-  Email,
-  Phone,
-  LocationOn,
-  Language,
-  GitHub,
-  LinkedIn,
-  Work,
-  School,
-  Code,
-  FolderSpecial,
   CardMembership,
+  Code,
+  Email,
+  FolderSpecial,
+  GitHub,
+  Language,
+  LinkedIn,
+  LocationOn,
   Person,
+  Phone,
+  School,
+  Work,
 } from "@mui/icons-material"
+import Image from "next/image"
+import React from "react"
 
 interface TemplateProps {
   content: ICvContent
@@ -25,7 +26,15 @@ export const ModernItTemplate: React.FC<TemplateProps> = ({
   content,
   themeConfig,
 }) => {
-  const { personalInfo, summary, skills, experience, projects, education, certificates } = content
+  const {
+    personalInfo,
+    summary,
+    skills,
+    experience,
+    projects,
+    education,
+    certificates,
+  } = content
   const primaryColor = themeConfig.primaryColor || "#ed1b2f"
 
   const renderSection = (sectionKey: string) => {
@@ -58,14 +67,24 @@ export const ModernItTemplate: React.FC<TemplateProps> = ({
             </h3>
             <div className="space-y-4">
               {experience.map((exp) => (
-                <div key={exp.id} className="relative pl-3 border-l-2" style={{ borderColor: `${primaryColor}60` }}>
+                <div
+                  key={exp.id}
+                  className="relative pl-3 border-l-2"
+                  style={{ borderColor: `${primaryColor}60` }}
+                >
                   <div className="flex justify-between items-start">
-                    <h4 className="font-bold text-gray-900 text-[1em]">{exp.position}</h4>
+                    <h4 className="font-bold text-gray-900 text-[1em]">
+                      {exp.position}
+                    </h4>
                     <span className="text-[0.85em] text-gray-500 font-medium">
-                      {exp.startDate} - {exp.isCurrent ? "Hiện tại" : exp.endDate}
+                      {exp.startDate} -{" "}
+                      {exp.isCurrent ? "Hiện tại" : exp.endDate}
                     </span>
                   </div>
-                  <div className="text-[0.9em] font-semibold" style={{ color: primaryColor }}>
+                  <div
+                    className="text-[0.9em] font-semibold"
+                    style={{ color: primaryColor }}
+                  >
                     {exp.company} {exp.location ? `• ${exp.location}` : ""}
                   </div>
                   <p className="text-gray-700 mt-1.5 whitespace-pre-line leading-relaxed text-[0.95em]">
@@ -101,17 +120,50 @@ export const ModernItTemplate: React.FC<TemplateProps> = ({
             </h3>
             <div className="space-y-3.5">
               {projects.map((proj) => (
-                <div key={proj.id} className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                <div
+                  key={proj.id}
+                  className="bg-gray-50 p-3 rounded-lg border border-gray-100"
+                >
                   <div className="flex justify-between items-start">
-                    <h4 className="font-bold text-gray-900 text-[1em]">{proj.name}</h4>
-                    <span className="text-[0.85em] font-semibold px-2 py-0.5 rounded" style={{ backgroundColor: `${primaryColor}15`, color: primaryColor }}>
+                    <h4 className="font-bold text-gray-900 text-[1em]">
+                      {proj.name}
+                    </h4>
+                    <span
+                      className="text-[0.85em] font-semibold px-2 py-0.5 rounded"
+                      style={{
+                        backgroundColor: `${primaryColor}15`,
+                        color: primaryColor,
+                      }}
+                    >
                       {proj.role}
                     </span>
                   </div>
                   {(proj.demoUrl || proj.repoUrl) && (
                     <div className="flex gap-3 text-[0.85em] mt-1 text-gray-500">
-                      {proj.demoUrl && <span>Demo: <a href={proj.demoUrl} className="underline" style={{ color: primaryColor }}>{proj.demoUrl}</a></span>}
-                      {proj.repoUrl && <span>Github: <a href={proj.repoUrl} className="underline" style={{ color: primaryColor }}>{proj.repoUrl}</a></span>}
+                      {proj.demoUrl && (
+                        <span>
+                          Demo:{" "}
+                          <a
+                            href={proj.demoUrl}
+                            className="underline"
+                            style={{ color: primaryColor }}
+                          >
+                            {proj.demoUrl}
+                          </a>
+                        </span>
+                      )}
+                      {proj.repoUrl && (
+                        <span>
+                          Github:{" "}
+                          <a
+                            href={proj.repoUrl}
+                            className="underline"
+                            style={{ color: primaryColor }}
+                          >
+                            {proj.repoUrl}
+                          </a>
+                        </span>
+                      )}
                     </div>
                   )}
                   <p className="text-gray-700 mt-1.5 whitespace-pre-line leading-relaxed text-[0.95em]">
@@ -120,7 +172,10 @@ export const ModernItTemplate: React.FC<TemplateProps> = ({
                   {proj.technologies && proj.technologies.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {proj.technologies.map((tech, idx) => (
-                        <span key={idx} className="px-2 py-0.5 rounded text-[0.85em] bg-white border border-gray-200 text-gray-600">
+                        <span
+                          key={idx}
+                          className="px-2 py-0.5 rounded text-[0.85em] bg-white border border-gray-200 text-gray-600"
+                        >
                           {tech}
                         </span>
                       ))}
@@ -178,8 +233,13 @@ export const ModernItTemplate: React.FC<TemplateProps> = ({
               {education.map((edu) => (
                 <div key={edu.id} className="text-[0.9em] text-gray-200">
                   <div className="font-bold text-white">{edu.school}</div>
-                  <div>{edu.degree} - {edu.field}</div>
-                  <div className="text-gray-300 text-[0.85em]">{edu.startDate} - {edu.endDate} {edu.gpa ? `| GPA: ${edu.gpa}` : ""}</div>
+                  <div>
+                    {edu.degree} - {edu.field}
+                  </div>
+                  <div className="text-gray-300 text-[0.85em]">
+                    {edu.startDate} - {edu.endDate}{" "}
+                    {edu.gpa ? `| GPA: ${edu.gpa}` : ""}
+                  </div>
                 </div>
               ))}
             </div>
@@ -200,7 +260,9 @@ export const ModernItTemplate: React.FC<TemplateProps> = ({
               {certificates.map((cert) => (
                 <div key={cert.id} className="text-[0.9em] text-gray-200">
                   <div className="font-semibold text-white">{cert.name}</div>
-                  <div className="text-[0.85em] text-gray-300">{cert.organization} ({cert.issueDate})</div>
+                  <div className="text-[0.85em] text-gray-300">
+                    {cert.organization} ({cert.issueDate})
+                  </div>
                 </div>
               ))}
             </div>
@@ -214,10 +276,10 @@ export const ModernItTemplate: React.FC<TemplateProps> = ({
 
   // Divide sections into Sidebar (skills, education, certificates) & Main (summary, experience, projects)
   const sidebarOrder = (themeConfig.sectionOrder || []).filter((s) =>
-    ["skills", "education", "certificates"].includes(s)
+    ["skills", "education", "certificates"].includes(s),
   )
   const mainOrder = (themeConfig.sectionOrder || []).filter((s) =>
-    ["summary", "experience", "projects"].includes(s)
+    ["summary", "experience", "projects"].includes(s),
   )
 
   return (
@@ -231,11 +293,14 @@ export const ModernItTemplate: React.FC<TemplateProps> = ({
           {/* Avatar & Personal info */}
           <div className="text-center mb-6">
             {personalInfo.avatarUrl ? (
-              <img
-                src={personalInfo.avatarUrl}
-                alt={personalInfo.fullName}
-                className="w-24 h-24 rounded-full border-2 border-white/40 object-cover mx-auto mb-3 shadow-md"
-              />
+              <div className="relative w-24 h-24 mx-auto mb-3">
+                <Image
+                  src={personalInfo.avatarUrl}
+                  alt={personalInfo.fullName}
+                  fill
+                  className="rounded-full border-2 border-white/40 object-cover shadow-md"
+                />
+              </div>
             ) : (
               <div className="w-20 h-20 rounded-full bg-white/20 border border-white/30 flex items-center justify-center mx-auto mb-3 text-2xl font-bold text-white">
                 {personalInfo.fullName ? personalInfo.fullName.charAt(0) : "CV"}
@@ -253,38 +318,62 @@ export const ModernItTemplate: React.FC<TemplateProps> = ({
           <div className="mb-6 space-y-2 text-[0.85em] text-white/90 border-t border-b border-white/20 py-4">
             {personalInfo.email && (
               <div className="flex items-center gap-2">
-                <Email style={{ fontSize: "1.1em" }} className="text-white/70" />
+                <Email
+                  style={{ fontSize: "1.1em" }}
+                  className="text-white/70"
+                />
                 <span className="truncate">{personalInfo.email}</span>
               </div>
             )}
             {personalInfo.phone && (
               <div className="flex items-center gap-2">
-                <Phone style={{ fontSize: "1.1em" }} className="text-white/70" />
+                <Phone
+                  style={{ fontSize: "1.1em" }}
+                  className="text-white/70"
+                />
                 <span>{personalInfo.phone}</span>
               </div>
             )}
             {personalInfo.address && (
               <div className="flex items-center gap-2">
-                <LocationOn style={{ fontSize: "1.1em" }} className="text-white/70" />
+                <LocationOn
+                  style={{ fontSize: "1.1em" }}
+                  className="text-white/70"
+                />
                 <span>{personalInfo.address}</span>
               </div>
             )}
             {personalInfo.github && (
               <div className="flex items-center gap-2">
-                <GitHub style={{ fontSize: "1.1em" }} className="text-white/70" />
-                <span className="truncate">{personalInfo.github.replace("https://", "")}</span>
+                <GitHub
+                  style={{ fontSize: "1.1em" }}
+                  className="text-white/70"
+                />
+                <span className="truncate">
+                  {personalInfo.github.replace("https://", "")}
+                </span>
               </div>
             )}
             {personalInfo.linkedin && (
               <div className="flex items-center gap-2">
-                <LinkedIn style={{ fontSize: "1.1em" }} className="text-white/70" />
-                <span className="truncate">{personalInfo.linkedin.replace("https://", "")}</span>
+                <LinkedIn
+                  style={{ fontSize: "1.1em" }}
+                  className="text-white/70"
+                />
+                <span className="truncate">
+                  {personalInfo.linkedin.replace("https://", "")}
+                </span>
               </div>
             )}
             {personalInfo.portfolio && (
               <div className="flex items-center gap-2">
-                <Language style={{ fontSize: "1.1em" }} className="text-white/70" />
-                <span className="truncate">{personalInfo.portfolio.replace("https://", "")}</span>
+                <Language
+                  style={{ fontSize: "1.1em" }}
+                  className="text-white/70"
+                />
+                <span className="truncate">
+                  {personalInfo.portfolio.replace("https://", "")}
+                </span>
               </div>
             )}
           </div>
@@ -302,7 +391,10 @@ export const ModernItTemplate: React.FC<TemplateProps> = ({
             <h1 className="text-[1.8em] font-extrabold tracking-tight text-gray-900">
               {personalInfo.fullName}
             </h1>
-            <p className="text-[1em] font-bold mt-1" style={{ color: primaryColor }}>
+            <p
+              className="text-[1em] font-bold mt-1"
+              style={{ color: primaryColor }}
+            >
               {personalInfo.jobTitle}
             </p>
           </div>
