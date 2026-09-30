@@ -1,11 +1,19 @@
 package vn.phantruongan.backend.recommendation.services;
 
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
+import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 import io.micrometer.core.instrument.MeterRegistry;
@@ -26,11 +34,14 @@ import vn.phantruongan.backend.recommendation.repositories.JobRecommendationRepo
 @Slf4j
 public class RecommendationEmailConsumer {
 
+    static final String HEADER_EMAIL_ATTEMPT = "x-email-attempt";
+
     private final JobRecommendationRepository jobRecommendationRepository;
     private final EmailService emailService;
     private final JobRecommendationService jobRecommendationService;
     private final EmailSendHistoryRepository emailSendHistoryRepository;
     private final MeterRegistry meterRegistry;
+    private final RabbitTemplate rabbitTemplate;
 
     @Value("${email.backoff-base-ms:1000}")
     private int backoffBaseMs;
@@ -42,7 +53,9 @@ public class RecommendationEmailConsumer {
     private int maxRetries;
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE_RECOMMENDATION_EMAIL)
-    public void consumeRecommendationEmail(RecommendationEmailMessage message) {
+    public void consumeRecommendationEmail(
+            RecommendationEmailMessage message,
+            @Header(name = HEADER_EMAIL_ATTEMPT, required = false) Object retryAttemptHeader) {
         log.info("Received recommendation email message from RabbitMQ: {}", message);
 
         List<Long> recIds = message.getRecommendationIds();
@@ -51,104 +64,123 @@ public class RecommendationEmailConsumer {
             return;
         }
 
-        // Fetch current recommendations from DB using eager loading (@EntityGraph)
         List<JobRecommendation> recommendations = jobRecommendationRepository.findAllByIdIn(recIds);
         if (recommendations.isEmpty()) {
             log.warn("No JobRecommendations found for IDs {}, skipping.", recIds);
             return;
         }
 
-        // Map to ResDTO for template processing
         List<JobRecommendationResDTO> resDTOs = recommendations.stream()
                 .map(jobRecommendationService::convertToResDTO)
                 .collect(Collectors.toList());
 
-        int attempt = (recommendations.get(0).getRetryCount() != null
-                ? recommendations.get(0).getRetryCount()
-                : 0) + 1;
+        int retryCount = recommendations.get(0).getRetryCount() == null
+                ? 0
+                : recommendations.get(0).getRetryCount();
+        int attempt = Math.max(parseAttempt(retryAttemptHeader), retryCount + 1);
 
         try {
-            // Send email synchronously
-            emailService.sendJobRecommendationsEmail(
-                    message.getSubscriberEmail(),
-                    null,
-                    resDTOs
-            );
-
-            // On success, update status in DB
+            emailService.sendJobRecommendationsEmail(message.getSubscriberEmail(), null, resDTOs);
             jobRecommendationRepository.updateEmailStatusAndSentAtByIds(recIds, EmailStatus.SENT, Instant.now());
 
-            // Log send history for each recommendation
             for (Long recId : recIds) {
                 saveHistory(recId, message.getSubscriberEmail(), EmailStatus.SENT, attempt, null);
             }
 
             meterRegistry.counter("email.sent.total").increment();
-            log.info("Successfully processed and sent email to {} (attempt {})", message.getSubscriberEmail(), attempt);
-
+            log.info("Successfully processed and sent email to {} (attempt {})",
+                    message.getSubscriberEmail(), attempt);
         } catch (Exception e) {
             log.error("Failed to send email to '{}': {}", message.getSubscriberEmail(), e.getMessage());
-            handleEmailFailure(recIds, recommendations, message.getSubscriberEmail(), attempt, e);
-        } finally {
-            // Rate-limit throttling: ~1000 emails/minute
-            try {
-                Thread.sleep(70);
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-                log.warn("Throttle sleep interrupted", ie);
-            }
+            handleEmailFailure(message, recIds, attempt, e);
         }
     }
 
     private void handleEmailFailure(
+            RecommendationEmailMessage message,
             List<Long> recIds,
-            List<JobRecommendation> recommendations,
-            String subscriberEmail,
             int attempt,
-            Exception e) {
+            Exception failure) {
+        if (isTransientException(failure) && attempt < Math.max(1, maxRetries)) {
+            long delay = backoffDelayMs(attempt);
+            jobRecommendationRepository.updateEmailStatusAndRetryCountByIds(
+                    recIds, EmailStatus.PENDING, attempt);
 
-        boolean isTransient = isTransientException(e);
-        int currentRetry = recommendations.get(0).getRetryCount() != null
-                ? recommendations.get(0).getRetryCount()
-                : 0;
-        int newRetryCount = currentRetry + 1;
-
-        if (isTransient && newRetryCount < maxRetries) {
-            // Exponential back-off: min(baseMs * 2^(attempt-1), maxMs)
-            long delay = Math.min((long) backoffBaseMs * (1L << (newRetryCount - 1)), backoffMaxMs);
-            log.warn("Transient failure (attempt {}). Back-off {}ms before next retry. IDs: {}", newRetryCount, delay, recIds);
-            try {
-                Thread.sleep(delay);
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-                log.warn("Back-off sleep interrupted", ie);
-            }
-
-            // Keep PENDING, increment retryCount – reconciliation job will re-queue
-            jobRecommendationRepository.updateEmailStatusAndRetryCountByIds(recIds, EmailStatus.PENDING, newRetryCount);
-
-            // Log failed attempt
             for (Long recId : recIds) {
-                saveHistory(recId, subscriberEmail, EmailStatus.PENDING, attempt, e.getMessage());
+                saveHistory(recId, message.getSubscriberEmail(), EmailStatus.PENDING, attempt, failure.getMessage());
             }
             meterRegistry.counter("email.retried.total").increment();
 
-        } else {
-            // Permanent failure OR max retries exhausted
-            if (isTransient) {
-                log.error("Max transient retries reached ({}). Marking FAILED for IDs: {}", maxRetries, recIds);
-                jobRecommendationRepository.updateEmailStatusAndRetryCountByIds(recIds, EmailStatus.FAILED, newRetryCount);
-            } else {
-                log.error("Permanent (non-transient) failure. Marking FAILED immediately for IDs: {}", recIds);
-                jobRecommendationRepository.updateEmailStatusByIds(recIds, EmailStatus.FAILED);
+            try {
+                publishRetry(message, attempt + 1, delay);
+                log.warn("Transient email failure (attempt {}). Retry queued with {}ms TTL. IDs: {}",
+                        attempt, delay, recIds);
+            } catch (Exception publishFailure) {
+                log.error("Failed to enqueue retry for recommendation email IDs {}", recIds, publishFailure);
+                throw new AmqpRejectAndDontRequeueException(
+                        "Could not enqueue recommendation email retry", publishFailure);
             }
-
-            // Log failure history for each recommendation
-            for (Long recId : recIds) {
-                saveHistory(recId, subscriberEmail, EmailStatus.FAILED, attempt, e.getMessage());
-            }
-            meterRegistry.counter("email.failed.total").increment();
+            return;
         }
+
+        int failedRetryCount = attempt;
+        if (isTransientException(failure)) {
+            log.error("Maximum email attempts reached ({}). Marking FAILED for IDs: {}", maxRetries, recIds);
+            jobRecommendationRepository.updateEmailStatusAndRetryCountByIds(
+                    recIds, EmailStatus.FAILED, failedRetryCount);
+        } else {
+            log.error("Permanent email failure. Marking FAILED immediately for IDs: {}", recIds);
+            jobRecommendationRepository.updateEmailStatusByIds(recIds, EmailStatus.FAILED);
+        }
+
+        for (Long recId : recIds) {
+            saveHistory(recId, message.getSubscriberEmail(), EmailStatus.FAILED, attempt, failure.getMessage());
+        }
+        meterRegistry.counter("email.failed.total").increment();
+
+        // AUTO acknowledgement rejects this message without requeue; the main queue's
+        // existing dead-letter binding moves it to the established DLQ.
+        throw new AmqpRejectAndDontRequeueException(
+                isTransientException(failure)
+                        ? "Recommendation email retry attempts exhausted"
+                        : "Permanent recommendation email failure",
+                failure);
+    }
+
+    private void publishRetry(RecommendationEmailMessage message, int nextAttempt, long delayMs) {
+        rabbitTemplate.convertAndSend(
+                "",
+                RabbitMQConfig.QUEUE_RECOMMENDATION_EMAIL_RETRY,
+                message,
+                outgoing -> {
+                    outgoing.getMessageProperties().setHeader(HEADER_EMAIL_ATTEMPT, nextAttempt);
+                    outgoing.getMessageProperties().setExpiration(Long.toString(delayMs));
+                    outgoing.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+                    return outgoing;
+                });
+    }
+
+    private int parseAttempt(Object retryAttemptHeader) {
+        if (retryAttemptHeader instanceof Number number && number.intValue() > 0) {
+            return number.intValue();
+        }
+        if (retryAttemptHeader != null) {
+            try {
+                return Math.max(1, Integer.parseInt(retryAttemptHeader.toString()));
+            } catch (NumberFormatException ignored) {
+                log.warn("Ignoring invalid email attempt header: {}", retryAttemptHeader);
+            }
+        }
+        return 1;
+    }
+
+    private long backoffDelayMs(int failedAttempt) {
+        long cap = Math.max(1, backoffMaxMs);
+        long delay = Math.max(1, Math.min(backoffBaseMs, cap));
+        for (int retry = 1; retry < failedAttempt && delay < cap; retry++) {
+            delay = delay > cap / 2 ? cap : Math.min(delay * 2, cap);
+        }
+        return delay;
     }
 
     private void saveHistory(Long recommendationId, String email, EmailStatus status, int attempt, String errorMessage) {
@@ -163,44 +195,43 @@ public class RecommendationEmailConsumer {
                     .build();
             emailSendHistoryRepository.save(history);
         } catch (Exception ex) {
-            log.error("Failed to save EmailSendHistory for recommendationId={}: {}", recommendationId, ex.getMessage());
+            log.error("Failed to save EmailSendHistory for recommendationId={}: {}",
+                    recommendationId, ex.getMessage());
         }
     }
 
     private boolean isTransientException(Throwable throwable) {
-        if (throwable == null) return false;
-
         Throwable current = throwable;
         while (current != null) {
             String className = current.getClass().getName();
-            if (current instanceof java.net.SocketTimeoutException ||
-                current instanceof java.net.ConnectException ||
-                current instanceof java.net.UnknownHostException ||
-                className.contains("MailConnectException") ||
-                className.contains("SocketException")) {
+            if (current instanceof SocketTimeoutException
+                    || current instanceof ConnectException
+                    || current instanceof UnknownHostException
+                    || className.contains("MailConnectException")
+                    || className.contains("SocketException")) {
                 return true;
             }
 
             if (className.contains("SMTPSendFailedException")) {
                 try {
-                    java.lang.reflect.Method getReturnCode = current.getClass().getMethod("getReturnCode");
-                    int code = (Integer) getReturnCode.invoke(current);
+                    int code = (Integer) current.getClass().getMethod("getReturnCode").invoke(current);
                     if (code == 421 || code == 450 || code == 451 || code == 452) {
                         return true;
                     }
-                } catch (Exception ex) {
-                    // ignore, fallback to message check
+                } catch (Exception ignored) {
+                    // Fall through to the existing message-based compatibility check.
                 }
             }
 
-            String msg = current.getMessage();
-            if (msg != null) {
-                if (msg.contains("421") || msg.contains("450") || msg.contains("451") || msg.contains("452") ||
-                    msg.toLowerCase().contains("timeout") || msg.toLowerCase().contains("connection reset")) {
+            String message = current.getMessage();
+            if (message != null) {
+                String normalized = message.toLowerCase(Locale.ROOT);
+                if (message.contains("421") || message.contains("450") || message.contains("451")
+                        || message.contains("452") || normalized.contains("timeout")
+                        || normalized.contains("connection reset")) {
                     return true;
                 }
             }
-
             current = current.getCause();
         }
         return false;

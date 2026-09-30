@@ -53,14 +53,5 @@ public interface JobRecommendationRepository
     List<JobRecommendation> findTop500ByEmailStatusOrderByIdAsc(EmailStatus emailStatus);
 
     @EntityGraph(attributePaths = { "subscriber", "job", "job.company" })
-    @Query("""
-            SELECT r FROM JobRecommendation r
-            WHERE r.emailStatus = vn.phantruongan.backend.recommendation.enums.EmailStatus.PENDING
-              AND r.retryCount > 0
-              AND r.createdAt < :cutoff
-            """)
-    List<JobRecommendation> findPendingForReconciliation(@Param("cutoff") Instant cutoff);
-
-    @EntityGraph(attributePaths = { "subscriber", "job", "job.company" })
     List<JobRecommendation> findAllByIdIn(List<Long> ids);
 }

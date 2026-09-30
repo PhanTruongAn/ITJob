@@ -13,16 +13,13 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
-import vn.phantruongan.backend.config.common.RabbitMQConfig;
 import vn.phantruongan.backend.cronjob.entities.CronJob;
 import vn.phantruongan.backend.cronjob.services.CronJobService;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.repositories.JobRepository;
-import vn.phantruongan.backend.recommendation.dtos.RecommendationEmailMessage;
 import vn.phantruongan.backend.recommendation.dtos.req.GetJobRecommendationReqDTO;
 import vn.phantruongan.backend.recommendation.dtos.res.JobRecommendationResDTO;
 import vn.phantruongan.backend.recommendation.entities.JobRecommendation;
@@ -44,7 +41,6 @@ public class JobRecommendationService {
     private final SubscriberRepository subscriberRepository;
     private final CronJobService cronJobService;
     private final ObjectMapper objectMapper;
-    private final RabbitTemplate rabbitTemplate;
     private final RecommendationGenerationBatchService recommendationGenerationBatchService;
 
     // =========================================================
@@ -231,45 +227,4 @@ public class JobRecommendationService {
         }
     }
 
-    public void reconcilePendingEmails() {
-        log.info("Running pending email reconciliation...");
-        // Only re-queue records that have been attempted before (retryCount > 0).
-        // Fresh records (retryCount = 0) are already in the RabbitMQ queue from the
-        // initial publish — we must NOT republish them or they will be sent multiple times.
-        // Use a 5-minute cutoff to avoid picking up records mid-processing.
-        Instant cutoff = Instant.now().minus(5, ChronoUnit.MINUTES);
-        List<JobRecommendation> pending = jobRecommendationRepository.findPendingForReconciliation(cutoff);
-
-        if (pending.isEmpty()) {
-            log.info("No failed-retry emails found for reconciliation.");
-            return;
-        }
-
-        log.info("Found {} failed-retry recommendations for reconciliation. Republishing to RabbitMQ...", pending.size());
-
-        // Group by subscriber
-        java.util.Map<Subscriber, List<JobRecommendation>> grouped = pending.stream()
-                .collect(Collectors.groupingBy(JobRecommendation::getSubscriber));
-
-        for (java.util.Map.Entry<Subscriber, List<JobRecommendation>> entry : grouped.entrySet()) {
-            Subscriber sub = entry.getKey();
-            List<Long> ids = entry.getValue().stream()
-                    .map(JobRecommendation::getId)
-                    .collect(Collectors.toList());
-
-            RecommendationEmailMessage msg = RecommendationEmailMessage.builder()
-                    .subscriberId(sub.getId())
-                    .subscriberEmail(sub.getEmail())
-                    .subscriberName(null)
-                    .recommendationIds(ids)
-                    .build();
-
-            rabbitTemplate.convertAndSend(
-                    RabbitMQConfig.EXCHANGE_RECOMMENDATION_EMAIL,
-                    RabbitMQConfig.ROUTING_KEY_RECOMMENDATION_EMAIL,
-                    msg
-            );
-            log.info("Republished failed-retry email to RabbitMQ for: {}", sub.getEmail());
-        }
-    }
 }

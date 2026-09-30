@@ -28,6 +28,7 @@ public class RabbitMQConfig {
     // Dead Letter Queue (DLQ) - nhận message khi consumer reject/throw
     public static final String QUEUE_RECOMMENDATION_EMAIL_DLQ = "recommendation.email.queue.dlq";
     public static final String EXCHANGE_RECOMMENDATION_EMAIL_DLQ = "recommendation.email.exchange.dlq";
+    public static final String QUEUE_RECOMMENDATION_EMAIL_RETRY = "recommendation.email.retry.queue";
 
     // DLQ Exchange & Queue
 
@@ -69,6 +70,18 @@ public class RabbitMQConfig {
         Map<String, Object> args = new HashMap<>();
         args.put("x-dead-letter-exchange", EXCHANGE_RECOMMENDATION_EMAIL_DLQ);
         return QueueBuilder.durable(QUEUE_RECOMMENDATION_EMAIL).withArguments(args).build();
+    }
+
+    /**
+     * Retry messages carry a per-message expiration. Once it expires, RabbitMQ
+     * dead-letters the message back to the existing main exchange and routing key.
+     */
+    @Bean
+    public Queue recommendationEmailRetryQueue() {
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-dead-letter-exchange", EXCHANGE_RECOMMENDATION_EMAIL);
+        args.put("x-dead-letter-routing-key", ROUTING_KEY_RECOMMENDATION_EMAIL);
+        return QueueBuilder.durable(QUEUE_RECOMMENDATION_EMAIL_RETRY).withArguments(args).build();
     }
 
     @Bean
