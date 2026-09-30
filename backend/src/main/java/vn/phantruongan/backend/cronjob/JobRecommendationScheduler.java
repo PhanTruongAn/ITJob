@@ -6,7 +6,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
@@ -55,12 +54,4 @@ public class JobRecommendationScheduler implements SchedulingConfigurer {
         }
     }
 
-    @Scheduled(fixedDelay = 60000)
-    public void scheduleReconcile() {
-        try {
-            recommendationService.reconcilePendingEmails();
-        } catch (Exception e) {
-            log.error("Error occurred during scheduled pending email reconciliation", e);
-        }
-    }
 }

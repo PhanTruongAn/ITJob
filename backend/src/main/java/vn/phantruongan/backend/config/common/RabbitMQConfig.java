@@ -9,6 +9,8 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -27,6 +29,13 @@ public class RabbitMQConfig {
     // Dead Letter Queue (DLQ) - nhận message khi consumer reject/throw
     public static final String QUEUE_RECOMMENDATION_EMAIL_DLQ = "recommendation.email.queue.dlq";
     public static final String EXCHANGE_RECOMMENDATION_EMAIL_DLQ = "recommendation.email.exchange.dlq";
+    public static final String QUEUE_RECOMMENDATION_EMAIL_RETRY = "recommendation.email.retry.queue";
+    public static final String HEADER_OUTBOX_EVENT_ID = "x-outbox-event-id";
+    public static final String HEADER_EMAIL_ATTEMPT = "x-email-attempt";
+    public static final String HEADER_ORIGINAL_ROUTING_KEY = "x-original-routing-key";
+    public static final String HEADER_FAILURE_CATEGORY = "x-itjob-failure-category";
+    public static final String HEADER_FAILURE_REASON = "x-itjob-failure-reason";
+    public static final String HEADER_FAILURE_AT = "x-itjob-failure-at";
 
     // DLQ Exchange & Queue
 
@@ -70,9 +79,21 @@ public class RabbitMQConfig {
         return QueueBuilder.durable(QUEUE_RECOMMENDATION_EMAIL).withArguments(args).build();
     }
 
+    /**
+     * Retry messages carry a per-message expiration. Once it expires, RabbitMQ
+     * dead-letters the message back to the existing main exchange and routing key.
+     */
+    @Bean
+    public Queue recommendationEmailRetryQueue() {
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-dead-letter-exchange", EXCHANGE_RECOMMENDATION_EMAIL);
+        args.put("x-dead-letter-routing-key", ROUTING_KEY_RECOMMENDATION_EMAIL);
+        return QueueBuilder.durable(QUEUE_RECOMMENDATION_EMAIL_RETRY).withArguments(args).build();
+    }
+
     @Bean
     public Binding bindingRecommendationEmail(
-            Queue recommendationEmailQueue,
+            @Qualifier("recommendationEmailQueue") Queue recommendationEmailQueue,
             TopicExchange recommendationEmailExchange) {
         return BindingBuilder.bind(recommendationEmailQueue)
                 .to(recommendationEmailExchange)
@@ -89,8 +110,14 @@ public class RabbitMQConfig {
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory,
             MessageConverter jsonMessageConverter) {
+        if (!(connectionFactory instanceof CachingConnectionFactory cachingConnectionFactory)) {
+            throw new IllegalStateException("Outbox publishing requires a CachingConnectionFactory for confirms");
+        }
+        cachingConnectionFactory.setPublisherConfirmType(CachingConnectionFactory.ConfirmType.CORRELATED);
+        cachingConnectionFactory.setPublisherReturns(true);
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(jsonMessageConverter);
+        template.setMandatory(true);
         return template;
     }
 

@@ -13,6 +13,8 @@ import java.util.Map;
 @Repository
 public interface EmailSendHistoryRepository extends JpaRepository<EmailSendHistory, Long> {
 
+    long countByRecommendationId(Long recommendationId);
+
     List<EmailSendHistory> findByCreatedAtAfter(Instant after);
 
     List<EmailSendHistory> findByCreatedAtBetween(Instant start, Instant end);
