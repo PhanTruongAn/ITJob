@@ -62,27 +62,30 @@ public class ResumeService {
                 User actor = currentActor();
                 String roleName = roleName(actor);
                 User user;
+                boolean candidateSubmission;
                 if (isPrivilegedManager(roleName)) {
                         user = dto.getUserId() == null ? actor : userRepository.findById(dto.getUserId())
                                         .orElseThrow(() -> new InvalidException("User not found with id: " + dto.getUserId()));
+                        candidateSubmission = false;
                 } else if ("CANDIDATE".equalsIgnoreCase(roleName)) {
                         // Ignore userId from the request for every candidate-facing call.
                         user = actor;
+                        candidateSubmission = true;
                 } else {
                         throw new PermissionDeniedException(
                                         "Only candidates or authorized administrators can create applications");
                 }
 
-                return saveResume(dto, user);
+                return saveResume(dto, user, candidateSubmission);
         }
 
         /** Candidate-facing creation: identity always comes from the authenticated account. */
         public ResumeResDTO createResumeForCurrentCandidate(CreateResumeReqDTO dto) throws InvalidException {
                 User user = currentCandidate();
-                return saveResume(dto, user);
+                return saveResume(dto, user, true);
         }
 
-        private ResumeResDTO saveResume(CreateResumeReqDTO dto, User user) {
+        private ResumeResDTO saveResume(CreateResumeReqDTO dto, User user, boolean candidateSubmission) {
                 Job job = jobRepository.findById(dto.getJobId())
                                 .orElseThrow(() -> new InvalidException("Job not found with id: " + dto.getJobId()));
 
@@ -93,7 +96,9 @@ public class ResumeService {
                 Resume resume = resumeMapper.toEntity(dto);
                 resume.setUser(user);
                 resume.setJob(job);
-                if (dto.getStatus() == null) {
+                if (candidateSubmission) {
+                        resume.setStatus(ResumeEnum.PENDING);
+                } else if (dto.getStatus() == null) {
                         resume.setStatus(ResumeEnum.PENDING);
                 }
                 if (dto.getNote() != null) {

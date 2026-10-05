@@ -1,11 +1,7 @@
 "use client"
 
-import { QUERY_KEYS } from "@/common/queryKeys"
-import { isCandidateRole } from "@/common/security/frontendSecurity.mjs"
-import CustomHooks from "@/common/hooks/customHooks"
-import { getMyResumes } from "@/apis/resume"
+import { useMyResumes } from "@/apis/resume.hooks"
 import { Box, CircularProgress, Grid, Typography } from "@mui/material"
-import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
@@ -16,29 +12,10 @@ import StatsCards from "./components/StatsCards"
 import WelcomeBanner from "./components/WelcomeBanner"
 
 export default function CandidateDashboardPage() {
-  const { data: session, status } = useSession()
+  const applicationsQuery = useMyResumes()
+  const { session, sessionStatus: status, hasCandidateAccess } = applicationsQuery
   const router = useRouter()
   const { t } = useTranslation()
-  const candidateId = session?.user?.id
-  const hasCandidateAccess =
-    status === "authenticated" && isCandidateRole(session?.user?.role)
-
-  const applicationsQuery = CustomHooks.useQuery(
-    [QUERY_KEYS.USER_MODULE, "my-resumes", candidateId ?? "anonymous"],
-    async () => {
-      const response = await getMyResumes()
-      if (!Array.isArray(response.data)) {
-        throw new Error("Candidate applications response was invalid")
-      }
-      return response.data
-    },
-    {
-      enabled: hasCandidateAccess && !!candidateId,
-      staleTime: 30_000,
-      placeholderData: undefined,
-    },
-  )
-
   useEffect(() => {
     if (status === "unauthenticated") {
       router.replace("/signin")

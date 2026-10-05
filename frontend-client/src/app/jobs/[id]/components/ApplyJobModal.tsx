@@ -39,6 +39,8 @@ import { applyJob } from "@/apis/resume"
 import { IFile } from "@/types/backend"
 import { ICandidateCv } from "@/types/cvBuilder"
 import { getRequestErrorMessage } from "@/common/security/frontendSecurity.mjs"
+import { myResumesQueryKey } from "@/apis/resume.hooks"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface ApplyJobModalProps {
   open: boolean
@@ -58,6 +60,7 @@ export default function ApplyJobModal({
   onSuccess,
 }: ApplyJobModalProps) {
   const { data: session } = useSession()
+  const queryClient = useQueryClient()
   const user = session?.user
 
   const [tabIndex, setTabIndex] = useState<number>(0)
@@ -183,6 +186,7 @@ export default function ApplyJobModal({
       })
 
       if (res.data || res.statusCode === 201) {
+        await queryClient.invalidateQueries({ queryKey: myResumesQueryKey(user?.id) })
         onSuccess()
         onClose()
       }

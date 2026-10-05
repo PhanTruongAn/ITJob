@@ -192,7 +192,7 @@ export default function AppAppBar() {
                       <ListItemIcon>
                         <WorkIcon fontSize="small" />
                       </ListItemIcon>
-                      {t("nav.myJobs", "My Jobs")}
+                      {t("nav.myApplications", "My Applications")}
                     </MenuItem>,
                     <MenuItem
                       key="job-invitations"
@@ -349,6 +349,16 @@ export default function AppAppBar() {
                     </MenuItem>
                     {isCandidateRole(session.user?.role) && (
                       <>
+                        <MenuItem
+                          component={Link}
+                          href="/candidate/my-jobs"
+                          onClick={toggleDrawer(false)}
+                        >
+                          <ListItemIcon>
+                            <WorkIcon fontSize="small" />
+                          </ListItemIcon>
+                          {t("nav.myApplications", "My Applications")}
+                        </MenuItem>
                         <MenuItem
                           component={Link}
                           href="/candidate/saved-jobs"

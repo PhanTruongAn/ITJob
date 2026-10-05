@@ -1,151 +1,114 @@
 "use client"
 
-import { Box, CircularProgress, Paper, Stack, Typography } from "@mui/material"
-import { useCallback, useEffect, useState } from "react"
-import ApplicationCard, { Application } from "./components/ApplicationCard"
+import { useMyResumes } from "@/apis/resume.hooks"
+import { Alert, Box, Button, CircularProgress, Paper, Stack, Typography } from "@mui/material"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
+import ApplicationCard from "./components/ApplicationCard"
 import FilterTabBar, { FilterTab } from "./components/FilterTabBar"
 import StatsBentoGrid from "./components/StatsBentoGrid"
-import { getMyResumes } from "@/apis/resume"
-import { IResume } from "@/types/backend"
 
 export default function MyJobsPage() {
-  const [resumes, setResumes] = useState<IResume[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const applicationsQuery = useMyResumes()
+  const router = useRouter()
+  const { t, i18n } = useTranslation()
   const [activeFilter, setActiveFilter] = useState<FilterTab>("all")
-
-  const fetchResumes = useCallback(async () => {
-    try {
-      setLoading(true)
-      const res = await getMyResumes()
-      if (res.data) {
-        setResumes(res.data)
-      }
-    } catch (err) {
-      console.error("Error fetching my resumes:", err)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const resumes = applicationsQuery.data ?? []
 
   useEffect(() => {
-    fetchResumes()
-  }, [fetchResumes])
+    if (applicationsQuery.sessionStatus === "unauthenticated") {
+      router.replace("/signin")
+    } else if (
+      applicationsQuery.sessionStatus === "authenticated" &&
+      !applicationsQuery.hasCandidateAccess
+    ) {
+      router.replace("/")
+    }
+  }, [applicationsQuery.sessionStatus, applicationsQuery.hasCandidateAccess, router])
 
-  // Convert IResume to Application UI format
-  const applications: Application[] = resumes.map((res) => ({
-    id: res.id,
-    jobTitle: res.jobName || `Công việc tuyển dụng #${res.jobId}`,
-    company: res.companyName || "Nhà tuyển dụng",
-    logo:
-      res.companyLogo ||
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDlS6x1wVLH2f6_ItCgLc_KLQlz-2L7MGzeUk0eLqlVixTsiJRIBTm9RJsTjIIOH6gav2C4evh2ic_HkDQzTQR5bZsUW75ebOTA_zmImggcfX9dF5DlsWNpPEoBVlUfU4471AcFDFY_WNuyM5BEAf5G50NCTzxvQUKhHiWgRBTTE9sW2WIWGqXX_KPcJ1xQJYeK5lSWu-BR0jo1E2r2p3Ygh6GBs8ouFhecXRYUewEyXrNAPgY-6h-p46HDVHGBTEaC2c-IjA02Lkw",
-    location: "Việt Nam",
-    appliedTime: res.createdAt
-      ? new Date(res.createdAt).toLocaleDateString("vi-VN")
-      : "Mới đây",
-    status: res.status as any,
-  }))
-
-  const totalApplied = resumes.length
-  const reviewingCount = resumes.filter(
-    (r) => r.status === "PENDING" || r.status === "REVIEWING"
+  const reviewing = resumes.filter(
+    (resume) => resume.status === "PENDING" || resume.status === "REVIEWING",
   ).length
-  const approvedCount = resumes.filter((r) => r.status === "APPROVED").length
-  const rejectedCount = resumes.filter((r) => r.status === "REJECTED").length
-
+  const approved = resumes.filter((resume) => resume.status === "APPROVED").length
+  const rejected = resumes.filter((resume) => resume.status === "REJECTED").length
   const stats = [
-    {
-      label: "Tổng đã ứng tuyển",
-      value: totalApplied,
-      sub: totalApplied > 0 ? "Thành công" : null,
-      subColor: "success.main",
-    },
-    {
-      label: "Đang xem xét",
-      value: reviewingCount,
-      sub: reviewingCount > 0 ? "Đang xử lý" : null,
-      subColor: "info.main",
-    },
-    {
-      label: "Đã trúng tuyển / Đã duyệt",
-      value: approvedCount,
-      sub: approvedCount > 0 ? "Mới" : null,
-      subColor: "success.main",
-      isOffer: approvedCount > 0,
-    },
-    {
-      label: "Bị từ chối",
-      value: rejectedCount,
-      sub: null,
-      subColor: null,
-    },
+    { label: t("myApplications.stats.total"), value: resumes.length, sub: null, subColor: null },
+    { label: t("myApplications.stats.inProgress"), value: reviewing, sub: null, subColor: null },
+    { label: t("myApplications.stats.approved"), value: approved, sub: null, subColor: null, isPositive: true },
+    { label: t("myApplications.stats.rejected"), value: rejected, sub: null, subColor: null },
   ]
 
-  const filteredApps =
+  const filteredResumes =
     activeFilter === "all"
-      ? applications
-      : applications.filter((a) => a.status === activeFilter)
+      ? resumes
+      : resumes.filter((resume) => resume.status === activeFilter)
+
+  if (applicationsQuery.sessionStatus === "loading") {
+    return (
+      <Box role="status" display="flex" alignItems="center" justifyContent="center" gap={2} py={8}>
+        <CircularProgress size={22} />
+        <Typography>{t("myApplications.loading")}</Typography>
+      </Box>
+    )
+  }
+
+  if (!applicationsQuery.hasCandidateAccess) return null
 
   return (
     <Box>
-      {/* Header */}
       <Box mb={5}>
-        <Typography
-          variant="h4"
-          fontWeight={900}
-          color="primary.main"
-          gutterBottom
-        >
-          Công việc của tôi
+        <Typography variant="h4" fontWeight={900} color="primary.main" gutterBottom>
+          {t("myApplications.title")}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Theo dõi tất cả đơn ứng tuyển và trạng thái xét duyệt hồ sơ của bạn.
+          {t("myApplications.subtitle")}
         </Typography>
       </Box>
 
-      {/* Stats Bento Grid */}
-      <StatsBentoGrid stats={stats} />
-
-      {/* Filter Tab Bar */}
-      <FilterTabBar
-        activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
-      />
-
-      {/* Application Cards */}
-      {loading ? (
-        <Box display="flex" justifyContent="center" py={6}>
+      {applicationsQuery.isLoading ? (
+        <Box role="status" display="flex" alignItems="center" justifyContent="center" gap={2} py={8}>
           <CircularProgress color="primary" />
+          <Typography>{t("myApplications.loading")}</Typography>
         </Box>
+      ) : applicationsQuery.isError ? (
+        <Alert
+          severity="error"
+          action={<Button color="inherit" size="small" onClick={() => void applicationsQuery.refetch()}>{t("myApplications.retry")}</Button>}
+        >
+          {t("myApplications.error")}
+        </Alert>
       ) : (
-        <Stack spacing={2.5}>
-          {filteredApps.length > 0 ? (
-            filteredApps.map((app) => (
-              <ApplicationCard key={app.id} app={app} />
-            ))
-          ) : (
-            <Paper
-              elevation={0}
-              sx={{
-                p: 6,
-                borderRadius: 3,
-                border: "1px solid",
-                borderColor: "divider",
-                bgcolor: "background.paper",
-                textAlign: "center",
-              }}
-            >
+        <>
+          <StatsBentoGrid stats={stats} />
+          <FilterTabBar activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
+          {resumes.length === 0 ? (
+            <Paper elevation={0} sx={{ p: 6, borderRadius: 3, border: "1px solid", borderColor: "divider", bgcolor: "background.paper", textAlign: "center" }}>
               <Typography variant="h6" color="text.secondary" gutterBottom>
-                Chưa có đơn ứng tuyển nào
+                {t("myApplications.noApplications")}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Hãy tìm kiếm và ứng tuyển các vị trí việc làm hấp dẫn ngay hôm nay!
+              <Typography variant="body2" color="text.secondary" mb={2}>
+                {t("myApplications.noApplicationsDescription")}
               </Typography>
+              <Button component={Link} href="/jobs" variant="contained">
+                {t("myApplications.findJobs")}
+              </Button>
+            </Paper>
+          ) : filteredResumes.length > 0 ? (
+            <Stack spacing={2.5}>
+              {filteredResumes.map((resume) => (
+                <ApplicationCard key={resume.id} app={resume} locale={i18n.language} />
+              ))}
+            </Stack>
+          ) : (
+            <Paper elevation={0} sx={{ p: 5, borderRadius: 3, border: "1px solid", borderColor: "divider", bgcolor: "background.paper", textAlign: "center" }}>
+              <Typography color="text.secondary" gutterBottom>{t("myApplications.emptyFiltered")}</Typography>
+              <Button onClick={() => setActiveFilter("all")}>{t("myApplications.showAll")}</Button>
             </Paper>
           )}
-        </Stack>
+        </>
       )}
     </Box>
   )
 }
-
