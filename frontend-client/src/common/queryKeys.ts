@@ -6,4 +6,5 @@ export const QUERY_KEYS = Object.freeze({
   REVIEW_MODULE: "reviews",
   BOOKMARK_MODULE: "bookmarks",
   RECOMMENDATION_MODULE: "recommendations",
+  NOTIFICATION_MODULE: "notifications",
 })

@@ -21,6 +21,7 @@ import vn.phantruongan.backend.common.security.CurrentUserService;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.repositories.JobRepository;
 import vn.phantruongan.backend.log.services.AuditLogService;
+import vn.phantruongan.backend.notification.services.NotificationService;
 import vn.phantruongan.backend.resume.dtos.req.CreateResumeReqDTO;
 import vn.phantruongan.backend.resume.dtos.res.ResumeResDTO;
 import vn.phantruongan.backend.resume.entities.Resume;
@@ -36,6 +37,7 @@ class ResumeServiceIdentityTest {
     @Mock JobRepository jobRepository;
     @Mock CurrentUserService currentUserService;
     @Mock AuditLogService auditLogService;
+    @Mock NotificationService notificationService;
     @InjectMocks ResumeService service;
 
     @Test

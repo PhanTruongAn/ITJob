@@ -156,6 +156,40 @@
       "rejected": "Bị từ chối"
     }
   },
+  "notifications": {
+    "title": "Thông báo",
+    "description": "Cập nhật về các đơn ứng tuyển của bạn.",
+    "loading": "Đang tải thông báo...",
+    "loadError": "Không thể tải thông báo.",
+    "retry": "Thử lại",
+    "emptyTitle": "Bạn đã xem hết thông báo.",
+    "emptyDescription": "Cập nhật trạng thái đơn ứng tuyển sẽ hiển thị tại đây.",
+    "browseJobs": "Tìm việc",
+    "markAllRead": "Đánh dấu tất cả đã đọc",
+    "markingAll": "Đang đánh dấu đã đọc...",
+    "markRead": "Đánh dấu đã đọc",
+    "read": "Đã đọc",
+    "unread": "Chưa đọc",
+    "viewApplication": "Xem công việc",
+    "dateUnavailable": "Không có ngày",
+    "jobFallback": "Công việc #{{id}}",
+    "unreadCountError": "Không thể tải số lượng thông báo chưa đọc.",
+    "updateError": "Không thể cập nhật trạng thái thông báo. Vui lòng thử lại.",
+    "status": {
+      "REVIEWING": {
+        "title": "Đơn ứng tuyển đang được xem xét",
+        "message": "Đơn ứng tuyển vào vị trí {{jobTitle}} đang được xem xét."
+      },
+      "APPROVED": {
+        "title": "Đơn ứng tuyển đã được duyệt",
+        "message": "Đơn ứng tuyển vào vị trí {{jobTitle}} đã được duyệt."
+      },
+      "REJECTED": {
+        "title": "Cập nhật đơn ứng tuyển",
+        "message": "Đơn ứng tuyển vào vị trí {{jobTitle}} chưa được chọn."
+      }
+    }
+  },
   "auth": {
     "loginTitle": "Đăng nhập",
     "registerTitle": "Đăng ký",

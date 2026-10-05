@@ -9,6 +9,7 @@ import LogoutIcon from "@mui/icons-material/Logout"
 import MailIcon from "@mui/icons-material/Mail"
 import MenuIcon from "@mui/icons-material/Menu"
 import NotificationsIcon from "@mui/icons-material/Notifications"
+import Badge from "@mui/material/Badge"
 import SettingsIcon from "@mui/icons-material/Settings"
 import SubscriptionsIcon from "@mui/icons-material/Subscriptions"
 import WorkIcon from "@mui/icons-material/Work"
@@ -34,6 +35,7 @@ import { useTranslation } from "react-i18next"
 import LanguageSwitcher from "./LanguageSwitcher"
 import Sitemark from "./SitemarkIcon"
 import { isCandidateRole } from "@/common/security/frontendSecurity.mjs"
+import { useUnreadNotificationCount } from "@/apis/notification/notification.hooks"
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -51,6 +53,8 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 export default function AppAppBar() {
   const { t } = useTranslation()
   const { data: session } = useSession()
+  const unreadCountQuery = useUnreadNotificationCount()
+  const unreadCount = unreadCountQuery.data?.data?.count ?? 0
   const [open, setOpen] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const router = useRouter()
@@ -240,7 +244,9 @@ export default function AppAppBar() {
                       href="/candidate/notifications"
                     >
                       <ListItemIcon>
-                        <NotificationsIcon fontSize="small" />
+                        <Badge badgeContent={unreadCount} max={99} color="error" invisible={unreadCount === 0}>
+                          <NotificationsIcon fontSize="small" />
+                        </Badge>
                       </ListItemIcon>
                       {t("nav.notifications", "Notifications")}
                     </MenuItem>,
@@ -368,6 +374,18 @@ export default function AppAppBar() {
                             <BookmarkBorderIcon fontSize="small" />
                           </ListItemIcon>
                           {t("nav.savedJobs", "Saved Jobs")}
+                        </MenuItem>
+                        <MenuItem
+                          component={Link}
+                          href="/candidate/notifications"
+                          onClick={toggleDrawer(false)}
+                        >
+                          <ListItemIcon>
+                            <Badge badgeContent={unreadCount} max={99} color="error" invisible={unreadCount === 0}>
+                              <NotificationsIcon fontSize="small" />
+                            </Badge>
+                          </ListItemIcon>
+                          {t("nav.notifications", "Notifications")}
                         </MenuItem>
                         <MenuItem
                           component={Link}
