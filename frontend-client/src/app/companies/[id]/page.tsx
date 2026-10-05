@@ -165,6 +165,7 @@ export default function CompanyDetailPage({ params }: Props) {
         <CompanyCoverHeader />
 
         <CompanyProfileHeader
+          companyId={companyId}
           name={company.name}
           logo={company.logo}
           tagline={company.industry ?? ""}

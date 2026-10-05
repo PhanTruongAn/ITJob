@@ -40,6 +40,7 @@ public class GoogleAuthService {
                 payload.getSubject(),
                 payload.getEmail(),
                 (String) payload.get("name"),
-                (String) payload.get("picture"));
+                (String) payload.get("picture"),
+                payload.getEmailVerified());
     }
 }

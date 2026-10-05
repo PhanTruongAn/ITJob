@@ -2,6 +2,7 @@ package vn.phantruongan.backend.recommendation.controllers;
 
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,9 @@ import vn.phantruongan.backend.cronjob.entities.CronJob;
 import vn.phantruongan.backend.cronjob.services.CronJobService;
 import vn.phantruongan.backend.recommendation.dtos.req.GetJobRecommendationReqDTO;
 import vn.phantruongan.backend.recommendation.dtos.res.JobRecommendationResDTO;
+import vn.phantruongan.backend.recommendation.dtos.res.CandidateRecommendationResDTO;
 import vn.phantruongan.backend.recommendation.enums.EmailStatus;
+import vn.phantruongan.backend.recommendation.services.CandidateRecommendationService;
 import vn.phantruongan.backend.recommendation.services.JobRecommendationService;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
 import vn.phantruongan.backend.util.annotations.RequirePermission;
@@ -38,6 +41,7 @@ import vn.phantruongan.backend.util.error.InvalidException;
 public class JobRecommendationController {
 
     private final JobRecommendationService jobRecommendationService;
+    private final CandidateRecommendationService candidateRecommendationService;
     private final CronJobService cronJobService;
 
     // ===================== Config =====================
@@ -57,6 +61,15 @@ public class JobRecommendationController {
     }
 
     // ===================== Recommendations =====================
+
+    @RequirePermission(resource = ResourceEnum.CANDIDATE_RECOMMENDATION, action = ActionEnum.READ)
+    @GetMapping("/candidate")
+    @ApiMessage("Get recommendations for the authenticated candidate")
+    public ResponseEntity<PaginationResponse<CandidateRecommendationResDTO>> getCandidateRecommendations(
+            @ParameterObject @PageableDefault(size = 6) Pageable pageable) {
+        return ResponseEntity.ok(
+                candidateRecommendationService.getCurrentCandidateRecommendations(pageable));
+    }
 
     @RequirePermission(resource = ResourceEnum.RECOMMENDATION, action = ActionEnum.READ)
     @GetMapping("/jobs")

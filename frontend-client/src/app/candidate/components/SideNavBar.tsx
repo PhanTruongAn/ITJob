@@ -7,6 +7,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications"
 import SettingsIcon from "@mui/icons-material/Settings"
 import SubscriptionsIcon from "@mui/icons-material/Subscriptions"
 import WorkIcon from "@mui/icons-material/Work"
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import {
   Box,
   List,
@@ -51,6 +52,16 @@ export default function SideNavBar() {
       label: t("nav.myJobs", "My Jobs"),
       href: "/candidate/my-jobs",
       icon: <WorkIcon fontSize="small" />,
+    },
+    {
+      label: t("nav.savedJobs", "Saved Jobs"),
+      href: "/candidate/saved-jobs",
+      icon: <BookmarkBorderIcon fontSize="small" />,
+    },
+    {
+      label: t("nav.savedCompanies", "Saved Companies"),
+      href: "/candidate/saved-companies",
+      icon: <BookmarkBorderIcon fontSize="small" />,
     },
     {
       label: t("nav.jobInvitations", "Job Invitations"),

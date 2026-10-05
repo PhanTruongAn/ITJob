@@ -2,6 +2,7 @@
 import ColorModeIconDropdown from "@/shared-theme/ColorModeIconDropdown"
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded"
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import DashboardIcon from "@mui/icons-material/Dashboard"
 import DescriptionIcon from "@mui/icons-material/Description"
 import LogoutIcon from "@mui/icons-material/Logout"
@@ -152,42 +153,108 @@ export default function AppAppBar() {
                     </Typography>
                   </Box>
                   <Divider sx={{ my: 0.5 }} />
-                  {isCandidateRole(session.user?.role) && (
-                    <>
-                      <MenuItem component={Link} href="/candidate/dashboard">
-                        <ListItemIcon><DashboardIcon fontSize="small" /></ListItemIcon>
-                        {t("nav.dashboard", "Dashboard")}
-                      </MenuItem>
-                      <MenuItem component={Link} href="/candidate/cv-attachment">
-                        <ListItemIcon><DescriptionIcon fontSize="small" /></ListItemIcon>
-                        {t("nav.cvAttachment", "CV Attachment")}
-                      </MenuItem>
-                      <MenuItem component={Link} href="/candidate/profile">
-                        <ListItemIcon><AccountCircleIcon fontSize="small" /></ListItemIcon>
-                        {t("nav.profile", "Profile")}
-                      </MenuItem>
-                      <MenuItem component={Link} href="/candidate/my-jobs">
-                        <ListItemIcon><WorkIcon fontSize="small" /></ListItemIcon>
-                        {t("nav.myJobs", "My Jobs")}
-                      </MenuItem>
-                      <MenuItem component={Link} href="/candidate/job-invitations">
-                        <ListItemIcon><MailIcon fontSize="small" /></ListItemIcon>
-                        {t("nav.jobInvitations", "Job Invitations")}
-                      </MenuItem>
-                      <MenuItem component={Link} href="/candidate/email-subscriptions">
-                        <ListItemIcon><SubscriptionsIcon fontSize="small" /></ListItemIcon>
-                        {t("nav.emailSubscriptions", "Email Subscriptions")}
-                      </MenuItem>
-                      <MenuItem component={Link} href="/candidate/notifications">
-                        <ListItemIcon><NotificationsIcon fontSize="small" /></ListItemIcon>
-                        {t("nav.notifications", "Notifications")}
-                      </MenuItem>
-                      <MenuItem component={Link} href="/candidate/settings">
-                        <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
-                        {t("nav.settings", "Settings")}
-                      </MenuItem>
-                    </>
-                  )}
+                  {isCandidateRole(session.user?.role) && [
+                    <MenuItem
+                      key="dashboard"
+                      component={Link}
+                      href="/candidate/dashboard"
+                    >
+                      <ListItemIcon>
+                        <DashboardIcon fontSize="small" />
+                      </ListItemIcon>
+                      {t("nav.dashboard", "Dashboard")}
+                    </MenuItem>,
+                    <MenuItem
+                      key="cv-attachment"
+                      component={Link}
+                      href="/candidate/cv-attachment"
+                    >
+                      <ListItemIcon>
+                        <DescriptionIcon fontSize="small" />
+                      </ListItemIcon>
+                      {t("nav.cvAttachment", "CV Attachment")}
+                    </MenuItem>,
+                    <MenuItem
+                      key="profile"
+                      component={Link}
+                      href="/candidate/profile"
+                    >
+                      <ListItemIcon>
+                        <AccountCircleIcon fontSize="small" />
+                      </ListItemIcon>
+                      {t("nav.profile", "Profile")}
+                    </MenuItem>,
+                    <MenuItem
+                      key="my-jobs"
+                      component={Link}
+                      href="/candidate/my-jobs"
+                    >
+                      <ListItemIcon>
+                        <WorkIcon fontSize="small" />
+                      </ListItemIcon>
+                      {t("nav.myJobs", "My Jobs")}
+                    </MenuItem>,
+                    <MenuItem
+                      key="job-invitations"
+                      component={Link}
+                      href="/candidate/job-invitations"
+                    >
+                      <ListItemIcon>
+                        <MailIcon fontSize="small" />
+                      </ListItemIcon>
+                      {t("nav.jobInvitations", "Job Invitations")}
+                    </MenuItem>,
+                    <MenuItem
+                      key="saved-jobs"
+                      component={Link}
+                      href="/candidate/saved-jobs"
+                    >
+                      <ListItemIcon>
+                        <BookmarkBorderIcon fontSize="small" />
+                      </ListItemIcon>
+                      {t("nav.savedJobs", "Saved Jobs")}
+                    </MenuItem>,
+                    <MenuItem
+                      key="saved-companies"
+                      component={Link}
+                      href="/candidate/saved-companies"
+                    >
+                      <ListItemIcon>
+                        <BookmarkBorderIcon fontSize="small" />
+                      </ListItemIcon>
+                      {t("nav.savedCompanies", "Saved Companies")}
+                    </MenuItem>,
+                    <MenuItem
+                      key="email-subscriptions"
+                      component={Link}
+                      href="/candidate/email-subscriptions"
+                    >
+                      <ListItemIcon>
+                        <SubscriptionsIcon fontSize="small" />
+                      </ListItemIcon>
+                      {t("nav.emailSubscriptions", "Email Subscriptions")}
+                    </MenuItem>,
+                    <MenuItem
+                      key="notifications"
+                      component={Link}
+                      href="/candidate/notifications"
+                    >
+                      <ListItemIcon>
+                        <NotificationsIcon fontSize="small" />
+                      </ListItemIcon>
+                      {t("nav.notifications", "Notifications")}
+                    </MenuItem>,
+                    <MenuItem
+                      key="settings"
+                      component={Link}
+                      href="/candidate/settings"
+                    >
+                      <ListItemIcon>
+                        <SettingsIcon fontSize="small" />
+                      </ListItemIcon>
+                      {t("nav.settings", "Settings")}
+                    </MenuItem>,
+                  ]}
                   <Divider sx={{ my: 0.5 }} />
                   <MenuItem
                     onClick={() => signOut()}
@@ -280,6 +347,30 @@ export default function AppAppBar() {
                         {session.user?.name}
                       </Typography>
                     </MenuItem>
+                    {isCandidateRole(session.user?.role) && (
+                      <>
+                        <MenuItem
+                          component={Link}
+                          href="/candidate/saved-jobs"
+                          onClick={toggleDrawer(false)}
+                        >
+                          <ListItemIcon>
+                            <BookmarkBorderIcon fontSize="small" />
+                          </ListItemIcon>
+                          {t("nav.savedJobs", "Saved Jobs")}
+                        </MenuItem>
+                        <MenuItem
+                          component={Link}
+                          href="/candidate/saved-companies"
+                          onClick={toggleDrawer(false)}
+                        >
+                          <ListItemIcon>
+                            <BookmarkBorderIcon fontSize="small" />
+                          </ListItemIcon>
+                          {t("nav.savedCompanies", "Saved Companies")}
+                        </MenuItem>
+                      </>
+                    )}
                     <MenuItem>
                       <Button
                         color="error"

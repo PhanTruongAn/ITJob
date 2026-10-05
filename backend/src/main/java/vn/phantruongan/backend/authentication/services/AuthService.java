@@ -155,6 +155,9 @@ public class AuthService {
         user.setGoogleId(info.getSub());
         user.setName(info.getName());
         user.setAvatar(info.getPicture());
+        if (Boolean.TRUE.equals(info.getEmailVerified())) {
+            user.setVerified(true);
+        }
 
         return userRepository.save(user);
     }

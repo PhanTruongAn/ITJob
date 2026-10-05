@@ -10,4 +10,5 @@ public class GoogleTokenInfoResDTO {
     private String email;
     private String name;
     private String picture;
+    private Boolean emailVerified;
 }
