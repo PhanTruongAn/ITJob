@@ -7,8 +7,12 @@ import {
   Select,
   Stack,
   Typography,
+  Alert,
+  Button,
 } from "@mui/material"
 import { IJob } from "@/types/backend"
+import { getDiscoveryViewState } from "@/common/discovery/discoveryStates.mjs"
+import { useTranslation } from "react-i18next"
 import JobCard from "./JobCard"
 
 function formatTimeAgo(dateStr?: string): string {
@@ -31,6 +35,8 @@ function formatTimeAgo(dateStr?: string): string {
 interface JobListProps {
   jobs: IJob[]
   loading: boolean
+  loadError: boolean
+  onRetry: () => void
   totalElements: number
   page: number
   totalPages: number
@@ -42,6 +48,8 @@ interface JobListProps {
 export default function JobList({
   jobs,
   loading,
+  loadError,
+  onRetry,
   totalElements,
   page,
   totalPages,
@@ -49,11 +57,22 @@ export default function JobList({
   onPageChange,
   onSortChange,
 }: JobListProps) {
+  const { t } = useTranslation()
+  const viewState = getDiscoveryViewState({
+    isLoading: loading,
+    isError: loadError,
+    items: jobs,
+  })
+
   return (
     <Stack spacing={3} flex={1} minWidth={0}>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="h6" fontWeight="bold">
-          {loading ? "Đang tải..." : `${totalElements} việc làm phù hợp`}
+          {loading
+            ? t("discovery.jobsLoading")
+            : loadError
+              ? t("discovery.jobsTitle")
+              : t("discovery.jobsCount", { count: totalElements })}
         </Typography>
         <Select
           size="small"
@@ -90,7 +109,18 @@ export default function JobList({
           </Box>
         )}
 
-        {jobs.length === 0 && !loading ? (
+        {viewState === "error" ? (
+          <Alert
+            severity="error"
+            action={
+              <Button color="inherit" size="small" onClick={onRetry}>
+                {t("discovery.retry")}
+              </Button>
+            }
+          >
+            {t("discovery.jobsLoadError")}
+          </Alert>
+        ) : viewState === "empty" ? (
           <Box
             display="flex"
             flexDirection="column"
@@ -99,10 +129,10 @@ export default function JobList({
             py={10}
           >
             <Typography variant="h6" color="text.secondary" mb={1}>
-              Không tìm thấy việc làm phù hợp
+              {t("discovery.jobsEmpty")}
             </Typography>
             <Typography variant="body2" color="text.disabled">
-              Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
+              {t("discovery.jobsEmptyDescription")}
             </Typography>
           </Box>
         ) : (

@@ -63,6 +63,21 @@
     "all": "Tất cả",
     "or": "hoặc"
   },
+  "discovery": {
+    "jobsTitle": "Việc làm",
+    "jobsLoading": "Đang tải việc làm...",
+    "jobsCount": "{{count}} việc làm phù hợp",
+    "jobsLoadError": "Không thể tải danh sách việc làm. Vui lòng thử lại.",
+    "jobsEmpty": "Không tìm thấy việc làm phù hợp",
+    "jobsEmptyDescription": "Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm.",
+    "companiesLoadError": "Không thể tải danh sách công ty. Vui lòng thử lại.",
+    "companiesEmpty": "Không tìm thấy công ty nào phù hợp.",
+    "jobDetailLoading": "Đang tải chi tiết công việc...",
+    "jobDetailLoadError": "Không thể tải chi tiết công việc. Vui lòng thử lại.",
+    "jobNotFound": "Không tìm thấy công việc này hoặc công việc không còn tuyển dụng.",
+    "backToJobs": "Quay lại danh sách việc làm",
+    "retry": "Thử lại"
+  },
   "bookmarks": {
     "savedJobs": "Công việc đã lưu",
     "savedCompanies": "Công ty đã lưu",

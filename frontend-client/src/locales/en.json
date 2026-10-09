@@ -63,6 +63,21 @@
     "all": "All",
     "or": "or"
   },
+  "discovery": {
+    "jobsTitle": "Jobs",
+    "jobsLoading": "Loading jobs...",
+    "jobsCount": "{{count}} matching jobs",
+    "jobsLoadError": "Jobs could not be loaded. Please try again.",
+    "jobsEmpty": "No matching jobs found",
+    "jobsEmptyDescription": "Try changing your filters or search terms.",
+    "companiesLoadError": "Companies could not be loaded. Please try again.",
+    "companiesEmpty": "No matching companies found.",
+    "jobDetailLoading": "Loading job details...",
+    "jobDetailLoadError": "Job details could not be loaded. Please try again.",
+    "jobNotFound": "This job could not be found or is no longer available.",
+    "backToJobs": "Back to job listings",
+    "retry": "Retry"
+  },
   "bookmarks": {
     "savedJobs": "Saved jobs",
     "savedCompanies": "Saved companies",
