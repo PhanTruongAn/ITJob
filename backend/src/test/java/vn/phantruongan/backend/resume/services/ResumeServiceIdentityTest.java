@@ -21,9 +21,11 @@ import vn.phantruongan.backend.common.security.CurrentUserService;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.repositories.JobRepository;
 import vn.phantruongan.backend.log.services.AuditLogService;
+import vn.phantruongan.backend.notification.services.NotificationService;
 import vn.phantruongan.backend.resume.dtos.req.CreateResumeReqDTO;
 import vn.phantruongan.backend.resume.dtos.res.ResumeResDTO;
 import vn.phantruongan.backend.resume.entities.Resume;
+import vn.phantruongan.backend.resume.enums.ResumeEnum;
 import vn.phantruongan.backend.resume.mappers.ResumeMapper;
 import vn.phantruongan.backend.resume.repositories.ResumeRepository;
 
@@ -35,6 +37,7 @@ class ResumeServiceIdentityTest {
     @Mock JobRepository jobRepository;
     @Mock CurrentUserService currentUserService;
     @Mock AuditLogService auditLogService;
+    @Mock NotificationService notificationService;
     @InjectMocks ResumeService service;
 
     @Test
@@ -44,12 +47,15 @@ class ResumeServiceIdentityTest {
         job.setId(4L);
         CreateResumeReqDTO request = new CreateResumeReqDTO();
         request.setUserId(99L);
+        request.setStatus(ResumeEnum.APPROVED);
         request.setJobId(4L);
         when(currentUserService.getCurrentUserEmail()).thenReturn("candidate@example.test");
         when(userRepository.findByEmail("candidate@example.test")).thenReturn(Optional.of(candidate));
         when(jobRepository.findById(4L)).thenReturn(Optional.of(job));
         when(resumeRepository.existsByUserIdAndJobId(7L, 4L)).thenReturn(false);
-        when(resumeMapper.toEntity(request)).thenReturn(new Resume());
+        Resume mappedResume = new Resume();
+        mappedResume.setStatus(ResumeEnum.APPROVED);
+        when(resumeMapper.toEntity(request)).thenReturn(mappedResume);
         when(resumeRepository.save(any(Resume.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(resumeMapper.toDto(any(Resume.class))).thenReturn(new ResumeResDTO());
 
@@ -58,7 +64,32 @@ class ResumeServiceIdentityTest {
 
         verify(resumeRepository, org.mockito.Mockito.times(2)).existsByUserIdAndJobId(7L, 4L);
         verify(resumeRepository, org.mockito.Mockito.times(2))
-                .save(org.mockito.ArgumentMatchers.argThat(resume -> resume.getUser() == candidate));
+                .save(org.mockito.ArgumentMatchers.argThat(resume -> resume.getUser() == candidate
+                        && resume.getStatus() == ResumeEnum.PENDING));
+    }
+
+    @Test
+    void privilegedCreationRetainsRequestedStatus() {
+        User admin = user(1L, "ADMIN");
+        Job job = new Job();
+        job.setId(4L);
+        CreateResumeReqDTO request = new CreateResumeReqDTO();
+        request.setJobId(4L);
+        request.setStatus(ResumeEnum.APPROVED);
+        when(currentUserService.getCurrentUserEmail()).thenReturn("admin@example.test");
+        when(userRepository.findByEmail("admin@example.test")).thenReturn(Optional.of(admin));
+        when(jobRepository.findById(4L)).thenReturn(Optional.of(job));
+        when(resumeRepository.existsByUserIdAndJobId(1L, 4L)).thenReturn(false);
+        Resume mappedResume = new Resume();
+        mappedResume.setStatus(ResumeEnum.APPROVED);
+        when(resumeMapper.toEntity(request)).thenReturn(mappedResume);
+        when(resumeRepository.save(any(Resume.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(resumeMapper.toDto(any(Resume.class))).thenReturn(new ResumeResDTO());
+
+        service.createResume(request);
+
+        verify(resumeRepository).save(org.mockito.ArgumentMatchers.argThat(
+                resume -> resume.getUser() == admin && resume.getStatus() == ResumeEnum.APPROVED));
     }
 
     @Test

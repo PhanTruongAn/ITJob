@@ -6,7 +6,7 @@ interface StatItem {
   value: number
   sub: string | null
   subColor: string | null
-  isOffer?: boolean
+  isPositive?: boolean
 }
 
 interface StatsBentoGridProps {
@@ -38,12 +38,12 @@ export default function StatsBentoGrid({ stats }: StatsBentoGridProps) {
               <Typography
                 variant="h4"
                 fontWeight="900"
-                color={stat.isOffer ? "success.main" : "primary.main"}
+                color={stat.isPositive ? "success.main" : "primary.main"}
               >
                 {stat.value}
               </Typography>
               {stat.sub &&
-                (stat.isOffer ? (
+                (stat.isPositive ? (
                   <Chip
                     label={stat.sub}
                     size="small"

@@ -11,4 +11,5 @@ export const API_PATHS = {
   PUBLIC_REVIEW: "/api/v1/public/reviews/companies",
   BOOKMARKS: "/api/v1/bookmarks",
   CANDIDATE_RECOMMENDATIONS: "/api/v1/recommendations/candidate",
+  CANDIDATE_NOTIFICATIONS: "/api/v1/candidate/notifications",
 }

@@ -1,254 +1,149 @@
 "use client"
+
+import {
+  useCandidateNotifications,
+  useMarkAllNotificationsRead,
+  useMarkNotificationRead,
+  useUnreadNotificationCount,
+} from "@/apis/notification/notification.hooks"
+import { Alert, Box, Button, CircularProgress, Pagination, Stack, Typography } from "@mui/material"
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff"
-import { Box, Button, Typography } from "@mui/material"
-import { useSession } from "next-auth/react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import NotificationCard, {
-  NotificationItem,
-} from "./components/NotificationCard"
+import { useTranslation } from "react-i18next"
+import NotificationCard from "./components/NotificationCard"
 import NotificationHeader from "./components/NotificationHeader"
-import NotificationTabs from "./components/NotificationTabs"
 
-// Initial Mock Data from HTML
-const initialNotifications: NotificationItem[] = [
-  {
-    id: 1,
-    type: "application",
-    title: "Application Status Updated",
-    message: "Your application for ",
-    boldText: "Senior Frontend Architect",
-    boldSubject: ' at TechFlow Systems has been moved to "Under Review".',
-    time: "2 hours ago",
-    unread: true,
-    iconType: "assignment",
-    detailsLink: "#",
-    secondaryAction: {
-      label: "Mark as read",
-      actionType: "read",
-    },
-  },
-  {
-    id: 2,
-    type: "alerts",
-    title: "New Job Match: Senior React Developer",
-    message: "A new position at ",
-    boldText: "CloudScale AI",
-    boldSubject:
-      " matches your preferred tech stack and salary range ($160k - $200k).",
-    time: "5 hours ago",
-    unread: false,
-    iconType: "work",
-    primaryAction: {
-      label: "Apply Now",
-      href: "/jobs/102",
-    },
-    secondaryAction: {
-      label: "See Similar Jobs",
-      href: "/jobs",
-    },
-  },
-  {
-    id: 3,
-    type: "application",
-    title: "Interview Invitation",
-    message: "Sarah Jenkins from ",
-    boldText: "Innovate Labs",
-    boldSubject:
-      " invited you for a technical screening for the Principal Engineer role.",
-    time: "Yesterday",
-    unread: true,
-    iconType: "mail",
-    primaryAction: {
-      label: "Schedule Interview",
-      href: "/candidate/job-invitations",
-    },
-    secondaryAction: {
-      label: "Decline",
-      actionType: "decline",
-    },
-  },
-  {
-    id: 4,
-    type: "system",
-    title: "System Maintenance Scheduled",
-    message:
-      "The Terminal Slate platform will be undergoing scheduled maintenance this Sunday from 2:00 AM to 4:00 AM UTC. Plan your applications accordingly.",
-    time: "2 days ago",
-    unread: false,
-    iconType: "settings",
-    detailsLink: "#",
-  },
-  {
-    id: 5,
-    type: "system",
-    title: "Profile Verification Complete",
-    message:
-      'Great news! Your professional profile has been verified. You now have a "Verified Pro" badge on your public CV.',
-    time: "3 days ago",
-    unread: false,
-    iconType: "verified",
-    detailsLink: "/candidate/profile",
-  },
-]
+const PAGE_SIZE = 10
 
 export default function NotificationsPage() {
-  const { status } = useSession()
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<string>("all")
-  const [notifications, setNotifications] =
-    useState<NotificationItem[]>(initialNotifications)
+  const { t, i18n } = useTranslation()
+  const [page, setPage] = useState(1)
+  const notificationsQuery = useCandidateNotifications(page, PAGE_SIZE)
+  const unreadCountQuery = useUnreadNotificationCount()
+  const markOneMutation = useMarkNotificationRead()
+  const markAllMutation = useMarkAllNotificationsRead()
+  const notifications = notificationsQuery.data?.data?.result ?? []
+  const pagination = notificationsQuery.data?.data?.meta
+  const unreadCount = unreadCountQuery.data?.data?.count ?? 0
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/signin")
+    if (notificationsQuery.sessionStatus === "unauthenticated") {
+      router.replace("/signin")
+    } else if (
+      notificationsQuery.sessionStatus === "authenticated" &&
+      !notificationsQuery.hasCandidateAccess
+    ) {
+      router.replace("/")
     }
-  }, [status, router])
+  }, [notificationsQuery.sessionStatus, notificationsQuery.hasCandidateAccess, router])
 
-  if (status === "loading") {
-    return <Box p={4}>Loading...</Box>
+  useEffect(() => {
+    if (pagination && (pagination.pages === 0 ? page !== 1 : page > pagination.pages)) {
+      setPage(pagination.pages || 1)
+    }
+  }, [page, pagination])
+
+  const openNotification = (item: (typeof notifications)[number]) => {
+    if (!item.read) markOneMutation.mutate(item.id)
   }
 
-  if (status === "unauthenticated") {
-    return null
-  }
-
-  // Filter logic
-  const filteredNotifications = notifications.filter((item) => {
-    if (activeTab === "all") return true
-    if (activeTab === "application") return item.type === "application"
-    if (activeTab === "alerts") return item.type === "alerts"
-    if (activeTab === "system") return item.type === "system"
-    return true
-  })
-
-  // Mark all as read
-  const handleMarkAllAsRead = () => {
-    setNotifications((prev) => prev.map((item) => ({ ...item, unread: false })))
-  }
-
-  // Mark single item as read
-  const handleMarkAsRead = (id: number) => {
-    setNotifications((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, unread: false } : item)),
+  if (notificationsQuery.sessionStatus === "loading") {
+    return (
+      <Box role="status" p={4} display="flex" alignItems="center" gap={2}>
+        <CircularProgress size={20} />
+        <Typography>{t("notifications.loading")}</Typography>
+      </Box>
     )
   }
 
-  // Decline invitation
-  const handleDecline = (id: number) => {
-    setNotifications((prev) => prev.filter((item) => item.id !== id))
-  }
-
-  const hasUnread = notifications.some((n) => n.unread)
+  if (!notificationsQuery.hasCandidateAccess) return null
 
   return (
     <Box sx={{ maxWidth: 850, mx: "auto" }}>
-      {/* Header & Actions */}
       <NotificationHeader
-        hasUnread={hasUnread}
-        onMarkAllAsRead={handleMarkAllAsRead}
+        hasUnread={unreadCount > 0 || notifications.some((notification) => !notification.read)}
+        isMarkingAll={markAllMutation.isPending}
+        onMarkAllAsRead={() => markAllMutation.mutate()}
       />
 
-      {/* Tabs */}
-      <NotificationTabs activeTab={activeTab} onChange={setActiveTab} />
-
-      {/* Notification List */}
-      {filteredNotifications.length > 0 ? (
-        <Box display="flex" flexDirection="column" gap={2}>
-          {filteredNotifications.map((item) => (
-            <NotificationCard
-              key={item.id}
-              item={item}
-              onMarkAsRead={handleMarkAsRead}
-              onDecline={handleDecline}
-            />
-          ))}
-
-          {/* Load More Button */}
-          <Box display="flex" justifyContent="center" mt={3}>
+      {(markOneMutation.isError || markAllMutation.isError) && (
+        <Alert
+          severity="warning"
+          sx={{ mb: 2 }}
+          action={
             <Button
-              variant="outlined"
-              sx={{
-                fontWeight: "bold",
-                borderRadius: 5,
-                borderColor: "divider",
-                color: "text.secondary",
-                px: 4,
-                py: 1,
-                textTransform: "none",
-                fontSize: "0.85rem",
-                "&:hover": {
-                  bgcolor: "action.hover",
-                  borderColor: "divider",
-                  color: "primary.main",
-                },
+              color="inherit"
+              size="small"
+              onClick={() => {
+                if (markAllMutation.isError) markAllMutation.mutate()
+                else if (markOneMutation.variables !== undefined) markOneMutation.mutate(markOneMutation.variables)
               }}
             >
-              Load older notifications
+              {t("notifications.retry")}
             </Button>
-          </Box>
-        </Box>
-      ) : (
-        /* Empty State */
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            py: 12,
-            textAlign: "center",
-          }}
+          }
         >
-          <Box
-            sx={{
-              width: 140,
-              height: 140,
-              mb: 3,
-              bgcolor: (theme) =>
-                theme.palette.mode === "dark" ? "grey.800" : "grey.100",
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              position: "relative",
-            }}
-          >
-            <NotificationsOffIcon
-              sx={{ fontSize: 60, color: "text.secondary", opacity: 0.6 }}
-            />
-          </Box>
-          <Typography
-            variant="h6"
-            fontWeight="bold"
-            color="text.primary"
-            gutterBottom
-          >
-            You&apos;re all caught up!
+          {t("notifications.updateError")}
+        </Alert>
+      )}
+
+      {notificationsQuery.isLoading ? (
+        <Box role="status" display="flex" justifyContent="center" alignItems="center" gap={2} py={8}>
+          <CircularProgress />
+          <Typography>{t("notifications.loading")}</Typography>
+        </Box>
+      ) : notificationsQuery.isError ? (
+        <Alert
+          severity="error"
+          action={<Button color="inherit" size="small" onClick={() => void notificationsQuery.refetch()}>{t("notifications.retry")}</Button>}
+        >
+          {t("notifications.loadError")}
+        </Alert>
+      ) : notifications.length === 0 ? (
+        <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" py={10} textAlign="center">
+          <NotificationsOffIcon sx={{ fontSize: 56, color: "text.secondary", opacity: 0.6, mb: 2 }} />
+          <Typography variant="h6" fontWeight="bold" gutterBottom>
+            {t("notifications.emptyTitle")}
           </Typography>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ maxWidth: 300, mb: 3 }}
-          >
-            No new notifications at the moment. We&apos;ll let you know when
-            something important happens.
+          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 360, mb: 3 }}>
+            {t("notifications.emptyDescription")}
           </Typography>
-          <Button
-            variant="contained"
-            onClick={() => setNotifications(initialNotifications)}
-            sx={{
-              fontWeight: "bold",
-              borderRadius: 2,
-              px: 3,
-              py: 1,
-              bgcolor: "primary.main",
-              "&:hover": { bgcolor: "primary.dark" },
-            }}
-          >
-            Check for updates
+          <Button component={Link} href="/jobs" variant="contained">
+            {t("notifications.browseJobs")}
           </Button>
         </Box>
+      ) : (
+        <Stack spacing={2}>
+          {notifications.map((notification) => (
+            <NotificationCard
+              key={notification.id}
+              item={notification}
+              locale={i18n.language}
+              onMarkAsRead={(id) => markOneMutation.mutate(id)}
+              onOpen={openNotification}
+            />
+          ))}
+          {pagination && pagination.pages > 1 && (
+            <Box display="flex" justifyContent="center" pt={2}>
+              <Pagination
+                count={pagination.pages}
+                page={page}
+                onChange={(_, nextPage) => setPage(nextPage)}
+                color="primary"
+                shape="rounded"
+              />
+            </Box>
+          )}
+        </Stack>
+      )}
+
+      {unreadCountQuery.isError && !notificationsQuery.isError && (
+        <Alert severity="warning" sx={{ mt: 2 }} action={<Button color="inherit" size="small" onClick={() => void unreadCountQuery.refetch()}>{t("notifications.retry")}</Button>}>
+          {t("notifications.unreadCountError")}
+        </Alert>
       )}
     </Box>
   )

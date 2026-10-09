@@ -1,5 +1,6 @@
 "use client"
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import DashboardIcon from "@mui/icons-material/Dashboard"
 import DescriptionIcon from "@mui/icons-material/Description"
 import MailIcon from "@mui/icons-material/Mail"
@@ -7,7 +8,6 @@ import NotificationsIcon from "@mui/icons-material/Notifications"
 import SettingsIcon from "@mui/icons-material/Settings"
 import SubscriptionsIcon from "@mui/icons-material/Subscriptions"
 import WorkIcon from "@mui/icons-material/Work"
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import {
   Box,
   List,
@@ -49,7 +49,7 @@ export default function SideNavBar() {
       icon: <AccountCircleIcon fontSize="small" />,
     },
     {
-      label: t("nav.myJobs", "My Jobs"),
+      label: t("nav.myApplications", "My Applications"),
       href: "/candidate/my-jobs",
       icon: <WorkIcon fontSize="small" />,
     },
@@ -141,7 +141,8 @@ export default function SideNavBar() {
           {navItems.map((item) => {
             const isActive =
               pathname === item.href ||
-              (item.href === "/candidate/dashboard" && pathname === "/candidate") // fallback
+              (item.href === "/candidate/dashboard" &&
+                pathname === "/candidate") // fallback
 
             return (
               <ListItem key={item.label} disablePadding sx={{ mb: 0.5 }}>

@@ -11,6 +11,7 @@
     "profile": "Profile",
     "dashboard": "Dashboard",
     "myJobs": "My Jobs",
+    "myApplications": "My Applications",
     "cvAttachment": "CV Management",
     "cvBuilder": "CV Builder",
     "jobInvitations": "Job Invitations",
@@ -118,6 +119,76 @@
     "noRecommendations": "There are no recommendations for you yet.",
     "matchScore": "{{score}}% match",
     "browseJobs": "Browse Jobs"
+  },
+  "myApplications": {
+    "title": "My Applications",
+    "subtitle": "Track the status of each job application.",
+    "loading": "Loading your applications...",
+    "error": "Applications could not be loaded.",
+    "retry": "Retry",
+    "noApplications": "You have not applied to any jobs yet.",
+    "noApplicationsDescription": "Explore open roles and submit an application when you find a good fit.",
+    "emptyFiltered": "No applications match this status.",
+    "showAll": "Show all applications",
+    "findJobs": "Find jobs",
+    "appliedOn": "Applied {{date}}",
+    "dateUnavailable": "Date unavailable",
+    "jobFallback": "Job #{{id}}",
+    "companyFallback": "Company not specified",
+    "viewJob": "View job",
+    "filters": {
+      "all": "All",
+      "pending": "Applied / Pending",
+      "reviewing": "Reviewing",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "REVIEWING": "Under review",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "stats": {
+      "total": "Total applications",
+      "inProgress": "In progress",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "description": "Updates about your job applications.",
+    "loading": "Loading notifications...",
+    "loadError": "Notifications could not be loaded.",
+    "retry": "Retry",
+    "emptyTitle": "You’re all caught up.",
+    "emptyDescription": "Application status updates will appear here.",
+    "browseJobs": "Browse jobs",
+    "markAllRead": "Mark all as read",
+    "markingAll": "Marking as read...",
+    "markRead": "Mark as read",
+    "read": "Read",
+    "unread": "Unread",
+    "viewApplication": "View job",
+    "dateUnavailable": "Date unavailable",
+    "jobFallback": "Job #{{id}}",
+    "unreadCountError": "Unread notification count could not be loaded.",
+    "updateError": "Notification status could not be updated. Please retry.",
+    "status": {
+      "REVIEWING": {
+        "title": "Application under review",
+        "message": "Your application for {{jobTitle}} is now under review."
+      },
+      "APPROVED": {
+        "title": "Application approved",
+        "message": "Your application for {{jobTitle}} has been approved."
+      },
+      "REJECTED": {
+        "title": "Application update",
+        "message": "Your application for {{jobTitle}} was not selected."
+      }
+    }
   },
   "auth": {
     "loginTitle": "Sign In",

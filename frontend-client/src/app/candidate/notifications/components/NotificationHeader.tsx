@@ -1,55 +1,31 @@
 "use client"
+
 import DoneAllIcon from "@mui/icons-material/DoneAll"
 import { Box, Button, Typography } from "@mui/material"
+import { useTranslation } from "react-i18next"
 
 interface NotificationHeaderProps {
   hasUnread: boolean
+  isMarkingAll: boolean
   onMarkAllAsRead: () => void
 }
 
-export default function NotificationHeader({
-  hasUnread,
-  onMarkAllAsRead,
-}: NotificationHeaderProps) {
+export default function NotificationHeader({ hasUnread, isMarkingAll, onMarkAllAsRead }: NotificationHeaderProps) {
+  const { t } = useTranslation()
+
   return (
-    <Box
-      display="flex"
-      flexDirection={{ xs: "column", sm: "row" }}
-      justifyContent="space-between"
-      alignItems={{ xs: "flex-start", sm: "center" }}
-      gap={2}
-      mb={4}
-    >
+    <Box display="flex" flexDirection={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", sm: "center" }} gap={2} mb={4}>
       <Box>
-        <Typography
-          variant="h4"
-          fontWeight={900}
-          color="primary.main"
-          gutterBottom
-          sx={{ letterSpacing: "-0.5px" }}
-        >
-          Notifications
+        <Typography variant="h4" component="h1" fontWeight={900} color="primary.main" gutterBottom>
+          {t("notifications.title")}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Stay updated on your application progress and new opportunities.
+          {t("notifications.description")}
         </Typography>
       </Box>
       {hasUnread && (
-        <Button
-          variant="outlined"
-          onClick={onMarkAllAsRead}
-          startIcon={<DoneAllIcon />}
-          sx={{
-            fontWeight: "bold",
-            borderRadius: 2.5,
-            borderColor: "divider",
-            color: "primary.main",
-            textTransform: "none",
-            px: 2.5,
-            py: 1,
-          }}
-        >
-          Mark all as read
+        <Button variant="outlined" onClick={onMarkAllAsRead} disabled={isMarkingAll} startIcon={<DoneAllIcon />} sx={{ fontWeight: "bold", borderRadius: 2.5, borderColor: "divider", color: "primary.main", textTransform: "none", px: 2.5, py: 1 }}>
+          {isMarkingAll ? t("notifications.markingAll") : t("notifications.markAllRead")}
         </Button>
       )}
     </Box>

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.authentication.entities.User;
@@ -17,6 +18,7 @@ import vn.phantruongan.backend.common.security.CurrentUserService;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.repositories.JobRepository;
 import vn.phantruongan.backend.log.services.AuditLogService;
+import vn.phantruongan.backend.notification.services.NotificationService;
 import vn.phantruongan.backend.resume.dtos.req.CreateResumeReqDTO;
 import vn.phantruongan.backend.resume.dtos.req.GetListResumeReqDTO;
 import vn.phantruongan.backend.resume.dtos.req.UpdateResumeReqDTO;
@@ -39,6 +41,7 @@ public class ResumeService {
         private final JobRepository jobRepository;
         private final CurrentUserService currentUserService;
         private final AuditLogService auditLogService;
+        private final NotificationService notificationService;
 
         public PaginationResponse<ResumeResDTO> getAllResumes(GetListResumeReqDTO dto, Pageable pageable) {
                 User actor = currentActor();
@@ -62,27 +65,30 @@ public class ResumeService {
                 User actor = currentActor();
                 String roleName = roleName(actor);
                 User user;
+                boolean candidateSubmission;
                 if (isPrivilegedManager(roleName)) {
                         user = dto.getUserId() == null ? actor : userRepository.findById(dto.getUserId())
                                         .orElseThrow(() -> new InvalidException("User not found with id: " + dto.getUserId()));
+                        candidateSubmission = false;
                 } else if ("CANDIDATE".equalsIgnoreCase(roleName)) {
                         // Ignore userId from the request for every candidate-facing call.
                         user = actor;
+                        candidateSubmission = true;
                 } else {
                         throw new PermissionDeniedException(
                                         "Only candidates or authorized administrators can create applications");
                 }
 
-                return saveResume(dto, user);
+                return saveResume(dto, user, candidateSubmission);
         }
 
         /** Candidate-facing creation: identity always comes from the authenticated account. */
         public ResumeResDTO createResumeForCurrentCandidate(CreateResumeReqDTO dto) throws InvalidException {
                 User user = currentCandidate();
-                return saveResume(dto, user);
+                return saveResume(dto, user, true);
         }
 
-        private ResumeResDTO saveResume(CreateResumeReqDTO dto, User user) {
+        private ResumeResDTO saveResume(CreateResumeReqDTO dto, User user, boolean candidateSubmission) {
                 Job job = jobRepository.findById(dto.getJobId())
                                 .orElseThrow(() -> new InvalidException("Job not found with id: " + dto.getJobId()));
 
@@ -93,7 +99,9 @@ public class ResumeService {
                 Resume resume = resumeMapper.toEntity(dto);
                 resume.setUser(user);
                 resume.setJob(job);
-                if (dto.getStatus() == null) {
+                if (candidateSubmission) {
+                        resume.setStatus(ResumeEnum.PENDING);
+                } else if (dto.getStatus() == null) {
                         resume.setStatus(ResumeEnum.PENDING);
                 }
                 if (dto.getNote() != null) {
@@ -208,6 +216,7 @@ public class ResumeService {
                 return true;
         }
 
+        @Transactional
         public ResumeResDTO reviewResume(long id) throws InvalidException {
                 String email = currentUserService.getCurrentUserEmail();
                 User actor = currentActor();
@@ -221,9 +230,11 @@ public class ResumeService {
                 resume.setStatus(ResumeEnum.REVIEWING);
                 Resume saved = resumeRepository.save(resume);
                 auditLogService.logReview(ResourceEnum.RESUME, email, saved.getId(), "Review resume");
+                notificationService.createApplicationStatusChanged(saved);
                 return resumeMapper.toDto(saved);
         }
 
+        @Transactional
         public ResumeResDTO approveResume(long id) throws InvalidException {
                 String email = currentUserService.getCurrentUserEmail();
                 User actor = currentActor();
@@ -237,9 +248,11 @@ public class ResumeService {
                 resume.setStatus(ResumeEnum.APPROVED);
                 Resume saved = resumeRepository.save(resume);
                 auditLogService.logApprove(ResourceEnum.RESUME, email, saved.getId(), "Approve resume");
+                notificationService.createApplicationStatusChanged(saved);
                 return resumeMapper.toDto(saved);
         }
 
+        @Transactional
         public ResumeResDTO rejectResume(long id, String note) throws InvalidException {
                 String email = currentUserService.getCurrentUserEmail();
                 User actor = currentActor();
@@ -257,6 +270,7 @@ public class ResumeService {
 
                 Resume saved = resumeRepository.save(resume);
                 auditLogService.logReject(ResourceEnum.RESUME, email, saved.getId(), "Reject resume");
+                notificationService.createApplicationStatusChanged(saved);
                 return resumeMapper.toDto(saved);
         }
 }

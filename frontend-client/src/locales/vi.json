@@ -11,6 +11,7 @@
     "profile": "Hồ sơ cá nhân",
     "dashboard": "Bảng điều khiển",
     "myJobs": "Việc của tôi",
+    "myApplications": "Đơn ứng tuyển của tôi",
     "cvAttachment": "Quản lý CV",
     "cvBuilder": "Tạo CV Online",
     "jobInvitations": "Lời mời làm việc",
@@ -118,6 +119,76 @@
     "noRecommendations": "Hiện chưa có gợi ý việc làm dành cho bạn.",
     "matchScore": "Phù hợp {{score}}%",
     "browseJobs": "Tìm việc"
+  },
+  "myApplications": {
+    "title": "Đơn ứng tuyển của tôi",
+    "subtitle": "Theo dõi trạng thái của từng đơn ứng tuyển.",
+    "loading": "Đang tải danh sách đơn ứng tuyển...",
+    "error": "Không thể tải danh sách đơn ứng tuyển.",
+    "retry": "Thử lại",
+    "noApplications": "Bạn chưa ứng tuyển công việc nào.",
+    "noApplicationsDescription": "Khám phá các vị trí đang tuyển và gửi hồ sơ khi bạn tìm thấy công việc phù hợp.",
+    "emptyFiltered": "Không có đơn ứng tuyển nào ở trạng thái này.",
+    "showAll": "Hiển thị tất cả đơn ứng tuyển",
+    "findJobs": "Tìm việc",
+    "appliedOn": "Ứng tuyển ngày {{date}}",
+    "dateUnavailable": "Không có ngày",
+    "jobFallback": "Công việc #{{id}}",
+    "companyFallback": "Chưa có thông tin công ty",
+    "viewJob": "Xem công việc",
+    "filters": {
+      "all": "Tất cả",
+      "pending": "Đã ứng tuyển / Đang chờ",
+      "reviewing": "Đang xem xét",
+      "approved": "Đã duyệt",
+      "rejected": "Từ chối"
+    },
+    "status": {
+      "PENDING": "Đang chờ xử lý",
+      "REVIEWING": "Đang xem xét",
+      "APPROVED": "Đã duyệt",
+      "REJECTED": "Từ chối"
+    },
+    "stats": {
+      "total": "Tổng đơn ứng tuyển",
+      "inProgress": "Đang xử lý",
+      "approved": "Đã duyệt",
+      "rejected": "Bị từ chối"
+    }
+  },
+  "notifications": {
+    "title": "Thông báo",
+    "description": "Cập nhật về các đơn ứng tuyển của bạn.",
+    "loading": "Đang tải thông báo...",
+    "loadError": "Không thể tải thông báo.",
+    "retry": "Thử lại",
+    "emptyTitle": "Bạn đã xem hết thông báo.",
+    "emptyDescription": "Cập nhật trạng thái đơn ứng tuyển sẽ hiển thị tại đây.",
+    "browseJobs": "Tìm việc",
+    "markAllRead": "Đánh dấu tất cả đã đọc",
+    "markingAll": "Đang đánh dấu đã đọc...",
+    "markRead": "Đánh dấu đã đọc",
+    "read": "Đã đọc",
+    "unread": "Chưa đọc",
+    "viewApplication": "Xem công việc",
+    "dateUnavailable": "Không có ngày",
+    "jobFallback": "Công việc #{{id}}",
+    "unreadCountError": "Không thể tải số lượng thông báo chưa đọc.",
+    "updateError": "Không thể cập nhật trạng thái thông báo. Vui lòng thử lại.",
+    "status": {
+      "REVIEWING": {
+        "title": "Đơn ứng tuyển đang được xem xét",
+        "message": "Đơn ứng tuyển vào vị trí {{jobTitle}} đang được xem xét."
+      },
+      "APPROVED": {
+        "title": "Đơn ứng tuyển đã được duyệt",
+        "message": "Đơn ứng tuyển vào vị trí {{jobTitle}} đã được duyệt."
+      },
+      "REJECTED": {
+        "title": "Cập nhật đơn ứng tuyển",
+        "message": "Đơn ứng tuyển vào vị trí {{jobTitle}} chưa được chọn."
+      }
+    }
   },
   "auth": {
     "loginTitle": "Đăng nhập",
