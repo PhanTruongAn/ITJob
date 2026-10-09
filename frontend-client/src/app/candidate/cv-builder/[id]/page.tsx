@@ -109,8 +109,8 @@ export default function CvEditorPage() {
           if (cvData.themeConfig) setThemeConfig(cvData.themeConfig)
           if (cvData.content) setContent(cvData.content)
         }
-      } catch (err: any) {
-        console.error("Error loading CV:", err)
+      } catch {
+        console.error("Error loading CV")
         setToast({
           open: true,
           message: "Không thể tải thông tin CV.",
@@ -148,8 +148,8 @@ export default function CvEditorPage() {
             content: newContent,
           })
           setSaveState("saved")
-        } catch (err) {
-          console.error("Auto save error:", err)
+        } catch {
+          console.error("Auto save error")
           setSaveState("error")
         }
       }, 1000)
@@ -210,12 +210,12 @@ export default function CvEditorPage() {
           }
         }
         setToast({ open: true, message: "Đã xuất và lưu CV lên hệ thống thành công!", severity: "success" })
-      } catch (uploadErr) {
-        console.warn("Background S3 upload warning:", uploadErr)
+      } catch {
+        console.warn("Background S3 upload warning")
         setToast({ open: true, message: "Đã tải file PDF về máy thành công!", severity: "success" })
       }
-    } catch (err) {
-      console.error("PDF export error:", err)
+    } catch {
+      console.error("PDF export error")
       setToast({ open: true, message: "Lỗi khi xuất PDF. Vui lòng thử lại.", severity: "error" })
     } finally {
       setIsExporting(false)

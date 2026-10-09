@@ -32,7 +32,7 @@ export default function CVAttachmentPage() {
         setCvFiles(res.data)
       }
     } catch (err: any) {
-      console.error("Error fetching CVs:", err)
+      console.error("Error fetching CVs")
       const errorMsg = err?.response?.data?.message || "Không thể tải danh sách CV."
       setToast({ open: true, message: errorMsg, severity: "error" })
     } finally {
@@ -61,7 +61,7 @@ export default function CVAttachmentPage() {
         await fetchCvs()
       }
     } catch (err: any) {
-      console.error("Upload error:", err)
+      console.error("Upload error")
       const errorMsg = err?.response?.data?.message || "Không thể tải CV lên. Vui lòng thử lại."
       setToast({ open: true, message: errorMsg, severity: "error" })
     } finally {
@@ -81,7 +81,7 @@ export default function CVAttachmentPage() {
         await fetchCvs()
       }
     } catch (err: any) {
-      console.error("Set default error:", err)
+      console.error("Set default error")
       const errorMsg = err?.response?.data?.message || "Không thể thiết lập CV mặc định."
       setToast({ open: true, message: errorMsg, severity: "error" })
     }
@@ -106,7 +106,7 @@ export default function CVAttachmentPage() {
       ])
       await fetchCvs()
     } catch (err: any) {
-      console.error("Delete error:", err)
+      console.error("Delete error")
       const errorMsg = err?.response?.data?.message || "Không thể xóa CV."
       setToast({ open: true, message: errorMsg, severity: "error" })
     }

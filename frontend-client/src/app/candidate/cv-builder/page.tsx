@@ -90,7 +90,7 @@ export default function CvBuilderDashboardPage() {
         setCvList(res.data)
       }
     } catch (err: any) {
-      console.error("Error fetching CVs:", err)
+      console.error("Error fetching CVs")
       setToast({
         open: true,
         message: err?.response?.data?.message || "Không thể tải danh sách CV.",
@@ -123,7 +123,7 @@ export default function CvBuilderDashboardPage() {
         router.push(`/candidate/cv-builder/${res.data.id}`)
       }
     } catch (err: any) {
-      console.error("Error creating CV:", err)
+      console.error("Error creating CV")
       setToast({
         open: true,
         message: err?.response?.data?.message || "Không thể tạo CV mới.",

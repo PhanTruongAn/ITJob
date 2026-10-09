@@ -102,8 +102,8 @@ axiosInstance.interceptors.response.use(
         }
         console.log(`[axios-err] Retrying ${originalRequest.url} with new token`)
         return axiosInstance(originalRequest)
-      } catch (err) {
-        console.error("[axios-err] Interceptor refresh error:", err)
+      } catch {
+        console.error("[axios-err] Interceptor refresh failed")
         return Promise.reject(error)
       } finally {
         release()

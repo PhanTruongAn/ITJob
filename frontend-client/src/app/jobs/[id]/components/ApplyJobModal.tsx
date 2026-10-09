@@ -100,8 +100,8 @@ export default function ApplyJobModal({
           setSelectedCvUrl(defaultCv.fileUrl)
         }
       }
-    } catch (err: any) {
-      console.error("Failed to load CVs:", err)
+    } catch {
+      console.error("Failed to load CVs")
     } finally {
       setLoadingCvs(false)
     }
@@ -115,8 +115,8 @@ export default function ApplyJobModal({
       if (res.data) {
         setBuilderCvList(res.data)
       }
-    } catch (err: any) {
-      console.error("Failed to load builder CVs:", err)
+    } catch {
+      console.error("Failed to load builder CVs")
     } finally {
       setLoadingBuilderCvs(false)
     }
