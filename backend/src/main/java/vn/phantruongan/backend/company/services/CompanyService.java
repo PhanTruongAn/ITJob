@@ -83,12 +83,18 @@ public class CompanyService {
         return companyMapper.toDto(company);
     }
 
+    public CompanyResDTO findPublicById(long id) throws InvalidException {
+        Company company = companyRepository.findByIdAndStatus(id, CompanyStatus.APPROVED)
+                .orElseThrow(() -> new InvalidException("Company not found with id: " + id));
+        return companyMapper.toDto(company);
+    }
+
     public CompanyResDTO findCompanyForManagement(long id) throws InvalidException {
         Company company = ownershipService.findCompanyForMutation(id);
         return companyMapper.toDto(company);
     }
 
-    @CacheEvict(cacheNames = { "companyDetails", "companies" }, key = "#dto.id", allEntries = true)
+    @CacheEvict(cacheNames = { "companyDetails", "companies", "latestJobs" }, key = "#dto.id", allEntries = true)
     public CompanyResDTO updateCompany(UpdateCompanyReqDTO dto) throws InvalidException {
         String email = currentUserService.getCurrentUserEmail();
         Company existingCompany = ownershipService.findCompanyForMutation(dto.getId());
@@ -110,6 +116,11 @@ public class CompanyService {
         return getAllCompanies(dto, pageable, null);
     }
 
+    public PaginationResponse<CompanyResDTO> getPublicCompanies(GetListCompanyReqDTO dto, Pageable pageable) {
+        Specification<Company> spec = new CompanySpecification(dto, null, true);
+        return getCompanyPage(spec, pageable);
+    }
+
     public PaginationResponse<CompanyResDTO> getCompaniesForManagement(GetListCompanyReqDTO dto, Pageable pageable) {
         Long ownerUserId = ownershipService.isEmployer() ? ownershipService.currentUser().getId() : null;
         return getAllCompanies(dto, pageable, ownerUserId);
@@ -118,6 +129,10 @@ public class CompanyService {
     private PaginationResponse<CompanyResDTO> getAllCompanies(GetListCompanyReqDTO dto, Pageable pageable,
             Long ownerUserId) {
         Specification<Company> spec = new CompanySpecification(dto, ownerUserId);
+        return getCompanyPage(spec, pageable);
+    }
+
+    private PaginationResponse<CompanyResDTO> getCompanyPage(Specification<Company> spec, Pageable pageable) {
         Page<Company> page = companyRepository.findAll(spec, pageable);
         List<CompanyResDTO> list = companyMapper.toDtoList(page.getContent());
 
@@ -130,7 +145,7 @@ public class CompanyService {
         return new PaginationResponse<>(list, meta);
     }
 
-    @CacheEvict(cacheNames = { "companyDetails", "companies" }, key = "#id", allEntries = true)
+    @CacheEvict(cacheNames = { "companyDetails", "companies", "latestJobs" }, key = "#id", allEntries = true)
     public boolean deleteCompanyById(long id) throws InvalidException {
         String email = currentUserService.getCurrentUserEmail();
         if (id <= 0) {

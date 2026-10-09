@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import vn.phantruongan.backend.company.entities.CompanyStatus;
 import vn.phantruongan.backend.job.entities.Job;
 
 @Repository
@@ -37,5 +38,12 @@ public interface JobRepository extends JpaRepository<Job, Long>, JpaSpecificatio
     })
     Optional<Job> findByIdAndCompany_Id(Long id, Long companyId);
 
-    Page<Job> findByIsActive(boolean isActive, Pageable pageable);
+    @EntityGraph(attributePaths = {
+            "company",
+            "jobSkills",
+            "jobSkills.skill"
+    })
+    Optional<Job> findByIdAndIsActiveTrueAndCompany_Status(Long id, CompanyStatus status);
+
+    Page<Job> findByIsActiveTrueAndCompany_Status(CompanyStatus status, Pageable pageable);
 }
