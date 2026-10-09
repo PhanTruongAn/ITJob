@@ -7,6 +7,8 @@ import { fetchJobs, getJobById } from "@/apis/job"
 import { getCompanyById } from "@/apis/company"
 import { checkJobApplied } from "@/apis/resume"
 import { ICompany, IJob } from "@/types/backend"
+import { getApplyActionState, getAppliedCheckState } from "@/common/application/applicationStates.mjs"
+import { isCandidateRole } from "@/common/security/frontendSecurity.mjs"
 import {
   Alert,
   Box,
@@ -62,7 +64,11 @@ export default function JobDetailPage() {
   const [loadFailure, setLoadFailure] = useState<"notFound" | "error" | null>(null)
   const detailRequestId = useRef(0)
 
-  const [isApplied, setIsApplied] = useState(false)
+  const [appliedCheck, setAppliedCheck] = useState<{
+    key: string | null
+    state: "idle" | "loading" | "notApplied" | "applied" | "error"
+  }>({ key: null, state: "idle" })
+  const [appliedCheckRetry, setAppliedCheckRetry] = useState(0)
   const [openApplyModal, setOpenApplyModal] = useState(false)
 
   const [snackbar, setSnackbar] = useState({
@@ -133,29 +139,54 @@ export default function JobDetailPage() {
       .catch(() => {})
   }, [jobId])
 
-  // Check if current user has already applied for this job
+  const isCandidate = status === "authenticated" && isCandidateRole(session?.user?.role)
+  const applicationCheckKey = isCandidate
+    ? `${session?.user?.id ?? "candidate"}:${jobId}`
+    : null
+
+  // Check only the authenticated candidate's application state.
   useEffect(() => {
-    if (status !== "authenticated" || !jobId) return
+    if (!applicationCheckKey || !jobId) {
+      setAppliedCheck({ key: null, state: "idle" })
+      return
+    }
 
     let isMounted = true
+    setAppliedCheck({ key: applicationCheckKey, state: "loading" })
     checkJobApplied(jobId)
       .then((res) => {
-        if (isMounted && res?.data) {
-          setIsApplied(true)
+        if (isMounted) {
+          setAppliedCheck({
+            key: applicationCheckKey,
+            state: getAppliedCheckState(res),
+          })
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        if (isMounted) {
+          setAppliedCheck({ key: applicationCheckKey, state: "error" })
+        }
+      })
 
     return () => {
       isMounted = false
     }
-  }, [status, jobId])
+  }, [applicationCheckKey, jobId, appliedCheckRetry])
+
+  const currentCheckState = appliedCheck.key === applicationCheckKey
+    ? appliedCheck.state
+    : "loading"
+  const applyActionState = getApplyActionState({
+    sessionStatus: status,
+    role: session?.user?.role,
+    checkState: currentCheckState,
+  })
 
   const handleApplyClick = () => {
-    if (!session?.user) {
+    if (applyActionState === "guest") {
       setSnackbar({
         open: true,
-        message: "Vui lòng đăng nhập tài khoản ứng viên để ứng tuyển công việc này.",
+        message: t("application.signInPrompt"),
         severity: "warning",
       })
       setTimeout(() => {
@@ -163,14 +194,16 @@ export default function JobDetailPage() {
       }, 1500)
       return
     }
-    setOpenApplyModal(true)
+    if (applyActionState === "ready") setOpenApplyModal(true)
   }
 
   const handleApplySuccess = () => {
-    setIsApplied(true)
+    if (applicationCheckKey) {
+      setAppliedCheck({ key: applicationCheckKey, state: "applied" })
+    }
     setSnackbar({
       open: true,
-      message: "Ứng tuyển thành công! Nhà tuyển dụng sẽ xem xét hồ sơ của bạn sớm nhất.",
+      message: t("application.success"),
       severity: "success",
     })
   }
@@ -318,8 +351,9 @@ export default function JobDetailPage() {
                 <JobDetailHeader
                   jobId={job.id}
                   job={headerJob}
-                  isApplied={isApplied}
+                  applyActionState={applyActionState}
                   onApply={handleApplyClick}
+                  onRetryApplicationCheck={() => setAppliedCheckRetry((count) => count + 1)}
                 />
               )}
 
@@ -345,7 +379,7 @@ export default function JobDetailPage() {
       </Box>
 
       {/* Apply Job Modal */}
-      {job && (
+      {job && isCandidate && (
         <ApplyJobModal
           open={openApplyModal}
           onClose={() => setOpenApplyModal(false)}
