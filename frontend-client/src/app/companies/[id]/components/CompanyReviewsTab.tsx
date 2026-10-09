@@ -1,5 +1,9 @@
 "use client"
-import { useCompanyReviews, useCreateReview } from "@/apis/review/review.hooks"
+import {
+  useCompanyReviews,
+  useCompanyReviewSummary,
+  useCreateReview,
+} from "@/apis/review/review.hooks"
 import { getRequestErrorMessage } from "@/common/security/frontendSecurity.mjs"
 import { useUpdateState } from "@/common/hooks/useUpdateState"
 import RateReviewIcon from "@mui/icons-material/RateReview"
@@ -7,6 +11,7 @@ import StarIcon from "@mui/icons-material/Star"
 import Avatar from "@mui/material/Avatar"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
+import Alert from "@mui/material/Alert"
 import CircularProgress from "@mui/material/CircularProgress"
 import Dialog from "@mui/material/Dialog"
 import DialogActions from "@mui/material/DialogActions"
@@ -19,13 +24,12 @@ import Rating from "@mui/material/Rating"
 import Stack from "@mui/material/Stack"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
+import { useTranslation } from "react-i18next"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
 interface CompanyReviewsTabProps {
   companyId: number
-  rating?: number
-  totalReviews?: number
 }
 
 interface ReviewState {
@@ -37,11 +41,10 @@ interface ReviewState {
 
 export default function CompanyReviewsTab({
   companyId,
-  rating,
-  totalReviews,
 }: CompanyReviewsTabProps) {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { t } = useTranslation()
 
   const { state, updateState } = useUpdateState<ReviewState>({
     page: 1,
@@ -52,35 +55,43 @@ export default function CompanyReviewsTab({
 
   // Fetch reviews using react query
   const pageSize = 10
-  const { data: reviewsData, isLoading } = useCompanyReviews(
+  const {
+    data: reviewsData,
+    isLoading: isReviewsLoading,
+    isFetching: isReviewsFetching,
+    isError: isReviewsError,
+    refetch: refetchReviews,
+  } = useCompanyReviews(
     companyId,
     state.page,
     pageSize,
   )
+  const {
+    data: summaryData,
+    isLoading: isSummaryLoading,
+    isFetching: isSummaryFetching,
+    isError: isSummaryError,
+    refetch: refetchSummary,
+  } = useCompanyReviewSummary(companyId)
   const createReviewMutation = useCreateReview()
 
   const reviews = reviewsData?.data?.result || []
   const meta = reviewsData?.data?.meta
-
-  // Statistics calculation
-  const totalReviewsCount =
-    meta?.total !== undefined ? meta.total : totalReviews || 0
-  const averageRating = rating !== undefined && rating > 0 ? rating : 0
-  const averageRatingStr = averageRating.toFixed(1)
-
-  // We mock the breakdown if no specific counts are returned by backend,
-  // or we can calculate based on current page reviews as an estimate.
-  const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
-  reviews.forEach((r) => {
-    const key = Math.round(r.rating) as 5 | 4 | 3 | 2 | 1
-    if (ratingCounts[key] !== undefined) {
-      ratingCounts[key]++
-    }
-  })
+  const summary = summaryData?.data
+  const totalReviewsCount = summary?.totalReviews ?? 0
+  const ratingCounts = {
+    5: summary?.fiveStarCount ?? 0,
+    4: summary?.fourStarCount ?? 0,
+    3: summary?.threeStarCount ?? 0,
+    2: summary?.twoStarCount ?? 0,
+    1: summary?.oneStarCount ?? 0,
+  }
+  const isLoading =
+    isReviewsLoading || isReviewsFetching || isSummaryLoading || isSummaryFetching
+  const isError = isReviewsError || isSummaryError
 
   const getPercentage = (count: number) => {
-    const pageTotal = reviews.length || 1
-    return (count / pageTotal) * 100
+    return totalReviewsCount > 0 ? (count / totalReviewsCount) * 100 : 0
   }
 
   const handleOpenDialog = () => {
@@ -127,11 +138,31 @@ export default function CompanyReviewsTab({
     updateState({ page: value })
   }
 
+  const handleRetry = () => {
+    void refetchReviews()
+    void refetchSummary()
+  }
+
   if (isLoading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-        <CircularProgress />
+        <CircularProgress aria-label={t("companyReviews.loading")} />
       </Box>
+    )
+  }
+
+  if (isError) {
+    return (
+      <Alert
+        severity="error"
+        action={
+          <Button color="inherit" size="small" onClick={handleRetry}>
+            {t("companyReviews.retry")}
+          </Button>
+        }
+      >
+        {t("companyReviews.loadError")}
+      </Alert>
     )
   }
 
@@ -159,24 +190,28 @@ export default function CompanyReviewsTab({
           {/* Average Rating */}
           <Box sx={{ textAlign: "center", minWidth: 100 }}>
             <Typography variant="h3" fontWeight="800" color="text.primary">
-              {averageRatingStr}
+              {summary?.averageRating != null
+                ? summary.averageRating.toFixed(1)
+                : t("companyReviews.notRated")}
             </Typography>
-            <Rating
-              value={parseFloat(averageRatingStr)}
-              precision={0.1}
-              readOnly
-              emptyIcon={
-                <StarIcon style={{ opacity: 0.25 }} fontSize="inherit" />
-              }
-              sx={{ color: "#facc15", mt: 1 }}
-            />
+            {summary?.averageRating != null && (
+              <Rating
+                value={summary.averageRating}
+                precision={0.1}
+                readOnly
+                emptyIcon={
+                  <StarIcon style={{ opacity: 0.25 }} fontSize="inherit" />
+                }
+                sx={{ color: "#facc15", mt: 1 }}
+              />
+            )}
             <Typography
               variant="caption"
               color="text.secondary"
               display="block"
               sx={{ mt: 1 }}
             >
-              {totalReviewsCount} đánh giá
+              {t("companyReviews.reviewCount", { count: totalReviewsCount })}
             </Typography>
           </Box>
 
@@ -250,7 +285,7 @@ export default function CompanyReviewsTab({
       </Box>
 
       {/* Reviews List */}
-      {reviews.length === 0 ? (
+      {totalReviewsCount === 0 ? (
         <Box
           sx={{
             p: 6,
@@ -262,8 +297,7 @@ export default function CompanyReviewsTab({
           }}
         >
           <Typography variant="body1" color="text.secondary">
-            Chưa có đánh giá nào cho công ty này. Hãy là người đầu tiên đánh
-            giá!
+            {t("companyReviews.noReviews")}
           </Typography>
         </Box>
       ) : (

@@ -3,6 +3,8 @@ package vn.phantruongan.backend.company.entities;
 import java.time.DayOfWeek;
 import java.util.List;
 
+import org.hibernate.annotations.Formula;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
@@ -68,10 +70,10 @@ public class Company extends Auditable {
     private String phone;
     private String email;
 
-    @org.hibernate.annotations.Formula("(SELECT COALESCE(AVG(r.rating), 4.5) FROM company_reviews r WHERE r.company_id = id AND r.hidden = false)")
+    @Formula("(SELECT AVG(r.rating) FROM company_reviews r WHERE r.company_id = id AND r.hidden = false)")
     private Double rating;
 
-    @org.hibernate.annotations.Formula("(SELECT COUNT(r.id) FROM company_reviews r WHERE r.company_id = id AND r.hidden = false)")
+    @Formula("(SELECT COUNT(r.id) FROM company_reviews r WHERE r.company_id = id AND r.hidden = false)")
     private Integer reviews;
 
     private String badge;

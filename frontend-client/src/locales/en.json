@@ -205,6 +205,14 @@
       }
     }
   },
+  "companyReviews": {
+    "notRated": "Not rated",
+    "reviewCount": "{{count}} reviews",
+    "loading": "Loading company reviews...",
+    "loadError": "Company reviews could not be loaded.",
+    "retry": "Retry",
+    "noReviews": "This company has no public reviews yet. Be the first to leave one."
+  },
   "jobInvitations": {
     "title": "Job invitations",
     "description": "Invitation information is not currently available in your candidate account.",

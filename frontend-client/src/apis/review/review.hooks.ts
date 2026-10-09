@@ -2,12 +2,23 @@ import CustomHooks from "@/common/hooks/customHooks"
 import { QUERY_KEYS } from "@/common/queryKeys"
 import { useQueryClient } from "@tanstack/react-query"
 import { IApiResponse, IPaginatedData } from "../common/response.types"
-import { ICompanyReview, ICreateReviewReq, reviewApi } from "./review.api"
+import {
+  ICompanyReview,
+  ICompanyReviewSummary,
+  ICreateReviewReq,
+  reviewApi,
+} from "./review.api"
 
 export const useCompanyReviews = (companyId: number, page: number, size: number) =>
   CustomHooks.useQuery<IApiResponse<IPaginatedData<ICompanyReview>>>(
     [QUERY_KEYS.REVIEW_MODULE, "list", companyId, page, size],
     () => reviewApi.getReviewsByCompany(companyId, page, size)
+  )
+
+export const useCompanyReviewSummary = (companyId: number) =>
+  CustomHooks.useQuery<IApiResponse<ICompanyReviewSummary>>(
+    [QUERY_KEYS.REVIEW_MODULE, "summary", companyId],
+    () => reviewApi.getReviewSummary(companyId),
   )
 
 export const useCreateReview = () => {

@@ -20,7 +20,7 @@ export interface ISavedCompanyResource {
   name: string
   logo?: string
   industry?: string
-  rating?: number
+  rating?: number | null
   reviews?: number
   description?: string
   jobCount?: number

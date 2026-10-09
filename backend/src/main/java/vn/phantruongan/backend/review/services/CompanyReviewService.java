@@ -2,6 +2,7 @@ package vn.phantruongan.backend.review.services;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import vn.phantruongan.backend.company.repositories.CompanyRepository;
 import vn.phantruongan.backend.review.dtos.req.CreateCompanyReviewReqDTO;
 import vn.phantruongan.backend.review.dtos.req.UpdateCompanyReviewReqDTO;
 import vn.phantruongan.backend.review.dtos.res.CompanyReviewResDTO;
+import vn.phantruongan.backend.review.dtos.res.CompanyReviewSummaryResDTO;
 import vn.phantruongan.backend.review.entities.CompanyReview;
 import vn.phantruongan.backend.review.mappers.CompanyReviewMapper;
 import vn.phantruongan.backend.review.repositories.CompanyReviewRepository;
@@ -52,7 +54,24 @@ public class CompanyReviewService {
         return new PaginationResponse<>(list, meta);
     }
 
+    public CompanyReviewSummaryResDTO getReviewSummaryByCompanyId(Long companyId) {
+        var summary = companyReviewRepository.getVisibleSummaryByCompanyId(companyId);
+        return new CompanyReviewSummaryResDTO(
+                summary == null ? null : summary.getAverageRating(),
+                valueOrZero(summary == null ? null : summary.getTotalReviews()),
+                valueOrZero(summary == null ? null : summary.getOneStarCount()),
+                valueOrZero(summary == null ? null : summary.getTwoStarCount()),
+                valueOrZero(summary == null ? null : summary.getThreeStarCount()),
+                valueOrZero(summary == null ? null : summary.getFourStarCount()),
+                valueOrZero(summary == null ? null : summary.getFiveStarCount()));
+    }
+
+    private long valueOrZero(Long value) {
+        return value == null ? 0 : value;
+    }
+
     // create a new review
+    @CacheEvict(cacheNames = { "companyDetails", "companies" }, allEntries = true)
     public CompanyReviewResDTO createReview(CreateCompanyReviewReqDTO dto) {
         User user = userRepository.findByEmail(currentUserService.getCurrentUserEmail())
                 .orElseThrow(() -> new InvalidException("User not found"));
@@ -71,6 +90,7 @@ public class CompanyReviewService {
     }
 
     // update an existing review
+    @CacheEvict(cacheNames = { "companyDetails", "companies" }, allEntries = true)
     public CompanyReviewResDTO updateReview(UpdateCompanyReviewReqDTO dto) {
         User actor = currentUser();
         boolean privileged = isPrivileged(actor);
@@ -100,6 +120,7 @@ public class CompanyReviewService {
     }
 
     // delete a review
+    @CacheEvict(cacheNames = { "companyDetails", "companies" }, allEntries = true)
     public void deleteReview(Long id) {
         User actor = currentUser();
         CompanyReview review = findReviewForActor(id, actor, isPrivileged(actor));

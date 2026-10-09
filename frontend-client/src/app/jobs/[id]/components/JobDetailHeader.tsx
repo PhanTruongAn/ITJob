@@ -20,6 +20,7 @@ import {
   Typography,
 } from "@mui/material"
 import SavedItemButton from "@/components/SavedItemButton"
+import { useTranslation } from "react-i18next"
 
 const JOB_TYPE_LABELS: Record<string, string> = {
   FULL_TIME: "Full-time",
@@ -44,7 +45,7 @@ interface JobDetails {
   quantity?: number
   endDate?: string
   isActive?: boolean
-  rating?: number
+  rating?: number | null
   reviews?: number
 }
 
@@ -61,6 +62,7 @@ export default function JobDetailHeader({
   isApplied = false,
   onApply,
 }: JobDetailHeaderProps) {
+  const { t } = useTranslation()
   const isExpired = job.endDate ? new Date(job.endDate).getTime() < Date.now() : false
   const isClosed = job.isActive === false || isExpired
 
@@ -176,13 +178,21 @@ export default function JobDetailHeader({
 
                 {job.rating !== undefined && (
                   <Stack direction="row" spacing={0.5} alignItems="center">
-                    <StarIcon sx={{ color: "#faaf00", fontSize: 18 }} />
-                    <Typography variant="body2" fontWeight="bold">
-                      {job.rating.toFixed(1)}
-                    </Typography>
-                    {job.reviews ? (
+                    {job.rating != null && job.rating > 0 ? (
+                      <>
+                        <StarIcon sx={{ color: "#faaf00", fontSize: 18 }} />
+                        <Typography variant="body2" fontWeight="bold">
+                          {job.rating.toFixed(1)}
+                        </Typography>
+                      </>
+                    ) : (
                       <Typography variant="caption" color="text.secondary">
-                        ({job.reviews} đánh giá)
+                        {t("companyReviews.notRated")}
+                      </Typography>
+                    )}
+                    {job.reviews != null ? (
+                      <Typography variant="caption" color="text.secondary">
+                        {t("companyReviews.reviewCount", { count: job.reviews })}
                       </Typography>
                     ) : null}
                   </Stack>

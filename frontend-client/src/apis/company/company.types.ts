@@ -20,7 +20,7 @@ export interface ICompany {
   website?: string
   phone?: string
   email?: string
-  rating?: number
+  rating?: number | null
   reviews?: number
   badge?: string
   jobCount?: number

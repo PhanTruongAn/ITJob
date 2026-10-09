@@ -212,8 +212,6 @@ export default function CompanyDetailPage({ params }: Props) {
               {activeTab === "reviews" && (
                 <CompanyReviewsTab
                   companyId={companyId}
-                  rating={company.rating ?? 0}
-                  totalReviews={company.reviews ?? 0}
                 />
               )}
               {activeTab !== "about" &&

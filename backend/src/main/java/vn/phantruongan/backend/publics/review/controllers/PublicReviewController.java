@@ -4,6 +4,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.config.web.ApiPaths;
 import vn.phantruongan.backend.review.dtos.res.CompanyReviewResDTO;
+import vn.phantruongan.backend.review.dtos.res.CompanyReviewSummaryResDTO;
 import vn.phantruongan.backend.review.services.CompanyReviewService;
 import vn.phantruongan.backend.util.annotations.ApiMessage;
 
@@ -30,7 +32,15 @@ public class PublicReviewController {
             @RequestParam long companyId,
             @ParameterObject Pageable pageable) {
 
-        PaginationResponse<CompanyReviewResDTO> result = companyReviewService.getAllReviewsByCompanyId(companyId, pageable);
+        PaginationResponse<CompanyReviewResDTO> result = companyReviewService.getAllReviewsByCompanyId(companyId,
+                pageable);
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/companies/{companyId}/summary")
+    @ApiMessage("Get visible review summary of company publicly")
+    public ResponseEntity<CompanyReviewSummaryResDTO> getReviewSummaryByCompany(
+            @PathVariable Long companyId) {
+        return ResponseEntity.ok(companyReviewService.getReviewSummaryByCompanyId(companyId));
     }
 }

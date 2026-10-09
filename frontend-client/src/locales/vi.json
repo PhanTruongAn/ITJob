@@ -205,6 +205,14 @@
       }
     }
   },
+  "companyReviews": {
+    "notRated": "Chưa có đánh giá",
+    "reviewCount": "{{count}} đánh giá",
+    "loading": "Đang tải đánh giá công ty...",
+    "loadError": "Không thể tải đánh giá công ty.",
+    "retry": "Thử lại",
+    "noReviews": "Công ty chưa có đánh giá công khai. Hãy là người đầu tiên đánh giá."
+  },
   "jobInvitations": {
     "title": "Lời mời làm việc",
     "description": "Hiện chưa có thông tin lời mời làm việc trong tài khoản ứng viên của bạn.",

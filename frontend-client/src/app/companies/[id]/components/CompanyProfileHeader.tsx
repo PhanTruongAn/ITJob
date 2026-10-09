@@ -14,6 +14,7 @@ import Stack from "@mui/material/Stack"
 import Typography from "@mui/material/Typography"
 import { COMPANY_TYPE_LABEL } from "../../constants"
 import SavedItemButton from "@/components/SavedItemButton"
+import { useTranslation } from "react-i18next"
 
 interface CompanyProfileHeaderProps {
   companyId: number
@@ -23,7 +24,7 @@ interface CompanyProfileHeaderProps {
   location: string
   industry: string
   employeeCount: string
-  rating?: number
+  rating?: number | null
   reviews?: number
   badge?: string
   isVerified?: boolean
@@ -50,6 +51,8 @@ export default function CompanyProfileHeader({
   onFollow,
   onVisitWebsite,
 }: CompanyProfileHeaderProps) {
+  const { t } = useTranslation()
+  const hasRating = rating != null && rating > 0
   return (
     <Container
       maxWidth="lg"
@@ -196,22 +199,33 @@ export default function CompanyProfileHeader({
               )}
               {(rating !== undefined || reviews !== undefined) && (
                 <Stack direction="row" alignItems="center" gap={0.5}>
-                  <Rating
-                    value={rating ?? 0}
-                    precision={0.1}
-                    readOnly
-                    size="small"
-                    emptyIcon={
-                      <StarIcon style={{ opacity: 0.25 }} fontSize="inherit" />
-                    }
-                    sx={{ color: "#facc15" }}
-                  />
+                  {hasRating ? (
+                    <>
+                      <Rating
+                        value={rating ?? 0}
+                        precision={0.1}
+                        readOnly
+                        size="small"
+                        emptyIcon={
+                          <StarIcon style={{ opacity: 0.25 }} fontSize="inherit" />
+                        }
+                        sx={{ color: "#facc15" }}
+                      />
+                      <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                        {rating?.toFixed(1)}
+                      </Typography>
+                    </>
+                  ) : (
+                    <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                      {t("companyReviews.notRated")}
+                    </Typography>
+                  )}
                   <Typography
                     variant="body2"
                     color="text.secondary"
                     fontWeight={500}
                   >
-                    {rating?.toFixed(1)} ({reviews ?? 0} đánh giá)
+                    {t("companyReviews.reviewCount", { count: reviews ?? 0 })}
                   </Typography>
                 </Stack>
               )}
