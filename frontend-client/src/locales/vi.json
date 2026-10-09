@@ -205,6 +205,11 @@
       }
     }
   },
+  "jobInvitations": {
+    "title": "Lời mời làm việc",
+    "description": "Hiện chưa có thông tin lời mời làm việc trong tài khoản ứng viên của bạn.",
+    "notAvailable": "Hiện chưa có dữ liệu lời mời làm việc."
+  },
   "auth": {
     "loginTitle": "Đăng nhập",
     "registerTitle": "Đăng ký",

@@ -9,7 +9,6 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
@@ -229,32 +228,6 @@ export default function JobFiltersSidebar({
               />
             ))}
           </Stack>
-        </Box>
-
-        {/* Subscription */}
-        <Box
-          sx={{
-            p: 2,
-            borderRadius: 2,
-            bgcolor: "primary.light",
-            color: "primary.main",
-          }}
-        >
-          <Typography fontWeight="bold" mb={1}>
-            Nhận thông báo việc làm
-          </Typography>
-          <Typography variant="body2" mb={2}>
-            Chúng tôi sẽ gửi các việc làm phù hợp nhất vào email của bạn.
-          </Typography>
-          <TextField
-            fullWidth
-            placeholder="Email của bạn"
-            size="small"
-            sx={{ mb: 2 }}
-          />
-          <Button fullWidth variant="contained" color="primary">
-            Đăng ký ngay
-          </Button>
         </Box>
       </Box>
     </Stack>

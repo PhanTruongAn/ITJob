@@ -205,6 +205,11 @@
       }
     }
   },
+  "jobInvitations": {
+    "title": "Job invitations",
+    "description": "Invitation information is not currently available in your candidate account.",
+    "notAvailable": "Invitation data is not currently available."
+  },
   "auth": {
     "loginTitle": "Sign In",
     "registerTitle": "Register",
