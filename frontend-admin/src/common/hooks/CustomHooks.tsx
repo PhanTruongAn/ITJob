@@ -41,7 +41,8 @@ const CustomHooks = {
       mutationFn,
       ...options,
       onError: (error, variables, context) => {
-        if (axios.isAxiosError(error)) {
+        // The Axios response interceptor already notifies users about 403s.
+        if (axios.isAxiosError(error) && error.response?.status !== 403) {
           const resData = error.response?.data
           message.error(resData?.message || "An error occurred")
         }

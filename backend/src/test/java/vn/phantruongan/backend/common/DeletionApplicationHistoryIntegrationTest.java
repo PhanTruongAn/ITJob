@@ -7,20 +7,31 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import vn.phantruongan.backend.authentication.entities.User;
 import vn.phantruongan.backend.authentication.repositories.UserRepository;
+import vn.phantruongan.backend.authentication.services.UserService;
+import vn.phantruongan.backend.authorization.dtos.req.role.UpdateRoleReqDTO;
 import vn.phantruongan.backend.authorization.entities.Role;
 import vn.phantruongan.backend.authorization.repositories.RoleRepository;
+import vn.phantruongan.backend.authorization.services.RoleService;
 import vn.phantruongan.backend.company.entities.Company;
 import vn.phantruongan.backend.company.repositories.CompanyRepository;
 import vn.phantruongan.backend.company.services.CompanyService;
@@ -33,7 +44,11 @@ import vn.phantruongan.backend.resume.repositories.ResumeRepository;
 import vn.phantruongan.backend.util.error.InvalidException;
 import vn.phantruongan.backend.util.error.PermissionDeniedException;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest
+@AutoConfigureMockMvc
 @Transactional
 class DeletionApplicationHistoryIntegrationTest {
 
@@ -53,6 +68,9 @@ class DeletionApplicationHistoryIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
     private RoleRepository roleRepository;
 
     @Autowired
@@ -60,6 +78,15 @@ class DeletionApplicationHistoryIntegrationTest {
 
     @Autowired
     private CompanyService companyService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private RoleService roleService;
+
+    @Autowired
+    private MockMvc mockMvc;
 
     @AfterEach
     void clearSecurityContext() {
@@ -171,6 +198,140 @@ class DeletionApplicationHistoryIntegrationTest {
                 resumeRepository.findById(application.getId()).orElseThrow().getStatus());
         assertThrows(PermissionDeniedException.class, () -> companyService.deleteCompanyById(ownCompany.getId()));
         assertTrue(companyRepository.existsById(ownCompany.getId()));
+    }
+
+    @Test
+    void deletingUserSoftDeletesAccountAndPreservesApplicationHistory() throws Exception {
+        User admin = saveUser("ADMIN", null);
+        User candidate = saveUser("CANDIDATE", null);
+        Job job = saveJob(saveCompany(), "Application history after user deletion");
+        Resume application = saveApplication(candidate, job, ResumeEnum.REVIEWING);
+        entityManager.flush();
+        authenticate(admin);
+
+        assertTrue(userService.deleteUserById(candidate.getId()));
+        entityManager.flush();
+        entityManager.clear();
+
+        assertFalse(userRepository.findById(candidate.getId()).isPresent());
+        assertTrue(jdbcTemplate.queryForObject(
+                "SELECT deleted FROM users WHERE id = ?", Boolean.class, candidate.getId()));
+        assertEquals(1, jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM resumes WHERE id = ? AND user_id = ?",
+                Integer.class, application.getId(), candidate.getId()));
+        assertEquals(ResumeEnum.REVIEWING,
+                resumeRepository.findById(application.getId()).orElseThrow().getStatus());
+    }
+
+    @Test
+    void deletingUserWithoutApplicationsStillSoftDeletesAccount() throws Exception {
+        User admin = saveUser("ADMIN", null);
+        User candidate = saveUser("CANDIDATE", null);
+        authenticate(admin);
+
+        assertTrue(userService.deleteUserById(candidate.getId()));
+        entityManager.flush();
+        entityManager.clear();
+
+        assertFalse(userRepository.findById(candidate.getId()).isPresent());
+        assertTrue(jdbcTemplate.queryForObject(
+                "SELECT deleted FROM users WHERE id = ?", Boolean.class, candidate.getId()));
+    }
+
+    @Test
+    void authenticatedAdminCannotDeleteOwnAccountThroughDirectApiCall() throws Exception {
+        User admin = saveUser("ADMIN", null);
+
+        mockMvc.perform(delete("/api/v1/users/{id}", admin.getId())
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()
+                                .jwt(jwt -> jwt.subject(admin.getEmail()))))
+                .andExpect(status().isForbidden());
+
+        assertTrue(userRepository.findById(admin.getId()).isPresent());
+    }
+
+    @Test
+    void authenticatedNonAdminCannotDeleteOwnAccountThroughService() {
+        User manager = saveUser("MANAGER", null);
+        authenticate(manager);
+
+        assertThrows(PermissionDeniedException.class,
+                () -> userService.deleteUserById(manager.getId()));
+        assertTrue(userRepository.findById(manager.getId()).isPresent());
+    }
+
+    @Test
+    void adminCanDeleteAnotherAdminWhenAnActiveAdminRemains() throws Exception {
+        User actor = saveUser("ADMIN", null);
+        User target = saveUser("ADMIN", null);
+        authenticate(actor);
+
+        assertTrue(userService.deleteUserById(target.getId()));
+        assertTrue(userRepository.findById(actor.getId()).isPresent());
+        assertFalse(userRepository.findById(target.getId()).isPresent());
+    }
+
+    @Test
+    void cannotDeactivateAdminRoleWhileItHasActiveAdminUsers() {
+        User admin = saveUser("ADMIN", null);
+        Role adminRole = roleRepository.findByName("ADMIN").orElseThrow();
+        UpdateRoleReqDTO request = new UpdateRoleReqDTO();
+        request.setId(adminRole.getId());
+        request.setName("ADMIN");
+        request.setDescription(adminRole.getDescription());
+        request.setActive(false);
+
+        assertThrows(InvalidException.class, () -> roleService.updateRole(request));
+        assertTrue(roleRepository.findById(adminRole.getId()).orElseThrow().isActive());
+        assertTrue(userRepository.findById(admin.getId()).isPresent());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void concurrentAdminDeletionCannotRemoveTheRemainingActiveAdmins() throws Exception {
+        long existingActiveAdmins = userRepository.countActiveUsersByRoleName("ADMIN");
+        User firstAdmin = saveUser("ADMIN", null);
+        User secondAdmin = saveUser("ADMIN", null);
+        CountDownLatch start = new CountDownLatch(1);
+
+        try {
+            CompletableFuture<Object> first = CompletableFuture.supplyAsync(
+                    () -> deleteAs(firstAdmin, secondAdmin, start));
+            CompletableFuture<Object> second = CompletableFuture.supplyAsync(
+                    () -> deleteAs(secondAdmin, firstAdmin, start));
+            start.countDown();
+
+            Object firstResult = first.get(15, TimeUnit.SECONDS);
+            Object secondResult = second.get(15, TimeUnit.SECONDS);
+
+            long remainingAdmins = userRepository.countActiveUsersByRoleName("ADMIN");
+            assertTrue(Boolean.TRUE.equals(firstResult) || Boolean.TRUE.equals(secondResult));
+            assertTrue(remainingAdmins >= existingActiveAdmins);
+            if (existingActiveAdmins == 0) {
+                assertTrue(Boolean.TRUE.equals(firstResult) ^ Boolean.TRUE.equals(secondResult));
+                assertEquals(1L, remainingAdmins);
+            }
+        } finally {
+            jdbcTemplate.update("DELETE FROM users WHERE email IN (?, ?)",
+                    firstAdmin.getEmail(), secondAdmin.getEmail());
+        }
+    }
+
+    private Object deleteAs(User actor, User target, CountDownLatch start) {
+        try {
+            if (!start.await(10, TimeUnit.SECONDS)) {
+                return new IllegalStateException("Concurrent deletion test did not start.");
+            }
+            authenticate(actor);
+            return userService.deleteUserById(target.getId());
+        } catch (RuntimeException exception) {
+            return exception;
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            return exception;
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
     }
 
     private Company saveCompany() {

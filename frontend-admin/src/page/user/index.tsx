@@ -3,11 +3,12 @@ import React from "react"
 import { userColumns } from "./components/table/UserColumns"
 import "./style.css"
 
+import { fetchRoles } from "../../apis/roleModule"
 import { fetchUsers, getUserById } from "../../apis/userModule"
 import CustomHooks from "../../common/hooks/CustomHooks"
 import ConfirmModal from "../../components/modal/ConfirmModal"
 import CustomGlobalTable from "../../components/table"
-import { IBackendPaginateRes, IUser } from "../../types/backend"
+import { IBackendPaginateRes, IRole, IUser } from "../../types/backend"
 import {
   useCreateUser,
   useDeleteUser,
@@ -22,14 +23,34 @@ import EditUserModal from "./components/edit/EditUserModal"
 
 import useRefresh from "../../common/hooks/useRefresh"
 import { QUERY_KEYS } from "../../common/queryKeys"
+import { useAppSelector } from "../../redux/hooks"
 
 const User: React.FC = () => {
   const { token } = theme.useToken()
   const { state, updateState } = useUserListState()
-
+  const currentRoleName = useAppSelector(
+    (state) => state.account.user.role?.name ?? "",
+  )
   const { mutate: createMutate, isPending: isCreate } = useCreateUser()
   const { mutate: deleteMutate, isPending: isDelete } = useDeleteUser()
   const { mutate: editMutate, isPending: isEdit } = useEditUser()
+  const {
+    data: roleResponse,
+    isLoading: isLoadingRoles,
+    isError: isRolesError,
+  } = CustomHooks.useQuery<IBackendPaginateRes<IRole[]>>(
+    [QUERY_KEYS.ROLE_MODULE, "user-create-options"],
+    () => fetchRoles({ page: 1, pageSize: 100 }),
+    { enabled: state.visibleCreateModal },
+  )
+  const assignableRoles = (roleResponse?.data?.result ?? []).filter((role) => {
+    if (!role.active) return false
+    if (currentRoleName.toUpperCase() === "ADMIN") return true
+    return (
+      currentRoleName.toUpperCase() === "MANAGER" &&
+      ["CANDIDATE", "EMPLOYER"].includes(role.name.toUpperCase())
+    )
+  })
   const handleOk = (values: ICreateUser) => {
     createMutate(values, {
       onSuccess: (res) => {
@@ -75,13 +96,13 @@ const User: React.FC = () => {
           })
         },
         onError: () => {
-          message.error("Error when deleted user")
+          // CustomHooks shows the backend's structured error message.
           updateState({
             visibleDeleteModal: false,
             selectedUserId: null,
           })
         },
-      }
+      },
     )
   }
 
@@ -129,14 +150,14 @@ const User: React.FC = () => {
       state.filterName,
       state.filterPhone,
     ],
-    fetchDataUser
+    fetchDataUser,
   )
   const { isLoading, handleRefresh } = useRefresh(refetch)
 
   const handleTableChange = (
     page: number,
     pageSize: number,
-    sortBy?: string
+    sortBy?: string,
   ) => {
     updateState({ page, pageSize, sortBy })
   }
@@ -190,6 +211,14 @@ const User: React.FC = () => {
         loading={isCreate}
         open={state.visibleCreateModal}
         onSubmit={handleOk}
+        roles={assignableRoles}
+        rolesLoading={isLoadingRoles}
+        rolesError={
+          isRolesError ||
+          (!isLoadingRoles && !roleResponse) ||
+          (roleResponse?.statusCode ?? 200) >= 400 ||
+          (!isLoadingRoles && assignableRoles.length === 0)
+        }
         onCancel={() => updateState({ visibleCreateModal: false })}
       />
       <ConfirmModal

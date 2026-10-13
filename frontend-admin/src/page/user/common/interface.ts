@@ -19,9 +19,12 @@ export interface UserListState {
 export interface ICreateUser {
   email: string;
   name: string;
+  phone: string;
+  password: string;
   address: string;
   dob: Date;
   gender: GenderEnum;
+  roleId: number;
 }
 
 export interface IEditUser {

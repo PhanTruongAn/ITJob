@@ -9,7 +9,6 @@ import org.hibernate.annotations.SQLRestriction;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -79,7 +78,8 @@ public class User extends BaseSoftDelete {
     private Company company;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    // Resume records include candidate applications and must outlive user soft deletion.
+    @OneToMany(mappedBy = "user")
     private List<Resume> resumes;
 
     @ManyToOne
