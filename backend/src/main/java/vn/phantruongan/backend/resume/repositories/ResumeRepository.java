@@ -16,6 +16,10 @@ public interface ResumeRepository extends JpaRepository<Resume, Long>, JpaSpecif
 
     boolean existsByJob_Id(long jobId);
 
+    boolean existsByJob_Company_Id(long companyId);
+
+    boolean existsByUser_Company_Id(long companyId);
+
     List<Resume> findByUserIdOrderByCreatedAtDesc(long userId);
 
     Optional<Resume> findByUserIdAndJobId(long userId, long jobId);

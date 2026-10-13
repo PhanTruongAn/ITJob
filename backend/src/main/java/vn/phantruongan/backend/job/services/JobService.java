@@ -217,6 +217,7 @@ public class JobService {
         }
 
         @CacheEvict(cacheNames = {"jobDetails", "jobs", "latestJobs"}, allEntries = true)
+        @Transactional
         public boolean deleteJobById(long id) throws InvalidException {
                 if (id <= 0) {
                         throw new InvalidException("Job ID must be a positive number.");
@@ -224,7 +225,7 @@ public class JobService {
 
                 Job job = ownershipService.findJobForMutation(id);
 
-                if (ownershipService.isEmployer() && resumeRepository.existsByJob_Id(id)) {
+                if (resumeRepository.existsByJob_Id(id)) {
                         throw new InvalidException(
                                         "Jobs with applications cannot be deleted; deactivate the job to preserve application history.");
                 }
