@@ -32,7 +32,8 @@ import SendIcon from "@mui/icons-material/Send"
 import StarIcon from "@mui/icons-material/Star"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { getUserCvs, uploadCv } from "@/apis/file"
 import { getMyCandidateCvs } from "@/apis/cvBuilder"
 import { applyJob } from "@/apis/resume"
@@ -41,6 +42,10 @@ import { ICandidateCv } from "@/types/cvBuilder"
 import { getRequestErrorMessage } from "@/common/security/frontendSecurity.mjs"
 import { myResumesQueryKey } from "@/apis/resume.hooks"
 import { useQueryClient } from "@tanstack/react-query"
+import { getListResponseState } from "@/common/application/applicationStates.mjs"
+import { isCandidateRole } from "@/common/security/frontendSecurity.mjs"
+
+type ListLoadState = "idle" | "loading" | "available" | "empty" | "error"
 
 interface ApplyJobModalProps {
   open: boolean
@@ -60,6 +65,7 @@ export default function ApplyJobModal({
   onSuccess,
 }: ApplyJobModalProps) {
   const { data: session } = useSession()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const user = session?.user
 
@@ -67,10 +73,11 @@ export default function ApplyJobModal({
   const [cvList, setCvList] = useState<IFile[]>([])
   const [builderCvList, setBuilderCvList] = useState<ICandidateCv[]>([])
   const [selectedCvUrl, setSelectedCvUrl] = useState<string>("")
-  const [loadingCvs, setLoadingCvs] = useState<boolean>(false)
-  const [loadingBuilderCvs, setLoadingBuilderCvs] = useState<boolean>(false)
+  const [cvLoadState, setCvLoadState] = useState<ListLoadState>("idle")
+  const [builderCvLoadState, setBuilderCvLoadState] = useState<ListLoadState>("idle")
   const [uploading, setUploading] = useState<boolean>(false)
   const [submitting, setSubmitting] = useState<boolean>(false)
+  const submissionInProgress = useRef(false)
 
   // Form states
   const [candidateName, setCandidateName] = useState<string>("")
@@ -90,43 +97,49 @@ export default function ApplyJobModal({
 
   // Fetch CVs list when modal opens
   const fetchCvs = useCallback(async () => {
+    setCvLoadState("loading")
     try {
-      setLoadingCvs(true)
       const res = await getUserCvs()
-      if (res.data) {
-        setCvList(res.data)
-        const defaultCv = res.data.find((c) => c.isDefault) || res.data[0]
-        if (defaultCv) {
-          setSelectedCvUrl(defaultCv.fileUrl)
-        }
+      const result = getListResponseState(res)
+      if (result.state === "error") throw new Error("Invalid CV list response")
+
+      const cvs = result.items as IFile[]
+      setCvList(cvs)
+      setCvLoadState(result.state as ListLoadState)
+      const defaultCv = cvs.find((c) => c.isDefault) || cvs[0]
+      if (defaultCv) {
+        setSelectedCvUrl(defaultCv.fileUrl)
       }
-    } catch (err: any) {
-      console.error("Failed to load CVs:", err)
-    } finally {
-      setLoadingCvs(false)
+    } catch {
+      setCvList([])
+      setCvLoadState("error")
     }
   }, [])
 
   // Fetch CV Builder entries
   const fetchBuilderCvs = useCallback(async () => {
+    setBuilderCvLoadState("loading")
     try {
-      setLoadingBuilderCvs(true)
       const res = await getMyCandidateCvs()
-      if (res.data) {
-        setBuilderCvList(res.data)
-      }
-    } catch (err: any) {
-      console.error("Failed to load builder CVs:", err)
-    } finally {
-      setLoadingBuilderCvs(false)
+      const result = getListResponseState(res)
+      if (result.state === "error") throw new Error("Invalid CV builder list response")
+
+      setBuilderCvList(result.items as ICandidateCv[])
+      setBuilderCvLoadState(result.state as ListLoadState)
+    } catch {
+      setBuilderCvList([])
+      setBuilderCvLoadState("error")
     }
   }, [])
 
   useEffect(() => {
     if (open) {
-      fetchCvs()
-      fetchBuilderCvs()
+      setCvList([])
+      setBuilderCvList([])
+      setSelectedCvUrl("")
       setErrorMessage("")
+      void fetchCvs()
+      void fetchBuilderCvs()
     }
   }, [open, fetchCvs, fetchBuilderCvs])
 
@@ -145,7 +158,7 @@ export default function ApplyJobModal({
         setTabIndex(0) // Switch back to select tab with new CV selected
       }
     } catch (err: any) {
-      const msg = err?.response?.data?.message || "Không thể tải file CV lên. Vui lòng thử lại."
+      const msg = err?.response?.data?.message || t("application.uploadError")
       setErrorMessage(msg)
     } finally {
       setUploading(false)
@@ -155,26 +168,33 @@ export default function ApplyJobModal({
   // Handle submit application
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (submissionInProgress.current) return
     setErrorMessage("")
 
+    if (!isCandidateRole(user?.role)) {
+      setErrorMessage(t("application.candidateOnly"))
+      return
+    }
+
     if (!candidateName.trim()) {
-      setErrorMessage("Vui lòng nhập Họ và tên.")
+      setErrorMessage(t("application.nameRequired"))
       return
     }
     if (!email.trim()) {
-      setErrorMessage("Vui lòng nhập Email liên hệ.")
+      setErrorMessage(t("application.emailRequired"))
       return
     }
     if (!phoneNumber.trim()) {
-      setErrorMessage("Vui lòng nhập Số điện thoại.")
+      setErrorMessage(t("application.phoneRequired"))
       return
     }
     if (!selectedCvUrl) {
-      setErrorMessage("Vui lòng chọn hoặc tải lên file CV để ứng tuyển.")
+      setErrorMessage(t("application.cvRequired"))
       return
     }
 
     try {
+      submissionInProgress.current = true
       setSubmitting(true)
       const res = await applyJob({
         jobId,
@@ -192,11 +212,12 @@ export default function ApplyJobModal({
       }
     } catch (err: any) {
       const msg = getRequestErrorMessage(err, {
-        forbidden: "Tài khoản hiện tại không có quyền ứng tuyển. Vui lòng đăng nhập bằng tài khoản ứng viên.",
-        fallback: "Ứng tuyển thất bại. Vui lòng thử lại.",
+        forbidden: t("application.candidateOnly"),
+        fallback: t("application.submitError"),
       })
       setErrorMessage(msg)
     } finally {
+      submissionInProgress.current = false
       setSubmitting(false)
     }
   }
@@ -305,11 +326,22 @@ export default function ApplyJobModal({
 
           {tabIndex === 0 && (
             <Box mb={4}>
-              {loadingCvs ? (
+              {cvLoadState === "idle" || cvLoadState === "loading" ? (
                 <Box display="flex" justifyContent="center" py={3}>
-                  <CircularProgress size={30} />
+                  <CircularProgress size={30} aria-label={t("application.loadingCvs")} />
                 </Box>
-              ) : cvList.length > 0 ? (
+              ) : cvLoadState === "error" ? (
+                <Alert
+                  severity="error"
+                  action={
+                    <Button color="inherit" size="small" onClick={() => void fetchCvs()}>
+                      {t("application.retry")}
+                    </Button>
+                  }
+                >
+                  {t("application.cvLoadError")}
+                </Alert>
+              ) : cvLoadState === "available" ? (
                 <FormControl component="fieldset" fullWidth>
                   <RadioGroup
                     value={selectedCvUrl}
@@ -384,7 +416,7 @@ export default function ApplyJobModal({
                 </FormControl>
               ) : (
                 <Alert severity="info" sx={{ borderRadius: 2 }}>
-                  Bạn chưa lưu tệp CV nào trên hệ thống. Hãy chuyển sang tab &quot;Tải CV mới&quot; để tải file CV của bạn lên.
+                  {t("application.noSavedCvs")}
                 </Alert>
               )}
             </Box>
@@ -444,11 +476,22 @@ export default function ApplyJobModal({
           {/* Tab 2: CV từ Builder */}
           {tabIndex === 2 && (
             <Box mb={4}>
-              {loadingBuilderCvs ? (
+              {builderCvLoadState === "idle" || builderCvLoadState === "loading" ? (
                 <Box display="flex" justifyContent="center" py={3}>
-                  <CircularProgress size={30} />
+                  <CircularProgress size={30} aria-label={t("application.loadingBuilderCvs")} />
                 </Box>
-              ) : builderCvList.length > 0 ? (
+              ) : builderCvLoadState === "error" ? (
+                <Alert
+                  severity="error"
+                  action={
+                    <Button color="inherit" size="small" onClick={() => void fetchBuilderCvs()}>
+                      {t("application.retry")}
+                    </Button>
+                  }
+                >
+                  {t("application.builderCvLoadError")}
+                </Alert>
+              ) : builderCvLoadState === "available" ? (
                 <FormControl component="fieldset" fullWidth>
                   <RadioGroup
                     value={selectedCvUrl}
@@ -619,7 +662,7 @@ export default function ApplyJobModal({
             }
             sx={{ textTransform: "none", borderRadius: 2, px: 3, fontWeight: 700 }}
           >
-            {submitting ? "Đang gửi..." : "Gửi hồ sơ ứng tuyển"}
+            {submitting ? t("application.submitting") : t("application.submit")}
           </Button>
         </DialogActions>
       </form>

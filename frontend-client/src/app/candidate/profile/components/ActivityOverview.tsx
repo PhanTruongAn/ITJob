@@ -4,18 +4,18 @@ import FavoriteIcon from "@mui/icons-material/Favorite"
 import MailIcon from "@mui/icons-material/Mail"
 import SendIcon from "@mui/icons-material/Send"
 import { Box, Grid, Typography } from "@mui/material"
+import { useTranslation } from "react-i18next"
 
 interface ActivityOverviewProps {
   appliedCount?: number
   savedCount?: number
-  invitationsCount?: number
 }
 
 export default function ActivityOverview({
   appliedCount = 3,
   savedCount = 0,
-  invitationsCount = 0,
 }: ActivityOverviewProps) {
+  const { t } = useTranslation()
   return (
     <Box
       sx={{
@@ -144,7 +144,10 @@ export default function ActivityOverview({
               </Typography>
               <Box display="flex" alignItems="center" gap={1}>
                 <Typography variant="h3" fontWeight={900} color="#08440c">
-                  {invitationsCount}
+                  —
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {t("jobInvitations.notAvailable")}
                 </Typography>
               </Box>
             </Box>

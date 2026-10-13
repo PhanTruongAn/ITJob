@@ -13,6 +13,8 @@ import {
   PaginationItem,
   Skeleton,
   Typography,
+  Alert,
+  Button,
 } from "@mui/material"
 import { useState } from "react"
 import { useCompanies } from "@/apis/company/company.hooks"
@@ -20,8 +22,11 @@ import { CompanyTypeEnum } from "@/apis/company/company.types"
 import CompanyCard from "./components/CompanyCard"
 import CompanyFilters from "./components/CompanyFilters"
 import CompanyHero from "./components/CompanyHero"
+import { useTranslation } from "react-i18next"
+import { getDiscoveryViewState } from "@/common/discovery/discoveryStates.mjs"
 
 export default function CompaniesPage() {
+  const { t } = useTranslation()
   const [page, setPage] = useState(1)
   const [size] = useState(6)
 
@@ -37,7 +42,7 @@ export default function CompaniesPage() {
   const [companyType, setCompanyType] = useState<string>("all")
 
   // API Call using hook
-  const { data, isLoading } = useCompanies({
+  const { data, isLoading, isFetching, isError, refetch } = useCompanies({
     page,
     size,
     name: searchKeyword || undefined,
@@ -62,6 +67,11 @@ export default function CompaniesPage() {
 
   const companiesList = data?.data?.result || []
   const paginationMeta = data?.data?.meta
+  const viewState = getDiscoveryViewState({
+    isLoading: isLoading || isFetching,
+    isError,
+    items: companiesList,
+  })
 
   return (
     <AppTheme>
@@ -94,7 +104,7 @@ export default function CompaniesPage() {
 
           <Container maxWidth="lg" sx={{ px: { xs: 2, md: 3 }, pb: 10 }}>
             <Grid container spacing={3}>
-              {isLoading ? (
+              {viewState === "loading" ? (
                 Array.from({ length: 6 }).map((_, idx) => (
                   <Grid item xs={12} sm={6} md={4} key={idx}>
                     <Box
@@ -115,7 +125,21 @@ export default function CompaniesPage() {
                     </Box>
                   </Grid>
                 ))
-              ) : companiesList.length === 0 ? (
+              ) : viewState === "error" ? (
+                <Grid item xs={12}>
+                  <Alert
+                    severity="error"
+                    action={
+                      <Button color="inherit" size="small" onClick={() => void refetch()}>
+                        {t("discovery.retry")}
+                      </Button>
+                    }
+                    sx={{ my: 3 }}
+                  >
+                    {t("discovery.companiesLoadError")}
+                  </Alert>
+                </Grid>
+              ) : viewState === "empty" ? (
                 <Grid item xs={12}>
                   <Box
                     display="flex"
@@ -126,7 +150,7 @@ export default function CompaniesPage() {
                     py={10}
                   >
                     <Typography variant="h6" color="text.secondary" gutterBottom>
-                      Không tìm thấy công ty nào phù hợp.
+                      {t("discovery.companiesEmpty")}
                     </Typography>
                   </Box>
                 </Grid>
@@ -140,7 +164,7 @@ export default function CompaniesPage() {
             </Grid>
 
             {/* Pagination Component */}
-            {paginationMeta && paginationMeta.pages > 1 && (
+            {viewState === "results" && paginationMeta && paginationMeta.pages > 1 && (
               <Box display="flex" justifyContent="center" mt={6}>
                 <MuiPagination
                   count={paginationMeta.pages}

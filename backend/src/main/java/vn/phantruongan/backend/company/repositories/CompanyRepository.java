@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import vn.phantruongan.backend.company.entities.Company;
+import vn.phantruongan.backend.company.entities.CompanyStatus;
 
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, Long>, JpaSpecificationExecutor<Company> {
@@ -15,4 +16,6 @@ public interface CompanyRepository extends JpaRepository<Company, Long>, JpaSpec
     public boolean existsById(Long id);
 
     Optional<Company> findByIdAndUsers_Id(Long id, Long userId);
+
+    Optional<Company> findByIdAndStatus(Long id, CompanyStatus status);
 }

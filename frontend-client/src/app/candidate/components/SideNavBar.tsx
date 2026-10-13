@@ -67,7 +67,6 @@ export default function SideNavBar() {
       label: t("nav.jobInvitations", "Job Invitations"),
       href: "/candidate/job-invitations",
       icon: <MailIcon fontSize="small" />,
-      badge: 0,
     },
     {
       label: t("nav.emailSubscriptions", "Email Subscriptions"),
@@ -187,26 +186,6 @@ export default function SideNavBar() {
                     }}
                   />
 
-                  {/* Badge for Job Invitation */}
-                  {item.badge !== undefined && (
-                    <Box
-                      sx={{
-                        bgcolor: "#1976d2", // Blue badge
-                        color: "white",
-                        borderRadius: "50%",
-                        width: 24,
-                        height: 24,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "0.75rem",
-                        fontWeight: "bold",
-                        ml: 1,
-                      }}
-                    >
-                      {item.badge}
-                    </Box>
-                  )}
                 </ListItemButton>
               </ListItem>
             )

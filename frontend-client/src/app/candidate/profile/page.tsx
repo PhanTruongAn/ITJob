@@ -147,7 +147,6 @@ export default function ITviecProfilePage() {
           <ActivityOverview
             appliedCount={3}
             savedCount={0}
-            invitationsCount={0}
           />
         </Grid>
 

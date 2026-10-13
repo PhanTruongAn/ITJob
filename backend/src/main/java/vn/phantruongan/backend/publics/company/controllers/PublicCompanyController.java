@@ -31,14 +31,14 @@ public class PublicCompanyController {
             @ParameterObject GetListCompanyReqDTO dto,
             @ParameterObject Pageable pageable) {
 
-        PaginationResponse<CompanyResDTO> result = companyService.getAllCompanies(dto, pageable);
+        PaginationResponse<CompanyResDTO> result = companyService.getPublicCompanies(dto, pageable);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")
     @ApiMessage("Get company by id")
     public ResponseEntity<CompanyResDTO> findCompanyById(@PathVariable("id") long id) throws InvalidException {
-        CompanyResDTO company = companyService.findById(id);
+        CompanyResDTO company = companyService.findPublicById(id);
         return ResponseEntity.ok(company);
     }
 }

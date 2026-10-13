@@ -11,6 +11,16 @@ export interface ICompanyReview {
   hidden: boolean
 }
 
+export interface ICompanyReviewSummary {
+  averageRating: number | null
+  totalReviews: number
+  oneStarCount: number
+  twoStarCount: number
+  threeStarCount: number
+  fourStarCount: number
+  fiveStarCount: number
+}
+
 export interface ICreateReviewReq {
   companyId: number
   rating: number
@@ -23,6 +33,12 @@ export const reviewApi = {
       method: "GET",
       params: { companyId, page, size },
     }),
+
+  getReviewSummary: (companyId: number) =>
+    fetchPublic<IApiResponse<ICompanyReviewSummary>>(
+      `${API_PATHS.PUBLIC_REVIEW}/${companyId}/summary`,
+      { method: "GET" },
+    ),
 
   createReview: (data: ICreateReviewReq) =>
     fetchWithAuth<IApiResponse<ICompanyReview>>(API_PATHS.REVIEW, {

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import vn.phantruongan.backend.company.entities.CompanyStatus;
 import vn.phantruongan.backend.job.dtos.res.JobResDTO;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.mappers.JobMapper;
@@ -28,7 +29,7 @@ public class PublicJobService {
                 limit,
                 Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        Page<Job> page = jobRepository.findByIsActive(true, pageable);
+        Page<Job> page = jobRepository.findByIsActiveTrueAndCompany_Status(CompanyStatus.APPROVED, pageable);
 
         return jobMapper.toDtoList(page.getContent());
     }

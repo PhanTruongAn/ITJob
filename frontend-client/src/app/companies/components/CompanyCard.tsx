@@ -5,13 +5,14 @@ import { Box, Card, CardContent, IconButton, Typography } from "@mui/material"
 import { useRouter } from "next/navigation"
 import SavedItemButton from "@/components/SavedItemButton"
 import { ISavedCompany } from "@/apis/bookmark/bookmark.types"
+import { useTranslation } from "react-i18next"
 
 interface CompanyCardProps {
   id: number
   name: string
   logo?: string
   industry?: string
-  rating?: number
+  rating?: number | null
   reviews?: number
   description?: string
   jobCount?: number
@@ -32,6 +33,7 @@ export default function CompanyCard({
   savedRecord,
 }: CompanyCardProps) {
   const router = useRouter()
+  const { t } = useTranslation()
 
   const handleNavigate = () => {
     router.push(`/companies/${id}`)
@@ -159,17 +161,21 @@ export default function CompanyCard({
 
         {(rating !== undefined || reviews !== undefined) && (
           <Box display="flex" alignItems="center" gap={0.5} mb={2}>
-            {rating !== undefined && (
+            {rating != null && rating > 0 ? (
               <>
                 <StarIcon sx={{ color: "warning.main", fontSize: 18 }} />
                 <Typography variant="body2" fontWeight="bold">
                   {rating}
                 </Typography>
               </>
-            )}
-            {reviews !== undefined && (
+            ) : (
               <Typography variant="caption" color="text.secondary">
-                ({reviews.toLocaleString()} đánh giá)
+                {t("companyReviews.notRated")}
+              </Typography>
+            )}
+            {reviews != null && (
+              <Typography variant="caption" color="text.secondary">
+                {t("companyReviews.reviewCount", { count: reviews.toLocaleString() })}
               </Typography>
             )}
           </Box>

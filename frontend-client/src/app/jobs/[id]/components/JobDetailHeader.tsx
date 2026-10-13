@@ -20,6 +20,7 @@ import {
   Typography,
 } from "@mui/material"
 import SavedItemButton from "@/components/SavedItemButton"
+import { useTranslation } from "react-i18next"
 
 const JOB_TYPE_LABELS: Record<string, string> = {
   FULL_TIME: "Full-time",
@@ -44,23 +45,33 @@ interface JobDetails {
   quantity?: number
   endDate?: string
   isActive?: boolean
-  rating?: number
+  rating?: number | null
   reviews?: number
 }
 
 interface JobDetailHeaderProps {
   jobId: number
   job: JobDetails
-  isApplied?: boolean
+  applyActionState:
+    | "sessionLoading"
+    | "guest"
+    | "hidden"
+    | "checking"
+    | "ready"
+    | "applied"
+    | "error"
   onApply: () => void
+  onRetryApplicationCheck: () => void
 }
 
 export default function JobDetailHeader({
   jobId,
   job,
-  isApplied = false,
+  applyActionState,
   onApply,
+  onRetryApplicationCheck,
 }: JobDetailHeaderProps) {
+  const { t } = useTranslation()
   const isExpired = job.endDate ? new Date(job.endDate).getTime() < Date.now() : false
   const isClosed = job.isActive === false || isExpired
 
@@ -176,13 +187,21 @@ export default function JobDetailHeader({
 
                 {job.rating !== undefined && (
                   <Stack direction="row" spacing={0.5} alignItems="center">
-                    <StarIcon sx={{ color: "#faaf00", fontSize: 18 }} />
-                    <Typography variant="body2" fontWeight="bold">
-                      {job.rating.toFixed(1)}
-                    </Typography>
-                    {job.reviews ? (
+                    {job.rating != null && job.rating > 0 ? (
+                      <>
+                        <StarIcon sx={{ color: "#faaf00", fontSize: 18 }} />
+                        <Typography variant="body2" fontWeight="bold">
+                          {job.rating.toFixed(1)}
+                        </Typography>
+                      </>
+                    ) : (
                       <Typography variant="caption" color="text.secondary">
-                        ({job.reviews} đánh giá)
+                        {t("companyReviews.notRated")}
+                      </Typography>
+                    )}
+                    {job.reviews != null ? (
+                      <Typography variant="caption" color="text.secondary">
+                        {t("companyReviews.reviewCount", { count: job.reviews })}
                       </Typography>
                     ) : null}
                   </Stack>
@@ -295,51 +314,71 @@ export default function JobDetailHeader({
             spacing={1.5}
             sx={{ width: { xs: "100%", md: "auto" }, alignItems: "center" }}
           >
-            <Button
-              variant="contained"
-              color={isApplied ? "success" : isClosed ? "inherit" : "primary"}
-              disabled={isApplied || isClosed}
-              startIcon={isApplied ? <CheckCircleIcon /> : undefined}
-              onClick={onApply}
-              sx={{
-                flexGrow: { xs: 1, md: 0 },
-                whiteSpace: "nowrap",
-                px: 3.5,
-                py: 1.2,
-                minWidth: "fit-content",
-                fontWeight: "bold",
-                borderRadius: 2.5,
-                textTransform: "none",
-                boxShadow: "none",
-                fontSize: "0.95rem",
-                "&.Mui-disabled": {
-                  bgcolor: isApplied
-                    ? "success.light"
+            {applyActionState !== "hidden" && applyActionState !== "sessionLoading" && (
+              <>
+                <Button
+                  variant="contained"
+                  color={applyActionState === "applied" ? "success" : isClosed ? "inherit" : "primary"}
+                  disabled={
+                    isClosed ||
+                    applyActionState === "applied" ||
+                    applyActionState === "checking" ||
+                    applyActionState === "error"
+                  }
+                  startIcon={applyActionState === "applied" ? <CheckCircleIcon /> : undefined}
+                  onClick={onApply}
+                  sx={{
+                    flexGrow: { xs: 1, md: 0 },
+                    whiteSpace: "nowrap",
+                    px: 3.5,
+                    py: 1.2,
+                    minWidth: "fit-content",
+                    fontWeight: "bold",
+                    borderRadius: 2.5,
+                    textTransform: "none",
+                    boxShadow: "none",
+                    fontSize: "0.95rem",
+                    "&.Mui-disabled": {
+                      bgcolor: applyActionState === "applied"
+                        ? "success.light"
+                        : isClosed
+                          ? "grey.200"
+                          : "action.disabledBackground",
+                      color: applyActionState === "applied"
+                        ? "success.dark"
+                        : isClosed
+                          ? "grey.600"
+                          : "action.disabled",
+                    },
+                    "&:hover": {
+                      bgcolor: applyActionState === "applied"
+                        ? "success.main"
+                        : isClosed
+                          ? "grey.300"
+                          : "primary.dark",
+                      boxShadow: "none",
+                    },
+                  }}
+                >
+                  {applyActionState === "applied"
+                    ? t("application.alreadyApplied")
                     : isClosed
-                    ? "grey.200"
-                    : "action.disabledBackground",
-                  color: isApplied
-                    ? "success.dark"
-                    : isClosed
-                    ? "grey.600"
-                    : "action.disabled",
-                },
-                "&:hover": {
-                  bgcolor: isApplied
-                    ? "success.main"
-                    : isClosed
-                    ? "grey.300"
-                    : "primary.dark",
-                  boxShadow: "none",
-                },
-              }}
-            >
-              {isApplied
-                ? "Đã ứng tuyển"
-                : isClosed
-                ? "Đã hết hạn tuyển dụng"
-                : "Apply Now"}
-            </Button>
+                      ? t("application.jobClosed")
+                      : applyActionState === "guest"
+                        ? t("application.signInToApply")
+                        : applyActionState === "checking"
+                          ? t("application.checking")
+                          : applyActionState === "error"
+                            ? t("application.checkFailed")
+                            : t("common.apply")}
+                </Button>
+                {applyActionState === "error" && (
+                  <Button size="small" onClick={onRetryApplicationCheck}>
+                    {t("application.retry")}
+                  </Button>
+                )}
+              </>
+            )}
             <SavedItemButton
               kind="job"
               resourceId={jobId}

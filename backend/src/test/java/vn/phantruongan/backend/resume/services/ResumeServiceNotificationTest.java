@@ -48,7 +48,6 @@ class ResumeServiceNotificationTest {
 
     @BeforeEach
     void setUp() {
-        User admin = user(1L, "ADMIN");
         User candidate = user(2L, "CANDIDATE");
         Job job = new Job();
         job.setId(30L);
@@ -58,15 +57,25 @@ class ResumeServiceNotificationTest {
         application.setId(40L);
         application.setUser(candidate);
         application.setJob(job);
+
+    }
+
+    private void stubActorAndApplication() {
+        User admin = user(1L, "ADMIN");
         when(currentUserService.getCurrentUserEmail()).thenReturn("admin@example.test");
         when(userRepository.findByEmail("admin@example.test")).thenReturn(Optional.of(admin));
         when(resumeRepository.findById(40L)).thenReturn(Optional.of(application));
+    }
+
+    private void stubSuccessfulTransition() {
+        stubActorAndApplication();
         when(resumeRepository.save(any(Resume.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(resumeMapper.toDto(any(Resume.class))).thenReturn(new ResumeResDTO());
     }
 
     @Test
     void createsNotificationWhenApplicationMovesToReviewing() throws Exception {
+        stubSuccessfulTransition();
         application.setStatus(ResumeEnum.PENDING);
 
         service.reviewResume(40L);
@@ -77,6 +86,7 @@ class ResumeServiceNotificationTest {
 
     @Test
     void createsNotificationWhenApplicationIsApproved() throws Exception {
+        stubSuccessfulTransition();
         application.setStatus(ResumeEnum.REVIEWING);
 
         service.approveResume(40L);
@@ -87,6 +97,7 @@ class ResumeServiceNotificationTest {
 
     @Test
     void createsNotificationWhenApplicationIsRejected() throws Exception {
+        stubSuccessfulTransition();
         application.setStatus(ResumeEnum.REVIEWING);
 
         service.rejectResume(40L, "Not a match");
@@ -97,6 +108,7 @@ class ResumeServiceNotificationTest {
 
     @Test
     void doesNotCreateNotificationWhenStatusDoesNotChange() {
+        stubActorAndApplication();
         application.setStatus(ResumeEnum.REVIEWING);
         assertThrows(InvalidException.class, () -> service.reviewResume(40L));
         verify(notificationService, never()).createApplicationStatusChanged(any(Resume.class));
@@ -104,6 +116,7 @@ class ResumeServiceNotificationTest {
 
     @Test
     void doesNotCreateNotificationWhenAlreadyApproved() {
+        stubActorAndApplication();
         application.setStatus(ResumeEnum.APPROVED);
         assertThrows(InvalidException.class, () -> service.approveResume(40L));
         verify(notificationService, never()).createApplicationStatusChanged(any(Resume.class));
@@ -111,6 +124,7 @@ class ResumeServiceNotificationTest {
 
     @Test
     void doesNotCreateNotificationWhenAlreadyRejected() {
+        stubActorAndApplication();
         application.setStatus(ResumeEnum.REJECTED);
         assertThrows(InvalidException.class, () -> service.rejectResume(40L, null));
         verify(notificationService, never()).createApplicationStatusChanged(any(Resume.class));

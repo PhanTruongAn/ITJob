@@ -13,6 +13,7 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import vn.phantruongan.backend.company.entities.Company;
+import vn.phantruongan.backend.company.entities.CompanyStatus;
 import vn.phantruongan.backend.job.dtos.req.job.GetListJobReqDTO;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.entities.JobSkill;
@@ -20,9 +21,15 @@ import vn.phantruongan.backend.job.entities.JobSkill;
 public class JobSpecification implements Specification<Job> {
 
     private final GetListJobReqDTO dtoFilter;
+    private final boolean publicListingsOnly;
 
     public JobSpecification(GetListJobReqDTO dtoFilter) {
+        this(dtoFilter, false);
+    }
+
+    public JobSpecification(GetListJobReqDTO dtoFilter, boolean publicListingsOnly) {
         this.dtoFilter = dtoFilter;
+        this.publicListingsOnly = publicListingsOnly;
     }
 
     @Override
@@ -31,9 +38,17 @@ public class JobSpecification implements Specification<Job> {
         List<Predicate> predicates = new ArrayList<>();
         Join<Job, Company> companyJoin = null;
 
+        if (publicListingsOnly) {
+            predicates.add(cb.isTrue(root.get("isActive")));
+            companyJoin = root.join("company", JoinType.INNER);
+            predicates.add(cb.equal(companyJoin.get("status"), CompanyStatus.APPROVED));
+        }
+
         if (dtoFilter.getName() != null && !dtoFilter.getName().isBlank()) {
             String keywordPattern = "%" + dtoFilter.getName().toLowerCase().trim() + "%";
-            companyJoin = root.join("company", JoinType.LEFT);
+            if (companyJoin == null) {
+                companyJoin = root.join("company", JoinType.LEFT);
+            }
             Predicate matchJobName = cb.like(cb.lower(root.get("name")), keywordPattern);
             Predicate matchCompanyName = cb.like(cb.lower(companyJoin.get("name")), keywordPattern);
             predicates.add(cb.or(matchJobName, matchCompanyName));

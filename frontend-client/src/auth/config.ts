@@ -19,8 +19,8 @@ function getJwtExpiry(token?: string): number | null {
     if (payload && typeof payload.exp === 'number') {
       return payload.exp * 1000;
     }
-  } catch (e) {
-    console.error("Error parsing JWT for expiry:", e);
+  } catch {
+    console.error("Error parsing JWT for expiry")
   }
   return null;
 }
@@ -63,8 +63,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           return null
-        } catch (err) {
-          console.error("Credentials login error:", err)
+        } catch {
+          console.error("Credentials login failed")
           return null
         }
       },
@@ -135,8 +135,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           return token
-        } catch (err: any) {
-          console.error("Google backend login error:", err)
+        } catch {
+          console.error("Google backend login failed")
           return token
         }
       }
@@ -194,8 +194,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           ...token,
           error: "RefreshAccessTokenError",
         }
-      } catch (err: any) {
-        console.error("Refresh token error:", err)
+      } catch {
+        console.error("Refresh token request failed")
 
         return {
           ...token,

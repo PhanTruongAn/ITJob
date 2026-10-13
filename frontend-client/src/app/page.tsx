@@ -11,11 +11,7 @@ import Divider from "@mui/material/Divider"
 
 // @ts-ignore
 export default async function Home() {
-  const session = await auth()
-
-  if (session) {
-    console.log("📌 Server-side Session data:", session)
-  }
+  await auth()
 
   return (
     <AppTheme>

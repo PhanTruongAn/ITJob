@@ -7,6 +7,8 @@ import { fetchJobs, getJobById } from "@/apis/job"
 import { getCompanyById } from "@/apis/company"
 import { checkJobApplied } from "@/apis/resume"
 import { ICompany, IJob } from "@/types/backend"
+import { getApplyActionState, getAppliedCheckState } from "@/common/application/applicationStates.mjs"
+import { isCandidateRole } from "@/common/security/frontendSecurity.mjs"
 import {
   Alert,
   Box,
@@ -22,7 +24,9 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import { useSession } from "next-auth/react"
 import { useParams, useRouter } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
+import { getJobDetailFailureState } from "@/common/discovery/discoveryStates.mjs"
 import ApplyJobModal from "./components/ApplyJobModal"
 import JobDescriptionSection from "./components/JobDescriptionSection"
 import JobDetailHeader from "./components/JobDetailHeader"
@@ -48,6 +52,7 @@ function formatTimeAgo(dateStr?: string): string {
 export default function JobDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { t } = useTranslation()
   const jobId = Number(params?.id)
 
   const { data: session, status } = useSession()
@@ -56,8 +61,14 @@ export default function JobDetailPage() {
   const [company, setCompany] = useState<ICompany | null>(null)
   const [similarJobs, setSimilarJobs] = useState<IJob[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadFailure, setLoadFailure] = useState<"notFound" | "error" | null>(null)
+  const detailRequestId = useRef(0)
 
-  const [isApplied, setIsApplied] = useState(false)
+  const [appliedCheck, setAppliedCheck] = useState<{
+    key: string | null
+    state: "idle" | "loading" | "notApplied" | "applied" | "error"
+  }>({ key: null, state: "idle" })
+  const [appliedCheckRetry, setAppliedCheckRetry] = useState(0)
   const [openApplyModal, setOpenApplyModal] = useState(false)
 
   const [snackbar, setSnackbar] = useState({
@@ -68,33 +79,47 @@ export default function JobDetailPage() {
 
   // Load job details and company info
   const loadJobData = useCallback(async () => {
+    const currentRequestId = ++detailRequestId.current
     if (!jobId || isNaN(jobId)) {
       setLoading(false)
+      setJob(null)
+      setLoadFailure("error")
       return
     }
 
     setLoading(true)
+    setJob(null)
+    setCompany(null)
+    setLoadFailure(null)
     try {
       const res = await getJobById(jobId)
       if (res?.data) {
         const jobData = res.data
-        setJob(jobData)
+        if (currentRequestId === detailRequestId.current) setJob(jobData)
 
         // Fetch company details if companyId exists
         if (jobData.companyId) {
           getCompanyById(jobData.companyId)
             .then((cRes) => {
-              if (cRes?.data) setCompany(cRes.data)
+              if (currentRequestId === detailRequestId.current && cRes?.data) {
+                setCompany(cRes.data)
+              }
             })
             .catch(() => {})
         }
       } else {
-        setJob(null)
+        if (currentRequestId === detailRequestId.current) {
+          setJob(null)
+          setLoadFailure("error")
+        }
       }
-    } catch {
-      setJob(null)
+    } catch (error) {
+      if (currentRequestId === detailRequestId.current) {
+        setJob(null)
+        setLoadFailure(getJobDetailFailureState(error))
+      }
     } finally {
-      setLoading(false)
+      if (currentRequestId === detailRequestId.current) setLoading(false)
     }
   }, [jobId])
 
@@ -114,29 +139,54 @@ export default function JobDetailPage() {
       .catch(() => {})
   }, [jobId])
 
-  // Check if current user has already applied for this job
+  const isCandidate = status === "authenticated" && isCandidateRole(session?.user?.role)
+  const applicationCheckKey = isCandidate
+    ? `${session?.user?.id ?? "candidate"}:${jobId}`
+    : null
+
+  // Check only the authenticated candidate's application state.
   useEffect(() => {
-    if (status !== "authenticated" || !jobId) return
+    if (!applicationCheckKey || !jobId) {
+      setAppliedCheck({ key: null, state: "idle" })
+      return
+    }
 
     let isMounted = true
+    setAppliedCheck({ key: applicationCheckKey, state: "loading" })
     checkJobApplied(jobId)
       .then((res) => {
-        if (isMounted && res?.data) {
-          setIsApplied(true)
+        if (isMounted) {
+          setAppliedCheck({
+            key: applicationCheckKey,
+            state: getAppliedCheckState(res),
+          })
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        if (isMounted) {
+          setAppliedCheck({ key: applicationCheckKey, state: "error" })
+        }
+      })
 
     return () => {
       isMounted = false
     }
-  }, [status, jobId])
+  }, [applicationCheckKey, jobId, appliedCheckRetry])
+
+  const currentCheckState = appliedCheck.key === applicationCheckKey
+    ? appliedCheck.state
+    : "loading"
+  const applyActionState = getApplyActionState({
+    sessionStatus: status,
+    role: session?.user?.role,
+    checkState: currentCheckState,
+  })
 
   const handleApplyClick = () => {
-    if (!session?.user) {
+    if (applyActionState === "guest") {
       setSnackbar({
         open: true,
-        message: "Vui lòng đăng nhập tài khoản ứng viên để ứng tuyển công việc này.",
+        message: t("application.signInPrompt"),
         severity: "warning",
       })
       setTimeout(() => {
@@ -144,14 +194,16 @@ export default function JobDetailPage() {
       }, 1500)
       return
     }
-    setOpenApplyModal(true)
+    if (applyActionState === "ready") setOpenApplyModal(true)
   }
 
   const handleApplySuccess = () => {
-    setIsApplied(true)
+    if (applicationCheckKey) {
+      setAppliedCheck({ key: applicationCheckKey, state: "applied" })
+    }
     setSnackbar({
       open: true,
-      message: "Ứng tuyển thành công! Nhà tuyển dụng sẽ xem xét hồ sơ của bạn sớm nhất.",
+      message: t("application.success"),
       severity: "success",
     })
   }
@@ -253,13 +305,13 @@ export default function JobDetailPage() {
             >
               <CircularProgress size={44} />
               <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                Đang tải chi tiết công việc...
+                {t("discovery.jobDetailLoading")}
               </Typography>
             </Box>
-          ) : !job ? (
+          ) : loadFailure === "notFound" ? (
             <Box py={10} textAlign="center">
               <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-                Không tìm thấy thông tin công việc hoặc công việc này đã ngừng tuyển dụng.
+                {t("discovery.jobNotFound")}
               </Alert>
               <Button
                 variant="contained"
@@ -267,7 +319,29 @@ export default function JobDetailPage() {
                 onClick={() => router.push("/jobs")}
                 sx={{ borderRadius: 2 }}
               >
-                Quay lại danh sách việc làm
+                {t("discovery.backToJobs")}
+              </Button>
+            </Box>
+          ) : loadFailure === "error" || !job ? (
+            <Box py={10} textAlign="center">
+              <Alert
+                severity="error"
+                sx={{ mb: 3, borderRadius: 2 }}
+                action={
+                  <Button color="inherit" size="small" onClick={() => void loadJobData()}>
+                    {t("discovery.retry")}
+                  </Button>
+                }
+              >
+                {t("discovery.jobDetailLoadError")}
+              </Alert>
+              <Button
+                variant="outlined"
+                startIcon={<ArrowBackIcon />}
+                onClick={() => router.push("/jobs")}
+                sx={{ borderRadius: 2 }}
+              >
+                {t("discovery.backToJobs")}
               </Button>
             </Box>
           ) : (
@@ -277,8 +351,9 @@ export default function JobDetailPage() {
                 <JobDetailHeader
                   jobId={job.id}
                   job={headerJob}
-                  isApplied={isApplied}
+                  applyActionState={applyActionState}
                   onApply={handleApplyClick}
+                  onRetryApplicationCheck={() => setAppliedCheckRetry((count) => count + 1)}
                 />
               )}
 
@@ -304,7 +379,7 @@ export default function JobDetailPage() {
       </Box>
 
       {/* Apply Job Modal */}
-      {job && (
+      {job && isCandidate && (
         <ApplyJobModal
           open={openApplyModal}
           onClose={() => setOpenApplyModal(false)}

@@ -13,19 +13,26 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import vn.phantruongan.backend.company.dtos.req.GetListCompanyReqDTO;
 import vn.phantruongan.backend.company.entities.Company;
+import vn.phantruongan.backend.company.entities.CompanyStatus;
 import vn.phantruongan.backend.company.entities.Country;
 
 public class CompanySpecification implements Specification<Company> {
     private final GetListCompanyReqDTO dtoFilter;
     private final Long ownerUserId;
+    private final boolean approvedOnly;
 
     public CompanySpecification(GetListCompanyReqDTO dtoFilter) {
-        this(dtoFilter, null);
+        this(dtoFilter, null, false);
     }
 
     public CompanySpecification(GetListCompanyReqDTO dtoFilter, Long ownerUserId) {
+        this(dtoFilter, ownerUserId, false);
+    }
+
+    public CompanySpecification(GetListCompanyReqDTO dtoFilter, Long ownerUserId, boolean approvedOnly) {
         this.dtoFilter = dtoFilter;
         this.ownerUserId = ownerUserId;
+        this.approvedOnly = approvedOnly;
     }
 
     @Override
@@ -34,6 +41,10 @@ public class CompanySpecification implements Specification<Company> {
             CriteriaBuilder cb) {
 
         List<Predicate> predicates = new ArrayList<>();
+
+        if (approvedOnly) {
+            predicates.add(cb.equal(root.get("status"), CompanyStatus.APPROVED));
+        }
 
         if (ownerUserId != null) {
             Join<Company, vn.phantruongan.backend.authentication.entities.User> userJoin = root.join("users");

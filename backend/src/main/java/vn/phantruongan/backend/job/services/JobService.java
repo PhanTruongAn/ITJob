@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.common.security.EmployerOwnershipService;
 import vn.phantruongan.backend.company.entities.Company;
+import vn.phantruongan.backend.company.entities.CompanyStatus;
 import vn.phantruongan.backend.company.repositories.CompanyRepository;
 import vn.phantruongan.backend.job.dtos.req.job.CreateJobReqDTO;
 import vn.phantruongan.backend.job.dtos.req.job.GetListJobReqDTO;
@@ -53,7 +54,16 @@ public class JobService {
         private final ResumeRepository resumeRepository;
 
         public PaginationResponse<JobResDTO> getAllJobs(GetListJobReqDTO dto, Pageable pageable) {
-                Specification<Job> spec = new JobSpecification(dto);
+                return getJobs(dto, pageable, false);
+        }
+
+        public PaginationResponse<JobResDTO> getPublicJobs(GetListJobReqDTO dto, Pageable pageable) {
+                return getJobs(dto, pageable, true);
+        }
+
+        private PaginationResponse<JobResDTO> getJobs(GetListJobReqDTO dto, Pageable pageable,
+                        boolean publicListingsOnly) {
+                Specification<Job> spec = new JobSpecification(dto, publicListingsOnly);
 
                 // Build sort from sortBy param if provided, otherwise fallback to pageable sort
                 Sort sort = pageable.getSort();
@@ -131,6 +141,13 @@ public class JobService {
                 Job job = jobRepository.findById(id)
                                 .orElseThrow(() -> new InvalidException("Job not found with id: " + id));
 
+                return jobMapper.toDto(job);
+        }
+
+        public JobResDTO findPublicById(long id) throws InvalidException {
+                Job job = jobRepository.findByIdAndIsActiveTrueAndCompany_Status(
+                                id, CompanyStatus.APPROVED)
+                                .orElseThrow(() -> new InvalidException("Job not found with id: " + id));
                 return jobMapper.toDto(job);
         }
 

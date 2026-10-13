@@ -11,7 +11,7 @@ import { IJob, ISkill } from "@/types/backend"
 import { Box, CircularProgress, CssBaseline, Stack } from "@mui/material"
 import { Container } from "@mui/system"
 import { useSearchParams } from "next/navigation"
-import { Suspense, useCallback, useEffect, useState } from "react"
+import { Suspense, useCallback, useEffect, useRef, useState } from "react"
 
 const PAGE_SIZE = 10
 
@@ -47,6 +47,8 @@ function JobsContent() {
   const [totalPages, setTotalPages] = useState(1)
   const [totalElements, setTotalElements] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState(false)
+  const requestId = useRef(0)
   const [filters, setFilters] = useState<JobFilters>({
     ...defaultFilters,
     keyword: initialKeyword,
@@ -62,7 +64,12 @@ function JobsContent() {
 
   // Fetch jobs when any filter changes
   const loadJobs = useCallback(async (f: JobFilters) => {
+    const currentRequestId = ++requestId.current
     setLoading(true)
+    setLoadError(false)
+    setJobs([])
+    setTotalPages(1)
+    setTotalElements(0)
     try {
       const res = await fetchJobs({
         name: f.keyword || undefined,
@@ -79,15 +86,22 @@ function JobsContent() {
         pageSize: PAGE_SIZE,
       })
 
-      if (res?.data) {
+      if (!Array.isArray(res?.data?.result)) {
+        throw new Error("Invalid job search response")
+      }
+
+      if (currentRequestId === requestId.current) {
         setJobs(res.data.result ?? [])
         setTotalPages(res.data.meta.pages ?? 1)
         setTotalElements(res.data.meta.total ?? 0)
       }
     } catch {
-      setJobs([])
+      if (currentRequestId === requestId.current) {
+        setJobs([])
+        setLoadError(true)
+      }
     } finally {
-      setLoading(false)
+      if (currentRequestId === requestId.current) setLoading(false)
     }
   }, [])
 
@@ -170,6 +184,8 @@ function JobsContent() {
             <JobList
               jobs={jobs}
               loading={loading}
+              loadError={loadError}
+              onRetry={() => void loadJobs(filters)}
               totalElements={totalElements}
               page={filters.page}
               totalPages={totalPages}

@@ -52,7 +52,7 @@ export interface ICompany {
   industry?: string
   overtime?: boolean
   workingDays?: string[]
-  rating?: number
+  rating?: number | null
   reviews?: number
 }
 

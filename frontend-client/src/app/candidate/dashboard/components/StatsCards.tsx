@@ -142,7 +142,7 @@ export default function StatsCards({
               </Typography>
               {card.unavailable && (
                 <Typography variant="caption" color="text.secondary">
-                  {t("dashboard.notAvailable")}
+                  {t("jobInvitations.notAvailable")}
                 </Typography>
               )}
             </CardActionArea>
