@@ -30,7 +30,7 @@ const Company: React.FC = () => {
     countryId,
     status,
   }: IFilterCompany) => {
-    updateState({ name, address, companySize, companyType, countryId, status })
+    updateState({ page: 1, name, address, companySize, companyType, countryId, status })
   }
   const handleClearFilter = () => {
     updateState(DEFAULT_STATE)
@@ -40,7 +40,7 @@ const Company: React.FC = () => {
     navigate(PATH_DASHBOARD.companyManage.create)
   }
   const handleTableChange = (page: number, pageSize: number, sort?: string) => {
-    updateState({ page, pageSize, sort })
+    updateState({ page: sort !== state.sort ? 1 : page, pageSize, sort })
   }
 
   const fetchDataCompanies = async (): Promise<

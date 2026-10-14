@@ -5,3 +5,12 @@ export enum LevelEnum {
   MIDDLE = "MIDDLE",
   SENIOR = "SENIOR",
 }
+
+export enum JobTypeEnum {
+  FULL_TIME = "FULL_TIME",
+  PART_TIME = "PART_TIME",
+  HYBRID = "HYBRID",
+  REMOTE = "REMOTE",
+  CONTRACT = "CONTRACT",
+  INTERNSHIP = "INTERNSHIP",
+}

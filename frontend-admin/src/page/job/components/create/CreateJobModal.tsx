@@ -1,12 +1,24 @@
-import { DatePicker, Form, Input, InputNumber, Modal, Select } from "antd"
+import {
+  Alert,
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Select,
+} from "antd"
 import React from "react"
 import { ICompany, ISkill } from "../../../../types/backend"
-import { LevelEnum } from "../../common/enums"
+import { JobTypeEnum, LevelEnum } from "../../common/enums"
 
 interface CreateJobModalProps {
   loading: boolean
   open: boolean
   companyOptions: ICompany[]
+  companyOptionsLoading: boolean
+  companyOptionsError: boolean
+  onRetryCompanyOptions: () => void
   skillOptions: ISkill[]
   onCancel: () => void
   onSubmit: (values: any) => void
@@ -16,6 +28,9 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
   loading,
   open,
   companyOptions,
+  companyOptionsLoading,
+  companyOptionsError,
+  onRetryCompanyOptions,
   skillOptions,
   onCancel,
   onSubmit,
@@ -67,6 +82,7 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
             rules={[{ required: true, message: "Please select company" }]}
           >
             <Select
+              loading={companyOptionsLoading}
               showSearch
               filterOption={(input, option) =>
                 (option?.label ?? "")
@@ -77,6 +93,13 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
                 value: c.id,
                 label: c.name,
               }))}
+              notFoundContent={
+                companyOptionsLoading
+                  ? "Loading companies..."
+                  : companyOptionsError
+                    ? "Company options are unavailable"
+                    : "No authorized companies available"
+              }
               placeholder="Select company"
             />
           </Form.Item>
@@ -95,6 +118,30 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
             </Select>
           </Form.Item>
         </div>
+
+        {companyOptionsError && (
+          <Alert
+            type="error"
+            showIcon
+            message="Could not load company options"
+            action={
+              <Button size="small" type="link" onClick={onRetryCompanyOptions}>
+                Retry
+              </Button>
+            }
+            style={{ marginBottom: 16 }}
+          />
+        )}
+
+        <Form.Item name="jobType" label="Job Type">
+          <Select allowClear placeholder="Select job type">
+            {Object.values(JobTypeEnum).map((jobType) => (
+              <Select.Option key={jobType} value={jobType}>
+                {String(jobType).replace(/_/g, " ")}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
 
         <div style={{ display: "flex", gap: 16 }}>
           <Form.Item
@@ -135,7 +182,18 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
           <DatePicker.RangePicker style={{ width: "100%" }} />
         </Form.Item>
 
-        <Form.Item name="skillIds" label="Skills">
+        <Form.Item
+          name="skillIds"
+          label="Skills"
+          rules={[
+            {
+              required: true,
+              type: "array",
+              min: 1,
+              message: "Please select at least one skill",
+            },
+          ]}
+        >
           <Select
             mode="multiple"
             placeholder="Select required skills"

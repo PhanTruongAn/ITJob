@@ -6,6 +6,7 @@ import {
   editJob,
   getJobById,
 } from "../../../apis/jobModule"
+import { fetchCompanies } from "../../../apis/companyModule"
 import { fetchSkillOptions } from "../../../apis/skillModule"
 import CustomHooks from "../../../common/hooks/CustomHooks"
 import { QUERY_KEYS } from "../../../common/queryKeys"
@@ -53,11 +54,10 @@ export const useEditJob = () => {
     },
   })
 }
-import { fetchCompanies } from "../../../apis/companyModule"
-
 export const useGetCompanyList = () => {
-  return CustomHooks.useQuery([QUERY_KEYS.COMPANY_MODULE, "all"], () =>
-    fetchCompanies({ page: 1, pageSize: 100 })
+  return CustomHooks.useQuery(
+    [QUERY_KEYS.COMPANY_MODULE, "all"],
+    () => fetchCompanies({ page: 1, pageSize: 100 }),
   )
 }
 
