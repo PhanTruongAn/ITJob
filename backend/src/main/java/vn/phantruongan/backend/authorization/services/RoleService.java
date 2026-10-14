@@ -29,6 +29,7 @@ import vn.phantruongan.backend.authorization.repositories.PermissionRepository;
 import vn.phantruongan.backend.authorization.repositories.RolePermissionRepository;
 import vn.phantruongan.backend.authorization.repositories.RoleRepository;
 import vn.phantruongan.backend.authorization.specification.RoleSpecification;
+import vn.phantruongan.backend.authentication.repositories.UserRepository;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.util.error.InvalidException;
 
@@ -39,6 +40,7 @@ public class RoleService {
     private final RolePermissionRepository rolePermissionRepository;
     private final PermissionRepository permissionRepository;
     private final RoleMapper roleMapper;
+    private final UserRepository userRepository;
 
     public PaginationResponse<RoleResDTO> getAllRole(GetListRoleReqDTO dto, Pageable pageable) {
         Specification<Role> spec = new RoleSpecification(dto);
@@ -65,9 +67,18 @@ public class RoleService {
     }
 
     @CacheEvict(cacheNames = "permissions", allEntries = true)
+    @Transactional
     public RoleResDTO updateRole(UpdateRoleReqDTO dto) throws InvalidException {
-        Role existingRole = roleRepository.findById(dto.getId())
+        Role existingRole = roleRepository.findByIdForUpdate(dto.getId())
                 .orElseThrow(() -> new InvalidException("Role not found"));
+
+        boolean activeAdminRole = existingRole.isActive()
+                && "ADMIN".equalsIgnoreCase(existingRole.getName());
+        boolean removesAdminAccess = activeAdminRole
+                && (!dto.isActive() || !"ADMIN".equalsIgnoreCase(dto.getName()));
+        if (removesAdminAccess && userRepository.countActiveUsersByRoleName("ADMIN") > 0) {
+            throw new InvalidException("Cannot deactivate or rename the ADMIN role while active administrators are assigned.");
+        }
 
         roleMapper.updateEntityFromDto(dto, existingRole);
 

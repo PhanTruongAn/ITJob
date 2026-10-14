@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import vn.phantruongan.backend.authentication.enums.GenderEnum;
@@ -31,5 +32,8 @@ public class CreateUserReqDTO {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate dob;
+
+    @NotNull(message = "Role must be selected.")
+    private Long roleId;
 
 }

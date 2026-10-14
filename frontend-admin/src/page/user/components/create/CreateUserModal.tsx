@@ -1,11 +1,16 @@
 import React from "react";
-import { Modal, Form, Input, DatePicker, Select, Row, Col } from "antd";
+import { Modal, Form, Input, DatePicker, Select, Row, Col, Alert } from "antd";
+import { IRole } from "../../../../types/backend";
+import { ICreateUser } from "../../common/interface";
 
 interface CreateUserModalProps {
   loading: boolean;
   open: boolean;
   onCancel: () => void;
-  onSubmit: (values: any) => void;
+  onSubmit: (values: ICreateUser) => void;
+  roles: IRole[];
+  rolesLoading: boolean;
+  rolesError: boolean;
 }
 
 const { Option } = Select;
@@ -15,6 +20,9 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
   open,
   onCancel,
   onSubmit,
+  roles,
+  rolesLoading,
+  rolesError,
 }) => {
   const [form] = Form.useForm();
 
@@ -23,7 +31,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
       .validateFields()
       .then((values) => {
         values.dob = values.dob.format("DD/MM/YYYY");
-        onSubmit(values);
+        onSubmit(values as ICreateUser);
         form.resetFields();
       })
       .catch((info) => {
@@ -42,6 +50,14 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
       loading={loading}
     >
       <Form form={form} layout="vertical">
+        {rolesError && (
+          <Alert
+            type="error"
+            showIcon
+            message="Unable to load assignable roles. Refresh and try again."
+            style={{ marginBottom: 16 }}
+          />
+        )}
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
@@ -120,6 +136,23 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 <Option value="FEMALE">Female</Option>
                 <Option value="OTHER">Other</Option>
               </Select>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="roleId"
+              label="Role"
+              rules={[{ required: true, message: "Please select a role" }]}
+            >
+              <Select
+                placeholder="Select role"
+                loading={rolesLoading}
+                disabled={rolesLoading || roles.length === 0}
+                options={roles.map((role) => ({
+                  value: role.id,
+                  label: role.name,
+                }))}
+              />
             </Form.Item>
           </Col>
         </Row>

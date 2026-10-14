@@ -28,6 +28,7 @@ import vn.phantruongan.backend.company.repositories.CompanyRepository;
 import vn.phantruongan.backend.company.repositories.CountryRepository;
 import vn.phantruongan.backend.company.specification.CompanySpecification;
 import vn.phantruongan.backend.log.services.AuditLogService;
+import vn.phantruongan.backend.resume.repositories.ResumeRepository;
 import vn.phantruongan.backend.util.error.InvalidException;
 import vn.phantruongan.backend.util.error.PermissionDeniedException;
 
@@ -41,6 +42,7 @@ public class CompanyService {
     private final AuditLogService auditLogService;
     private final EmployerOwnershipService ownershipService;
     private final UserRepository userRepository;
+    private final ResumeRepository resumeRepository;
 
     public boolean isExistCompany(String name, long countryId) {
         if (companyRepository.existsByNameAndCountry_Id(name, countryId)) {
@@ -146,6 +148,7 @@ public class CompanyService {
     }
 
     @CacheEvict(cacheNames = { "companyDetails", "companies", "latestJobs" }, key = "#id", allEntries = true)
+    @Transactional
     public boolean deleteCompanyById(long id) throws InvalidException {
         String email = currentUserService.getCurrentUserEmail();
         if (id <= 0) {
@@ -160,6 +163,11 @@ public class CompanyService {
         }
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new InvalidException("Company not found."));
+
+        if (resumeRepository.existsByJob_Company_Id(id) || resumeRepository.existsByUser_Company_Id(id)) {
+            throw new InvalidException(
+                    "Companies with applications cannot be deleted; deactivate the jobs to preserve application history.");
+        }
 
         companyRepository.delete(company);
         auditLogService.logDelete(ResourceEnum.COMPANY, email, id, "Delete company");
