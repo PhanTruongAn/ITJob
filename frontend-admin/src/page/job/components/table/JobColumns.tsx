@@ -35,7 +35,7 @@ export const JobColumns = ({
   },
   {
     title: "Company Name",
-    dataIndex: "companyId",
+    dataIndex: "companyName",
     ellipsis: true,
   },
   {

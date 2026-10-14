@@ -10,6 +10,7 @@ import { fetchCompanies } from "../../../apis/companyModule"
 import { fetchSkillOptions } from "../../../apis/skillModule"
 import CustomHooks from "../../../common/hooks/CustomHooks"
 import { QUERY_KEYS } from "../../../common/queryKeys"
+import { useAppSelector } from "../../../redux/hooks"
 import { useUpdateState } from "../../../util/hooks"
 import { JobState } from "./interfaces"
 
@@ -55,8 +56,11 @@ export const useEditJob = () => {
   })
 }
 export const useGetCompanyList = () => {
+  const roleName = useAppSelector(
+    (state) => state.account.user.role?.name ?? "",
+  )
   return CustomHooks.useQuery(
-    [QUERY_KEYS.COMPANY_MODULE, "all"],
+    [QUERY_KEYS.COMPANY_MODULE, "management-options", roleName],
     () => fetchCompanies({ page: 1, pageSize: 100 }),
   )
 }

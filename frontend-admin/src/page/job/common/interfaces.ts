@@ -13,6 +13,7 @@ export interface Job {
   startDate: string
   endDate: string
   active: boolean
+  companyName?: string | null
   company: ICompany
   companyId?: number
   jobSkills: JobSkill[]

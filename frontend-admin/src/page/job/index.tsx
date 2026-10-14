@@ -173,18 +173,32 @@ const JobManageList: React.FC = () => {
   }
 
   const handleDelete = async () => {
-    if (selectedJobId) {
-      setIsDeleting(true)
+    if (!selectedJobId || isDeleting) return
+
+    setIsDeleting(true)
+    try {
       const res = await deleteJob({ id: selectedJobId })
-      setIsDeleting(false)
       if (res.statusCode >= 400) {
         message.error(res.message)
-      } else {
-        message.success("Deleted successfully")
-        refetch()
+        return
       }
+
+      message.success("Deleted successfully")
+      void refetch()
+    } catch (error) {
+      // The shared Axios interceptor already reports forbidden responses.
+      if (!(axios.isAxiosError(error) && error.response?.status === 403)) {
+        message.error(
+          axios.isAxiosError(error)
+            ? error.response?.data?.message || "Unable to delete job"
+            : "Unable to delete job",
+        )
+      }
+    } finally {
+      setIsDeleting(false)
+      setVisibleDeleteModal(false)
+      setSelectedJobId(null)
     }
-    setVisibleDeleteModal(false)
   }
 
   const handleViewJob = (record: Job) => {
