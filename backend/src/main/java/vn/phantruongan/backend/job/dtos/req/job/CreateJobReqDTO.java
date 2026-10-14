@@ -47,7 +47,7 @@ public class CreateJobReqDTO {
     @NotNull(message = "End date must not be null")
     private Instant endDate;
 
-    private boolean active;
+    private Boolean active;
 
     @NotNull(message = "Company ID must not be null")
     private long companyId;

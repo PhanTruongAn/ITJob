@@ -103,6 +103,8 @@ public class JobService {
         public JobResDTO createJob(CreateJobReqDTO dto) throws InvalidException {
 
                 Job job = jobMapper.toEntity(dto);
+                // Job publication requires management approval; never trust the create payload.
+                job.setActive(false);
 
                 Company company = ownershipService.isEmployer()
                                 ? ownershipService.findEmployerCompany(dto.getCompanyId())
@@ -156,14 +158,33 @@ public class JobService {
         public JobResDTO updateJob(UpdateJobReqDTO dto) throws InvalidException {
 
                 Job job = ownershipService.findJobForMutation(dto.getId());
+                var actor = ownershipService.currentUser();
+                String roleName = actor.getRole() == null ? "" : actor.getRole().getName();
+                boolean employer = "EMPLOYER".equalsIgnoreCase(roleName);
+                boolean management = "ADMIN".equalsIgnoreCase(roleName)
+                                || "MANAGER".equalsIgnoreCase(roleName);
 
-                if (ownershipService.isEmployer()
+                if (dto.getActive() != null) {
+                        if (employer && dto.getActive() && !job.isActive()) {
+                                throw new PermissionDeniedException(
+                                                "Employers cannot activate jobs; management approval is required.");
+                        }
+                        if (!employer && !management && dto.getActive() != job.isActive()) {
+                                throw new PermissionDeniedException(
+                                                "Only management or the owning employer may change job status.");
+                        }
+                        if (management || (employer && !dto.getActive())) {
+                                job.setActive(dto.getActive());
+                        }
+                }
+
+                if (employer
                                 && (job.getCompany() == null || job.getCompany().getId() != dto.getCompanyId())) {
                         throw new PermissionDeniedException(
                                         "Employer cannot move a job to another company");
                 }
 
-                Company company = ownershipService.isEmployer()
+                Company company = employer
                                 ? ownershipService.findEmployerCompany(dto.getCompanyId())
                                 : companyRepository.findById(dto.getCompanyId())
                                                 .orElseThrow(() -> new InvalidException("Company not found"));

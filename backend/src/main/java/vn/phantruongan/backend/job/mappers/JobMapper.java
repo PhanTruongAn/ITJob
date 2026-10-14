@@ -18,6 +18,7 @@ import vn.phantruongan.backend.subscriber.mappers.SkillMapper;
 public interface JobMapper extends BaseMapper<JobResDTO, Job> {
 
     @Mapping(target = "company.id", source = "companyId")
+    @Mapping(target = "active", ignore = true)
     Job toEntity(CreateJobReqDTO dto);
 
     @Mapping(source = "company.id", target = "companyId")
@@ -28,5 +29,6 @@ public interface JobMapper extends BaseMapper<JobResDTO, Job> {
     List<JobResDTO> toDtoList(List<Job> entities);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "active", ignore = true)
     void updateEntityFromDto(UpdateJobReqDTO dto, @MappingTarget Job entity);
 }

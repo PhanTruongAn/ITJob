@@ -30,6 +30,7 @@ import vn.phantruongan.backend.company.repositories.CompanyRepository;
 import vn.phantruongan.backend.company.services.CompanyService;
 import vn.phantruongan.backend.job.dtos.req.job.CreateJobReqDTO;
 import vn.phantruongan.backend.job.dtos.req.job.GetListJobReqDTO;
+import vn.phantruongan.backend.job.dtos.req.job.UpdateJobReqDTO;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.enums.JobTypeEnum;
 import vn.phantruongan.backend.job.enums.LevelEnum;
@@ -88,18 +89,121 @@ class JobCreationAndPaginationIntegrationTest {
         assertEquals(ownCompany.getName(), companyOptions.getResult().get(0).getName());
 
         CreateJobReqDTO request = createJobRequest(ownCompany.getId(), skill.getId());
+        request.setActive(true);
         var created = jobService.createJob(request);
         assertEquals(ownCompany.getId(), created.getCompanyId());
         assertEquals(request.getName(), created.getName());
         assertEquals(request.getLevel(), created.getLevel());
         assertEquals(request.getJobType(), created.getJobType());
         assertEquals(request.getSalary(), created.getSalary());
+        assertFalse(created.isActive());
         assertEquals(1, created.getJobSkills().size());
 
         request.setName("Unauthorized " + UUID.randomUUID());
         request.setCompanyId(otherCompany.getId());
         assertThrows(PermissionDeniedException.class, () -> jobService.createJob(request));
         assertFalse(jobRepository.findAll().stream().anyMatch(job -> job.getName().equals(request.getName())));
+    }
+
+    @Test
+    void everyPermittedCreationPathStartsInactiveEvenWhenActiveIsSubmitted() {
+        Company company = saveCompany("Manager create company");
+        Skill skill = saveSkill();
+        User manager = saveUser("MANAGER", null);
+        authenticate(manager);
+
+        CreateJobReqDTO request = createJobRequest(company.getId(), skill.getId());
+        request.setActive(true);
+
+        var created = jobService.createJob(request);
+
+        assertFalse(created.isActive());
+
+        request.setName("Manager create without status " + UUID.randomUUID());
+        request.setActive(null);
+        var createdWithoutStatus = jobService.createJob(request);
+        assertFalse(createdWithoutStatus.isActive());
+    }
+
+    @Test
+    void employerCannotActivateOwnInactiveJobButCanDeactivateAndPreserveActiveJobs() {
+        Company company = saveCompany("Employer status company");
+        User employer = saveUser("EMPLOYER", company);
+        Skill skill = saveSkill();
+        authenticate(employer);
+
+        CreateJobReqDTO createRequest = createJobRequest(company.getId(), skill.getId());
+        var created = jobService.createJob(createRequest);
+        UpdateJobReqDTO update = updateRequest(createRequest, created.getId(), true);
+
+        assertThrows(PermissionDeniedException.class, () -> jobService.updateJob(update));
+        assertFalse(jobRepository.findById(created.getId()).orElseThrow().isActive());
+
+        Job persisted = jobRepository.findById(created.getId()).orElseThrow();
+        persisted.setActive(true); // Represents a Job previously approved by management.
+        jobRepository.saveAndFlush(persisted);
+
+        update.setActive(null);
+        update.setName("Employer edit to approved job");
+        jobService.updateJob(update);
+        assertTrue(jobRepository.findById(created.getId()).orElseThrow().isActive());
+
+        update.setActive(false);
+        jobService.updateJob(update);
+        assertFalse(jobRepository.findById(created.getId()).orElseThrow().isActive());
+    }
+
+    @Test
+    void employerCannotUpdateAnotherCompanysJob() {
+        Company ownCompany = saveCompany("Employer owned status company");
+        Company otherCompany = saveCompany("Other status company");
+        User employer = saveUser("EMPLOYER", ownCompany);
+        Skill skill = saveSkill();
+        authenticate(employer);
+
+        CreateJobReqDTO createRequest = createJobRequest(ownCompany.getId(), skill.getId());
+        var created = jobService.createJob(createRequest);
+        UpdateJobReqDTO update = updateRequest(createRequest, created.getId(), null);
+        update.setCompanyId(otherCompany.getId());
+
+        assertThrows(PermissionDeniedException.class, () -> jobService.updateJob(update));
+        assertEquals(ownCompany.getId(), jobRepository.findById(created.getId()).orElseThrow()
+                .getCompany().getId());
+    }
+
+    @Test
+    void adminAndManagerCanActivateJobsThroughTheExistingUpdateService() {
+        for (String roleName : List.of("ADMIN", "MANAGER")) {
+            Company company = saveCompany(roleName + " approval company");
+            Skill skill = saveSkill();
+            User manager = saveUser(roleName, null);
+            authenticate(manager);
+
+            CreateJobReqDTO createRequest = createJobRequest(company.getId(), skill.getId());
+            var created = jobService.createJob(createRequest);
+            UpdateJobReqDTO update = updateRequest(createRequest, created.getId(), true);
+
+            jobService.updateJob(update);
+
+            assertTrue(jobRepository.findById(created.getId()).orElseThrow().isActive());
+        }
+    }
+
+    @Test
+    void nonManagementNonEmployerCannotChangeJobStatus() {
+        Company company = saveCompany("Candidate status company");
+        Skill skill = saveSkill();
+        User candidate = saveUser("CANDIDATE", null);
+        Job job = new Job();
+        job.setName("Candidate-protected job");
+        job.setCompany(company);
+        job = jobRepository.saveAndFlush(job);
+        long jobId = job.getId();
+        authenticate(candidate);
+        UpdateJobReqDTO update = updateRequest(createJobRequest(company.getId(), skill.getId()), jobId, true);
+
+        assertThrows(PermissionDeniedException.class, () -> jobService.updateJob(update));
+        assertFalse(jobRepository.findById(jobId).orElseThrow().isActive());
     }
 
     @Test
@@ -160,6 +264,30 @@ class JobCreationAndPaginationIntegrationTest {
         request.setCompanyId(companyId);
         request.setSkillIds(List.of(skillId));
         return request;
+    }
+
+    private UpdateJobReqDTO updateRequest(CreateJobReqDTO source, long jobId, Boolean active) {
+        UpdateJobReqDTO request = new UpdateJobReqDTO();
+        request.setId(jobId);
+        request.setName(source.getName());
+        request.setLocation(source.getLocation());
+        request.setDescription(source.getDescription());
+        request.setQuantity(source.getQuantity());
+        request.setSalary(source.getSalary());
+        request.setLevel(source.getLevel());
+        request.setJobType(source.getJobType());
+        request.setStartDate(source.getStartDate());
+        request.setEndDate(source.getEndDate());
+        request.setActive(active);
+        request.setCompanyId(source.getCompanyId());
+        request.setSkillIds(source.getSkillIds());
+        return request;
+    }
+
+    private Skill saveSkill() {
+        Skill skill = new Skill();
+        skill.setName("Integration skill " + UUID.randomUUID());
+        return skillRepository.saveAndFlush(skill);
     }
 
     private Company saveCompany(String label) {

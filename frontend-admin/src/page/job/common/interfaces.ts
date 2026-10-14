@@ -42,7 +42,7 @@ export interface CreateJobReqDTO {
   jobType?: JobTypeEnum
   startDate: string
   endDate: string
-  // isActive: boolean
+  active?: boolean
   companyId?: number
   skillIds?: number[]
 }

@@ -14,10 +14,14 @@ export const JobColumns = ({
   onView,
   onEdit,
   onDelete,
+  onToggleStatus,
+  canManageJobStatus,
 }: {
   onView?: (job: Job) => void
   onEdit?: (job: Job) => void
   onDelete?: (id: number) => void
+  onToggleStatus?: (job: Job) => void
+  canManageJobStatus?: boolean
 }): TableColumnsType<Job> => [
   {
     title: "ID",
@@ -95,11 +99,20 @@ export const JobColumns = ({
             label: "Delete",
             danger: true,
           },
+          ...(canManageJobStatus
+            ? [
+                {
+                  key: "toggleStatus",
+                  label: record.active ? "Deactivate job" : "Approve and activate",
+                },
+              ]
+            : []),
         ],
         onClick: ({ key }: { key: string }) => {
           if (key === "view") onView?.(record)
           else if (key === "edit") onEdit?.(record)
           else if (key === "delete") onDelete?.(record.id)
+          else if (key === "toggleStatus") onToggleStatus?.(record)
         },
       }
 

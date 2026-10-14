@@ -17,10 +17,17 @@ import EditJobModal from "./components/edit/EditJobModal"
 import JobListHeader from "./components/JobListHeader"
 import { JobListHeaderToolbar } from "./components/JobListToolBar"
 import { JobColumns } from "./components/table/JobColumns"
+import { useAppSelector } from "../../redux/hooks"
 
 const JobManageList: React.FC = () => {
   const { token } = theme.useToken()
   const navigate = useNavigate()
+  const currentRoleName = useAppSelector(
+    (state) => state.account.user.role?.name ?? "",
+  )
+  const canManageJobStatus = ["ADMIN", "MANAGER"].includes(
+    currentRoleName.toUpperCase(),
+  )
   const { state, updateState } = useJobState()
   const listStyle: React.CSSProperties = {
     display: "flex",
@@ -172,6 +179,48 @@ const JobManageList: React.FC = () => {
     }
   }
 
+  const handleToggleJobStatus = async (job: Job) => {
+    if (!canManageJobStatus || isEditing) return
+
+    setIsEditing(true)
+    try {
+      const res = await editJob({
+        id: job.id,
+        name: job.name,
+        location: job.location,
+        description: job.description,
+        quantity: job.quantity,
+        salary: job.salary,
+        level: job.level,
+        jobType: job.jobType,
+        startDate: job.startDate,
+        endDate: job.endDate,
+        active: !job.active,
+        companyId: job.companyId ?? job.company?.id,
+        skillIds: job.jobSkills?.map((jobSkill) => jobSkill.skill.id) ?? [],
+      })
+
+      if (res.statusCode >= 400) {
+        message.error(res.message)
+        return
+      }
+
+      message.success(job.active ? "Job deactivated successfully" : "Job approved and activated")
+      void refetch()
+    } catch (error) {
+      // The shared Axios interceptor already reports forbidden responses.
+      if (!(axios.isAxiosError(error) && error.response?.status === 403)) {
+        message.error(
+          axios.isAxiosError(error)
+            ? error.response?.data?.message || "Unable to update job status"
+            : "Unable to update job status",
+        )
+      }
+    } finally {
+      setIsEditing(false)
+    }
+  }
+
   const handleDelete = async () => {
     if (!selectedJobId || isDeleting) return
 
@@ -271,6 +320,8 @@ const JobManageList: React.FC = () => {
                 setSelectedJobId(record)
                 setVisibleDeleteModal(true)
               },
+              onToggleStatus: handleToggleJobStatus,
+              canManageJobStatus,
             })}
             data={data?.data?.result || []}
             loading={isFetchingJob}
