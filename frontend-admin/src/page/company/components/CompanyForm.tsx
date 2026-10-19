@@ -14,6 +14,7 @@ import {
 import { FormInstance, useWatch } from "antd/es/form/Form"
 import { Dispatch, SetStateAction } from "react"
 import { useNavigate } from "react-router-dom"
+import { useAppSelector } from "../../../redux/hooks"
 import { ECompanyType } from "../../../types/enum"
 import { COMPANY_SIZE, COMPANY_STATUS } from "../common/constants"
 import { useGetCountries, usePresignImage } from "../common/hooks"
@@ -36,6 +37,10 @@ const CompanyForm = ({
 }: CompanyFormProps) => {
   const navigate = useNavigate()
   const description = useWatch("description", form)
+  const roleName = useAppSelector(
+    (state) => state.account.user.role?.name ?? "",
+  )
+  const isEmployer = roleName.toUpperCase() === "EMPLOYER"
   const { handleUpload, isUploading } = usePresignImage()
   const { data: countriesData } = useGetCountries()
 
@@ -61,10 +66,12 @@ const CompanyForm = ({
         imageUrl = file.url
       }
 
-      await onSubmit({
+      const payload = {
         ...values,
         logo: imageUrl,
-      })
+      }
+      if (isEmployer) delete payload.status
+      await onSubmit(payload)
     } catch (error) {
       console.log("Validation failed:", error)
     }
@@ -217,7 +224,10 @@ const CompanyForm = ({
                     },
                   ]}
                 >
-                  <Select placeholder="Select company status" disabled={isView}>
+                  <Select
+                    placeholder="Select company status"
+                    disabled={isView || isEmployer}
+                  >
                     {COMPANY_STATUS.map((size) => (
                       <Option key={size.value} value={size.value}>
                         {size.label}

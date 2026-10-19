@@ -15,6 +15,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import vn.phantruongan.backend.company.entities.CompanyStatus;
 import vn.phantruongan.backend.recommendation.entities.JobRecommendation;
 import vn.phantruongan.backend.recommendation.enums.EmailStatus;
 import vn.phantruongan.backend.recommendation.enums.RecommendationStatus;
@@ -28,12 +29,15 @@ public interface JobRecommendationRepository
     Page<JobRecommendation> findAllBySubscriberId(@Param("subscriberId") Long subscriberId, Pageable pageable);
 
     @Query(value = "SELECT r FROM JobRecommendation r " +
-            "JOIN FETCH r.job j LEFT JOIN FETCH j.company " +
-            "WHERE r.subscriber.id = :subscriberId AND j.isActive = true",
+            "JOIN FETCH r.job j JOIN FETCH j.company c " +
+            "WHERE r.subscriber.id = :subscriberId AND j.isActive = true AND c.status = :companyStatus",
             countQuery = "SELECT COUNT(r) FROM JobRecommendation r " +
-                    "JOIN r.job j WHERE r.subscriber.id = :subscriberId AND j.isActive = true")
+                    "JOIN r.job j JOIN j.company c " +
+                    "WHERE r.subscriber.id = :subscriberId AND j.isActive = true AND c.status = :companyStatus")
     Page<JobRecommendation> findCandidateVisibleBySubscriberId(
-            @Param("subscriberId") Long subscriberId, Pageable pageable);
+            @Param("subscriberId") Long subscriberId,
+            @Param("companyStatus") CompanyStatus companyStatus,
+            Pageable pageable);
 
     boolean existsBySubscriber_IdAndJob_Id(Long subscriberId, Long jobId);
 

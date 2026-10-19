@@ -3,7 +3,7 @@ import { Button, Col, Form, Input, Row, Select, Space, theme } from "antd"
 import React from "react"
 import { SALARY_OPTIONS } from "../common/constants"
 import { LevelEnum } from "../common/enums"
-import { useGetSkillOptions } from "../common/hooks"
+import { useGetCompanyList, useGetSkillOptions } from "../common/hooks"
 import { JobFilter } from "../common/interfaces"
 export interface JobFilterProps {
   onFilter: ({
@@ -32,6 +32,7 @@ export const JobListHeaderToolbar: React.FC<JobFilterProps> = ({
     paddingBottom: 5,
   }
   const { data } = useGetSkillOptions()
+  const { data: companyData } = useGetCompanyList()
 
   const onFinish = (values: any) => {
     onFilter(values)
@@ -47,7 +48,17 @@ export const JobListHeaderToolbar: React.FC<JobFilterProps> = ({
       <Row gutter={16} justify="end">
         <Col span={8}>
           <Form.Item name="companyId" label="Company Name">
-            <Input placeholder="Input company name" size="middle" />
+            <Select
+              placeholder="Select company"
+              size="middle"
+              showSearch
+              allowClear
+              optionFilterProp="label"
+              options={(companyData?.data?.result ?? []).map((company) => ({
+                value: company.id,
+                label: company.name,
+              }))}
+            />
           </Form.Item>
         </Col>
         <Col span={8}>

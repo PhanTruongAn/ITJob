@@ -24,6 +24,7 @@ import vn.phantruongan.backend.authentication.repositories.UserRepository;
 import vn.phantruongan.backend.authorization.entities.Role;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.common.security.CurrentUserService;
+import vn.phantruongan.backend.company.entities.CompanyStatus;
 import vn.phantruongan.backend.recommendation.dtos.res.CandidateRecommendationResDTO;
 import vn.phantruongan.backend.recommendation.entities.JobRecommendation;
 import vn.phantruongan.backend.recommendation.repositories.JobRecommendationRepository;
@@ -64,7 +65,8 @@ public class CandidateRecommendationService {
                 Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id")));
         Optional<Subscriber> subscriber = subscriberRepository.findByEmail(subscriberEmail);
         Page<JobRecommendation> page = subscriber
-                .map(value -> jobRecommendationRepository.findCandidateVisibleBySubscriberId(value.getId(), boundedPageable))
+                .map(value -> jobRecommendationRepository.findCandidateVisibleBySubscriberId(
+                        value.getId(), CompanyStatus.APPROVED, boundedPageable))
                 .orElseGet(() -> Page.empty(boundedPageable));
 
         List<CandidateRecommendationResDTO> recommendations = page.getContent().stream()

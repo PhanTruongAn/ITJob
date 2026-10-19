@@ -25,7 +25,8 @@ export async function fetchJobRecommendations(
     IBackendPaginateRes<IJobRecommendation[]>
   >(`${PATH_API.recommendation.root}/jobs`, {
     params: {
-      page: params.page ? params.page - 1 : 0,
+      // Management table pages and the backend pageable contract are one-indexed.
+      page: params.page ?? 1,
       size: params.pageSize,
       subscriberId: params.subscriberId || undefined,
       companyId: params.companyId || undefined,

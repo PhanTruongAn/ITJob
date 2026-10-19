@@ -31,6 +31,7 @@ import vn.phantruongan.backend.authentication.repositories.UserRepository;
 import vn.phantruongan.backend.authorization.entities.Role;
 import vn.phantruongan.backend.common.security.CurrentUserService;
 import vn.phantruongan.backend.company.entities.Company;
+import vn.phantruongan.backend.company.entities.CompanyStatus;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.enums.JobTypeEnum;
 import vn.phantruongan.backend.recommendation.entities.JobRecommendation;
@@ -90,7 +91,8 @@ class CandidateRecommendationServiceTest {
         when(currentUserService.getCurrentUserEmail()).thenReturn("candidate@example.test");
         when(userRepository.findByEmail("candidate@example.test")).thenReturn(Optional.of(candidate));
         when(subscriberRepository.findByEmail("candidate@example.test")).thenReturn(Optional.of(subscriber));
-        when(recommendationRepository.findCandidateVisibleBySubscriberId(eq(42L), any(Pageable.class)))
+        when(recommendationRepository.findCandidateVisibleBySubscriberId(
+                eq(42L), eq(CompanyStatus.APPROVED), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(recommendation), PageRequest.of(0, 6), 1));
 
         var response = service.getCurrentCandidateRecommendations(PageRequest.of(0, 6));
@@ -101,7 +103,8 @@ class CandidateRecommendationServiceTest {
         assertEquals(12L, response.getResult().get(0).getJobId());
         assertEquals(82.5, response.getResult().get(0).getMatchScore());
         assertEquals(1, response.getMeta().getTotal());
-        verify(recommendationRepository).findCandidateVisibleBySubscriberId(eq(42L), any(Pageable.class));
+        verify(recommendationRepository).findCandidateVisibleBySubscriberId(
+                eq(42L), eq(CompanyStatus.APPROVED), any(Pageable.class));
     }
 
     @Test
@@ -109,13 +112,15 @@ class CandidateRecommendationServiceTest {
         when(currentUserService.getCurrentUserEmail()).thenReturn("candidate@example.test");
         when(userRepository.findByEmail("candidate@example.test")).thenReturn(Optional.of(candidate));
         when(subscriberRepository.findByEmail("candidate@example.test")).thenReturn(Optional.of(subscriber));
-        when(recommendationRepository.findCandidateVisibleBySubscriberId(eq(42L), any(Pageable.class)))
+        when(recommendationRepository.findCandidateVisibleBySubscriberId(
+                eq(42L), eq(CompanyStatus.APPROVED), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 50), 0));
 
         service.getCurrentCandidateRecommendations(PageRequest.of(0, 200));
 
         ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
-        verify(recommendationRepository).findCandidateVisibleBySubscriberId(eq(42L), pageable.capture());
+        verify(recommendationRepository).findCandidateVisibleBySubscriberId(
+                eq(42L), eq(CompanyStatus.APPROVED), pageable.capture());
         assertEquals(50, pageable.getValue().getPageSize());
         assertEquals("createdAt: DESC,id: DESC", pageable.getValue().getSort().toString());
     }
@@ -130,7 +135,7 @@ class CandidateRecommendationServiceTest {
 
         assertEquals(List.of(), response.getResult());
         assertEquals(0, response.getMeta().getTotal());
-        verify(recommendationRepository, never()).findCandidateVisibleBySubscriberId(any(), any());
+        verify(recommendationRepository, never()).findCandidateVisibleBySubscriberId(any(), any(), any());
     }
 
     @Test

@@ -15,6 +15,7 @@ import vn.phantruongan.backend.authentication.repositories.UserRepository;
 import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.common.security.CurrentUserService;
+import vn.phantruongan.backend.company.entities.CompanyStatus;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.repositories.JobRepository;
 import vn.phantruongan.backend.log.services.AuditLogService;
@@ -91,6 +92,11 @@ public class ResumeService {
         private ResumeResDTO saveResume(CreateResumeReqDTO dto, User user, boolean candidateSubmission) {
                 Job job = jobRepository.findById(dto.getJobId())
                                 .orElseThrow(() -> new InvalidException("Job not found with id: " + dto.getJobId()));
+
+                if (candidateSubmission && (!job.isActive() || job.getCompany() == null
+                                || job.getCompany().getStatus() != CompanyStatus.APPROVED)) {
+                        throw new InvalidException("Job not found with id: " + dto.getJobId());
+                }
 
                 if (resumeRepository.existsByUserIdAndJobId(user.getId(), job.getId())) {
                         throw new InvalidException("Bạn đã ứng tuyển vào công việc này trước đó rồi.");

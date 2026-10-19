@@ -1,5 +1,5 @@
 import { ICompany } from "../../../types/backend"
-import { LevelEnum } from "./enums"
+import { JobTypeEnum, LevelEnum } from "./enums"
 
 export interface Job {
   id: number
@@ -9,9 +9,11 @@ export interface Job {
   quantity: number
   salary: number | null
   level: LevelEnum
+  jobType?: JobTypeEnum
   startDate: string
   endDate: string
   active: boolean
+  companyName?: string | null
   company: ICompany
   companyId?: number
   jobSkills: JobSkill[]
@@ -37,9 +39,10 @@ export interface CreateJobReqDTO {
   quantity: number
   salary: number | null
   level: LevelEnum
+  jobType?: JobTypeEnum
   startDate: string
   endDate: string
-  // isActive: boolean
+  active?: boolean
   companyId?: number
   skillIds?: number[]
 }

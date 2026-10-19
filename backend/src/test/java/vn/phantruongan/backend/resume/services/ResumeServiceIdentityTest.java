@@ -18,6 +18,8 @@ import vn.phantruongan.backend.authentication.entities.User;
 import vn.phantruongan.backend.authentication.repositories.UserRepository;
 import vn.phantruongan.backend.authorization.entities.Role;
 import vn.phantruongan.backend.common.security.CurrentUserService;
+import vn.phantruongan.backend.company.entities.Company;
+import vn.phantruongan.backend.company.entities.CompanyStatus;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.repositories.JobRepository;
 import vn.phantruongan.backend.log.services.AuditLogService;
@@ -28,6 +30,7 @@ import vn.phantruongan.backend.resume.entities.Resume;
 import vn.phantruongan.backend.resume.enums.ResumeEnum;
 import vn.phantruongan.backend.resume.mappers.ResumeMapper;
 import vn.phantruongan.backend.resume.repositories.ResumeRepository;
+import vn.phantruongan.backend.util.error.InvalidException;
 
 @ExtendWith(MockitoExtension.class)
 class ResumeServiceIdentityTest {
@@ -43,8 +46,7 @@ class ResumeServiceIdentityTest {
     @Test
     void candidateCannotImpersonateAnotherUserThroughPublicResumePayload() {
         User candidate = user(7L, "CANDIDATE");
-        Job job = new Job();
-        job.setId(4L);
+        Job job = candidateEligibleJob(4L, CompanyStatus.APPROVED);
         CreateResumeReqDTO request = new CreateResumeReqDTO();
         request.setUserId(99L);
         request.setStatus(ResumeEnum.APPROVED);
@@ -100,6 +102,52 @@ class ResumeServiceIdentityTest {
 
         assertThrows(AccessDeniedException.class,
                 () -> service.createResumeForCurrentCandidate(new CreateResumeReqDTO()));
+    }
+
+    @Test
+    void candidateCannotApplyToInactiveJob() {
+        User candidate = user(7L, "CANDIDATE");
+        Job job = candidateEligibleJob(4L, CompanyStatus.APPROVED);
+        job.setActive(false);
+        CreateResumeReqDTO request = applicationRequest(4L);
+        when(currentUserService.getCurrentUserEmail()).thenReturn("candidate@example.test");
+        when(userRepository.findByEmail("candidate@example.test")).thenReturn(Optional.of(candidate));
+        when(jobRepository.findById(4L)).thenReturn(Optional.of(job));
+
+        assertThrows(InvalidException.class, () -> service.createResumeForCurrentCandidate(request));
+        verify(resumeRepository, org.mockito.Mockito.never()).save(any());
+    }
+
+    @Test
+    void candidateCannotApplyToJobFromUnapprovedCompany() {
+        User candidate = user(7L, "CANDIDATE");
+        Job job = candidateEligibleJob(4L, CompanyStatus.PENDING);
+        CreateResumeReqDTO request = applicationRequest(4L);
+        when(currentUserService.getCurrentUserEmail()).thenReturn("candidate@example.test");
+        when(userRepository.findByEmail("candidate@example.test")).thenReturn(Optional.of(candidate));
+        when(jobRepository.findById(4L)).thenReturn(Optional.of(job));
+
+        assertThrows(InvalidException.class, () -> service.createResumeForCurrentCandidate(request));
+        verify(resumeRepository, org.mockito.Mockito.never()).save(any());
+    }
+
+    private CreateResumeReqDTO applicationRequest(long jobId) {
+        CreateResumeReqDTO request = new CreateResumeReqDTO();
+        request.setJobId(jobId);
+        request.setCandidateName("Candidate");
+        request.setPhoneNumber("123456789");
+        request.setEmail("candidate@example.test");
+        return request;
+    }
+
+    private Job candidateEligibleJob(long jobId, CompanyStatus companyStatus) {
+        Company company = new Company();
+        company.setStatus(companyStatus);
+        Job job = new Job();
+        job.setId(jobId);
+        job.setActive(true);
+        job.setCompany(company);
+        return job;
     }
 
     private User user(long id, String roleName) {

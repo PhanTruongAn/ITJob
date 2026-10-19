@@ -1,26 +1,33 @@
 import { message, theme } from "antd"
+import axios from "axios"
 import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { fetchCompanies } from "../../apis/companyModule"
 import { createJob, deleteJob, editJob, fetchJobs } from "../../apis/jobModule"
 import { fetchSkills } from "../../apis/skillModule"
 import CustomHooks from "../../common/hooks/CustomHooks"
 import { QUERY_KEYS } from "../../common/queryKeys"
 import ConfirmModal from "../../components/modal/ConfirmModal"
 import CustomGlobalTable from "../../components/table"
-import { IBackendPaginateRes, ICompany, ISkill } from "../../types/backend"
+import { IBackendPaginateRes, ISkill } from "../../types/backend"
 import { DEFAULT_STATE } from "./common/constants"
-import { useJobState } from "./common/hooks"
+import { useGetCompanyList, useJobState } from "./common/hooks"
 import type { Job, JobFilter } from "./common/interfaces"
 import CreateJobModal from "./components/create/CreateJobModal"
 import EditJobModal from "./components/edit/EditJobModal"
 import JobListHeader from "./components/JobListHeader"
 import { JobListHeaderToolbar } from "./components/JobListToolBar"
 import { JobColumns } from "./components/table/JobColumns"
+import { useAppSelector } from "../../redux/hooks"
 
 const JobManageList: React.FC = () => {
   const { token } = theme.useToken()
   const navigate = useNavigate()
+  const currentRoleName = useAppSelector(
+    (state) => state.account.user.role?.name ?? "",
+  )
+  const canManageJobStatus = ["ADMIN", "MANAGER"].includes(
+    currentRoleName.toUpperCase(),
+  )
   const { state, updateState } = useJobState()
   const listStyle: React.CSSProperties = {
     display: "flex",
@@ -41,15 +48,20 @@ const JobManageList: React.FC = () => {
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const [companiesOptions, setCompaniesOptions] = useState<ICompany[]>([])
+  const {
+    data: companyResponse,
+    isLoading: isLoadingCompanyOptions,
+    isError: isCompanyOptionsError,
+    refetch: refetchCompanyOptions,
+  } = useGetCompanyList()
+  const companiesOptions = companyResponse?.data?.result ?? []
+  const companyOptionsError =
+    isCompanyOptionsError || (companyResponse?.statusCode ?? 200) >= 400
+
   const [skillsOptions, setSkillsOptions] = useState<ISkill[]>([])
 
   useEffect(() => {
     const loadOptions = async () => {
-      // Fetch large limit for dropdowns
-      const compRes = await fetchCompanies({ page: 1, pageSize: 100 })
-      if (compRes?.data?.result) setCompaniesOptions(compRes.data.result)
-
       const skillRes = await fetchSkills({ page: 1, pageSize: 100 })
       if (skillRes?.data?.result) setSkillsOptions(skillRes.data.result)
     }
@@ -108,6 +120,7 @@ const JobManageList: React.FC = () => {
     skillId,
   }: JobFilter) => {
     updateState({
+      page: 1,
       companyId,
       level,
       location,
@@ -123,19 +136,32 @@ const JobManageList: React.FC = () => {
   }
 
   const handleTableChange = (page: number, pageSize: number, sort?: string) => {
-    updateState({ page, pageSize, sort })
+    updateState({ page: sort !== state.sort ? 1 : page, pageSize, sort })
   }
 
   const handleCreate = async (values: any) => {
     setIsCreating(true)
-    const res = await createJob(values)
-    setIsCreating(false)
-    if (res.statusCode >= 400) {
-      message.error(res.message)
-    } else {
+    try {
+      const res = await createJob(values)
+      if (res.statusCode >= 400) {
+        message.error(res.message)
+        return
+      }
+
       message.success("Job created successfully")
       setVisibleCreateModal(false)
       refetch()
+    } catch (error) {
+      // The shared Axios interceptor already displays authorization failures.
+      if (!(axios.isAxiosError(error) && error.response?.status === 403)) {
+        message.error(
+          axios.isAxiosError(error)
+            ? error.response?.data?.message || "Unable to create job"
+            : "Unable to create job",
+        )
+      }
+    } finally {
+      setIsCreating(false)
     }
   }
 
@@ -153,19 +179,75 @@ const JobManageList: React.FC = () => {
     }
   }
 
-  const handleDelete = async () => {
-    if (selectedJobId) {
-      setIsDeleting(true)
-      const res = await deleteJob({ id: selectedJobId })
-      setIsDeleting(false)
+  const handleToggleJobStatus = async (job: Job) => {
+    if (!canManageJobStatus || isEditing) return
+
+    setIsEditing(true)
+    try {
+      const res = await editJob({
+        id: job.id,
+        name: job.name,
+        location: job.location,
+        description: job.description,
+        quantity: job.quantity,
+        salary: job.salary,
+        level: job.level,
+        jobType: job.jobType,
+        startDate: job.startDate,
+        endDate: job.endDate,
+        active: !job.active,
+        companyId: job.companyId ?? job.company?.id,
+        skillIds: job.jobSkills?.map((jobSkill) => jobSkill.skill.id) ?? [],
+      })
+
       if (res.statusCode >= 400) {
         message.error(res.message)
-      } else {
-        message.success("Deleted successfully")
-        refetch()
+        return
       }
+
+      message.success(job.active ? "Job deactivated successfully" : "Job approved and activated")
+      void refetch()
+    } catch (error) {
+      // The shared Axios interceptor already reports forbidden responses.
+      if (!(axios.isAxiosError(error) && error.response?.status === 403)) {
+        message.error(
+          axios.isAxiosError(error)
+            ? error.response?.data?.message || "Unable to update job status"
+            : "Unable to update job status",
+        )
+      }
+    } finally {
+      setIsEditing(false)
     }
-    setVisibleDeleteModal(false)
+  }
+
+  const handleDelete = async () => {
+    if (!selectedJobId || isDeleting) return
+
+    setIsDeleting(true)
+    try {
+      const res = await deleteJob({ id: selectedJobId })
+      if (res.statusCode >= 400) {
+        message.error(res.message)
+        return
+      }
+
+      message.success("Deleted successfully")
+      void refetch()
+    } catch (error) {
+      // The shared Axios interceptor already reports forbidden responses.
+      if (!(axios.isAxiosError(error) && error.response?.status === 403)) {
+        message.error(
+          axios.isAxiosError(error)
+            ? error.response?.data?.message || "Unable to delete job"
+            : "Unable to delete job",
+        )
+      }
+    } finally {
+      setIsDeleting(false)
+      setVisibleDeleteModal(false)
+      setSelectedJobId(null)
+    }
   }
 
   const handleViewJob = (record: Job) => {
@@ -192,6 +274,9 @@ const JobManageList: React.FC = () => {
         loading={isCreating}
         open={visibleCreateModal}
         companyOptions={companiesOptions}
+        companyOptionsLoading={isLoadingCompanyOptions}
+        companyOptionsError={companyOptionsError}
+        onRetryCompanyOptions={() => void refetchCompanyOptions()}
         skillOptions={skillsOptions}
         onCancel={() => setVisibleCreateModal(false)}
         onSubmit={handleCreate}
@@ -235,6 +320,8 @@ const JobManageList: React.FC = () => {
                 setSelectedJobId(record)
                 setVisibleDeleteModal(true)
               },
+              onToggleStatus: handleToggleJobStatus,
+              canManageJobStatus,
             })}
             data={data?.data?.result || []}
             loading={isFetchingJob}
