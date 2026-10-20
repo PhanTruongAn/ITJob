@@ -13,15 +13,36 @@ import vn.phantruongan.backend.notification.entities.Notification;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    Page<Notification> findByUser_IdOrderByCreatedAtDescIdDesc(Long userId, Pageable pageable);
+    Page<Notification> findByUser_IdAndCategoryOrderByCreatedAtDescIdDesc(
+            Long userId, String category, Pageable pageable);
 
-    long countByUser_IdAndReadFalse(Long userId);
+    Page<Notification> findByUser_IdAndCategoryIsNullOrderByCreatedAtDescIdDesc(Long userId, Pageable pageable);
+
+    long countByUser_IdAndCategoryAndReadFalse(Long userId, String category);
+
+    long countByUser_IdAndCategoryIsNullAndReadFalse(Long userId);
+
+    boolean existsByDeduplicationKey(String deduplicationKey);
 
     @Modifying
-    @Query("UPDATE Notification n SET n.read = true WHERE n.id = :notificationId AND n.user.id = :userId")
-    int markReadByIdAndUserId(@Param("notificationId") Long notificationId, @Param("userId") Long userId);
+    @Query("UPDATE Notification n SET n.read = true WHERE n.id = :notificationId "
+            + "AND n.user.id = :userId AND n.category IS NULL")
+    int markCandidateReadByIdAndUserId(@Param("notificationId") Long notificationId,
+            @Param("userId") Long userId);
 
     @Modifying
-    @Query("UPDATE Notification n SET n.read = true WHERE n.user.id = :userId AND n.read = false")
-    int markAllReadByUserId(@Param("userId") Long userId);
+    @Query("UPDATE Notification n SET n.read = true WHERE n.id = :notificationId "
+            + "AND n.user.id = :userId AND n.category = :category")
+    int markReadByIdAndUserIdAndCategory(@Param("notificationId") Long notificationId,
+            @Param("userId") Long userId, @Param("category") String category);
+
+    @Modifying
+    @Query("UPDATE Notification n SET n.read = true WHERE n.user.id = :userId "
+            + "AND n.category IS NULL AND n.read = false")
+    int markAllCandidateReadByUserId(@Param("userId") Long userId);
+
+    @Modifying
+    @Query("UPDATE Notification n SET n.read = true WHERE n.user.id = :userId "
+            + "AND n.category = :category AND n.read = false")
+    int markAllReadByUserIdAndCategory(@Param("userId") Long userId, @Param("category") String category);
 }

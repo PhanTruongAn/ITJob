@@ -26,6 +26,7 @@ import vn.phantruongan.backend.job.repositories.JobRepository;
 import vn.phantruongan.backend.log.services.AuditLogService;
 import vn.phantruongan.backend.notification.services.NotificationService;
 import vn.phantruongan.backend.resume.dtos.res.ResumeResDTO;
+import vn.phantruongan.backend.resume.dtos.req.CreateResumeReqDTO;
 import vn.phantruongan.backend.resume.entities.Resume;
 import vn.phantruongan.backend.resume.enums.ResumeEnum;
 import vn.phantruongan.backend.resume.mappers.ResumeMapper;
@@ -132,6 +133,11 @@ class ResumeServiceNotificationTest {
 
     @Test
     void applicationStatusAndNotificationUseTransactionalServiceBoundaries() throws Exception {
+        assertTrue(ResumeService.class.getMethod("createResume", CreateResumeReqDTO.class)
+                .isAnnotationPresent(Transactional.class));
+        assertTrue(ResumeService.class.getMethod("createResumeForCurrentCandidate",
+                CreateResumeReqDTO.class)
+                .isAnnotationPresent(Transactional.class));
         assertTrue(ResumeService.class.getMethod("reviewResume", long.class)
                 .isAnnotationPresent(Transactional.class));
         assertTrue(ResumeService.class.getMethod("approveResume", long.class)

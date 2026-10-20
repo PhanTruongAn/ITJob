@@ -48,14 +48,14 @@ class NotificationServiceTest {
         PageRequest pageable = PageRequest.of(0, 10);
         when(currentUserService.getCurrentUserEmail()).thenReturn(candidate.getEmail());
         when(userRepository.findByEmail(candidate.getEmail())).thenReturn(Optional.of(candidate));
-        when(notificationRepository.findByUser_IdOrderByCreatedAtDescIdDesc(12L, pageable))
+        when(notificationRepository.findByUser_IdAndCategoryIsNullOrderByCreatedAtDescIdDesc(12L, pageable))
                 .thenReturn(new PageImpl<>(List.of(notification), pageable, 1));
 
         var result = service.getMyNotifications(pageable);
 
         assertEquals(1, result.getResult().size());
         assertEquals(1, result.getMeta().getPageNumber());
-        verify(notificationRepository).findByUser_IdOrderByCreatedAtDescIdDesc(12L, pageable);
+        verify(notificationRepository).findByUser_IdAndCategoryIsNullOrderByCreatedAtDescIdDesc(12L, pageable);
     }
 
     @Test
@@ -63,10 +63,10 @@ class NotificationServiceTest {
         User candidate = user(12L, "CANDIDATE");
         when(currentUserService.getCurrentUserEmail()).thenReturn(candidate.getEmail());
         when(userRepository.findByEmail(candidate.getEmail())).thenReturn(Optional.of(candidate));
-        when(notificationRepository.countByUser_IdAndReadFalse(12L)).thenReturn(3L);
+        when(notificationRepository.countByUser_IdAndCategoryIsNullAndReadFalse(12L)).thenReturn(3L);
 
         assertEquals(3L, service.getMyUnreadCount().getCount());
-        verify(notificationRepository).countByUser_IdAndReadFalse(12L);
+        verify(notificationRepository).countByUser_IdAndCategoryIsNullAndReadFalse(12L);
     }
 
     @Test
@@ -74,11 +74,11 @@ class NotificationServiceTest {
         User candidate = user(12L, "CANDIDATE");
         when(currentUserService.getCurrentUserEmail()).thenReturn(candidate.getEmail());
         when(userRepository.findByEmail(candidate.getEmail())).thenReturn(Optional.of(candidate));
-        when(notificationRepository.markReadByIdAndUserId(55L, 12L)).thenReturn(1);
+        when(notificationRepository.markCandidateReadByIdAndUserId(55L, 12L)).thenReturn(1);
 
         service.markAsRead(55L);
 
-        verify(notificationRepository).markReadByIdAndUserId(55L, 12L);
+        verify(notificationRepository).markCandidateReadByIdAndUserId(55L, 12L);
     }
 
     @Test
@@ -86,10 +86,10 @@ class NotificationServiceTest {
         User candidate = user(12L, "CANDIDATE");
         when(currentUserService.getCurrentUserEmail()).thenReturn(candidate.getEmail());
         when(userRepository.findByEmail(candidate.getEmail())).thenReturn(Optional.of(candidate));
-        when(notificationRepository.markReadByIdAndUserId(55L, 12L)).thenReturn(0);
+        when(notificationRepository.markCandidateReadByIdAndUserId(55L, 12L)).thenReturn(0);
 
         assertThrows(InvalidException.class, () -> service.markAsRead(55L));
-        verify(notificationRepository).markReadByIdAndUserId(55L, 12L);
+        verify(notificationRepository).markCandidateReadByIdAndUserId(55L, 12L);
     }
 
     @Test
@@ -97,10 +97,10 @@ class NotificationServiceTest {
         User candidate = user(12L, "CANDIDATE");
         when(currentUserService.getCurrentUserEmail()).thenReturn(candidate.getEmail());
         when(userRepository.findByEmail(candidate.getEmail())).thenReturn(Optional.of(candidate));
-        when(notificationRepository.markAllReadByUserId(12L)).thenReturn(2);
+        when(notificationRepository.markAllCandidateReadByUserId(12L)).thenReturn(2);
 
         assertEquals(2, service.markAllAsRead());
-        verify(notificationRepository).markAllReadByUserId(12L);
+        verify(notificationRepository).markAllCandidateReadByUserId(12L);
     }
 
     @Test

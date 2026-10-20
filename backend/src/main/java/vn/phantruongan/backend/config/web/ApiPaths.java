@@ -20,6 +20,7 @@ public class ApiPaths {
     public static final String FOLLOWS = BASE + "/follows";
     public static final String CANDIDATE_CVS = BASE + "/candidate/cvs";
     public static final String CANDIDATE_NOTIFICATIONS = BASE + "/candidate/notifications";
+    public static final String EMPLOYER_NOTIFICATIONS = BASE + "/employer/notifications";
 
     // API paths for public
     public static final String PUBLIC = BASE + "/public";

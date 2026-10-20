@@ -172,6 +172,17 @@ export interface IResume {
   note?: string
 }
 
+export interface IEmployerApplicationNotification {
+  id: number
+  type: "APPLICATION_RECEIVED"
+  relatedResumeId: number
+  jobId: number | null
+  jobTitle: string | null
+  candidateName: string | null
+  read: boolean
+  createdAt: string
+}
+
 export interface IJobRecommendation {
   id: number
 

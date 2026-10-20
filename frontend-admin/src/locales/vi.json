@@ -39,5 +39,16 @@
     "dontHaveAccount": "Chưa có tài khoản.",
     "valEmailErr": "Vui lòng nhập email của bạn!",
     "valPasswordErr": "Vui lòng nhập mật khẩu của bạn!"
+  },
+  "notifications": {
+    "title": "Thông báo ứng tuyển",
+    "applicationReceived": "{{candidate}} đã ứng tuyển vào {{job}}",
+    "candidate": "Ứng viên",
+    "job": "một công việc",
+    "empty": "Chưa có thông báo ứng tuyển",
+    "loadError": "Không thể tải thông báo ứng tuyển",
+    "countError": "Không thể tải số thông báo chưa đọc",
+    "retry": "Thử lại",
+    "markAllRead": "Đánh dấu tất cả đã đọc"
   }
 }

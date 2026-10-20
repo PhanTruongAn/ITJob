@@ -22,11 +22,14 @@ import vn.phantruongan.backend.resume.enums.ResumeEnum;
 @Entity
 @Table(name = "notifications", indexes = {
         @Index(name = "idx_notification_user_created", columnList = "user_id, created_at"),
-        @Index(name = "idx_notification_user_read", columnList = "user_id, is_read")
+        @Index(name = "idx_notification_user_read", columnList = "user_id, is_read"),
+        @Index(name = "uk_notification_deduplication_key", columnList = "deduplication_key", unique = true)
 })
 @Getter
 @Setter
 public class Notification extends Auditable {
+
+    public static final String APPLICATION_RECEIVED_CATEGORY = "APPLICATION_RECEIVED";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,6 +43,10 @@ public class Notification extends Auditable {
     @Column(nullable = false, length = 40)
     private NotificationType type;
 
+    /** Text category avoids changing the persisted enum constraint on existing databases. */
+    @Column(name = "event_category", length = 40)
+    private String category;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "application_status", length = 20)
     private ResumeEnum applicationStatus;
@@ -52,6 +59,13 @@ public class Notification extends Auditable {
 
     @Column(name = "job_title", length = 255)
     private String jobTitle;
+
+    @Column(name = "candidate_name", length = 255)
+    private String candidateName;
+
+    /** Set only for application-received events to make notification creation idempotent. */
+    @Column(name = "deduplication_key", length = 160)
+    private String deduplicationKey;
 
     @Column(name = "is_read", nullable = false)
     private boolean read;

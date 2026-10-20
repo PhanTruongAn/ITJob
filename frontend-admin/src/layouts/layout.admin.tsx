@@ -18,6 +18,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import CustomDropdown from "../components/CustomDropdown"
 import LanguageSwitcher from "../components/LanguageSwitcher"
 import { useAppSelector } from "../redux/hooks"
+import EmployerApplicationNotifications from "./EmployerApplicationNotifications"
 import { getDropdownItems } from "./constants"
 import { useNavItems } from "./dashboard/navbar/NavItem"
 import { useLogout } from "./hooks"
@@ -130,9 +131,13 @@ const LayoutAdmin: React.FC = () => {
           <div style={{ marginRight: 30 }}>
             <Space size="middle">
               <LanguageSwitcher />
-              <Badge count={1} color="#ff686b" dot>
-                <NotificationOutlined style={{ fontSize: 20 }} />
-              </Badge>
+              {userData?.role?.name?.toUpperCase() === "EMPLOYER" ? (
+                <EmployerApplicationNotifications />
+              ) : (
+                <Badge count={1} color="#ff686b" dot>
+                  <NotificationOutlined style={{ fontSize: 20 }} />
+                </Badge>
+              )}
 
               <Tooltip>
                 <CustomDropdown
