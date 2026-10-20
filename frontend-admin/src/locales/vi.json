@@ -49,6 +49,20 @@
     "loadError": "Không thể tải thông báo ứng tuyển",
     "countError": "Không thể tải số thông báo chưa đọc",
     "retry": "Thử lại",
-    "markAllRead": "Đánh dấu tất cả đã đọc"
+    "markAllRead": "Đánh dấu tất cả đã đọc",
+    "reviewTitle": "Phê duyệt đang chờ",
+    "companyReviewType": "Đăng ký công ty",
+    "jobReviewType": "Kích hoạt việc làm",
+    "companyReview": "Xem xét {{name}}",
+    "jobReview": "Kích hoạt {{name}}",
+    "company": "một công ty",
+    "noPendingReviews": "Không có yêu cầu phê duyệt đang chờ",
+    "loadReviewError": "Không thể tải các yêu cầu phê duyệt",
+    "reviewCountError": "Không thể tải số lượng yêu cầu phê duyệt",
+    "reviewStatus": {
+      "PENDING": "Đang chờ",
+      "CHECKING": "Đang xem xét",
+      "INACTIVE": "Chờ kích hoạt"
+    }
   }
 }

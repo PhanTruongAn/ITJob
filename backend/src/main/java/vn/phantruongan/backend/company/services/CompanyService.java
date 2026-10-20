@@ -28,6 +28,7 @@ import vn.phantruongan.backend.company.repositories.CompanyRepository;
 import vn.phantruongan.backend.company.repositories.CountryRepository;
 import vn.phantruongan.backend.company.specification.CompanySpecification;
 import vn.phantruongan.backend.log.services.AuditLogService;
+import vn.phantruongan.backend.notification.services.ManagementReviewNotificationService;
 import vn.phantruongan.backend.resume.repositories.ResumeRepository;
 import vn.phantruongan.backend.util.error.InvalidException;
 import vn.phantruongan.backend.util.error.PermissionDeniedException;
@@ -43,6 +44,7 @@ public class CompanyService {
     private final EmployerOwnershipService ownershipService;
     private final UserRepository userRepository;
     private final ResumeRepository resumeRepository;
+    private final ManagementReviewNotificationService reviewNotificationService;
 
     public boolean isExistCompany(String name, long countryId) {
         if (companyRepository.existsByNameAndCountry_Id(name, countryId)) {
@@ -65,6 +67,10 @@ public class CompanyService {
                 .orElseThrow(() -> new InvalidException("Country not found"));
         company.setCountry(country);
         Company savedCompany = companyRepository.save(company);
+        if (savedCompany.getStatus() == CompanyStatus.PENDING
+                || savedCompany.getStatus() == CompanyStatus.CHECKING) {
+            reviewNotificationService.requireCompanyReview(savedCompany);
+        }
         if (ownershipService.isEmployer()) {
             var user = ownershipService.currentUser();
             if (user.getCompany() != null) {
@@ -97,6 +103,7 @@ public class CompanyService {
     }
 
     @CacheEvict(cacheNames = { "companyDetails", "companies", "latestJobs" }, key = "#dto.id", allEntries = true)
+    @Transactional
     public CompanyResDTO updateCompany(UpdateCompanyReqDTO dto) throws InvalidException {
         String email = currentUserService.getCurrentUserEmail();
         Company existingCompany = ownershipService.findCompanyForMutation(dto.getId());
@@ -109,6 +116,12 @@ public class CompanyService {
             existingCompany.setStatus(currentStatus);
         }
         Company companyUpdated = companyRepository.save(existingCompany);
+        if (companyUpdated.getStatus() == CompanyStatus.PENDING
+                || companyUpdated.getStatus() == CompanyStatus.CHECKING) {
+            reviewNotificationService.requireCompanyReview(companyUpdated);
+        } else {
+            reviewNotificationService.resolveCompanyReview(companyUpdated.getId());
+        }
         auditLogService.logUpdate(ResourceEnum.COMPANY, email, companyUpdated.getId(), "Update company");
         return companyMapper.toDto(companyUpdated);
 
@@ -170,6 +183,7 @@ public class CompanyService {
         }
 
         companyRepository.delete(company);
+        reviewNotificationService.resolveCompanyReview(id);
         auditLogService.logDelete(ResourceEnum.COMPANY, email, id, "Delete company");
         return true;
     }

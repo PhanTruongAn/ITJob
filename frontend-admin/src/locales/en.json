@@ -49,6 +49,20 @@
     "loadError": "Could not load application notifications",
     "countError": "Could not load the unread count",
     "retry": "Retry",
-    "markAllRead": "Mark all as read"
+    "markAllRead": "Mark all as read",
+    "reviewTitle": "Pending approvals",
+    "companyReviewType": "Company registration",
+    "jobReviewType": "Job activation",
+    "companyReview": "Review {{name}}",
+    "jobReview": "Activate {{name}}",
+    "company": "a company",
+    "noPendingReviews": "No approvals are waiting for review",
+    "loadReviewError": "Could not load pending approvals",
+    "reviewCountError": "Could not load the pending approval count",
+    "reviewStatus": {
+      "PENDING": "Pending",
+      "CHECKING": "Under review",
+      "INACTIVE": "Awaiting activation"
+    }
   }
 }

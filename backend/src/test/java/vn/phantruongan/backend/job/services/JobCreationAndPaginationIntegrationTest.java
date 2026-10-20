@@ -35,6 +35,9 @@ import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.enums.JobTypeEnum;
 import vn.phantruongan.backend.job.enums.LevelEnum;
 import vn.phantruongan.backend.job.repositories.JobRepository;
+import vn.phantruongan.backend.notification.entities.ManagementReviewNotification;
+import vn.phantruongan.backend.notification.repositories.ManagementReviewNotificationRepository;
+import vn.phantruongan.backend.notification.services.ManagementReviewNotificationService;
 import vn.phantruongan.backend.subscriber.entities.Skill;
 import vn.phantruongan.backend.subscriber.repositories.SkillRepository;
 import vn.phantruongan.backend.util.error.PermissionDeniedException;
@@ -63,6 +66,12 @@ class JobCreationAndPaginationIntegrationTest {
 
     @Autowired
     private SkillRepository skillRepository;
+
+    @Autowired
+    private ManagementReviewNotificationRepository managementReviewNotificationRepository;
+
+    @Autowired
+    private ManagementReviewNotificationService managementReviewNotificationService;
 
     @Autowired
     private EntityManager entityManager;
@@ -204,6 +213,73 @@ class JobCreationAndPaginationIntegrationTest {
 
         assertThrows(PermissionDeniedException.class, () -> jobService.updateJob(update));
         assertFalse(jobRepository.findById(jobId).orElseThrow().isActive());
+    }
+
+    @Test
+    void firstActivationReviewStaysResolvedAcrossDeactivationReactivationAndRepeatedRequire() {
+        Company company = saveCompany("First activation review company");
+        User employer = saveUser("EMPLOYER", company);
+        User manager = saveUser("MANAGER", null);
+        Skill skill = saveSkill();
+        authenticate(employer);
+
+        CreateJobReqDTO createRequest = createJobRequest(company.getId(), skill.getId());
+        var created = jobService.createJob(createRequest);
+        List<ManagementReviewNotification> initialReviews = managementReviewNotificationRepository.findAll().stream()
+                .filter(item -> ManagementReviewNotificationService.JOB_REVIEW.equals(item.getReviewType()))
+                .filter(item -> created.getId() == item.getJobId())
+                .toList();
+        assertEquals(1, initialReviews.size());
+        ManagementReviewNotification notification = initialReviews.get(0);
+        String key = notification.getDeduplicationKey();
+        assertEquals("job-review:" + created.getId() + ":" + notification.getReviewer().getId(), key);
+        assertTrue(notification.getResolvedAt() == null);
+
+        managementReviewNotificationService.requireJobReview(jobRepository.findById(created.getId()).orElseThrow());
+        entityManager.flush();
+        assertEquals(notification.getId(), managementReviewNotificationRepository.findByDeduplicationKey(key)
+                .orElseThrow().getId());
+        assertEquals(ManagementReviewNotificationService.JOB_REVIEW, notification.getReviewType());
+        assertEquals(created.getId(), notification.getJobId());
+        assertEquals("INACTIVE", notification.getReviewStatus());
+        assertTrue(notification.getResolvedAt() == null);
+
+        authenticate(manager);
+        jobService.updateJob(updateRequest(createRequest, created.getId(), true));
+        entityManager.flush();
+        entityManager.clear();
+        assertTrue(jobRepository.findById(created.getId()).orElseThrow().isActive());
+        ManagementReviewNotification resolved = managementReviewNotificationRepository.findById(notification.getId())
+                .orElseThrow();
+        assertTrue(resolved.getResolvedAt() != null);
+
+        authenticate(employer);
+        jobService.updateJob(updateRequest(createRequest, created.getId(), false));
+        entityManager.flush();
+        entityManager.clear();
+        assertFalse(jobRepository.findById(created.getId()).orElseThrow().isActive());
+
+        assertThrows(PermissionDeniedException.class,
+                () -> jobService.updateJob(updateRequest(createRequest, created.getId(), true)));
+        assertFalse(jobRepository.findById(created.getId()).orElseThrow().isActive());
+
+        authenticate(manager);
+        jobService.updateJob(updateRequest(createRequest, created.getId(), true));
+        entityManager.flush();
+        entityManager.clear();
+        assertTrue(jobRepository.findById(created.getId()).orElseThrow().isActive());
+
+        managementReviewNotificationService.requireJobReview(jobRepository.findById(created.getId()).orElseThrow());
+        entityManager.flush();
+        entityManager.clear();
+        ManagementReviewNotification afterReactivation = managementReviewNotificationRepository
+                .findByDeduplicationKey(key).orElseThrow();
+        assertEquals(notification.getId(), afterReactivation.getId());
+        assertTrue(afterReactivation.getResolvedAt() != null);
+        assertEquals(1, managementReviewNotificationRepository.findAll().stream()
+                .filter(item -> ManagementReviewNotificationService.JOB_REVIEW.equals(item.getReviewType()))
+                .filter(item -> created.getId() == item.getJobId())
+                .count());
     }
 
     @Test

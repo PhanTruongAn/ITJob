@@ -1,5 +1,6 @@
 package vn.phantruongan.backend.authorization.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,12 +14,15 @@ import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 
 @Repository
 public interface PermissionRepository extends JpaRepository<Permission, Long>, JpaSpecificationExecutor<Permission> {
-    Optional<Permission> findByResourceAndAction(ResourceEnum resource, ActionEnum action);
+        Optional<Permission> findByResourceAndAction(ResourceEnum resource, ActionEnum action);
 
-    java.util.List<Permission> findAllByResource(ResourceEnum resource);
+        List<Permission> findAllByResource(ResourceEnum resource);
 
-    boolean existsByResourceAndAction(ResourceEnum resource, ActionEnum action);
+        boolean existsByResourceAndAction(ResourceEnum resource, ActionEnum action);
 
-    boolean existsByResourceAndActionAndMethodAndApiPath(
-            ResourceEnum resource, ActionEnum action, MethodEnum method, String apiPath);
+        boolean existsByResourceAndActionAndMethodAndApiPath(
+                        ResourceEnum resource, ActionEnum action, MethodEnum method, String apiPath);
+
+        Optional<Permission> findByResourceAndActionAndMethodAndApiPath(
+                        ResourceEnum resource, ActionEnum action, MethodEnum method, String apiPath);
 }

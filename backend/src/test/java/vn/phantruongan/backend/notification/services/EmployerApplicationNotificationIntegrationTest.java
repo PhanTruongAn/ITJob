@@ -28,8 +28,10 @@ import vn.phantruongan.backend.company.repositories.CompanyRepository;
 import vn.phantruongan.backend.job.entities.Job;
 import vn.phantruongan.backend.job.repositories.JobRepository;
 import vn.phantruongan.backend.notification.entities.Notification;
+import vn.phantruongan.backend.notification.entities.ManagementReviewNotification;
 import vn.phantruongan.backend.notification.enums.NotificationType;
 import vn.phantruongan.backend.notification.repositories.NotificationRepository;
+import vn.phantruongan.backend.notification.repositories.ManagementReviewNotificationRepository;
 import vn.phantruongan.backend.resume.dtos.req.CreateResumeReqDTO;
 import vn.phantruongan.backend.resume.entities.Resume;
 import vn.phantruongan.backend.resume.repositories.ResumeRepository;
@@ -42,6 +44,8 @@ import vn.phantruongan.backend.util.error.PermissionDeniedException;
 class EmployerApplicationNotificationIntegrationTest {
 
     @Autowired private NotificationService notificationService;
+    @Autowired private ManagementReviewNotificationService managementReviewNotificationService;
+    @Autowired private ManagementReviewNotificationRepository managementReviewNotificationRepository;
     @Autowired private ResumeService resumeService;
     @Autowired private NotificationRepository notificationRepository;
     @Autowired private ResumeRepository resumeRepository;
@@ -172,6 +176,46 @@ class EmployerApplicationNotificationIntegrationTest {
 
         assertThrows(DataIntegrityViolationException.class,
                 () -> notificationRepository.saveAndFlush(notification(employer, 999L, key)));
+    }
+
+    @Test
+    void companyReviewNotificationIsDeduplicatedAndResolvedAfterApproval() {
+        String suffix = UUID.randomUUID().toString();
+        Company company = saveCompany("Pending review " + suffix, CompanyStatus.PENDING);
+        User manager = saveUser("ADMIN", null, suffix + "-admin");
+        String key = "company-review:" + company.getId() + ":" + manager.getId();
+
+        managementReviewNotificationService.requireCompanyReview(company);
+        managementReviewNotificationService.requireCompanyReview(company);
+        entityManager.flush();
+
+        ManagementReviewNotification notification = managementReviewNotificationRepository
+                .findByDeduplicationKey(key).orElseThrow();
+        assertEquals(ManagementReviewNotificationService.COMPANY_REVIEW, notification.getReviewType());
+        assertEquals(company.getId(), notification.getCompanyId());
+        assertEquals(company.getName(), notification.getCompanyName());
+        assertEquals("PENDING", notification.getReviewStatus());
+        assertTrue(notification.getResolvedAt() == null);
+
+        authenticate(manager);
+        assertTrue(managementReviewNotificationService.getPendingReviews(PageRequest.of(0, 20)).getResult().stream()
+                .anyMatch(item -> item.getId().equals(notification.getId())));
+        managementReviewNotificationService.resolveCompanyReview(company.getId());
+        entityManager.flush();
+        entityManager.clear();
+
+        assertTrue(managementReviewNotificationRepository.findById(notification.getId()).orElseThrow()
+                .getResolvedAt() != null);
+        assertTrue(managementReviewNotificationService.getPendingReviews(PageRequest.of(0, 20)).getResult().stream()
+                .noneMatch(item -> item.getId().equals(notification.getId())));
+    }
+
+    @Test
+    void candidateCannotReadManagementReviewNotifications() {
+        User candidate = saveUser("CANDIDATE", null, UUID.randomUUID() + "-candidate");
+        authenticate(candidate);
+        assertThrows(PermissionDeniedException.class,
+                () -> managementReviewNotificationService.getPendingCount());
     }
 
     private Company saveCompany(String name, CompanyStatus status) {

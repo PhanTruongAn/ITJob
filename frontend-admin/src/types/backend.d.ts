@@ -183,6 +183,18 @@ export interface IEmployerApplicationNotification {
   createdAt: string
 }
 
+export interface IManagementReviewNotification {
+  id: number
+  type: "COMPANY_REVIEW_REQUIRED" | "JOB_REVIEW_REQUIRED"
+  companyId: number | null
+  companyName: string | null
+  jobId: number | null
+  jobTitle: string | null
+  reviewStatus: string | null
+  read: boolean
+  createdAt: string
+}
+
 export interface IJobRecommendation {
   id: number
 

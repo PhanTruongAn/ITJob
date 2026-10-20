@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -35,6 +36,7 @@ public class NotificationPermissionInitializer {
 
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
+    @CacheEvict(cacheNames = "permissions", allEntries = true)
     public void initNotificationPermissions() {
         Optional<Role> candidateRoleOpt = roleRepository.findByName("CANDIDATE");
         List<Permission> toCreate = new ArrayList<>();
@@ -44,6 +46,7 @@ public class NotificationPermissionInitializer {
         ensureEmployerPermission(toCreate, ActionEnum.READ, MethodEnum.GET, ApiPaths.EMPLOYER_NOTIFICATIONS);
         ensureEmployerPermission(toCreate, ActionEnum.UPDATE, MethodEnum.PATCH,
                 ApiPaths.EMPLOYER_NOTIFICATIONS + "/{id}/read");
+        ensureReviewPermission(toCreate);
         if (!toCreate.isEmpty()) {
             permissionRepository.saveAll(toCreate);
         }
@@ -52,7 +55,8 @@ public class NotificationPermissionInitializer {
         if (candidateRoleOpt.isPresent()) {
             linkPermissions(candidateRoleOpt.get(), notificationPermissions.stream()
                     .filter(permission -> permission.getApiPath() == null
-                            || !permission.getApiPath().startsWith(ApiPaths.EMPLOYER_NOTIFICATIONS))
+                            || (!permission.getApiPath().startsWith(ApiPaths.EMPLOYER_NOTIFICATIONS)
+                                    && !permission.getApiPath().startsWith(ApiPaths.ADMIN_REVIEW_NOTIFICATIONS)))
                     .toList(), "CANDIDATE");
         } else {
             log.warn("Cannot seed candidate notification permissions: CANDIDATE role was not found.");
@@ -66,6 +70,15 @@ public class NotificationPermissionInitializer {
                     .toList(), "EMPLOYER");
         } else {
             log.warn("Cannot seed employer notification permissions: EMPLOYER role was not found.");
+        }
+
+        Optional<Role> managerRoleOpt = roleRepository.findByName("MANAGER");
+        Optional<Permission> reviewPermission = permissionRepository.findByResourceAndActionAndMethodAndApiPath(
+                ResourceEnum.NOTIFICATION, ActionEnum.READ, MethodEnum.GET, ApiPaths.ADMIN_REVIEW_NOTIFICATIONS);
+        if (managerRoleOpt.isPresent() && reviewPermission.isPresent()) {
+            linkPermissions(managerRoleOpt.get(), List.of(reviewPermission.get()), "MANAGER");
+        } else if (managerRoleOpt.isEmpty()) {
+            log.warn("Cannot seed management review notification permissions: MANAGER role was not found.");
         }
     }
 
@@ -116,6 +129,21 @@ public class NotificationPermissionInitializer {
         permission.setAction(action);
         permission.setMethod(method);
         permission.setApiPath(apiPath);
+        toCreate.add(permission);
+    }
+
+    private void ensureReviewPermission(List<Permission> toCreate) {
+        String path = ApiPaths.ADMIN_REVIEW_NOTIFICATIONS;
+        if (permissionRepository.existsByResourceAndActionAndMethodAndApiPath(
+                ResourceEnum.NOTIFICATION, ActionEnum.READ, MethodEnum.GET, path)) {
+            return;
+        }
+        Permission permission = new Permission();
+        permission.setName("Management review notifications - Read");
+        permission.setResource(ResourceEnum.NOTIFICATION);
+        permission.setAction(ActionEnum.READ);
+        permission.setMethod(MethodEnum.GET);
+        permission.setApiPath(path);
         toCreate.add(permission);
     }
 }

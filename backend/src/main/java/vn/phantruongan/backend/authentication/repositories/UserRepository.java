@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import vn.phantruongan.backend.authentication.entities.User;
+import vn.phantruongan.backend.authorization.enums.ActionEnum;
+import vn.phantruongan.backend.authorization.enums.ResourceEnum;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
@@ -18,6 +20,13 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     Optional<User> findByEmail(String email);
 
     List<User> findAllByCompany_IdAndRole_NameIgnoreCase(Long companyId, String roleName);
+
+    @Query("select distinct u from User u where u.deleted = false and u.role.active = true "
+            + "and (upper(u.role.name) = 'ADMIN' or (upper(u.role.name) = 'MANAGER' and exists "
+            + "(select rp.id from RolePermission rp where rp.role = u.role "
+            + "and rp.permission.resource = :resource and rp.permission.action = :action)))")
+    List<User> findActiveReviewers(@Param("resource") ResourceEnum resource,
+            @Param("action") ActionEnum action);
 
     Optional<User> findByVerificationCode(String verificationCode);
 
