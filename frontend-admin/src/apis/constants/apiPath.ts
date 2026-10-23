@@ -40,6 +40,12 @@ export const PATH_API = {
   resume: {
     root: path(ROOT_API, "/resumes"),
   },
+  employerNotifications: {
+    root: path(ROOT_API, "/employer/notifications"),
+  },
+  managementReviewNotifications: {
+    root: path(ROOT_API, "/admin/notifications/reviews"),
+  },
   recommendation: {
     root: path(ROOT_API, "/recommendations"),
   },

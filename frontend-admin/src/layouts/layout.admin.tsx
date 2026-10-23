@@ -1,11 +1,9 @@
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  NotificationOutlined,
 } from "@ant-design/icons"
 import {
   Avatar,
-  Badge,
   Button,
   Layout,
   Menu,
@@ -18,6 +16,8 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import CustomDropdown from "../components/CustomDropdown"
 import LanguageSwitcher from "../components/LanguageSwitcher"
 import { useAppSelector } from "../redux/hooks"
+import EmployerApplicationNotifications from "./EmployerApplicationNotifications"
+import ManagementReviewNotifications from "./ManagementReviewNotifications"
 import { getDropdownItems } from "./constants"
 import { useNavItems } from "./dashboard/navbar/NavItem"
 import { useLogout } from "./hooks"
@@ -30,6 +30,7 @@ const LayoutAdmin: React.FC = () => {
   const [activeMenu, setActiveMenu] = useState<string>("")
   const [collapsed, setCollapsed] = useState<boolean>(false)
   const userData = useAppSelector((state) => state.account.user)
+  const roleName = userData?.role?.name?.toUpperCase()
   const navigate = useNavigate()
   const {
     token: { colorBgContainer },
@@ -130,9 +131,11 @@ const LayoutAdmin: React.FC = () => {
           <div style={{ marginRight: 30 }}>
             <Space size="middle">
               <LanguageSwitcher />
-              <Badge count={1} color="#ff686b" dot>
-                <NotificationOutlined style={{ fontSize: 20 }} />
-              </Badge>
+              {roleName === "EMPLOYER" ? (
+                <EmployerApplicationNotifications />
+              ) : roleName === "ADMIN" || roleName === "MANAGER" ? (
+                <ManagementReviewNotifications />
+              ) : null}
 
               <Tooltip>
                 <CustomDropdown

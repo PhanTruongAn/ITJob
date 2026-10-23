@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -35,38 +36,67 @@ public class NotificationPermissionInitializer {
 
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
+    @CacheEvict(cacheNames = "permissions", allEntries = true)
     public void initNotificationPermissions() {
         Optional<Role> candidateRoleOpt = roleRepository.findByName("CANDIDATE");
-        if (candidateRoleOpt.isEmpty()) {
-            log.warn("Cannot seed candidate notification permissions: CANDIDATE role was not found.");
-            return;
-        }
-
         List<Permission> toCreate = new ArrayList<>();
         ensurePermission(toCreate, ActionEnum.READ, MethodEnum.GET, ApiPaths.CANDIDATE_NOTIFICATIONS);
         ensurePermission(toCreate, ActionEnum.UPDATE, MethodEnum.PATCH,
                 ApiPaths.CANDIDATE_NOTIFICATIONS + "/{id}/read");
+        ensureEmployerPermission(toCreate, ActionEnum.READ, MethodEnum.GET, ApiPaths.EMPLOYER_NOTIFICATIONS);
+        ensureEmployerPermission(toCreate, ActionEnum.UPDATE, MethodEnum.PATCH,
+                ApiPaths.EMPLOYER_NOTIFICATIONS + "/{id}/read");
+        ensureReviewPermission(toCreate);
         if (!toCreate.isEmpty()) {
             permissionRepository.saveAll(toCreate);
         }
 
-        Role candidateRole = candidateRoleOpt.get();
         List<Permission> notificationPermissions = permissionRepository.findAllByResource(ResourceEnum.NOTIFICATION);
+        if (candidateRoleOpt.isPresent()) {
+            linkPermissions(candidateRoleOpt.get(), notificationPermissions.stream()
+                    .filter(permission -> permission.getApiPath() == null
+                            || (!permission.getApiPath().startsWith(ApiPaths.EMPLOYER_NOTIFICATIONS)
+                                    && !permission.getApiPath().startsWith(ApiPaths.ADMIN_REVIEW_NOTIFICATIONS)))
+                    .toList(), "CANDIDATE");
+        } else {
+            log.warn("Cannot seed candidate notification permissions: CANDIDATE role was not found.");
+        }
+
+        Optional<Role> employerRoleOpt = roleRepository.findByName("EMPLOYER");
+        if (employerRoleOpt.isPresent()) {
+            linkPermissions(employerRoleOpt.get(), notificationPermissions.stream()
+                    .filter(permission -> permission.getApiPath() != null
+                            && permission.getApiPath().startsWith(ApiPaths.EMPLOYER_NOTIFICATIONS))
+                    .toList(), "EMPLOYER");
+        } else {
+            log.warn("Cannot seed employer notification permissions: EMPLOYER role was not found.");
+        }
+
+        Optional<Role> managerRoleOpt = roleRepository.findByName("MANAGER");
+        Optional<Permission> reviewPermission = permissionRepository.findByResourceAndActionAndMethodAndApiPath(
+                ResourceEnum.NOTIFICATION, ActionEnum.READ, MethodEnum.GET, ApiPaths.ADMIN_REVIEW_NOTIFICATIONS);
+        if (managerRoleOpt.isPresent() && reviewPermission.isPresent()) {
+            linkPermissions(managerRoleOpt.get(), List.of(reviewPermission.get()), "MANAGER");
+        } else if (managerRoleOpt.isEmpty()) {
+            log.warn("Cannot seed management review notification permissions: MANAGER role was not found.");
+        }
+    }
+
+    private void linkPermissions(Role role, List<Permission> permissions, String roleName) {
         int linked = 0;
-        for (Permission permission : notificationPermissions) {
-            boolean alreadyLinked = candidateRole.getRolePermissions().stream()
+        for (Permission permission : permissions) {
+            boolean alreadyLinked = role.getRolePermissions().stream()
                     .anyMatch(link -> link.getPermission().getId().equals(permission.getId()));
             if (!alreadyLinked) {
                 RolePermission link = new RolePermission();
-                link.setRole(candidateRole);
+                link.setRole(role);
                 link.setPermission(permission);
                 rolePermissionRepository.save(link);
                 linked++;
             }
         }
-
         if (linked > 0) {
-            log.info("Granted {} notification permissions to CANDIDATE.", linked);
+            log.info("Granted {} notification permissions to {}.", linked, roleName);
         }
     }
 
@@ -83,6 +113,37 @@ public class NotificationPermissionInitializer {
         permission.setAction(action);
         permission.setMethod(method);
         permission.setApiPath(apiPath);
+        toCreate.add(permission);
+    }
+
+    private void ensureEmployerPermission(List<Permission> toCreate, ActionEnum action, MethodEnum method,
+            String apiPath) {
+        if (permissionRepository.existsByResourceAndActionAndMethodAndApiPath(
+                ResourceEnum.NOTIFICATION, action, method, apiPath)) {
+            return;
+        }
+
+        Permission permission = new Permission();
+        permission.setName("Employer application notifications - " + action.getDisplayName());
+        permission.setResource(ResourceEnum.NOTIFICATION);
+        permission.setAction(action);
+        permission.setMethod(method);
+        permission.setApiPath(apiPath);
+        toCreate.add(permission);
+    }
+
+    private void ensureReviewPermission(List<Permission> toCreate) {
+        String path = ApiPaths.ADMIN_REVIEW_NOTIFICATIONS;
+        if (permissionRepository.existsByResourceAndActionAndMethodAndApiPath(
+                ResourceEnum.NOTIFICATION, ActionEnum.READ, MethodEnum.GET, path)) {
+            return;
+        }
+        Permission permission = new Permission();
+        permission.setName("Management review notifications - Read");
+        permission.setResource(ResourceEnum.NOTIFICATION);
+        permission.setAction(ActionEnum.READ);
+        permission.setMethod(MethodEnum.GET);
+        permission.setApiPath(path);
         toCreate.add(permission);
     }
 }

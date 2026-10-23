@@ -1,5 +1,6 @@
 import { message, theme } from "antd"
 import axios from "axios"
+import { useQueryClient } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { createJob, deleteJob, editJob, fetchJobs } from "../../apis/jobModule"
@@ -22,6 +23,7 @@ import { useAppSelector } from "../../redux/hooks"
 const JobManageList: React.FC = () => {
   const { token } = theme.useToken()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const currentRoleName = useAppSelector(
     (state) => state.account.user.role?.name ?? "",
   )
@@ -173,6 +175,9 @@ const JobManageList: React.FC = () => {
       message.error(res.message)
     } else {
       message.success("Job updated successfully")
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MANAGEMENT_REVIEW_NOTIFICATION_MODULE],
+      })
       setVisibleEditModal(false)
       setSelectedJob(undefined)
       refetch()
@@ -206,6 +211,9 @@ const JobManageList: React.FC = () => {
       }
 
       message.success(job.active ? "Job deactivated successfully" : "Job approved and activated")
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MANAGEMENT_REVIEW_NOTIFICATION_MODULE],
+      })
       void refetch()
     } catch (error) {
       // The shared Axios interceptor already reports forbidden responses.
@@ -233,6 +241,9 @@ const JobManageList: React.FC = () => {
       }
 
       message.success("Deleted successfully")
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MANAGEMENT_REVIEW_NOTIFICATION_MODULE],
+      })
       void refetch()
     } catch (error) {
       // The shared Axios interceptor already reports forbidden responses.

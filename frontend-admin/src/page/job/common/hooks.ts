@@ -41,7 +41,14 @@ export const useCreateJob = () => {
 }
 
 export const useDeleteJob = () => {
-  return CustomHooks.useMutation(deleteJob)
+  const queryClient = useQueryClient()
+  return CustomHooks.useMutation(deleteJob, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MANAGEMENT_REVIEW_NOTIFICATION_MODULE],
+      })
+    },
+  })
 }
 
 export const useGetJobById = (id: number) => {
@@ -52,6 +59,9 @@ export const useEditJob = () => {
   return CustomHooks.useMutation(editJob, {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.JOB_MODULE] })
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MANAGEMENT_REVIEW_NOTIFICATION_MODULE],
+      })
     },
   })
 }

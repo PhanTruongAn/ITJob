@@ -16,8 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import vn.phantruongan.backend.common.dtos.PaginationResponse;
 import vn.phantruongan.backend.common.security.EmployerOwnershipService;
@@ -35,6 +35,7 @@ import vn.phantruongan.backend.job.mappers.JobSkillMapper;
 import vn.phantruongan.backend.job.repositories.JobRepository;
 import vn.phantruongan.backend.job.repositories.JobSkillRepository;
 import vn.phantruongan.backend.job.specification.JobSpecification;
+import vn.phantruongan.backend.notification.services.ManagementReviewNotificationService;
 import vn.phantruongan.backend.subscriber.entities.Skill;
 import vn.phantruongan.backend.subscriber.repositories.SkillRepository;
 import vn.phantruongan.backend.util.error.InvalidException;
@@ -52,6 +53,7 @@ public class JobService {
         private final JobSkillMapper jobSkillMapper;
         private final EmployerOwnershipService ownershipService;
         private final ResumeRepository resumeRepository;
+        private final ManagementReviewNotificationService reviewNotificationService;
 
         public PaginationResponse<JobResDTO> getAllJobs(GetListJobReqDTO dto, Pageable pageable) {
                 return getJobs(dto, pageable, false);
@@ -100,13 +102,15 @@ public class JobService {
         }
 
         @CacheEvict(cacheNames = {"jobDetails", "jobs", "latestJobs"}, allEntries = true)
+        @Transactional
         public JobResDTO createJob(CreateJobReqDTO dto) throws InvalidException {
 
                 Job job = jobMapper.toEntity(dto);
                 // Job publication requires management approval; never trust the create payload.
                 job.setActive(false);
 
-                Company company = ownershipService.isEmployer()
+                boolean employer = ownershipService.isEmployer();
+                Company company = employer
                                 ? ownershipService.findEmployerCompany(dto.getCompanyId())
                                 : companyRepository.findById(dto.getCompanyId())
                                 .orElseThrow(() -> new InvalidException(
@@ -135,6 +139,9 @@ public class JobService {
                 }
 
                 Job savedJob = jobRepository.save(job);
+                if (employer) {
+                        reviewNotificationService.requireJobReview(savedJob);
+                }
                 return jobMapper.toDto(savedJob);
         }
 
@@ -191,6 +198,10 @@ public class JobService {
 
                 job.setCompany(company);
                 jobMapper.updateEntityFromDto(dto, job);
+
+                if (management && Boolean.TRUE.equals(dto.getActive())) {
+                        reviewNotificationService.resolveJobReview(job.getId());
+                }
 
                 Set<Long> newSkillIds = dto.getSkillIds() == null ? Set.of()
                                 : dto.getSkillIds().stream()
@@ -252,6 +263,7 @@ public class JobService {
                 }
 
                 jobRepository.delete(job);
+                reviewNotificationService.resolveJobReview(id);
                 return true;
         }
 

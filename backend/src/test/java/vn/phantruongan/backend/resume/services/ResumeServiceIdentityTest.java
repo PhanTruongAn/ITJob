@@ -3,6 +3,7 @@ package vn.phantruongan.backend.resume.services;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -116,6 +117,7 @@ class ResumeServiceIdentityTest {
 
         assertThrows(InvalidException.class, () -> service.createResumeForCurrentCandidate(request));
         verify(resumeRepository, org.mockito.Mockito.never()).save(any());
+        verify(notificationService, never()).createApplicationReceived(any());
     }
 
     @Test
@@ -129,6 +131,7 @@ class ResumeServiceIdentityTest {
 
         assertThrows(InvalidException.class, () -> service.createResumeForCurrentCandidate(request));
         verify(resumeRepository, org.mockito.Mockito.never()).save(any());
+        verify(notificationService, never()).createApplicationReceived(any());
     }
 
     private CreateResumeReqDTO applicationRequest(long jobId) {

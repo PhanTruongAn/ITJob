@@ -104,7 +104,14 @@ export const useCreateCompany = () => {
 }
 
 export const useDeleteCompany = () => {
-  return CustomHooks.useMutation(deleteCompany)
+  const queryClient = useQueryClient()
+  return CustomHooks.useMutation(deleteCompany, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MANAGEMENT_REVIEW_NOTIFICATION_MODULE],
+      })
+    },
+  })
 }
 
 export const useGetCompanyById = (id: number) => {
@@ -117,6 +124,9 @@ export const useEditCompany = () => {
   return CustomHooks.useMutation(editCompany, {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COMPANY_MODULE] })
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MANAGEMENT_REVIEW_NOTIFICATION_MODULE],
+      })
     },
   })
 }

@@ -62,6 +62,7 @@ public class ResumeService {
                 return new PaginationResponse<>(list, meta);
         }
 
+        @Transactional
         public ResumeResDTO createResume(CreateResumeReqDTO dto) throws InvalidException {
                 User actor = currentActor();
                 String roleName = roleName(actor);
@@ -84,6 +85,7 @@ public class ResumeService {
         }
 
         /** Candidate-facing creation: identity always comes from the authenticated account. */
+        @Transactional
         public ResumeResDTO createResumeForCurrentCandidate(CreateResumeReqDTO dto) throws InvalidException {
                 User user = currentCandidate();
                 return saveResume(dto, user, true);
@@ -115,6 +117,9 @@ public class ResumeService {
                 }
 
                 Resume saved = resumeRepository.save(resume);
+                if (candidateSubmission) {
+                        notificationService.createApplicationReceived(saved);
+                }
                 return resumeMapper.toDto(saved);
         }
 
