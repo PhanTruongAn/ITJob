@@ -147,7 +147,7 @@ const CountryManageList: React.FC = () => {
           })}
           data={data?.data || []}
           loading={isLoadingData}
-          total={data?.data?.meta?.total || 0}
+          total={data?.data?.length ?? 0}
           page={page}
           pageSize={pageSize}
           onTableChange={handleTableChange}

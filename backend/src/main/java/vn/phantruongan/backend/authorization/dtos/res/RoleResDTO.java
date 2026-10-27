@@ -10,4 +10,5 @@ public class RoleResDTO {
     private String name;
     private String description;
     private boolean active;
+    private long permissionCount;
 }

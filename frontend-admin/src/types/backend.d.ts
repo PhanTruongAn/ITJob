@@ -157,7 +157,8 @@ export interface IRole {
   name: string
   description: string
   active: boolean
-  permissions: IPermission[]
+  permissionCount: number
+  permissions?: IPermission[]
 }
 
 export interface IResume {
@@ -216,7 +217,7 @@ export interface IJobRecommendation {
   reason: string
 
   // Status
-  status: "PENDING" | "SENT" | "CLICKED" | "IGNORED"
+  emailStatus: "PENDING" | "SENT" | "FAILED"
   sentAt: Date | null
 
   // Audit

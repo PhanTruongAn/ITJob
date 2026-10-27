@@ -44,11 +44,11 @@ export const roleColumns = ({
   },
   {
     title: "Permissions Count",
-    dataIndex: "permissions",
-    key: "permissions",
+    dataIndex: "permissionCount",
+    key: "permissionCount",
     width: "15%",
-    render: (permissions: any[]) => {
-      return <span>{permissions?.length || 0} permissions</span>
+    render: (permissionCount: number) => {
+      return <span>{permissionCount || 0} permissions</span>
     }
   },
   {

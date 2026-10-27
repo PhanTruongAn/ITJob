@@ -23,5 +23,9 @@ public interface CandidateCvMapper extends BaseMapper<CandidateCvResDTO, Candida
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "themeConfigJson", ignore = true)
     @Mapping(target = "contentJson", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
     CandidateCv toEntity(CandidateCvResDTO dto);
 }

@@ -81,8 +81,8 @@ const RecommendationDetailDrawer: React.FC<{
           <InfoCircleOutlined />
           <span>Recommendation Detail</span>
           {rec && (
-            <Tag color={STATUS_COLORS[rec.status]}>
-              {STATUS_LABELS[rec.status]}
+            <Tag color={STATUS_COLORS[rec.emailStatus]}>
+              {STATUS_LABELS[rec.emailStatus]}
             </Tag>
           )}
         </Space>
@@ -177,9 +177,9 @@ const RecommendationDetailDrawer: React.FC<{
           {/* Status History */}
           <Card size="small" title="📋 Status & Timing">
             <Descriptions column={1} size="small">
-              <Descriptions.Item label="Current Status">
-                <Tag color={STATUS_COLORS[rec.status]}>
-                  {STATUS_LABELS[rec.status]}
+              <Descriptions.Item label="Email Status">
+                <Tag color={STATUS_COLORS[rec.emailStatus]}>
+                  {STATUS_LABELS[rec.emailStatus]}
                 </Tag>
               </Descriptions.Item>
               <Descriptions.Item label="Created At">
@@ -211,7 +211,7 @@ const FilterPanel: React.FC<{
     const values = form.getFieldsValue()
     const filters: any = {
       keyword: values.keyword || undefined,
-      status: values.status || undefined,
+      emailStatus: values.emailStatus || undefined,
       minMatch: values.minMatch || undefined,
     }
     if (values.dateRange && values.dateRange.length === 2) {
@@ -245,8 +245,8 @@ const FilterPanel: React.FC<{
           />
         </Form.Item>
 
-        <Form.Item name="status" style={{ marginBottom: 8 }}>
-          <Select placeholder="Status" style={{ width: 130 }} allowClear>
+        <Form.Item name="emailStatus" style={{ marginBottom: 8 }}>
+          <Select placeholder="Email status" style={{ width: 130 }} allowClear>
             {Object.entries(RECOMMENDATION_STATUS).map(([, v]) => (
               <Select.Option key={v} value={v}>
                 <Tag color={STATUS_COLORS[v]}>{STATUS_LABELS[v]}</Tag>
