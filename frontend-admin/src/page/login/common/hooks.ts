@@ -1,12 +1,10 @@
 import { message } from "antd"
-import { useNavigate } from "react-router-dom"
 import { login } from "../../../apis/authModule"
 import CustomHooks from "../../../common/hooks/CustomHooks"
 import { useAppDispatch } from "../../../redux/hooks"
 import { getAccount } from "../../../redux/slice/accountSlice"
 
 export const useAuthLogin = () => {
-  const navigate = useNavigate()
   const dispatch = useAppDispatch()
   return {
     ...CustomHooks.useMutation(

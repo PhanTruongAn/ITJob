@@ -1,11 +1,11 @@
-import { Button, Form, Image, Input } from "antd"
+import { Alert, Button, Form, Image, Input } from "antd"
 import React, { useEffect } from "react"
 import { useTranslation } from "react-i18next"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import backgroundImage from "../../assets/background-login.webp"
 import logo from "../../assets/logo.png"
 import { useAppSelector } from "../../redux/hooks"
-import { PATH_DASHBOARD } from "../../routes/paths"
+import { getManagementLandingPath } from "../../routes/paths"
 import { useAuthLogin } from "./common/hooks"
 import "./style.css"
 type FieldType = {
@@ -17,19 +17,15 @@ const Login: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [form] = Form.useForm()
-  const isAuthenticated = useAppSelector(
-    (state) => state.account.isAuthenticated
-  )
+  const { isAuthenticated, user } = useAppSelector((state) => state.account)
   const { mutate, isPending } = useAuthLogin()
-  const location = useLocation()
-  const params = new URLSearchParams(location.search)
-  const callback = params?.get("callback")
+  const landingPath = getManagementLandingPath(user.role?.name)
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate(PATH_DASHBOARD.userManage.list)
+    if (isAuthenticated && landingPath) {
+      navigate(landingPath, { replace: true })
     }
-  }, [isAuthenticated])
+  }, [isAuthenticated, landingPath, navigate])
 
   const onFinish = async (values: any) => {
     const { email, password } = values
@@ -48,6 +44,15 @@ const Login: React.FC = () => {
             <div className="title">CUSTOMER ADMIN SITE</div>
           </div>
           <div className="title-2">{t("admin.welcome", "Welcome to ITJob Customer")}</div>
+
+          {isAuthenticated && !landingPath && (
+            <Alert
+              type="warning"
+              showIcon
+              style={{ margin: "0 30px" }}
+              message={t("account.managementRoleRequired")}
+            />
+          )}
 
           <Form
             style={{ padding: "30px" }}

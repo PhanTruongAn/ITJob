@@ -59,8 +59,15 @@ const accountSlice = createSlice({
     },
     setLogoutAction: (state) => {
       localStorage.removeItem("access_token")
+      localStorage.removeItem("session")
       state.isAuthenticated = false
-      state.user = { id: 0, email: "", name: "", avatar: "" }
+      state.user = {
+        id: 0,
+        email: "",
+        name: "",
+        avatar: "",
+        role: { id: 0, name: "" },
+      }
     },
     // setRefreshTokenAction: (state, action) => {
     //   state.isRefreshToken = action.payload?.status ?? false;

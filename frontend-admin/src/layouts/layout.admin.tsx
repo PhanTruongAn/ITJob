@@ -1,6 +1,7 @@
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  UserOutlined,
 } from "@ant-design/icons"
 import {
   Avatar,
@@ -12,13 +13,16 @@ import {
   Tooltip,
 } from "antd"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import CustomDropdown from "../components/CustomDropdown"
 import LanguageSwitcher from "../components/LanguageSwitcher"
 import { useAppSelector } from "../redux/hooks"
+import { PATH_DASHBOARD } from "../routes/paths"
 import EmployerApplicationNotifications from "./EmployerApplicationNotifications"
 import ManagementReviewNotifications from "./ManagementReviewNotifications"
 import { getDropdownItems } from "./constants"
+import ChangePasswordModal from "./ChangePasswordModal"
 import { useNavItems } from "./dashboard/navbar/NavItem"
 import { useLogout } from "./hooks"
 
@@ -29,6 +33,8 @@ const LayoutAdmin: React.FC = () => {
   const location = useLocation()
   const [activeMenu, setActiveMenu] = useState<string>("")
   const [collapsed, setCollapsed] = useState<boolean>(false)
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false)
+  const { t } = useTranslation()
   const userData = useAppSelector((state) => state.account.user)
   const roleName = userData?.role?.name?.toUpperCase()
   const navigate = useNavigate()
@@ -48,7 +54,16 @@ const LayoutAdmin: React.FC = () => {
     mutate()
   }
 
-  const items = getDropdownItems(undefined, undefined, handleLogout)
+  const items = getDropdownItems(
+    () => setChangePasswordOpen(true),
+    () => navigate(PATH_DASHBOARD.profile),
+    handleLogout,
+    {
+      changePassword: t("account.changePassword"),
+      profile: t("account.profile"),
+      logout: t("admin.logout"),
+    },
+  )
   return (
     <Layout
       style={{
@@ -137,18 +152,16 @@ const LayoutAdmin: React.FC = () => {
                 <ManagementReviewNotifications />
               ) : null}
 
-              <Tooltip>
+              <Tooltip title={userData?.name || userData?.email}>
                 <CustomDropdown
                   items={items}
                   triggerNode={
                     <Avatar
                       src={userData?.avatar}
+                      icon={!userData?.avatar ? <UserOutlined /> : undefined}
                       style={{ backgroundColor: "#00b4d8", cursor: "pointer" }}
                       size="large"
                       shape="circle"
-                      onClick={() => {
-                        console.log("Avatar clicked")
-                      }}
                     />
                   }
                 />
@@ -165,6 +178,10 @@ const LayoutAdmin: React.FC = () => {
           <Outlet />
         </Content>
       </Layout>
+      <ChangePasswordModal
+        open={changePasswordOpen}
+        onCancel={() => setChangePasswordOpen(false)}
+      />
     </Layout>
   )
 }

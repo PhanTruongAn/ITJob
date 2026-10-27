@@ -3,11 +3,12 @@ import type { MenuProps } from "antd";
 export const getDropdownItems = (
   onChangePassword?: () => void,
   onChangeInformation?: () => void,
-  onLogout?: () => void
+  onLogout?: () => void,
+  labels?: { changePassword: string; profile: string; logout: string },
 ): MenuProps["items"] => [
   {
     key: "change-password",
-    label: "Đổi mật khẩu",
+    label: labels?.changePassword ?? "Đổi mật khẩu",
     onClick: onChangePassword,
   },
   //   {
@@ -15,12 +16,12 @@ export const getDropdownItems = (
   //   },
   {
     key: "information",
-    label: "Thông tin cá nhân",
+    label: labels?.profile ?? "Thông tin cá nhân",
     onClick: onChangeInformation,
   },
   {
     key: "logout",
-    label: "Đăng xuất",
+    label: labels?.logout ?? "Đăng xuất",
     onClick: onLogout,
   },
 ];

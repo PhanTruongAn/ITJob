@@ -59,6 +59,17 @@ export interface IUser {
   updatedAt: Date
 }
 
+export interface IUserProfile {
+  id: number
+  name: string
+  email: string
+  phone?: string
+  address?: string
+  gender?: GenderEnum
+  dob?: string | null
+  avatar?: string
+}
+
 // Country
 export interface ICountry {
   id: number

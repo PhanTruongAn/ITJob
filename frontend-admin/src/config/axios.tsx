@@ -105,6 +105,12 @@ instance.interceptors.response.use(
           `Bearer ${authData.access_token}`
         return instance.request(error.config)
       }
+
+      localStorage.removeItem("access_token")
+      localStorage.removeItem("session")
+      if (window.location.pathname !== PATH_AUTH.login) {
+        window.location.replace(PATH_AUTH.login)
+      }
     }
 
     if (error.config && status === 400 && url === "/api/v1/auth/refresh") {
