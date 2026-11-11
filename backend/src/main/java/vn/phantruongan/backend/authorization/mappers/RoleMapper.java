@@ -48,6 +48,7 @@ public interface RoleMapper extends BaseMapper<RoleResDTO, Role> {
         dto.setActive(entity.isActive());
 
         if (entity.getRolePermissions() != null) {
+            dto.setPermissionCount(entity.getRolePermissions().size());
             List<PermissionResDTO> perms = entity.getRolePermissions().stream()
                     .map(RolePermission::getPermission)
                     .map(this::permissionToDto)

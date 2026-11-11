@@ -1,5 +1,6 @@
 import { message, theme } from "antd"
 import React, { useEffect, useState } from "react"
+import axios from "axios"
 import {
   assignPermissions,
   createRole,
@@ -44,9 +45,6 @@ const RoleManageList: React.FC = () => {
 
   const fetchDataRoles = async (): Promise<IBackendPaginateRes<IRole[]>> => {
     const res = await fetchRoles({ page: state.page, pageSize: state.pageSize })
-    if (res?.statusCode >= 400) {
-      message.error(res?.message)
-    }
     return res
   }
 
@@ -54,6 +52,7 @@ const RoleManageList: React.FC = () => {
     data,
     refetch,
     isLoading: isLoadingData,
+    isError: isRolesError,
   } = CustomHooks.useQuery<IBackendPaginateRes<IRole[]>>(
     [QUERY_KEYS.ROLE_MODULE, state.page, state.pageSize],
     fetchDataRoles,
@@ -131,15 +130,33 @@ const RoleManageList: React.FC = () => {
 
   const handleEditRole = async (record: IRole) => {
     message.loading({ content: "Loading role details...", key: "fetchRole" })
-    const res = await getRoleById(record.id)
-    if (res.statusCode < 400 && res.data) {
-      message.success({ content: "Loaded", key: "fetchRole", duration: 1 })
-      updateState({
-        selectedRecord: res.data,
-        visibleEditModal: true,
+    try {
+      const res = await getRoleById(record.id)
+      if (res.statusCode < 400 && res.data) {
+        message.success({ content: "Loaded", key: "fetchRole", duration: 1 })
+        updateState({
+          selectedRecord: res.data,
+          visibleEditModal: true,
+        })
+      } else {
+        message.error({
+          content: res.message || "Failed to load role details",
+          key: "fetchRole",
+        })
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 403) {
+        message.destroy("fetchRole")
+        return
+      }
+      message.error({
+        content: axios.isAxiosError(error)
+          ? error.response?.data?.message || "Failed to load role details"
+          : error instanceof Error
+            ? error.message
+            : "Failed to load role details",
+        key: "fetchRole",
       })
-    } else {
-      message.error({ content: "Failed to load role details", key: "fetchRole" })
     }
   }
 
@@ -203,6 +220,8 @@ const RoleManageList: React.FC = () => {
           })}
           data={data?.data?.result || []}
           loading={isLoadingData}
+          isError={isRolesError}
+          onRetry={() => void refetch()}
           total={data?.data?.meta?.total || 0}
           page={state.page}
           pageSize={state.pageSize}

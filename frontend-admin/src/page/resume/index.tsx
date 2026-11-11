@@ -28,9 +28,6 @@ const ResumeManageList: React.FC = () => {
       page: state.page,
       pageSize: state.pageSize,
     })
-    if (res?.statusCode >= 400) {
-      message.error(res?.message)
-    }
     return res
   }
 
@@ -38,6 +35,7 @@ const ResumeManageList: React.FC = () => {
     data,
     refetch,
     isLoading: isLoadingData,
+    isError: isResumesError,
   } = CustomHooks.useQuery<IBackendPaginateRes<IResume[]>>(
     [QUERY_KEYS.RESUME_MODULE, state.page, state.pageSize],
     fetchDataResumes,
@@ -95,11 +93,15 @@ const ResumeManageList: React.FC = () => {
       deleteMutate(
         { id: state.selectedId },
         {
-          onSuccess: (res) => {
+          onSuccess: async (res) => {
             if (res.statusCode >= 400) {
               message.error(res.message)
             } else {
-              refetch()
+              const refreshedData = await refetch()
+              const refreshedRows = refreshedData.data?.data?.result ?? []
+              if (refreshedRows.length === 0 && state.page > 1) {
+                updateState({ page: state.page - 1 })
+              }
             }
           },
         },
@@ -175,6 +177,8 @@ const ResumeManageList: React.FC = () => {
           })}
           data={data?.data?.result || []}
           loading={isLoadingData}
+          isError={isResumesError}
+          onRetry={() => void refetch()}
           total={data?.data?.meta?.total || 0}
           page={state.page}
           pageSize={state.pageSize}

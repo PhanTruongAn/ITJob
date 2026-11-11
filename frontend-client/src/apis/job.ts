@@ -1,4 +1,5 @@
 import axiosPublic from "@/configs/axiosPublic"
+import { assertApiSuccess } from "@/common/utils/queryBehavior.mjs"
 import { IBackendPaginateRes, IBackendRes, IJob } from "@/types/backend"
 import { PATH_API } from "./constants/apiPath"
 
@@ -43,7 +44,7 @@ export async function fetchJobs(
       },
     },
   )
-  return response.data
+  return assertApiSuccess(response.data)
 }
 
 
@@ -51,12 +52,12 @@ export async function getJobById(id: number): Promise<IBackendRes<IJob>> {
   const response = await axiosPublic.get<IBackendRes<IJob>>(
     `${PATH_API.job.root}/${id}`,
   )
-  return response.data
+  return assertApiSuccess(response.data)
 }
 
 export async function getJobLatest(): Promise<IBackendRes<IJob[]>> {
   const response = await axiosPublic.get<IBackendRes<IJob[]>>(
     `${PATH_API.job.root}/latest`,
   )
-  return response.data
+  return assertApiSuccess(response.data)
 }

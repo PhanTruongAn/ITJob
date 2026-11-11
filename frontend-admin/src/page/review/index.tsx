@@ -25,9 +25,6 @@ const ReviewManageList: React.FC = () => {
       page: state.page,
       pageSize: state.pageSize,
     })
-    if (res?.statusCode >= 400) {
-      message.error(res?.message)
-    }
     return res
   }
 
@@ -35,6 +32,7 @@ const ReviewManageList: React.FC = () => {
     data,
     refetch,
     isLoading: isLoadingData,
+    isError: isReviewsError,
   } = CustomHooks.useQuery<IBackendPaginateRes<ICompanyReview[]>>(
     [QUERY_KEYS.REVIEW_MODULE, state.page, state.pageSize],
     fetchDataReviews,
@@ -182,6 +180,8 @@ const ReviewManageList: React.FC = () => {
           })}
           data={data?.data?.result || []}
           loading={isLoadingData}
+          isError={isReviewsError}
+          onRetry={() => void refetch()}
           total={data?.data?.meta?.total || 0}
           page={state.page}
           pageSize={state.pageSize}

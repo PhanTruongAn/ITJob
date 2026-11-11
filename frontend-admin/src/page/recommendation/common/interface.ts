@@ -3,7 +3,7 @@ import { IJobRecommendation } from "../../../types/backend"
 export interface RecommendationFilter {
   subscriberId?: number
   companyId?: number
-  status?: string
+  emailStatus?: string
   keyword?: string
   fromDate?: string
   toDate?: string

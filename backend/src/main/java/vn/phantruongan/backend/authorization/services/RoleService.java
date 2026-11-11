@@ -46,6 +46,15 @@ public class RoleService {
         Specification<Role> spec = new RoleSpecification(dto);
         Page<Role> page = roleRepository.findAll(spec, pageable);
         List<RoleResDTO> list = roleMapper.toDtoList(page.getContent());
+        if (!page.isEmpty()) {
+            Map<Long, Long> permissionCounts = rolePermissionRepository.countPermissionsByRoleIds(
+                    page.getContent().stream().map(Role::getId).collect(Collectors.toList()))
+                    .stream()
+                    .collect(Collectors.toMap(
+                            RolePermissionRepository.PermissionCount::getRoleId,
+                            RolePermissionRepository.PermissionCount::getPermissionCount));
+            list.forEach(role -> role.setPermissionCount(permissionCounts.getOrDefault(role.getId(), 0L)));
+        }
 
         PaginationResponse.Meta meta = new PaginationResponse.Meta(
                 page.getNumber() + 1,

@@ -1,5 +1,4 @@
 import {
-  keepPreviousData,
   QueryKey,
   useMutation,
   UseMutationOptions,
@@ -27,7 +26,6 @@ const CustomHooks = {
     return useReactQuery<TQueryFnData, TError, TData, TQueryKey>({
       queryKey,
       queryFn,
-      placeholderData: keepPreviousData,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       retry: false,

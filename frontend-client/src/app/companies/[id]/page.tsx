@@ -5,6 +5,7 @@ import AppTheme from "@/shared-theme/AppTheme"
 import {
   Alert,
   Box,
+  Button,
   CircularProgress,
   Container,
   CssBaseline,
@@ -14,6 +15,7 @@ import {
   Typography,
 } from "@mui/material"
 import { use, useState } from "react"
+import { useTranslation } from "react-i18next"
 import CompanyAboutTab from "./components/CompanyAboutTab"
 import CompanyReviewsTab from "./components/CompanyReviewsTab"
 import CompanyJobsTab from "./components/CompanyJobsTab"
@@ -32,6 +34,7 @@ interface Props {
 }
 
 export default function CompanyDetailPage({ params }: Props) {
+  const { t } = useTranslation()
   const { id } = use(params)
   const companyId = Number(id)
   const router = useRouter()
@@ -48,11 +51,16 @@ export default function CompanyDetailPage({ params }: Props) {
     severity: "success",
   })
 
-  const { data, isLoading, isError } = useCompanyDetail(companyId)
+  const { data, isLoading, isError, error, refetch } = useCompanyDetail(companyId)
 
   // Fetch follow status only if user is logged in
   const isLoggedIn = status === "authenticated"
-  const { data: followStatusData, isLoading: isFollowStatusLoading } = useFollowStatus(
+  const {
+    data: followStatusData,
+    isLoading: isFollowStatusLoading,
+    isError: isFollowStatusError,
+    refetch: refetchFollowStatus,
+  } = useFollowStatus(
     companyId,
     isLoggedIn
   )
@@ -123,6 +131,41 @@ export default function CompanyDetailPage({ params }: Props) {
     )
   }
 
+  const errorStatus =
+    (error as { response?: { status?: number }; statusCode?: number } | null)
+      ?.response?.status ??
+    (error as { statusCode?: number } | null)?.statusCode
+  if (isError && errorStatus !== 404) {
+    return (
+      <AppTheme>
+        <CssBaseline />
+        <AppAppBar />
+        <Box
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Stack spacing={2} alignItems="center">
+            <Alert
+              severity="error"
+              action={
+                <Button color="inherit" size="small" onClick={() => void refetch()}>
+                  {t("discovery.retry")}
+                </Button>
+              }
+            >
+              {t("discovery.companyDetailLoadError")}
+            </Alert>
+          </Stack>
+        </Box>
+        <Footer />
+      </AppTheme>
+    )
+  }
+
   if (isError || !company) {
     return (
       <AppTheme>
@@ -137,9 +180,10 @@ export default function CompanyDetailPage({ params }: Props) {
           }}
         >
           <Typography color="text.secondary" variant="h6">
-            Không tìm thấy thông tin công ty.
+            {t("discovery.companyNotFound")}
           </Typography>
         </Box>
+        <Footer />
       </AppTheme>
     )
   }
@@ -178,6 +222,8 @@ export default function CompanyDetailPage({ params }: Props) {
           isVerified={company.status === "APPROVED"}
           isFollowing={isFollowing}
           isFollowingLoading={isFollowStatusLoading || toggleFollowMutation.isPending}
+          isFollowingError={isFollowStatusError}
+          onRetryFollowStatus={() => void refetchFollowStatus()}
           onFollow={handleFollowToggle}
           onVisitWebsite={
             company.website

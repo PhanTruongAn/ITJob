@@ -53,6 +53,10 @@ public class JobRecommendationSpecification implements Specification<JobRecommen
             predicates.add(cb.equal(root.get("status"), filter.getStatus()));
         }
 
+        if (filter.getEmailStatus() != null) {
+            predicates.add(cb.equal(root.get("emailStatus"), filter.getEmailStatus()));
+        }
+
         // keyword: search by subscriber email, job title, or company name
         if (filter.getKeyword() != null && !filter.getKeyword().isBlank()) {
             String pattern = "%" + filter.getKeyword().toLowerCase() + "%";

@@ -12,5 +12,13 @@ public interface FileMapper extends BaseMapper<FileResDTO, File> {
     @Override
     @Mapping(target = "isDefault", source = "default")
     FileResDTO toDto(File entity);
+
+    @Override
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    File toEntity(FileResDTO dto);
 }
 

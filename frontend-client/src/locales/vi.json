@@ -39,7 +39,14 @@
     "privacyPolicy": "Chính sách bảo mật"
   },
   "home": {
-    "topEmployers": "Nhà tuyển dụng hàng đầu"
+    "topEmployers": "Nhà tuyển dụng hàng đầu",
+    "loadError": "Không thể tải nội dung này.",
+    "retry": "Thử lại",
+    "noLatestJobs": "Hiện chưa có việc làm mới.",
+    "noEmployers": "Hiện chưa có công ty nào."
+  },
+  "follow": {
+    "statusLoadError": "Không thể tải trạng thái theo dõi công ty của bạn."
   },
   "hero": {
     "title": "Tìm kiếm công việc IT mơ ước của bạn",
@@ -75,6 +82,8 @@
     "jobDetailLoading": "Đang tải chi tiết công việc...",
     "jobDetailLoadError": "Không thể tải chi tiết công việc. Vui lòng thử lại.",
     "jobNotFound": "Không tìm thấy công việc này hoặc công việc không còn tuyển dụng.",
+    "companyNotFound": "Không tìm thấy công ty này hoặc công ty không còn khả dụng.",
+    "companyDetailLoadError": "Không thể tải chi tiết công ty. Vui lòng thử lại.",
     "backToJobs": "Quay lại danh sách việc làm",
     "retry": "Thử lại"
   },

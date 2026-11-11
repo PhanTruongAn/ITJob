@@ -29,9 +29,6 @@ const PermissionManageList: React.FC = () => {
       page: state.page,
       pageSize: state.pageSize,
     })
-    if (res?.statusCode >= 400) {
-      message.error(res?.message)
-    }
     return res
   }
 
@@ -39,6 +36,7 @@ const PermissionManageList: React.FC = () => {
     data,
     refetch,
     isLoading: isLoadingData,
+    isError: isPermissionsError,
   } = CustomHooks.useQuery<IBackendPaginateRes<IPermission[]>>(
     [QUERY_KEYS.PERMISSION_MODULE, state.page, state.pageSize],
     fetchDataPermissions,
@@ -189,6 +187,8 @@ const PermissionManageList: React.FC = () => {
             return Array.from(map.values())
           })()}
           loading={isLoadingData}
+          isError={isPermissionsError}
+          onRetry={() => void refetch()}
           total={data?.data?.meta?.total || 0}
           page={state.page}
           pageSize={state.pageSize}

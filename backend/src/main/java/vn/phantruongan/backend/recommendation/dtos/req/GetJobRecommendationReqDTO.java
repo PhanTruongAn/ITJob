@@ -5,6 +5,7 @@ import java.time.Instant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.phantruongan.backend.recommendation.enums.EmailStatus;
 import vn.phantruongan.backend.recommendation.enums.RecommendationStatus;
 
 @Getter
@@ -14,6 +15,7 @@ public class GetJobRecommendationReqDTO {
     private Long subscriberId;
     private Long companyId;
     private RecommendationStatus status;
+    private EmailStatus emailStatus;
     private String keyword; // search by subscriber email, job title, company name
     private Instant fromDate;
     private Instant toDate;

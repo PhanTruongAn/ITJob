@@ -4,6 +4,8 @@ import { formatVNCurency } from "@/common/utils/formatCurrency"
 import LocationOnIcon from "@mui/icons-material/LocationOn"
 import PaymentsIcon from "@mui/icons-material/Payments"
 import Box from "@mui/material/Box"
+import Alert from "@mui/material/Alert"
+import Button from "@mui/material/Button"
 import Card from "@mui/material/Card"
 import Chip from "@mui/material/Chip"
 import Container from "@mui/material/Container"
@@ -12,45 +14,36 @@ import Skeleton from "@mui/material/Skeleton"
 import Stack from "@mui/material/Stack"
 import Typography from "@mui/material/Typography"
 import { useQuery } from "@tanstack/react-query"
+import { useTranslation } from "react-i18next"
 
 export default function HotJobs() {
-  const { data, isLoading } = useQuery({
+  const { t } = useTranslation()
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["jobs", "hot"],
     queryFn: () => getJobLatest(),
   })
 
-  const jobs = data?.data || [
-    {
-      id: 1,
-      name: "Senior Java Developer",
-      location: "Hà Nội",
-      salary: 2500,
-      company: { name: "FPT Software" },
-      skills: ["Java", "Spring Boot"],
-    },
-    {
-      id: 2,
-      name: "ReactJS Lead",
-      location: "Hồ Chí Minh",
-      salary: 3000,
-      company: { name: "VNG Corporation" },
-      skills: ["React", "TypeScript"],
-    },
-    {
-      id: 3,
-      name: "QC Engineer (Manual/Auto)",
-      location: "Đà Nẵng",
-      salary: 1500,
-      company: { name: "NAB" },
-      skills: ["Testing", "Selenium"],
-    },
-  ]
+  const jobs = data?.data ?? []
   return (
     <Box sx={{ py: 8 }}>
       <Container maxWidth="lg">
         <Typography variant="h2" gutterBottom sx={{ mb: 4 }}>
           Việc làm &quot;Chất&quot; nhất
         </Typography>
+        {isError && (
+          <Alert
+            severity="error"
+            action={<Button color="inherit" size="small" onClick={() => void refetch()}>{t("home.retry")}</Button>}
+            sx={{ mb: 3 }}
+          >
+            {t("home.loadError")}
+          </Alert>
+        )}
+        {!isLoading && !isError && jobs.length === 0 && (
+          <Typography color="text.secondary" sx={{ mb: 3 }}>
+            {t("home.noLatestJobs")}
+          </Typography>
+        )}
         <Grid container spacing={3}>
           {isLoading
             ? Array.from({ length: 6 }).map((_, i) => (

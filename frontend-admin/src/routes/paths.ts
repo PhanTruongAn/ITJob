@@ -49,4 +49,19 @@ export const PATH_DASHBOARD = {
   emailAnalytics: {
     list: path(ROOT_DASHBOARD, "/email-analytics"),
   },
+  profile: path(ROOT_DASHBOARD, "/profile"),
 }
+
+export const getManagementLandingPath = (roleName?: string) => {
+  switch (roleName?.toUpperCase()) {
+    case "EMPLOYER":
+      return PATH_DASHBOARD.companyManage.list
+    case "ADMIN":
+    case "MANAGER":
+      return PATH_DASHBOARD.userManage.list
+    default:
+      return null
+  }
+}
+
+export const MANAGEMENT_ROLES = ["ADMIN", "MANAGER", "EMPLOYER"]

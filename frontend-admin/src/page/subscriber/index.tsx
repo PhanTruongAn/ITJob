@@ -46,9 +46,6 @@ const SubscriberManageList: React.FC = () => {
       page: state.page,
       pageSize: state.pageSize,
     })
-    if (res?.statusCode >= 400) {
-      message.error(res?.message)
-    }
     return res
   }
 
@@ -56,6 +53,7 @@ const SubscriberManageList: React.FC = () => {
     data,
     refetch,
     isLoading: isLoadingData,
+    isError: isSubscribersError,
   } = CustomHooks.useQuery<IBackendPaginateRes<ISubscriber[]>>(
     [QUERY_KEYS.SUBSCRIBER_MODULE, state.page, state.pageSize],
     fetchDataSubscribers,
@@ -192,6 +190,8 @@ const SubscriberManageList: React.FC = () => {
           })}
           data={data?.data?.result || []}
           loading={isLoadingData}
+          isError={isSubscribersError}
+          onRetry={() => void refetch()}
           total={data?.data?.meta?.total || 0}
           page={state.page}
           pageSize={state.pageSize}

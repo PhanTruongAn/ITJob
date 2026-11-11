@@ -1,7 +1,9 @@
 "use client"
 import { fetchCompanies } from "@/apis/company"
 import Avatar from "@mui/material/Avatar"
+import Alert from "@mui/material/Alert"
 import Box from "@mui/material/Box"
+import Button from "@mui/material/Button"
 import Card from "@mui/material/Card"
 import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid2"
@@ -12,17 +14,12 @@ import { useTranslation } from "react-i18next"
 
 export default function TopEmployers() {
   const { t } = useTranslation()
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["companies", "top"],
     queryFn: () => fetchCompanies({ page: 1, pageSize: 6 }),
   })
 
-  // Mock data if API is empty or failing
-  const companies = data?.data?.result || [
-    { id: 1, name: "NAVER VIETNAM", address: "Hà Nội", logo: "" },
-    { id: 2, name: "NAB Innovation", address: "Hồ Chí Minh", logo: "" },
-    { id: 3, name: "FPT Software", address: "Toàn quốc", logo: "" },
-  ]
+  const companies = data?.data?.result ?? []
 
   return (
     <Box sx={{ py: 8, bgcolor: "background.paper" }}>
@@ -30,6 +27,20 @@ export default function TopEmployers() {
         <Typography variant="h2" textAlign="center" gutterBottom sx={{ mb: 6 }}>
           {t("home.topEmployers", "Nhà tuyển dụng hàng đầu")}
         </Typography>
+        {isError && (
+          <Alert
+            severity="error"
+            action={<Button color="inherit" size="small" onClick={() => void refetch()}>{t("home.retry")}</Button>}
+            sx={{ mb: 3 }}
+          >
+            {t("home.loadError")}
+          </Alert>
+        )}
+        {!isLoading && !isError && companies.length === 0 && (
+          <Typography color="text.secondary" textAlign="center" sx={{ mb: 3 }}>
+            {t("home.noEmployers")}
+          </Typography>
+        )}
         <Grid container spacing={4}>
           {isLoading
             ? Array.from({ length: 6 }).map((_, i) => (
@@ -60,7 +71,7 @@ export default function TopEmployers() {
                       variant="rounded"
                       sx={{ width: 80, height: 80, bgcolor: "primary.light" }}
                     >
-                      {comp.name[0]}
+                {comp.name?.[0] ?? "?"}
                     </Avatar>
                     <Box>
                       <Typography variant="h6" sx={{ fontWeight: 600 }}>

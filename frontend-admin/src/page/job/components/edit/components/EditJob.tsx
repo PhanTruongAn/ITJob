@@ -1,5 +1,6 @@
-import { Form, Select, message } from "antd"
+import { Alert, Button, Form, Select, message, Spin } from "antd"
 import React, { useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { useLocation, useParams } from "react-router-dom"
 import { useEditJob, useGetJobById } from "../../../common/hooks"
 import { CreateJobReqDTO } from "../../../common/interfaces"
@@ -11,11 +12,12 @@ import dayjs from "dayjs"
 
 const EditJob: React.FC = () => {
   const [form] = Form.useForm()
+  const { t } = useTranslation()
   const { mutate } = useEditJob()
   const { id } = useParams()
   const location = useLocation()
   const isViewed = location.state?.isView
-  const { data: jobData } = useGetJobById(Number(id))
+  const { data: jobData, isLoading, isError, refetch } = useGetJobById(Number(id))
 
   useEffect(() => {
     if (jobData?.data) {
@@ -42,11 +44,22 @@ const EditJob: React.FC = () => {
 
   return (
     <>
-      <JobForm
-        form={form}
-        type={isViewed ? "view" : "edit"}
-        onSubmit={handleEdit}
-      />
+      {isLoading ? (
+        <Spin />
+      ) : isError ? (
+        <Alert
+          type="error"
+          showIcon
+          message={t("common.jobDetailLoadError")}
+          action={<Button size="small" onClick={() => void refetch()}>{t("common.retry")}</Button>}
+        />
+      ) : (
+        <JobForm
+          form={form}
+          type={isViewed ? "view" : "edit"}
+          onSubmit={handleEdit}
+        />
+      )}
     </>
   )
 }

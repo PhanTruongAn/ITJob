@@ -53,4 +53,8 @@ export const PATH_API = {
     summary: path(ROOT_API, "/admin/email/analytics/summary"),
     records: path(ROOT_API, "/admin/email/analytics/records"),
   },
+  profile: {
+    root: path(ROOT_API, "/profile"),
+    changePassword: path(ROOT_API, "/profile/change-password"),
+  },
 }

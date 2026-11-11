@@ -4,6 +4,9 @@ import LoadingScreen from "../components/LoadingScreen";
 import { PATH_AUTH, PATH_DASHBOARD, ROOT_DASHBOARD } from "./paths";
 import LayoutAdmin from "../layouts/layout.admin";
 import AuthGuard from "../guards/AuthGuard";
+import RoleGuard from "../guards/RoleGuard";
+import { MANAGEMENT_ROLES, getManagementLandingPath } from "./paths";
+import { useAppSelector } from "../redux/hooks";
 
 const Loadable = (Component: ElementType) => (props: any) => {
   const { pathname } = useLocation();
@@ -17,6 +20,7 @@ const Loadable = (Component: ElementType) => (props: any) => {
 };
 
 export default function Router() {
+  const roleName = useAppSelector((state) => state.account.user.role?.name)
   return useRoutes([
     {
       path: PATH_AUTH.login,
@@ -36,12 +40,12 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              element: <Navigate to={getManagementLandingPath(roleName) ?? PATH_AUTH.login} replace />,
               index: true,
             },
             {
               path: PATH_DASHBOARD.userManage.list,
-              element: <UserManageList />,
+              element: <RoleGuard roles={["ADMIN", "MANAGER"]}><UserManageList /></RoleGuard>,
             },
           ],
         },
@@ -49,20 +53,20 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              element: <Navigate to={getManagementLandingPath(roleName) ?? PATH_AUTH.login} replace />,
               index: true,
             },
             {
               path: PATH_DASHBOARD.companyManage.list,
-              element: <CompanyManageList />,
+              element: <RoleGuard roles={["ADMIN", "MANAGER", "EMPLOYER"]}><CompanyManageList /></RoleGuard>,
             },
             {
               path: PATH_DASHBOARD.companyManage.create,
-              element: <CompanyManageCreate />,
+              element: <RoleGuard roles={["ADMIN", "MANAGER", "EMPLOYER"]}><CompanyManageCreate /></RoleGuard>,
             },
             {
               path: PATH_DASHBOARD.companyManage.edit,
-              element: <CompanyManageEdit />,
+              element: <RoleGuard roles={["ADMIN", "MANAGER", "EMPLOYER"]}><CompanyManageEdit /></RoleGuard>,
             },
           ],
         },
@@ -70,12 +74,12 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              element: <Navigate to={getManagementLandingPath(roleName) ?? PATH_AUTH.login} replace />,
               index: true,
             },
             {
               path: PATH_DASHBOARD.jobManage.list,
-              element: <JobManageList />,
+              element: <RoleGuard roles={["ADMIN", "MANAGER", "EMPLOYER"]}><JobManageList /></RoleGuard>,
             },
           ],
         },
@@ -83,12 +87,12 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              element: <Navigate to={getManagementLandingPath(roleName) ?? PATH_AUTH.login} replace />,
               index: true,
             },
             {
               path: PATH_DASHBOARD.resumeManage.list,
-              element: <ResumeManageList />,
+              element: <RoleGuard roles={["ADMIN", "MANAGER", "EMPLOYER"]}><ResumeManageList /></RoleGuard>,
             },
           ],
         },
@@ -96,12 +100,12 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              element: <Navigate to={getManagementLandingPath(roleName) ?? PATH_AUTH.login} replace />,
               index: true,
             },
             {
               path: PATH_DASHBOARD.roleManage.list,
-              element: <RoleManageList />,
+              element: <RoleGuard roles={["ADMIN"]}><RoleManageList /></RoleGuard>,
             },
           ],
         },
@@ -109,12 +113,12 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              element: <Navigate to={getManagementLandingPath(roleName) ?? PATH_AUTH.login} replace />,
               index: true,
             },
             {
               path: PATH_DASHBOARD.permissionManage.list,
-              element: <PermissionManageList />,
+              element: <RoleGuard roles={["ADMIN"]}><PermissionManageList /></RoleGuard>,
             },
           ],
         },
@@ -122,12 +126,12 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              element: <Navigate to={getManagementLandingPath(roleName) ?? PATH_AUTH.login} replace />,
               index: true,
             },
             {
               path: PATH_DASHBOARD.skillManage.list,
-              element: <SkillManageList />,
+              element: <RoleGuard roles={["ADMIN", "MANAGER"]}><SkillManageList /></RoleGuard>,
             },
           ],
         },
@@ -135,12 +139,12 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              element: <Navigate to={getManagementLandingPath(roleName) ?? PATH_AUTH.login} replace />,
               index: true,
             },
             {
               path: PATH_DASHBOARD.subscriberManage.list,
-              element: <SubscriberManageList />,
+              element: <RoleGuard roles={["ADMIN", "MANAGER"]}><SubscriberManageList /></RoleGuard>,
             },
           ],
         },
@@ -148,12 +152,12 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              element: <Navigate to={getManagementLandingPath(roleName) ?? PATH_AUTH.login} replace />,
               index: true,
             },
             {
               path: PATH_DASHBOARD.reviewManage.list,
-              element: <ReviewManageList />,
+              element: <RoleGuard roles={["ADMIN", "MANAGER", "EMPLOYER"]}><ReviewManageList /></RoleGuard>,
             },
           ],
         },
@@ -161,12 +165,12 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              element: <Navigate to={getManagementLandingPath(roleName) ?? PATH_AUTH.login} replace />,
               index: true,
             },
             {
               path: PATH_DASHBOARD.countryManage.list,
-              element: <CountryManageList />,
+              element: <RoleGuard roles={["ADMIN", "MANAGER"]}><CountryManageList /></RoleGuard>,
             },
           ],
         },
@@ -174,12 +178,12 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              element: <Navigate to={getManagementLandingPath(roleName) ?? PATH_AUTH.login} replace />,
               index: true,
             },
             {
               path: PATH_DASHBOARD.recommendationManage.list,
-              element: <RecommendationManageList />,
+              element: <RoleGuard roles={["ADMIN", "MANAGER"]}><RecommendationManageList /></RoleGuard>,
             },
           ],
         },
@@ -187,12 +191,16 @@ export default function Router() {
           path: "",
           children: [
             {
-              element: <Navigate to={PATH_DASHBOARD.userManage.list} replace />,
+              element: <Navigate to={getManagementLandingPath(roleName) ?? PATH_AUTH.login} replace />,
               index: true,
             },
             {
               path: PATH_DASHBOARD.emailAnalytics.list,
-              element: <EmailAnalyticsPage />,
+              element: <RoleGuard roles={["ADMIN", "MANAGER"]}><EmailAnalyticsPage /></RoleGuard>,
+            },
+            {
+              path: PATH_DASHBOARD.profile,
+              element: <RoleGuard roles={MANAGEMENT_ROLES}><ProfilePage /></RoleGuard>,
             },
           ],
         },
@@ -229,4 +237,5 @@ const RecommendationManageList = Loadable(
 );
 const NotFound = Loadable(lazy(() => import("../page/404/index")));
 const EmailAnalyticsPage = Loadable(lazy(() => import("../page/email-analytics")));
+const ProfilePage = Loadable(lazy(() => import("../page/profile")));
 

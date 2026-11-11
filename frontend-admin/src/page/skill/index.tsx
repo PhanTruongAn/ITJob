@@ -27,9 +27,6 @@ const SkillManageList: React.FC = () => {
       page: state.page,
       pageSize: state.pageSize,
     })
-    if (res?.statusCode >= 400) {
-      message.error(res?.message)
-    }
     return res
   }
 
@@ -37,6 +34,7 @@ const SkillManageList: React.FC = () => {
     data,
     refetch,
     isLoading: isLoadingData,
+    isError: isSkillsError,
   } = CustomHooks.useQuery<IBackendPaginateRes<ISkill[]>>(
     [QUERY_KEYS.SKILL_MODULE, state.page, state.pageSize],
     fetchDataSkills,
@@ -159,6 +157,8 @@ const SkillManageList: React.FC = () => {
           })}
           data={data?.data?.result || []}
           loading={isLoadingData}
+          isError={isSkillsError}
+          onRetry={() => void refetch()}
           total={data?.data?.meta?.total || 0}
           page={state.page}
           pageSize={state.pageSize}

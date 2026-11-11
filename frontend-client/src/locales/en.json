@@ -39,7 +39,14 @@
     "terms": "Terms"
   },
   "home": {
-    "topEmployers": "Top Employers"
+    "topEmployers": "Top Employers",
+    "loadError": "Could not load this content.",
+    "retry": "Retry",
+    "noLatestJobs": "No recent jobs are available.",
+    "noEmployers": "No companies are available right now."
+  },
+  "follow": {
+    "statusLoadError": "Could not load whether you follow this company."
   },
   "hero": {
     "title": "Find Your Dream IT Job",
@@ -75,6 +82,8 @@
     "jobDetailLoading": "Loading job details...",
     "jobDetailLoadError": "Job details could not be loaded. Please try again.",
     "jobNotFound": "This job could not be found or is no longer available.",
+    "companyNotFound": "This company could not be found or is no longer available.",
+    "companyDetailLoadError": "Company details could not be loaded. Please try again.",
     "backToJobs": "Back to job listings",
     "retry": "Retry"
   },
