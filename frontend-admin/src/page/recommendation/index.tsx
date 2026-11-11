@@ -39,6 +39,7 @@ import {
 } from "antd"
 import dayjs from "dayjs"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import {
   fetchJobRecommendations,
   fetchRecommendationConfig,
@@ -71,7 +72,7 @@ const RecommendationDetailDrawer: React.FC<{
   open: boolean
   onClose: () => void
 }> = ({ id, open, onClose }) => {
-  const { data, isLoading } = useFetchRecommendationDetail(id)
+  const { data, isLoading, isError, refetch } = useFetchRecommendationDetail(id)
   const rec = data?.data
 
   return (
@@ -194,6 +195,14 @@ const RecommendationDetailDrawer: React.FC<{
           </Card>
         </Space>
       )}
+      {isError && (
+        <Alert
+          type="error"
+          showIcon
+          message="Unable to load recommendation details."
+          action={<Button size="small" onClick={() => void refetch()}>Retry</Button>}
+        />
+      )}
     </Drawer>
   )
 }
@@ -293,11 +302,12 @@ const FilterPanel: React.FC<{
 // Recommendation History Tab
 // ============================================================
 const HistoryTab: React.FC = () => {
+  const { t } = useTranslation()
   const { state, updateState } = useRecommendationState()
   const { mutate: updateStatusMutate } = useUpdateEmailStatus()
   const { mutate: deleteMutate } = useDeleteRecommendation()
 
-  const { data: historyData, isLoading } = CustomHooks.useQuery(
+  const { data: historyData, isLoading, isError, refetch } = CustomHooks.useQuery(
     [
       QUERY_KEYS.RECOMMENDATION_MODULE,
       "history",
@@ -480,10 +490,29 @@ const HistoryTab: React.FC = () => {
         onReset={() => updateState({ filters: {}, page: 1 })}
       />
 
+      {isError && (historyData?.data.result?.length ?? 0) > 0 && (
+        <Alert
+          type="error"
+          showIcon
+          message={t("common.recommendationHistoryLoadError")}
+          action={<Button size="small" icon={<ReloadOutlined />} onClick={() => void refetch()}>{t("common.retry")}</Button>}
+          style={{ marginBottom: 12 }}
+        />
+      )}
       <Table
         columns={columns}
         dataSource={historyData?.data.result || []}
         loading={isLoading}
+        locale={{
+          emptyText: isError ? (
+            <Alert
+              type="error"
+              showIcon
+              message={t("common.recommendationHistoryLoadError")}
+              action={<Button size="small" icon={<ReloadOutlined />} onClick={() => void refetch()}>{t("common.retry")}</Button>}
+            />
+          ) : undefined,
+        }}
         rowKey="id"
         size="small"
         scroll={{ x: 1100 }}

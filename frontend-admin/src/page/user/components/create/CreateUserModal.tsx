@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Form, Input, DatePicker, Select, Row, Col, Alert } from "antd";
+import { Modal, Form, Input, DatePicker, Select, Row, Col, Alert, Button } from "antd";
 import { IRole } from "../../../../types/backend";
 import { ICreateUser } from "../../common/interface";
 
@@ -11,6 +11,7 @@ interface CreateUserModalProps {
   roles: IRole[];
   rolesLoading: boolean;
   rolesError: boolean;
+  onRetryRoles: () => void;
 }
 
 const { Option } = Select;
@@ -23,6 +24,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
   roles,
   rolesLoading,
   rolesError,
+  onRetryRoles,
 }) => {
   const [form] = Form.useForm();
 
@@ -55,6 +57,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
             type="error"
             showIcon
             message="Unable to load assignable roles. Refresh and try again."
+            action={<Button size="small" onClick={onRetryRoles}>Retry</Button>}
             style={{ marginBottom: 16 }}
           />
         )}

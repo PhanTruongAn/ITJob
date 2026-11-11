@@ -1,4 +1,5 @@
 import axiosPublic from "@/configs/axiosPublic"
+import { assertApiSuccess } from "@/common/utils/queryBehavior.mjs"
 import { IBackendPaginateRes, IBackendRes, ICompany } from "@/types/backend"
 import { PATH_API } from "./constants/apiPath"
 
@@ -33,7 +34,7 @@ export async function fetchCompanies(
       },
     },
   )
-  return response.data
+  return assertApiSuccess(response.data)
 }
 
 export async function getCompanyById(
@@ -42,5 +43,5 @@ export async function getCompanyById(
   const response = await axiosPublic.get<IBackendRes<ICompany>>(
     `${PATH_API.company.root}/${id}`,
   )
-  return response.data
+  return assertApiSuccess(response.data)
 }

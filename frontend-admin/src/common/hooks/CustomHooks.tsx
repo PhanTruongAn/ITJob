@@ -1,5 +1,4 @@
 import {
-  keepPreviousData,
   QueryKey,
   useMutation,
   UseMutationOptions,
@@ -24,8 +23,7 @@ const CustomHooks = {
   ): UseQueryResult<TData, TError> {
     return useReactQuery<TQueryFnData, TError, TData, TQueryKey>({
       queryKey,
-      queryFn,
-      placeholderData: keepPreviousData,
+      queryFn: async () => ensureSuccessfulResponse(await queryFn()),
       refetchOnWindowFocus: false, // 🧠 Không fetch lại khi tab focus
       refetchOnReconnect: false, // 🧠 Không fetch lại khi reconnect
       retry: false,
@@ -38,18 +36,40 @@ const CustomHooks = {
     options?: UseMutationOptions<TData, TError, TVariables, TContext>
   ): UseMutationResult<TData, TError, TVariables, TContext> {
     return useMutation<TData, TError, TVariables, TContext>({
-      mutationFn,
+      mutationFn: async (variables) =>
+        ensureSuccessfulResponse(await mutationFn(variables)),
       ...options,
       onError: (error, variables, context) => {
         // The Axios response interceptor already notifies users about 403s.
-        if (axios.isAxiosError(error) && error.response?.status !== 403) {
-          const resData = error.response?.data
-          message.error(resData?.message || "An error occurred")
+        if (axios.isAxiosError(error) && error.response?.status === 403) {
+          // The shared Axios interceptor already notifies users about 403s.
+        } else {
+          const resData = axios.isAxiosError(error) ? error.response?.data : undefined
+          message.error(resData?.message || (error instanceof Error ? error.message : "An error occurred"))
         }
         options?.onError?.(error, variables, context)
       },
     })
   },
+}
+
+function ensureSuccessfulResponse<T>(response: T): T {
+  if (
+    response &&
+    typeof response === "object" &&
+    "statusCode" in response &&
+    typeof response.statusCode === "number" &&
+    response.statusCode >= 400
+  ) {
+    const apiError = new Error(
+      "message" in response && typeof response.message === "string"
+        ? response.message
+        : "The request failed",
+    )
+    Object.assign(apiError, { statusCode: response.statusCode })
+    throw apiError
+  }
+  return response
 }
 
 export default CustomHooks

@@ -1,6 +1,7 @@
 import { DeleteOutlined } from "@ant-design/icons"
 import {
   Button,
+  Alert,
   Modal,
   Popconfirm,
   Select,
@@ -11,6 +12,7 @@ import {
   message,
 } from "antd"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import {
   deleteRecommendation,
   fetchJobRecommendations,
@@ -35,13 +37,14 @@ interface SubscriberRecommendationsModalProps {
 const SubscriberRecommendationsModal: React.FC<
   SubscriberRecommendationsModalProps
 > = ({ open, subscriber, onCancel }) => {
+  const { t } = useTranslation()
   const [state, setState] = useState({
     page: 1,
     pageSize: 5,
     total: 0,
   })
 
-  const { data, isLoading, refetch } = CustomHooks.useQuery(
+  const { data, isLoading, isError, refetch } = CustomHooks.useQuery(
     [
       QUERY_KEYS.RECOMMENDATION_MODULE,
       subscriber?.id,
@@ -152,10 +155,29 @@ const SubscriberRecommendationsModal: React.FC<
       width={1000}
       destroyOnClose
     >
+      {isError && (data?.data.result?.length ?? 0) > 0 && (
+        <Alert
+          type="error"
+          showIcon
+          message={t("common.subscriberRecommendationsLoadError")}
+          action={<Button size="small" onClick={() => void refetch()}>{t("common.retry")}</Button>}
+          style={{ marginBottom: 12 }}
+        />
+      )}
       <Table
         columns={columns}
         dataSource={data?.data.result || []}
         loading={isLoading}
+        locale={{
+          emptyText: isError ? (
+            <Alert
+              type="error"
+              showIcon
+              message={t("common.subscriberRecommendationsLoadError")}
+              action={<Button size="small" onClick={() => void refetch()}>{t("common.retry")}</Button>}
+            />
+          ) : undefined,
+        }}
         rowKey="id"
         pagination={{
           current: state.page,

@@ -38,7 +38,13 @@
     "forgotPassword": "Quên mật khẩu?",
     "dontHaveAccount": "Chưa có tài khoản.",
     "valEmailErr": "Vui lòng nhập email của bạn!",
-    "valPasswordErr": "Vui lòng nhập mật khẩu của bạn!"
+    "valPasswordErr": "Vui lòng nhập mật khẩu của bạn!",
+    "loadError": "Không thể tải dữ liệu được yêu cầu.",
+    "retry": "Thử lại",
+    "recommendationHistoryLoadError": "Không thể tải lịch sử gợi ý việc làm.",
+    "subscriberRecommendationsLoadError": "Không thể tải gợi ý việc làm của người đăng ký.",
+    "jobDetailLoadError": "Không thể tải chi tiết công việc.",
+    "companyDetailLoadError": "Không thể tải chi tiết công ty."
   },
   "account": {
     "profile": "Thông tin cá nhân",

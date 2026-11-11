@@ -10,6 +10,7 @@ import { useState } from "react"
 import { Provider as ReduxProvider } from "react-redux"
 
 import SessionErrorWatcher from "./SessionErrorWatcher"
+import { shouldRetryQuery } from "@/common/utils/queryBehavior.mjs"
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -19,7 +20,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           queries: {
             staleTime: 60 * 1000,
             gcTime: 1000 * 60 * 60 * 24,
-            retry: 1,
+            retry: shouldRetryQuery,
             refetchOnWindowFocus: false,
           },
         },

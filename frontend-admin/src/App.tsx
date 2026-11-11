@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ConfigProvider, message } from "antd"
 import enUS from "antd/locale/en_US"
 import viVN from "antd/locale/vi_VN"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { BrowserRouter } from "react-router-dom"
 import { CACHE_TIME, STALE_TIME } from "./common/constants"
@@ -18,15 +18,25 @@ function App() {
   const dispatch = useAppDispatch()
   const antdLocale = i18n.language?.startsWith("en") ? enUS : viVN
 
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        refetchOnWindowFocus: false,
-        gcTime: CACHE_TIME,
-        staleTime: STALE_TIME,
-      },
-    },
-  })
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+            gcTime: CACHE_TIME,
+            staleTime: STALE_TIME,
+            retry: (failureCount, error) => {
+              const status =
+                (error as { response?: { status?: number } }).response?.status ??
+                (error as { statusCode?: number }).statusCode
+              if (status !== undefined && status >= 400 && status < 500) return false
+              return failureCount < 1
+            },
+          },
+        },
+      }),
+  )
   useEffect(() => {
     message.config({
       top: 50,

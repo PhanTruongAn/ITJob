@@ -5,6 +5,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn"
 import StarIcon from "@mui/icons-material/Star"
 import VerifiedIcon from "@mui/icons-material/Verified"
 import Box from "@mui/material/Box"
+import Alert from "@mui/material/Alert"
 import Button from "@mui/material/Button"
 import Chip from "@mui/material/Chip"
 import Container from "@mui/material/Container"
@@ -30,7 +31,9 @@ interface CompanyProfileHeaderProps {
   isVerified?: boolean
   isFollowing?: boolean
   isFollowingLoading?: boolean
+  isFollowingError?: boolean
   onFollow?: () => void
+  onRetryFollowStatus?: () => void
   onVisitWebsite?: () => void
 }
 
@@ -48,7 +51,9 @@ export default function CompanyProfileHeader({
   isVerified = false,
   isFollowing = false,
   isFollowingLoading = false,
+  isFollowingError = false,
   onFollow,
+  onRetryFollowStatus,
   onVisitWebsite,
 }: CompanyProfileHeaderProps) {
   const { t } = useTranslation()
@@ -256,7 +261,7 @@ export default function CompanyProfileHeader({
           <Button
             variant={isFollowing ? "outlined" : "contained"}
             color="primary"
-            disabled={isFollowingLoading}
+            disabled={isFollowingLoading || isFollowingError}
             sx={{
               px: 3,
               py: 1.2,
@@ -268,6 +273,18 @@ export default function CompanyProfileHeader({
           >
             {isFollowingLoading ? "..." : isFollowing ? "Following" : "Follow"}
           </Button>
+          {isFollowingError && (
+            <Alert
+              severity="error"
+              action={
+                <Button color="inherit" size="small" onClick={onRetryFollowStatus}>
+                  {t("discovery.retry")}
+                </Button>
+              }
+            >
+              {t("follow.statusLoadError")}
+            </Alert>
+          )}
           {onVisitWebsite && (
             <Button
               variant="outlined"

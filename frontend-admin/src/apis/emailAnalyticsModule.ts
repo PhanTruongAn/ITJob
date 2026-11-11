@@ -30,6 +30,7 @@ export async function fetchEmailAnalyticsSummary(
     PATH_API.emailAnalytics.summary,
     { params: { from, to, format: "json" } },
   )
+  assertSuccessfulResponse(response.data)
   return response.data.data
 }
 
@@ -41,7 +42,16 @@ export async function fetchEmailAnalyticsRecords(
     PATH_API.emailAnalytics.records,
     { params: { from, to, format: "json" } },
   )
+  assertSuccessfulResponse(response.data)
   return response.data.data
+}
+
+function assertSuccessfulResponse(response: IBackendRes<unknown>) {
+  if (response.statusCode >= 400) {
+    const error = new Error(response.message || "The request failed")
+    Object.assign(error, { statusCode: response.statusCode })
+    throw error
+  }
 }
 
 export function downloadEmailAnalyticsCsv(type: "summary" | "records", from?: string, to?: string) {

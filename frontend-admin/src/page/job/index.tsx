@@ -83,11 +83,7 @@ const JobManageList: React.FC = () => {
       minSalary: state.minSalary || null,
       skillId: state.skillId || null,
     })
-    if (res?.statusCode >= 400) {
-      message.error(res?.message)
-    } else {
-      updateState({ total: res.data.meta.total })
-    }
+    updateState({ total: res.data.meta.total })
     return res
   }
 
@@ -95,6 +91,7 @@ const JobManageList: React.FC = () => {
     data,
     refetch,
     isFetching: isFetchingJob,
+    isError: isJobsError,
   } = CustomHooks.useQuery<IBackendPaginateRes<Job[]>>(
     [
       QUERY_KEYS.JOB_MODULE,
@@ -244,7 +241,11 @@ const JobManageList: React.FC = () => {
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MANAGEMENT_REVIEW_NOTIFICATION_MODULE],
       })
-      void refetch()
+      const refreshedData = await refetch()
+      const refreshedRows = refreshedData.data?.data?.result ?? []
+      if (refreshedRows.length === 0 && state.page > 1) {
+        updateState({ page: state.page - 1 })
+      }
     } catch (error) {
       // The shared Axios interceptor already reports forbidden responses.
       if (!(axios.isAxiosError(error) && error.response?.status === 403)) {
@@ -336,6 +337,8 @@ const JobManageList: React.FC = () => {
             })}
             data={data?.data?.result || []}
             loading={isFetchingJob}
+            isError={isJobsError}
+            onRetry={() => void refetch()}
             total={data?.data?.meta?.total || 0}
             page={state.page}
             pageSize={state.pageSize}

@@ -57,17 +57,14 @@ const Company: React.FC = () => {
       status: state.status || null,
       countryId: state.countryId || null,
     })
-    if (res?.statusCode >= 400) {
-      message.error(res?.message)
-    } else {
-      updateState({ total: res.data.meta.total })
-    }
+    updateState({ total: res.data.meta.total })
     return res
   }
   const {
     data,
     refetch,
     isLoading: isLoadingCompany,
+    isError: isCompaniesError,
   } = CustomHooks.useQuery<IBackendPaginateRes<ICompany[]>>(
     [
       QUERY_KEYS.COMPANY_MODULE,
@@ -113,7 +110,6 @@ const Company: React.FC = () => {
           })
         },
         onError: () => {
-          message.error("Error when deleted company")
           updateState({
             visibleDeleteModal: false,
             selectedCompanyId: null,
@@ -175,6 +171,8 @@ const Company: React.FC = () => {
             })}
             data={data?.data?.result || []}
             loading={isLoadingCompany}
+            isError={isCompaniesError}
+            onRetry={() => void refetch()}
             total={data?.data?.meta?.total || 0}
             page={state.page}
             pageSize={state.pageSize}

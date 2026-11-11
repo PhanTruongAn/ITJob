@@ -38,7 +38,13 @@
     "forgotPassword": "Forgot password?",
     "dontHaveAccount": "Don't have an account.",
     "valEmailErr": "Please input your email!",
-    "valPasswordErr": "Please input your password!"
+    "valPasswordErr": "Please input your password!",
+    "loadError": "Could not load the requested data.",
+    "retry": "Retry",
+    "recommendationHistoryLoadError": "Could not load recommendation history.",
+    "subscriberRecommendationsLoadError": "Could not load subscriber recommendations.",
+    "jobDetailLoadError": "Unable to load job details.",
+    "companyDetailLoadError": "Unable to load company details."
   },
   "account": {
     "profile": "My Profile",

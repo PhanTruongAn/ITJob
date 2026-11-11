@@ -41,6 +41,7 @@ const CountryManageList: React.FC = () => {
     data,
     refetch,
     isLoading: isLoadingData,
+    isError: isCountriesError,
   } = CustomHooks.useQuery<any>([QUERY_KEYS.COUNTRY_MODULE], fetchCountries)
 
   const { isLoading, handleRefresh } = useRefresh(refetch)
@@ -147,6 +148,8 @@ const CountryManageList: React.FC = () => {
           })}
           data={data?.data || []}
           loading={isLoadingData}
+          isError={isCountriesError}
+          onRetry={() => void refetch()}
           total={data?.data?.length ?? 0}
           page={page}
           pageSize={pageSize}

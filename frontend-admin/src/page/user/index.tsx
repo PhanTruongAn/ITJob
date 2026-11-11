@@ -24,6 +24,7 @@ import EditUserModal from "./components/edit/EditUserModal"
 import useRefresh from "../../common/hooks/useRefresh"
 import { QUERY_KEYS } from "../../common/queryKeys"
 import { useAppSelector } from "../../redux/hooks"
+import axios from "axios"
 
 const User: React.FC = () => {
   const { token } = theme.useToken()
@@ -38,6 +39,7 @@ const User: React.FC = () => {
     data: roleResponse,
     isLoading: isLoadingRoles,
     isError: isRolesError,
+    refetch: refetchRoles,
   } = CustomHooks.useQuery<IBackendPaginateRes<IRole[]>>(
     [QUERY_KEYS.ROLE_MODULE, "user-create-options"],
     () => fetchRoles({ page: 1, pageSize: 100 }),
@@ -129,11 +131,7 @@ const User: React.FC = () => {
       phone: state.filterPhone || null,
       name: state.filterName || null,
     })
-    if (res?.statusCode >= 400) {
-      message.error(res?.message)
-    } else {
-      updateState({ total: res.data.meta.total })
-    }
+    updateState({ total: res.data.meta.total })
     return res
   }
 
@@ -141,6 +139,7 @@ const User: React.FC = () => {
     data,
     refetch,
     isLoading: isLoadingData,
+    isError: isUsersError,
   } = CustomHooks.useQuery<IBackendPaginateRes<IUser[]>>(
     [
       QUERY_KEYS.USER_MODULE,
@@ -173,15 +172,27 @@ const User: React.FC = () => {
     })
   }
   const handleEditUser = async (record: IUser) => {
-    const result = await getUserById({ id: record.id })
-    if (result?.statusCode !== 200) {
-      message.error(result.message)
+    try {
+      const result = await getUserById({ id: record.id })
+      if (result?.statusCode >= 400 || !result.data) {
+        message.error(result?.message || "Unable to load user details")
+        return
+      }
+      updateState({
+        visibleEditModal: true,
+        selectedUser: result.data,
+        typeModal: "edit",
+      })
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 403) return
+      message.error(
+        axios.isAxiosError(error)
+          ? error.response?.data?.message || "Unable to load user details"
+          : error instanceof Error
+            ? error.message
+            : "Unable to load user details",
+      )
     }
-    updateState({
-      visibleEditModal: true,
-      selectedUser: result.data,
-      typeModal: "edit",
-    })
   }
   const listStyle: React.CSSProperties = {
     display: "flex",
@@ -219,6 +230,7 @@ const User: React.FC = () => {
           (roleResponse?.statusCode ?? 200) >= 400 ||
           (!isLoadingRoles && assignableRoles.length === 0)
         }
+        onRetryRoles={() => void refetchRoles()}
         onCancel={() => updateState({ visibleCreateModal: false })}
       />
       <ConfirmModal
@@ -250,6 +262,8 @@ const User: React.FC = () => {
             })}
             data={data?.data?.result || []}
             loading={isLoadingData}
+            isError={isUsersError}
+            onRetry={() => void refetch()}
             total={data?.data?.meta?.total || 0}
             page={state.page}
             pageSize={state.pageSize}
