@@ -19,6 +19,7 @@ import {
   updateEmailStatus,
 } from "../../../../apis/recommendationModule"
 import CustomHooks from "../../../../common/hooks/CustomHooks"
+import useRefresh from "../../../../common/hooks/useRefresh"
 import { QUERY_KEYS } from "../../../../common/queryKeys"
 import { IJobRecommendation, ISubscriber } from "../../../../types/backend"
 import {
@@ -44,7 +45,7 @@ const SubscriberRecommendationsModal: React.FC<
     total: 0,
   })
 
-  const { data, isLoading, isError, refetch } = CustomHooks.useQuery(
+  const { data, isLoading, isFetching, isError, refetch } = CustomHooks.useQuery(
     [
       QUERY_KEYS.RECOMMENDATION_MODULE,
       subscriber?.id,
@@ -61,6 +62,7 @@ const SubscriberRecommendationsModal: React.FC<
       enabled: !!subscriber && open,
     },
   )
+  const recommendationRefresh = useRefresh(refetch, isFetching)
 
   useEffect(() => {
     if (data) {
@@ -160,7 +162,7 @@ const SubscriberRecommendationsModal: React.FC<
           type="error"
           showIcon
           message={t("common.subscriberRecommendationsLoadError")}
-          action={<Button size="small" onClick={() => void refetch()}>{t("common.retry")}</Button>}
+          action={<Button size="small" loading={recommendationRefresh.isLoading} disabled={recommendationRefresh.isLoading} onClick={recommendationRefresh.handleRetry}>{t("common.retry")}</Button>}
           style={{ marginBottom: 12 }}
         />
       )}
@@ -174,7 +176,7 @@ const SubscriberRecommendationsModal: React.FC<
               type="error"
               showIcon
               message={t("common.subscriberRecommendationsLoadError")}
-              action={<Button size="small" onClick={() => void refetch()}>{t("common.retry")}</Button>}
+              action={<Button size="small" loading={recommendationRefresh.isLoading} disabled={recommendationRefresh.isLoading} onClick={recommendationRefresh.handleRetry}>{t("common.retry")}</Button>}
             />
           ) : undefined,
         }}

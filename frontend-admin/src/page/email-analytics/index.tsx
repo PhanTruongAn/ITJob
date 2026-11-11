@@ -12,7 +12,7 @@ import {
 } from "chart.js"
 import { Bar, Doughnut, Line } from "react-chartjs-2"
 import { useQuery } from "@tanstack/react-query"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useRef } from "react"
 import {
   Card,
   Col,
@@ -83,6 +83,7 @@ export default function EmailAnalyticsPage() {
   const {
     data: summary,
     isLoading: summaryLoading,
+    isFetching: summaryFetching,
     refetch: refetchSummary,
     isError: summaryError,
   } = useQuery({
@@ -93,6 +94,7 @@ export default function EmailAnalyticsPage() {
   const {
     data: records,
     isLoading: recordsLoading,
+    isFetching: recordsFetching,
     refetch: refetchRecords,
     isError: recordsError,
   } = useQuery({
@@ -232,7 +234,21 @@ export default function EmailAnalyticsPage() {
     },
   ]
 
-  const isLoading = summaryLoading || recordsLoading
+  const isFetching = summaryFetching || recordsFetching
+  const isLoading = summaryLoading || recordsLoading || isFetching
+  const refreshInFlight = useRef(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const handleRefresh = async () => {
+    if (isFetching || isRefreshing || refreshInFlight.current) return
+    refreshInFlight.current = true
+    setIsRefreshing(true)
+    try {
+      await Promise.all([refetchSummary(), refetchRecords()])
+    } finally {
+      refreshInFlight.current = false
+      setIsRefreshing(false)
+    }
+  }
   const hasError = summaryError || recordsError
   const successRate =
     summary && summary.total > 0
@@ -287,7 +303,9 @@ export default function EmailAnalyticsPage() {
           />
           <Button
             icon={<ReloadOutlined />}
-            onClick={() => { refetchSummary(); refetchRecords() }}
+            loading={isFetching || isRefreshing}
+            disabled={isFetching || isRefreshing}
+            onClick={() => void handleRefresh()}
             style={{ borderRadius: 8 }}
           >
             Refresh

@@ -49,6 +49,7 @@ function JobsContent() {
   const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState(false)
   const requestId = useRef(0)
+  const retryInFlight = useRef(false)
   const [filters, setFilters] = useState<JobFilters>({
     ...defaultFilters,
     keyword: initialKeyword,
@@ -108,6 +109,16 @@ function JobsContent() {
   useEffect(() => {
     loadJobs(filters)
   }, [filters, loadJobs])
+
+  const retryJobs = async () => {
+    if (loading || retryInFlight.current) return
+    retryInFlight.current = true
+    try {
+      await loadJobs(filters)
+    } finally {
+      retryInFlight.current = false
+    }
+  }
 
   const updateFilters = (partial: Partial<JobFilters>) => {
     setFilters((prev) => ({ ...prev, ...partial, page: 1 }))
@@ -185,7 +196,8 @@ function JobsContent() {
               jobs={jobs}
               loading={loading}
               loadError={loadError}
-              onRetry={() => void loadJobs(filters)}
+              onRetry={() => void retryJobs()}
+              retryLoading={loading}
               totalElements={totalElements}
               page={filters.page}
               totalPages={totalPages}

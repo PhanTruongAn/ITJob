@@ -52,14 +52,14 @@ const SubscriberManageList: React.FC = () => {
   const {
     data,
     refetch,
-    isLoading: isLoadingData,
+    isFetching,
     isError: isSubscribersError,
   } = CustomHooks.useQuery<IBackendPaginateRes<ISubscriber[]>>(
     [QUERY_KEYS.SUBSCRIBER_MODULE, state.page, state.pageSize],
     fetchDataSubscribers,
   )
 
-  const { isLoading, handleRefresh } = useRefresh(refetch)
+  const { isLoading, handleRefresh, handleRetry } = useRefresh(refetch, isFetching)
 
   const handleTableChange = (p: number, ps: number) => {
     updateState({ page: p, pageSize: ps })
@@ -189,9 +189,10 @@ const SubscriberManageList: React.FC = () => {
             },
           })}
           data={data?.data?.result || []}
-          loading={isLoadingData}
+          loading={isFetching}
           isError={isSubscribersError}
-          onRetry={() => void refetch()}
+          onRetry={handleRetry}
+          retryLoading={isFetching}
           total={data?.data?.meta?.total || 0}
           page={state.page}
           pageSize={state.pageSize}

@@ -31,14 +31,14 @@ const ReviewManageList: React.FC = () => {
   const {
     data,
     refetch,
-    isLoading: isLoadingData,
+    isFetching,
     isError: isReviewsError,
   } = CustomHooks.useQuery<IBackendPaginateRes<ICompanyReview[]>>(
     [QUERY_KEYS.REVIEW_MODULE, state.page, state.pageSize],
     fetchDataReviews,
   )
 
-  const { isLoading, handleRefresh } = useRefresh(refetch)
+  const { isLoading, handleRefresh, handleRetry } = useRefresh(refetch, isFetching)
 
   const handleTableChange = (p: number, ps: number) => {
     updateState({ page: p, pageSize: ps })
@@ -179,9 +179,10 @@ const ReviewManageList: React.FC = () => {
             onViewDetail: handleViewDetail,
           })}
           data={data?.data?.result || []}
-          loading={isLoadingData}
+          loading={isFetching}
           isError={isReviewsError}
-          onRetry={() => void refetch()}
+          onRetry={handleRetry}
+          retryLoading={isFetching}
           total={data?.data?.meta?.total || 0}
           page={state.page}
           pageSize={state.pageSize}

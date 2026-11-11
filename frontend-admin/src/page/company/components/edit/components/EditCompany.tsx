@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useLocation, useParams } from "react-router-dom"
 import { IEditCompanyDTO } from "../../../../../types/backend"
+import useRefresh from "../../../../../common/hooks/useRefresh"
 import { useEditCompany, useGetCompanyById } from "../../../common/hooks"
 import CompanyForm from "../../CompanyForm"
 const EditCompany: React.FC = () => {
@@ -14,9 +15,11 @@ const EditCompany: React.FC = () => {
   const {
     data: companyData,
     isLoading,
+    isFetching,
     isError,
     refetch,
   } = useGetCompanyById(Number(id))
+  const { handleRetry, isLoading: isQueryBusy } = useRefresh(refetch, isFetching)
   const { mutate } = useEditCompany()
   const [previewImage, setPreviewImage] = useState<string | null>(null)
 
@@ -60,7 +63,7 @@ const EditCompany: React.FC = () => {
           type="error"
           showIcon
           message={t("common.companyDetailLoadError")}
-          action={<Button size="small" onClick={() => void refetch()}>{t("common.retry")}</Button>}
+          action={<Button size="small" loading={isQueryBusy} disabled={isQueryBusy} onClick={handleRetry}>{t("common.retry")}</Button>}
         />
       ) : (
         <CompanyForm

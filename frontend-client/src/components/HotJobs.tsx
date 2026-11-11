@@ -15,13 +15,15 @@ import Stack from "@mui/material/Stack"
 import Typography from "@mui/material/Typography"
 import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
+import useGuardedRefetch from "@/common/hooks/useGuardedRefetch"
 
 export default function HotJobs() {
   const { t } = useTranslation()
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: ["jobs", "hot"],
     queryFn: () => getJobLatest(),
   })
+  const { handleRefetch, isBusy } = useGuardedRefetch(refetch, isFetching)
 
   const jobs = data?.data ?? []
   return (
@@ -33,7 +35,7 @@ export default function HotJobs() {
         {isError && (
           <Alert
             severity="error"
-            action={<Button color="inherit" size="small" onClick={() => void refetch()}>{t("home.retry")}</Button>}
+            action={<Button color="inherit" size="small" loading={isBusy} disabled={isBusy} onClick={() => void handleRefetch()}>{t("home.retry")}</Button>}
             sx={{ mb: 3 }}
           >
             {t("home.loadError")}

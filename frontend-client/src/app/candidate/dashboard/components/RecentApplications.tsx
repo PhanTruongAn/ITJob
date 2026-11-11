@@ -22,6 +22,7 @@ interface RecentApplicationsProps {
   applications: IResume[]
   isLoading: boolean
   isError: boolean
+  isFetching: boolean
   onRetry: () => void
 }
 
@@ -36,6 +37,7 @@ export default function RecentApplications({
   applications,
   isLoading,
   isError,
+  isFetching,
   onRetry,
 }: RecentApplicationsProps) {
   const { t, i18n } = useTranslation()
@@ -80,7 +82,7 @@ export default function RecentApplications({
           <Typography color="error.main" mb={1}>
             {t("dashboard.applicationsLoadError")}
           </Typography>
-          <Button onClick={onRetry}>{t("dashboard.retry")}</Button>
+          <Button loading={isFetching} disabled={isFetching} onClick={onRetry}>{t("dashboard.retry")}</Button>
         </Box>
       ) : applications.length === 0 ? (
         <Box textAlign="center" py={3}>

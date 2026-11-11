@@ -40,11 +40,11 @@ const CountryManageList: React.FC = () => {
   const {
     data,
     refetch,
-    isLoading: isLoadingData,
+    isFetching,
     isError: isCountriesError,
   } = CustomHooks.useQuery<any>([QUERY_KEYS.COUNTRY_MODULE], fetchCountries)
 
-  const { isLoading, handleRefresh } = useRefresh(refetch)
+  const { isLoading, handleRefresh, handleRetry } = useRefresh(refetch, isFetching)
 
   const handleTableChange = (p: number, ps: number) => {
     setPage(p)
@@ -147,9 +147,10 @@ const CountryManageList: React.FC = () => {
             },
           })}
           data={data?.data || []}
-          loading={isLoadingData}
+          loading={isFetching}
           isError={isCountriesError}
-          onRetry={() => void refetch()}
+          onRetry={handleRetry}
+          retryLoading={isFetching}
           total={data?.data?.length ?? 0}
           page={page}
           pageSize={pageSize}

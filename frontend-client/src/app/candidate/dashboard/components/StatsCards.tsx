@@ -16,12 +16,14 @@ import {
 } from "@mui/material"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
+import useGuardedRefetch from "@/common/hooks/useGuardedRefetch"
 
 interface StatsCardsProps {
   appliedCount?: number
   appliedLoading: boolean
   appliedError: boolean
   retryApplications: () => void
+  appliedRetrying: boolean
 }
 
 export default function StatsCards({
@@ -29,10 +31,13 @@ export default function StatsCards({
   appliedLoading,
   appliedError,
   retryApplications,
+  appliedRetrying,
 }: StatsCardsProps) {
   const { t } = useTranslation()
   const savedJobsQuery = useSavedItemIndex("job")
   const savedCompaniesQuery = useSavedItemIndex("company")
+  const savedJobsRetry = useGuardedRefetch(savedJobsQuery.refetch, savedJobsQuery.isFetching)
+  const savedCompaniesRetry = useGuardedRefetch(savedCompaniesQuery.refetch, savedCompaniesQuery.isFetching)
 
   const cards = [
     {
@@ -41,6 +46,7 @@ export default function StatsCards({
       count: appliedCount,
       isLoading: appliedLoading,
       isError: appliedError,
+      retrying: appliedRetrying,
       onRetry: retryApplications,
       href: "/candidate/my-jobs",
       icon: <SendIcon fontSize="small" />,
@@ -53,7 +59,8 @@ export default function StatsCards({
       count: savedJobsQuery.data?.length,
       isLoading: savedJobsQuery.isLoading,
       isError: savedJobsQuery.isError,
-      onRetry: () => void savedJobsQuery.refetch(),
+      retrying: savedJobsRetry.isBusy,
+      onRetry: () => void savedJobsRetry.handleRefetch(),
       href: "/candidate/saved-jobs",
       icon: <FavoriteIcon fontSize="small" />,
       iconBg: "#fab2b2ff",
@@ -65,7 +72,8 @@ export default function StatsCards({
       count: savedCompaniesQuery.data?.length,
       isLoading: savedCompaniesQuery.isLoading,
       isError: savedCompaniesQuery.isError,
-      onRetry: () => void savedCompaniesQuery.refetch(),
+      retrying: savedCompaniesRetry.isBusy,
+      onRetry: () => void savedCompaniesRetry.handleRefetch(),
       href: "/candidate/saved-companies",
       icon: <FavoriteIcon fontSize="small" />,
       iconBg: "#e9d5ff",
@@ -151,7 +159,7 @@ export default function StatsCards({
                 <Typography variant="caption" color="error.main" display="block">
                   {t("dashboard.countLoadError")}
                 </Typography>
-                <Button size="small" onClick={card.onRetry}>
+                <Button size="small" loading={card.retrying} disabled={card.retrying} onClick={card.onRetry}>
                   {t("dashboard.retry")}
                 </Button>
               </Box>

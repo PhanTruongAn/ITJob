@@ -1,7 +1,7 @@
 import { BellOutlined, ReloadOutlined } from "@ant-design/icons"
 import { Alert, Badge, Button, Empty, List, Popover, Space, Spin, Tag, Typography } from "antd"
 import dayjs from "dayjs"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 import {
@@ -9,6 +9,7 @@ import {
   fetchManagementReviewNotifications,
 } from "../apis/managementReviewNotificationModule"
 import CustomHooks from "../common/hooks/CustomHooks"
+import useRefresh from "../common/hooks/useRefresh"
 import { QUERY_KEYS } from "../common/queryKeys"
 import { PATH_DASHBOARD } from "../routes/paths"
 import { IManagementReviewNotification } from "../types/backend"
@@ -30,9 +31,20 @@ const ManagementReviewNotifications = () => {
     fetchManagementPendingReviewCount,
   )
 
-  const refresh = () => {
-    void listQuery.refetch()
-    void countQuery.refetch()
+  const countRetry = useRefresh(countQuery.refetch, countQuery.isFetching)
+  const refreshInFlight = useRef(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const isRefreshBusy = isRefreshing || listQuery.isFetching || countQuery.isFetching
+  const refresh = async () => {
+    if (isRefreshBusy || refreshInFlight.current) return
+    refreshInFlight.current = true
+    setIsRefreshing(true)
+    try {
+      await Promise.all([listQuery.refetch(), countQuery.refetch()])
+    } finally {
+      refreshInFlight.current = false
+      setIsRefreshing(false)
+    }
   }
   const openReview = (item: IManagementReviewNotification) => {
     setOpen(false)
@@ -46,7 +58,7 @@ const ManagementReviewNotifications = () => {
     <div style={{ padding: 24, textAlign: "center" }}><Spin /></div>
   ) : listQuery.isError ? (
     <Alert type="error" showIcon message={t("notifications.loadReviewError")} action={
-      <Button size="small" icon={<ReloadOutlined />} onClick={refresh}>{t("notifications.retry")}</Button>
+      <Button size="small" icon={<ReloadOutlined />} loading={isRefreshBusy} disabled={isRefreshBusy} onClick={() => void refresh()}>{t("notifications.retry")}</Button>
     } />
   ) : listQuery.data?.data?.result?.length ? (
     <List
@@ -84,7 +96,7 @@ const ManagementReviewNotifications = () => {
     <div style={{ width: 390, maxWidth: "calc(100vw - 48px)" }}>
       <Space direction="vertical" size="middle" style={{ width: "100%" }}>
         {countQuery.isError && <Alert type="warning" showIcon message={t("notifications.reviewCountError")}
-          action={<Button size="small" onClick={() => void countQuery.refetch()}>{t("notifications.retry")}</Button>} />}
+          action={<Button size="small" loading={countRetry.isLoading} disabled={countRetry.isLoading} onClick={countRetry.handleRetry}>{t("notifications.retry")}</Button>} />}
         {list}
       </Space>
     </div>
@@ -95,7 +107,7 @@ const ManagementReviewNotifications = () => {
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen)
         // The badge is loaded on mount; refresh it when returning from a review action.
-        if (nextOpen && countQuery.data) void countQuery.refetch()
+        if (nextOpen && countQuery.data && !countQuery.isFetching) void countQuery.refetch()
       }}
       title={<span>{t("notifications.reviewTitle")}</span>}
       content={content}>

@@ -277,7 +277,7 @@ export default function CompanyProfileHeader({
             <Alert
               severity="error"
               action={
-                <Button color="inherit" size="small" onClick={onRetryFollowStatus}>
+                <Button color="inherit" size="small" loading={isFollowingLoading} disabled={isFollowingLoading} onClick={onRetryFollowStatus}>
                   {t("discovery.retry")}
                 </Button>
               }

@@ -14,6 +14,7 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import NotificationCard from "./components/NotificationCard"
 import NotificationHeader from "./components/NotificationHeader"
+import useGuardedRefetch from "@/common/hooks/useGuardedRefetch"
 
 const PAGE_SIZE = 10
 
@@ -23,6 +24,8 @@ export default function NotificationsPage() {
   const [page, setPage] = useState(1)
   const notificationsQuery = useCandidateNotifications(page, PAGE_SIZE)
   const unreadCountQuery = useUnreadNotificationCount()
+  const notificationsRetry = useGuardedRefetch(notificationsQuery.refetch, notificationsQuery.isFetching)
+  const unreadRetry = useGuardedRefetch(unreadCountQuery.refetch, unreadCountQuery.isFetching)
   const markOneMutation = useMarkNotificationRead()
   const markAllMutation = useMarkAllNotificationsRead()
   const notifications = notificationsQuery.data?.data?.result ?? []
@@ -77,6 +80,8 @@ export default function NotificationsPage() {
             <Button
               color="inherit"
               size="small"
+              loading={markAllMutation.isPending || markOneMutation.isPending}
+              disabled={markAllMutation.isPending || markOneMutation.isPending}
               onClick={() => {
                 if (markAllMutation.isError) markAllMutation.mutate()
                 else if (markOneMutation.variables !== undefined) markOneMutation.mutate(markOneMutation.variables)
@@ -98,7 +103,7 @@ export default function NotificationsPage() {
       ) : notificationsQuery.isError ? (
         <Alert
           severity="error"
-          action={<Button color="inherit" size="small" onClick={() => void notificationsQuery.refetch()}>{t("notifications.retry")}</Button>}
+          action={<Button color="inherit" size="small" loading={notificationsRetry.isBusy} disabled={notificationsRetry.isBusy} onClick={() => void notificationsRetry.handleRefetch()}>{t("notifications.retry")}</Button>}
         >
           {t("notifications.loadError")}
         </Alert>
@@ -141,7 +146,7 @@ export default function NotificationsPage() {
       )}
 
       {unreadCountQuery.isError && !notificationsQuery.isError && (
-        <Alert severity="warning" sx={{ mt: 2 }} action={<Button color="inherit" size="small" onClick={() => void unreadCountQuery.refetch()}>{t("notifications.retry")}</Button>}>
+        <Alert severity="warning" sx={{ mt: 2 }} action={<Button color="inherit" size="small" loading={unreadRetry.isBusy} disabled={unreadRetry.isBusy} onClick={() => void unreadRetry.handleRefetch()}>{t("notifications.retry")}</Button>}>
           {t("notifications.unreadCountError")}
         </Alert>
       )}
