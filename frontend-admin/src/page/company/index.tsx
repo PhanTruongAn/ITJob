@@ -63,7 +63,7 @@ const Company: React.FC = () => {
   const {
     data,
     refetch,
-    isLoading: isLoadingCompany,
+    isFetching,
     isError: isCompaniesError,
   } = CustomHooks.useQuery<IBackendPaginateRes<ICompany[]>>(
     [
@@ -80,7 +80,7 @@ const Company: React.FC = () => {
     ],
     fetchDataCompanies
   )
-  const { isLoading, handleRefresh } = useRefresh(refetch)
+  const { isLoading, handleRefresh, handleRetry } = useRefresh(refetch, isFetching)
   const listStyle: React.CSSProperties = {
     display: "flex",
     background: token.colorBgContainer,
@@ -170,9 +170,10 @@ const Company: React.FC = () => {
               },
             })}
             data={data?.data?.result || []}
-            loading={isLoadingCompany}
+            loading={isFetching}
             isError={isCompaniesError}
-            onRetry={() => void refetch()}
+            onRetry={handleRetry}
+            retryLoading={isFetching}
             total={data?.data?.meta?.total || 0}
             page={state.page}
             pageSize={state.pageSize}

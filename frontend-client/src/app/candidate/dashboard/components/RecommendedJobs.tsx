@@ -1,6 +1,7 @@
 "use client"
 
 import { useCandidateRecommendations } from "@/apis/recommendation/recommendation.hooks"
+import useGuardedRefetch from "@/common/hooks/useGuardedRefetch"
 import JobCard from "@/app/jobs/components/JobCard"
 import { Alert, Box, Button, CircularProgress, Stack, Typography } from "@mui/material"
 import Link from "next/link"
@@ -10,10 +11,11 @@ const DASHBOARD_RECOMMENDATION_LIMIT = 4
 
 export default function RecommendedJobs() {
   const { t } = useTranslation()
-  const { data, isLoading, isError, refetch } = useCandidateRecommendations(
+  const { data, isLoading, isFetching, isError, refetch } = useCandidateRecommendations(
     1,
     DASHBOARD_RECOMMENDATION_LIMIT,
   )
+  const { handleRefetch, isBusy } = useGuardedRefetch(refetch, isFetching)
   const recommendations = (data?.data?.result ?? []).slice(0, DASHBOARD_RECOMMENDATION_LIMIT)
 
   return (
@@ -40,7 +42,7 @@ export default function RecommendedJobs() {
         <Alert
           severity="error"
           action={
-            <Button color="inherit" size="small" onClick={() => void refetch()}>
+            <Button color="inherit" size="small" loading={isBusy} disabled={isBusy} onClick={() => void handleRefetch()}>
               {t("dashboard.retry")}
             </Button>
           }

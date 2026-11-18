@@ -7,6 +7,7 @@ import CustomHooks from "../../common/hooks/CustomHooks"
 import { QUERY_KEYS } from "../../common/queryKeys"
 import { useAppDispatch, useAppSelector } from "../../redux/hooks"
 import { getAccount } from "../../redux/slice/accountSlice"
+import useRefresh from "../../common/hooks/useRefresh"
 import { GenderEnum } from "../../types/enum"
 
 const { Title, Text } = Typography
@@ -25,10 +26,11 @@ export default function ProfilePage() {
   const [form] = Form.useForm<ProfileFormValues>()
   const dispatch = useAppDispatch()
   const account = useAppSelector((state) => state.account.user)
-  const { data, isLoading, isError, refetch } = CustomHooks.useQuery(
+  const { data, isLoading, isFetching, isError, refetch } = CustomHooks.useQuery(
     [QUERY_KEYS.USER_MODULE, "profile"],
     fetchProfile,
   )
+  const { handleRetry, isLoading: isQueryBusy } = useRefresh(refetch, isFetching)
   const profile = data?.data
 
   useEffect(() => {
@@ -80,7 +82,7 @@ export default function ProfilePage() {
           type="error"
           showIcon
           message={t("account.profileLoadError")}
-          action={<Button onClick={() => refetch()}>{t("account.retry")}</Button>}
+          action={<Button loading={isQueryBusy} disabled={isQueryBusy} onClick={handleRetry}>{t("account.retry")}</Button>}
         />
       ) : (
         <Spin spinning={isLoading}>

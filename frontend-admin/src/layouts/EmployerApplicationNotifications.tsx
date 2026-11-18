@@ -22,6 +22,7 @@ import {
   markEmployerNotificationRead,
 } from "../apis/employerNotificationModule"
 import CustomHooks from "../common/hooks/CustomHooks"
+import useRefresh from "../common/hooks/useRefresh"
 import { QUERY_KEYS } from "../common/queryKeys"
 import { PATH_DASHBOARD } from "../routes/paths"
 import { IEmployerApplicationNotification } from "../types/backend"
@@ -43,6 +44,8 @@ const EmployerApplicationNotifications = () => {
     [...notificationQueryKey, "unread-count"],
     fetchEmployerUnreadNotificationCount,
   )
+  const notificationsRetry = useRefresh(notificationsQuery.refetch, notificationsQuery.isFetching)
+  const unreadRetry = useRefresh(unreadQuery.refetch, unreadQuery.isFetching)
 
   const invalidateNotifications = () =>
     queryClient.invalidateQueries({ queryKey: notificationQueryKey })
@@ -74,7 +77,9 @@ const EmployerApplicationNotifications = () => {
         <Button
           size="small"
           icon={<ReloadOutlined />}
-          onClick={() => void notificationsQuery.refetch()}
+          loading={notificationsRetry.isLoading}
+          disabled={notificationsRetry.isLoading}
+          onClick={notificationsRetry.handleRetry}
         >
           {t("notifications.retry")}
         </Button>
@@ -119,7 +124,7 @@ const EmployerApplicationNotifications = () => {
             showIcon
             message={t("notifications.countError")}
             action={
-              <Button size="small" onClick={() => void unreadQuery.refetch()}>
+              <Button size="small" loading={unreadRetry.isLoading} disabled={unreadRetry.isLoading} onClick={unreadRetry.handleRetry}>
                 {t("notifications.retry")}
               </Button>
             }

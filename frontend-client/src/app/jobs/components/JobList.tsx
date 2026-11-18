@@ -37,6 +37,7 @@ interface JobListProps {
   loading: boolean
   loadError: boolean
   onRetry: () => void
+  retryLoading: boolean
   totalElements: number
   page: number
   totalPages: number
@@ -50,6 +51,7 @@ export default function JobList({
   loading,
   loadError,
   onRetry,
+  retryLoading,
   totalElements,
   page,
   totalPages,
@@ -113,7 +115,7 @@ export default function JobList({
           <Alert
             severity="error"
             action={
-              <Button color="inherit" size="small" onClick={onRetry}>
+              <Button color="inherit" size="small" loading={retryLoading} disabled={retryLoading} onClick={onRetry}>
                 {t("discovery.retry")}
               </Button>
             }

@@ -18,8 +18,9 @@ test("review summary uses company-wide aggregates instead of the current page hi
 
 test("review list or summary failures show a retry that refetches both requests", () => {
   assert.match(reviewTab, /isReviewsError \|\| isSummaryError/)
-  assert.match(reviewTab, /void refetchReviews\(\)/)
-  assert.match(reviewTab, /void refetchSummary\(\)/)
+  assert.match(reviewTab, /if \(isReviewsFetching \|\| isSummaryFetching \|\| retryInFlight\.current\) return/)
+  assert.match(reviewTab, /Promise\.all\(\[refetchReviews\(\), refetchSummary\(\)\]\)/)
+  assert.match(reviewTab, /loading=\{isRetrying \|\| isLoading\}/)
   assert.match(reviewTab, /companyReviews\.loadError/)
 })
 

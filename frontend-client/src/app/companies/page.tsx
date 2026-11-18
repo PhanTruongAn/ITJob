@@ -24,6 +24,7 @@ import CompanyFilters from "./components/CompanyFilters"
 import CompanyHero from "./components/CompanyHero"
 import { useTranslation } from "react-i18next"
 import { getDiscoveryViewState } from "@/common/discovery/discoveryStates.mjs"
+import useGuardedRefetch from "@/common/hooks/useGuardedRefetch"
 
 export default function CompaniesPage() {
   const { t } = useTranslation()
@@ -49,6 +50,7 @@ export default function CompaniesPage() {
     address: searchAddress || undefined,
     companyType: companyType !== "all" ? (companyType as CompanyTypeEnum) : undefined,
   })
+  const { handleRefetch, isBusy } = useGuardedRefetch(refetch, isFetching)
 
   const handleSearch = () => {
     setSearchKeyword(keywordInput)
@@ -68,7 +70,7 @@ export default function CompaniesPage() {
   const companiesList = data?.data?.result || []
   const paginationMeta = data?.data?.meta
   const viewState = getDiscoveryViewState({
-    isLoading: isLoading || isFetching,
+    isLoading: isLoading || isBusy,
     isError,
     items: companiesList,
   })
@@ -130,7 +132,7 @@ export default function CompaniesPage() {
                   <Alert
                     severity="error"
                     action={
-                      <Button color="inherit" size="small" onClick={() => void refetch()}>
+                      <Button color="inherit" size="small" loading={isBusy} disabled={isBusy} onClick={() => void handleRefetch()}>
                         {t("discovery.retry")}
                       </Button>
                     }

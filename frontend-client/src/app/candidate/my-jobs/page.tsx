@@ -9,9 +9,11 @@ import { useTranslation } from "react-i18next"
 import ApplicationCard from "./components/ApplicationCard"
 import FilterTabBar, { FilterTab } from "./components/FilterTabBar"
 import StatsBentoGrid from "./components/StatsBentoGrid"
+import useGuardedRefetch from "@/common/hooks/useGuardedRefetch"
 
 export default function MyJobsPage() {
   const applicationsQuery = useMyResumes()
+  const { handleRefetch, isBusy } = useGuardedRefetch(applicationsQuery.refetch, applicationsQuery.isFetching)
   const router = useRouter()
   const { t, i18n } = useTranslation()
   const [activeFilter, setActiveFilter] = useState<FilterTab>("all")
@@ -75,7 +77,7 @@ export default function MyJobsPage() {
       ) : applicationsQuery.isError ? (
         <Alert
           severity="error"
-          action={<Button color="inherit" size="small" onClick={() => void applicationsQuery.refetch()}>{t("myApplications.retry")}</Button>}
+          action={<Button color="inherit" size="small" loading={isBusy} disabled={isBusy} onClick={() => void handleRefetch()}>{t("myApplications.retry")}</Button>}
         >
           {t("myApplications.error")}
         </Alert>

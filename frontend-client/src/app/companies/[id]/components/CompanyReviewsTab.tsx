@@ -27,6 +27,7 @@ import Typography from "@mui/material/Typography"
 import { useTranslation } from "react-i18next"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { useRef, useState } from "react"
 
 interface CompanyReviewsTabProps {
   companyId: number
@@ -74,6 +75,8 @@ export default function CompanyReviewsTab({
     refetch: refetchSummary,
   } = useCompanyReviewSummary(companyId)
   const createReviewMutation = useCreateReview()
+  const retryInFlight = useRef(false)
+  const [isRetrying, setIsRetrying] = useState(false)
 
   const reviews = reviewsData?.data?.result || []
   const meta = reviewsData?.data?.meta
@@ -139,8 +142,13 @@ export default function CompanyReviewsTab({
   }
 
   const handleRetry = () => {
-    void refetchReviews()
-    void refetchSummary()
+    if (isReviewsFetching || isSummaryFetching || retryInFlight.current) return
+    retryInFlight.current = true
+    setIsRetrying(true)
+    void Promise.all([refetchReviews(), refetchSummary()]).finally(() => {
+      retryInFlight.current = false
+      setIsRetrying(false)
+    })
   }
 
   if (isLoading) {
@@ -156,7 +164,7 @@ export default function CompanyReviewsTab({
       <Alert
         severity="error"
         action={
-          <Button color="inherit" size="small" onClick={handleRetry}>
+          <Button color="inherit" size="small" loading={isRetrying || isLoading} disabled={isRetrying || isLoading} onClick={handleRetry}>
             {t("companyReviews.retry")}
           </Button>
         }

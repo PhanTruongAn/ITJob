@@ -15,6 +15,7 @@ interface CustomTableProps<T> {
   onTableChange: (page: number, pageSize: number, sortBy?: string) => void;
   isError?: boolean;
   onRetry?: () => void;
+  retryLoading?: boolean;
 }
 
 const CustomGlobalTable = <T extends { id: string | number }>({
@@ -28,6 +29,7 @@ const CustomGlobalTable = <T extends { id: string | number }>({
   onTableChange,
   isError = false,
   onRetry,
+  retryLoading = false,
 }: CustomTableProps<T>) => {
   const { t } = useTranslation();
   return (
@@ -37,7 +39,7 @@ const CustomGlobalTable = <T extends { id: string | number }>({
         type="error"
         showIcon
         message={t("common.loadError")}
-        action={<Button size="small" onClick={onRetry}>{t("common.retry")}</Button>}
+        action={<Button size="small" loading={retryLoading} disabled={retryLoading} onClick={onRetry}>{t("common.retry")}</Button>}
         style={{ marginBottom: 12 }}
       />
     )}
@@ -78,7 +80,7 @@ const CustomGlobalTable = <T extends { id: string | number }>({
             type="error"
             showIcon
             message={t("common.loadError")}
-            action={<Button size="small" onClick={onRetry}>{t("common.retry")}</Button>}
+            action={<Button size="small" loading={retryLoading} disabled={retryLoading} onClick={onRetry}>{t("common.retry")}</Button>}
           />
         ) : <EmptyData />,
       }}

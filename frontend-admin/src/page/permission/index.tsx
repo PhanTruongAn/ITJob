@@ -35,14 +35,14 @@ const PermissionManageList: React.FC = () => {
   const {
     data,
     refetch,
-    isLoading: isLoadingData,
+    isFetching,
     isError: isPermissionsError,
   } = CustomHooks.useQuery<IBackendPaginateRes<IPermission[]>>(
     [QUERY_KEYS.PERMISSION_MODULE, state.page, state.pageSize],
     fetchDataPermissions,
   )
 
-  const { isLoading, handleRefresh } = useRefresh(refetch)
+  const { isLoading, handleRefresh, handleRetry } = useRefresh(refetch, isFetching)
 
   const handleTableChange = (p: number, ps: number) => {
     updateState({ page: p, pageSize: ps })
@@ -186,9 +186,10 @@ const PermissionManageList: React.FC = () => {
             })
             return Array.from(map.values())
           })()}
-          loading={isLoadingData}
+          loading={isFetching}
           isError={isPermissionsError}
-          onRetry={() => void refetch()}
+          onRetry={handleRetry}
+          retryLoading={isFetching}
           total={data?.data?.meta?.total || 0}
           page={state.page}
           pageSize={state.pageSize}

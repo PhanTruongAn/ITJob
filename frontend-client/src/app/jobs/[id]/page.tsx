@@ -63,6 +63,8 @@ export default function JobDetailPage() {
   const [loading, setLoading] = useState(true)
   const [loadFailure, setLoadFailure] = useState<"notFound" | "error" | null>(null)
   const detailRequestId = useRef(0)
+  const detailRetryInFlight = useRef(false)
+  const appliedCheckInFlight = useRef(false)
 
   const [appliedCheck, setAppliedCheck] = useState<{
     key: string | null
@@ -123,6 +125,16 @@ export default function JobDetailPage() {
     }
   }, [jobId])
 
+  const retryJobData = async () => {
+    if (loading || detailRetryInFlight.current) return
+    detailRetryInFlight.current = true
+    try {
+      await loadJobData()
+    } finally {
+      detailRetryInFlight.current = false
+    }
+  }
+
   useEffect(() => {
     loadJobData()
   }, [loadJobData])
@@ -152,6 +164,7 @@ export default function JobDetailPage() {
     }
 
     let isMounted = true
+    appliedCheckInFlight.current = true
     setAppliedCheck({ key: applicationCheckKey, state: "loading" })
     checkJobApplied(jobId)
       .then((res) => {
@@ -166,6 +179,9 @@ export default function JobDetailPage() {
         if (isMounted) {
           setAppliedCheck({ key: applicationCheckKey, state: "error" })
         }
+      })
+      .finally(() => {
+        appliedCheckInFlight.current = false
       })
 
     return () => {
@@ -328,7 +344,7 @@ export default function JobDetailPage() {
                 severity="error"
                 sx={{ mb: 3, borderRadius: 2 }}
                 action={
-                  <Button color="inherit" size="small" onClick={() => void loadJobData()}>
+                  <Button color="inherit" size="small" loading={loading} disabled={loading} onClick={() => void retryJobData()}>
                     {t("discovery.retry")}
                   </Button>
                 }
@@ -353,7 +369,13 @@ export default function JobDetailPage() {
                   job={headerJob}
                   applyActionState={applyActionState}
                   onApply={handleApplyClick}
-                  onRetryApplicationCheck={() => setAppliedCheckRetry((count) => count + 1)}
+                  onRetryApplicationCheck={() => {
+                    if (appliedCheckInFlight.current) return
+                    appliedCheckInFlight.current = true
+                    setAppliedCheck({ key: applicationCheckKey, state: "loading" })
+                    setAppliedCheckRetry((count) => count + 1)
+                  }}
+                  applicationCheckLoading={currentCheckState === "loading"}
                 />
               )}
 

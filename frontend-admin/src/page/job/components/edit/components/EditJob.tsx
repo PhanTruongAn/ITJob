@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useLocation, useParams } from "react-router-dom"
 import { useEditJob, useGetJobById } from "../../../common/hooks"
 import { CreateJobReqDTO } from "../../../common/interfaces"
+import useRefresh from "../../../../../common/hooks/useRefresh"
 import JobForm from "../../JobForm"
 
 const { Option } = Select
@@ -17,7 +18,8 @@ const EditJob: React.FC = () => {
   const { id } = useParams()
   const location = useLocation()
   const isViewed = location.state?.isView
-  const { data: jobData, isLoading, isError, refetch } = useGetJobById(Number(id))
+  const { data: jobData, isLoading, isFetching, isError, refetch } = useGetJobById(Number(id))
+  const { handleRetry, isLoading: isQueryBusy } = useRefresh(refetch, isFetching)
 
   useEffect(() => {
     if (jobData?.data) {
@@ -51,7 +53,7 @@ const EditJob: React.FC = () => {
           type="error"
           showIcon
           message={t("common.jobDetailLoadError")}
-          action={<Button size="small" onClick={() => void refetch()}>{t("common.retry")}</Button>}
+          action={<Button size="small" loading={isQueryBusy} disabled={isQueryBusy} onClick={handleRetry}>{t("common.retry")}</Button>}
         />
       ) : (
         <JobForm

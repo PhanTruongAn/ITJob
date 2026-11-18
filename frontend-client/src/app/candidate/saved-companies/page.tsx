@@ -6,6 +6,7 @@ import { Alert, Box, Button, CircularProgress, Grid, Pagination, Stack, Typograp
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useSession } from "next-auth/react"
+import useGuardedRefetch from "@/common/hooks/useGuardedRefetch"
 
 const PAGE_SIZE = 9
 
@@ -13,7 +14,8 @@ export default function SavedCompaniesPage() {
   const { t } = useTranslation()
   const { status } = useSession()
   const [page, setPage] = useState(1)
-  const { data, isLoading, isError, refetch } = useSavedCompanies({ page, size: PAGE_SIZE })
+  const { data, isLoading, isFetching, isError, refetch } = useSavedCompanies({ page, size: PAGE_SIZE })
+  const { handleRefetch, isBusy } = useGuardedRefetch(refetch, isFetching)
   const savedCompanies = data?.data?.result ?? []
   const pagination = data?.data?.meta
 
@@ -37,7 +39,7 @@ export default function SavedCompaniesPage() {
         <Alert
           severity="error"
           action={
-            <Button color="inherit" size="small" onClick={() => refetch()}>
+            <Button color="inherit" size="small" loading={isBusy} disabled={isBusy} onClick={() => void handleRefetch()}>
               {t("bookmarks.retry")}
             </Button>
           }

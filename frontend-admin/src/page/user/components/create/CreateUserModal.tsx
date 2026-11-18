@@ -12,6 +12,7 @@ interface CreateUserModalProps {
   rolesLoading: boolean;
   rolesError: boolean;
   onRetryRoles: () => void;
+  rolesRetryLoading?: boolean;
 }
 
 const { Option } = Select;
@@ -25,6 +26,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
   rolesLoading,
   rolesError,
   onRetryRoles,
+  rolesRetryLoading = false,
 }) => {
   const [form] = Form.useForm();
 
@@ -57,7 +59,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
             type="error"
             showIcon
             message="Unable to load assignable roles. Refresh and try again."
-            action={<Button size="small" onClick={onRetryRoles}>Retry</Button>}
+            action={<Button size="small" loading={rolesRetryLoading} disabled={rolesRetryLoading} onClick={onRetryRoles}>Retry</Button>}
             style={{ marginBottom: 16 }}
           />
         )}

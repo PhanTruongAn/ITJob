@@ -98,6 +98,8 @@ test("CV list success distinguishes an empty list from a failed or invalid respo
   })
   assert.match(applyModal, /onClick=\{\(\) => void fetchCvs\(\)\}/)
   assert.match(applyModal, /onClick=\{\(\) => void fetchBuilderCvs\(\)\}/)
+  assert.match(applyModal, /if \(cvFetchInProgress\.current\) return/)
+  assert.match(applyModal, /if \(builderCvFetchInProgress\.current\) return/)
   assert.match(applyModal, /application\.cvLoadError/)
   assert.match(applyModal, /application\.builderCvLoadError/)
 })

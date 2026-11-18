@@ -11,13 +11,15 @@ import Skeleton from "@mui/material/Skeleton"
 import Typography from "@mui/material/Typography"
 import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
+import useGuardedRefetch from "@/common/hooks/useGuardedRefetch"
 
 export default function TopEmployers() {
   const { t } = useTranslation()
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: ["companies", "top"],
     queryFn: () => fetchCompanies({ page: 1, pageSize: 6 }),
   })
+  const { handleRefetch, isBusy } = useGuardedRefetch(refetch, isFetching)
 
   const companies = data?.data?.result ?? []
 
@@ -30,7 +32,7 @@ export default function TopEmployers() {
         {isError && (
           <Alert
             severity="error"
-            action={<Button color="inherit" size="small" onClick={() => void refetch()}>{t("home.retry")}</Button>}
+            action={<Button color="inherit" size="small" loading={isBusy} disabled={isBusy} onClick={() => void handleRefetch()}>{t("home.retry")}</Button>}
             sx={{ mb: 3 }}
           >
             {t("home.loadError")}

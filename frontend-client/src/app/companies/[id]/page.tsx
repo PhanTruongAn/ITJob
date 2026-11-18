@@ -28,6 +28,7 @@ import { useCompanyDetail } from "@/apis/company/company.hooks"
 import { useFollowStatus, useToggleFollowCompany } from "@/apis/follow/follow.hooks"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import useGuardedRefetch from "@/common/hooks/useGuardedRefetch"
 
 interface Props {
   params: Promise<{ id: string }>
@@ -51,7 +52,8 @@ export default function CompanyDetailPage({ params }: Props) {
     severity: "success",
   })
 
-  const { data, isLoading, isError, error, refetch } = useCompanyDetail(companyId)
+  const { data, isLoading, isFetching, isError, error, refetch } = useCompanyDetail(companyId)
+  const companyRetry = useGuardedRefetch(refetch, isFetching)
 
   // Fetch follow status only if user is logged in
   const isLoggedIn = status === "authenticated"
@@ -59,11 +61,13 @@ export default function CompanyDetailPage({ params }: Props) {
     data: followStatusData,
     isLoading: isFollowStatusLoading,
     isError: isFollowStatusError,
+    isFetching: isFollowStatusFetching,
     refetch: refetchFollowStatus,
   } = useFollowStatus(
     companyId,
     isLoggedIn
   )
+  const followRetry = useGuardedRefetch(refetchFollowStatus, isFollowStatusFetching)
   const isFollowing = !!followStatusData?.data
 
   const toggleFollowMutation = useToggleFollowCompany()
@@ -152,7 +156,7 @@ export default function CompanyDetailPage({ params }: Props) {
             <Alert
               severity="error"
               action={
-                <Button color="inherit" size="small" onClick={() => void refetch()}>
+                <Button color="inherit" size="small" loading={companyRetry.isBusy} disabled={companyRetry.isBusy} onClick={() => void companyRetry.handleRefetch()}>
                   {t("discovery.retry")}
                 </Button>
               }
@@ -223,7 +227,7 @@ export default function CompanyDetailPage({ params }: Props) {
           isFollowing={isFollowing}
           isFollowingLoading={isFollowStatusLoading || toggleFollowMutation.isPending}
           isFollowingError={isFollowStatusError}
-          onRetryFollowStatus={() => void refetchFollowStatus()}
+          onRetryFollowStatus={() => void followRetry.handleRefetch()}
           onFollow={handleFollowToggle}
           onVisitWebsite={
             company.website

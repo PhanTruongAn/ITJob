@@ -78,6 +78,8 @@ export default function ApplyJobModal({
   const [uploading, setUploading] = useState<boolean>(false)
   const [submitting, setSubmitting] = useState<boolean>(false)
   const submissionInProgress = useRef(false)
+  const cvFetchInProgress = useRef(false)
+  const builderCvFetchInProgress = useRef(false)
 
   // Form states
   const [candidateName, setCandidateName] = useState<string>("")
@@ -97,6 +99,8 @@ export default function ApplyJobModal({
 
   // Fetch CVs list when modal opens
   const fetchCvs = useCallback(async () => {
+    if (cvFetchInProgress.current) return
+    cvFetchInProgress.current = true
     setCvLoadState("loading")
     try {
       const res = await getUserCvs()
@@ -113,11 +117,15 @@ export default function ApplyJobModal({
     } catch {
       setCvList([])
       setCvLoadState("error")
+    } finally {
+      cvFetchInProgress.current = false
     }
   }, [])
 
   // Fetch CV Builder entries
   const fetchBuilderCvs = useCallback(async () => {
+    if (builderCvFetchInProgress.current) return
+    builderCvFetchInProgress.current = true
     setBuilderCvLoadState("loading")
     try {
       const res = await getMyCandidateCvs()
@@ -129,6 +137,8 @@ export default function ApplyJobModal({
     } catch {
       setBuilderCvList([])
       setBuilderCvLoadState("error")
+    } finally {
+      builderCvFetchInProgress.current = false
     }
   }, [])
 

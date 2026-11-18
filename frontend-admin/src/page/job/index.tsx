@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom"
 import { createJob, deleteJob, editJob, fetchJobs } from "../../apis/jobModule"
 import { fetchSkills } from "../../apis/skillModule"
 import CustomHooks from "../../common/hooks/CustomHooks"
+import useRefresh from "../../common/hooks/useRefresh"
 import { QUERY_KEYS } from "../../common/queryKeys"
 import ConfirmModal from "../../components/modal/ConfirmModal"
 import CustomGlobalTable from "../../components/table"
@@ -53,9 +54,11 @@ const JobManageList: React.FC = () => {
   const {
     data: companyResponse,
     isLoading: isLoadingCompanyOptions,
+    isFetching: isFetchingCompanyOptions,
     isError: isCompanyOptionsError,
     refetch: refetchCompanyOptions,
   } = useGetCompanyList()
+  const companyOptionsRefresh = useRefresh(refetchCompanyOptions, isFetchingCompanyOptions)
   const companiesOptions = companyResponse?.data?.result ?? []
   const companyOptionsError =
     isCompanyOptionsError || (companyResponse?.statusCode ?? 200) >= 400
@@ -108,6 +111,7 @@ const JobManageList: React.FC = () => {
     ],
     fetchLitsJob,
   )
+  const { handleRefresh, handleRetry } = useRefresh(refetch, isFetchingJob)
 
   const handlerFilterJobs = ({
     companyId,
@@ -274,7 +278,7 @@ const JobManageList: React.FC = () => {
     <>
       <JobListHeader
         onAddJob={() => setVisibleCreateModal(true)}
-        onRefresh={() => refetch()}
+        onRefresh={handleRefresh}
         loading={isFetchingJob}
       />
       <JobListHeaderToolbar
@@ -286,9 +290,10 @@ const JobManageList: React.FC = () => {
         loading={isCreating}
         open={visibleCreateModal}
         companyOptions={companiesOptions}
-        companyOptionsLoading={isLoadingCompanyOptions}
+        companyOptionsLoading={companyOptionsRefresh.isLoading || isLoadingCompanyOptions}
         companyOptionsError={companyOptionsError}
-        onRetryCompanyOptions={() => void refetchCompanyOptions()}
+        onRetryCompanyOptions={companyOptionsRefresh.handleRetry}
+        companyOptionsRetryLoading={companyOptionsRefresh.isLoading || isLoadingCompanyOptions}
         skillOptions={skillsOptions}
         onCancel={() => setVisibleCreateModal(false)}
         onSubmit={handleCreate}
@@ -338,7 +343,8 @@ const JobManageList: React.FC = () => {
             data={data?.data?.result || []}
             loading={isFetchingJob}
             isError={isJobsError}
-            onRetry={() => void refetch()}
+            onRetry={handleRetry}
+            retryLoading={isFetchingJob}
             total={data?.data?.meta?.total || 0}
             page={state.page}
             pageSize={state.pageSize}

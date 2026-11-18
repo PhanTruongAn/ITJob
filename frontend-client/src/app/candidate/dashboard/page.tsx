@@ -10,9 +10,14 @@ import RecentApplications from "./components/RecentApplications"
 import RecommendedJobs from "./components/RecommendedJobs"
 import StatsCards from "./components/StatsCards"
 import WelcomeBanner from "./components/WelcomeBanner"
+import useGuardedRefetch from "@/common/hooks/useGuardedRefetch"
 
 export default function CandidateDashboardPage() {
   const applicationsQuery = useMyResumes()
+  const { handleRefetch: retryApplications, isBusy: applicationsBusy } = useGuardedRefetch(
+    applicationsQuery.refetch,
+    applicationsQuery.isFetching,
+  )
   const { session, sessionStatus: status, hasCandidateAccess } = applicationsQuery
   const router = useRouter()
   const { t } = useTranslation()
@@ -47,14 +52,16 @@ export default function CandidateDashboardPage() {
             appliedCount={applicationsQuery.data?.length}
             appliedLoading={applicationsQuery.isLoading}
             appliedError={applicationsQuery.isError}
-            retryApplications={() => void applicationsQuery.refetch()}
+            appliedRetrying={applicationsBusy}
+            retryApplications={() => void retryApplications()}
           />
 
           <RecentApplications
             applications={applicationsQuery.data?.slice(0, 3) ?? []}
             isLoading={applicationsQuery.isLoading}
             isError={applicationsQuery.isError}
-            onRetry={() => void applicationsQuery.refetch()}
+            isFetching={applicationsBusy}
+            onRetry={() => void retryApplications()}
           />
         </Grid>
 

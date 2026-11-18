@@ -62,6 +62,7 @@ interface JobDetailHeaderProps {
     | "error"
   onApply: () => void
   onRetryApplicationCheck: () => void
+  applicationCheckLoading: boolean
 }
 
 export default function JobDetailHeader({
@@ -70,6 +71,7 @@ export default function JobDetailHeader({
   applyActionState,
   onApply,
   onRetryApplicationCheck,
+  applicationCheckLoading,
 }: JobDetailHeaderProps) {
   const { t } = useTranslation()
   const isExpired = job.endDate ? new Date(job.endDate).getTime() < Date.now() : false
@@ -373,7 +375,7 @@ export default function JobDetailHeader({
                             : t("common.apply")}
                 </Button>
                 {applyActionState === "error" && (
-                  <Button size="small" onClick={onRetryApplicationCheck}>
+                  <Button size="small" loading={applicationCheckLoading} disabled={applicationCheckLoading} onClick={onRetryApplicationCheck}>
                     {t("application.retry")}
                   </Button>
                 )}

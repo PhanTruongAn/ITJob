@@ -46,6 +46,7 @@ import {
   updateRecommendationConfig,
 } from "../../apis/recommendationModule"
 import CustomHooks from "../../common/hooks/CustomHooks"
+import useRefresh from "../../common/hooks/useRefresh"
 import { QUERY_KEYS } from "../../common/queryKeys"
 import { IJobRecommendation } from "../../types/backend"
 import {
@@ -72,7 +73,8 @@ const RecommendationDetailDrawer: React.FC<{
   open: boolean
   onClose: () => void
 }> = ({ id, open, onClose }) => {
-  const { data, isLoading, isError, refetch } = useFetchRecommendationDetail(id)
+  const { data, isLoading, isFetching, isError, refetch } = useFetchRecommendationDetail(id)
+  const detailRefresh = useRefresh(refetch, isFetching)
   const rec = data?.data
 
   return (
@@ -200,7 +202,7 @@ const RecommendationDetailDrawer: React.FC<{
           type="error"
           showIcon
           message="Unable to load recommendation details."
-          action={<Button size="small" onClick={() => void refetch()}>Retry</Button>}
+          action={<Button size="small" loading={detailRefresh.isLoading} disabled={detailRefresh.isLoading} onClick={detailRefresh.handleRetry}>Retry</Button>}
         />
       )}
     </Drawer>
@@ -307,7 +309,7 @@ const HistoryTab: React.FC = () => {
   const { mutate: updateStatusMutate } = useUpdateEmailStatus()
   const { mutate: deleteMutate } = useDeleteRecommendation()
 
-  const { data: historyData, isLoading, isError, refetch } = CustomHooks.useQuery(
+  const { data: historyData, isLoading, isFetching, isError, refetch } = CustomHooks.useQuery(
     [
       QUERY_KEYS.RECOMMENDATION_MODULE,
       "history",
@@ -322,6 +324,7 @@ const HistoryTab: React.FC = () => {
         ...state.filters,
       }),
   )
+  const historyRefresh = useRefresh(refetch, isFetching)
 
   useEffect(() => {
     if (historyData) {
@@ -495,7 +498,7 @@ const HistoryTab: React.FC = () => {
           type="error"
           showIcon
           message={t("common.recommendationHistoryLoadError")}
-          action={<Button size="small" icon={<ReloadOutlined />} onClick={() => void refetch()}>{t("common.retry")}</Button>}
+          action={<Button size="small" icon={<ReloadOutlined />} loading={historyRefresh.isLoading} disabled={historyRefresh.isLoading} onClick={historyRefresh.handleRetry}>{t("common.retry")}</Button>}
           style={{ marginBottom: 12 }}
         />
       )}
@@ -509,7 +512,7 @@ const HistoryTab: React.FC = () => {
               type="error"
               showIcon
               message={t("common.recommendationHistoryLoadError")}
-              action={<Button size="small" icon={<ReloadOutlined />} onClick={() => void refetch()}>{t("common.retry")}</Button>}
+              action={<Button size="small" icon={<ReloadOutlined />} loading={historyRefresh.isLoading} disabled={historyRefresh.isLoading} onClick={historyRefresh.handleRetry}>{t("common.retry")}</Button>}
             />
           ) : undefined,
         }}

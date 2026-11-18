@@ -19,6 +19,7 @@ interface CreateJobModalProps {
   companyOptionsLoading: boolean
   companyOptionsError: boolean
   onRetryCompanyOptions: () => void
+  companyOptionsRetryLoading?: boolean
   skillOptions: ISkill[]
   onCancel: () => void
   onSubmit: (values: any) => void
@@ -31,6 +32,7 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
   companyOptionsLoading,
   companyOptionsError,
   onRetryCompanyOptions,
+  companyOptionsRetryLoading = false,
   skillOptions,
   onCancel,
   onSubmit,
@@ -125,7 +127,7 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
             showIcon
             message="Could not load company options"
             action={
-              <Button size="small" type="link" onClick={onRetryCompanyOptions}>
+              <Button size="small" type="link" loading={companyOptionsRetryLoading} disabled={companyOptionsRetryLoading} onClick={onRetryCompanyOptions}>
                 Retry
               </Button>
             }

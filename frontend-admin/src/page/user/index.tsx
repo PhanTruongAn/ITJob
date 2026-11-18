@@ -38,6 +38,7 @@ const User: React.FC = () => {
   const {
     data: roleResponse,
     isLoading: isLoadingRoles,
+    isFetching: isFetchingRoles,
     isError: isRolesError,
     refetch: refetchRoles,
   } = CustomHooks.useQuery<IBackendPaginateRes<IRole[]>>(
@@ -45,6 +46,7 @@ const User: React.FC = () => {
     () => fetchRoles({ page: 1, pageSize: 100 }),
     { enabled: state.visibleCreateModal },
   )
+  const roleOptionsRefresh = useRefresh(refetchRoles, isFetchingRoles)
   const assignableRoles = (roleResponse?.data?.result ?? []).filter((role) => {
     if (!role.active) return false
     if (currentRoleName.toUpperCase() === "ADMIN") return true
@@ -138,7 +140,7 @@ const User: React.FC = () => {
   const {
     data,
     refetch,
-    isLoading: isLoadingData,
+    isFetching,
     isError: isUsersError,
   } = CustomHooks.useQuery<IBackendPaginateRes<IUser[]>>(
     [
@@ -151,7 +153,7 @@ const User: React.FC = () => {
     ],
     fetchDataUser,
   )
-  const { isLoading, handleRefresh } = useRefresh(refetch)
+  const { isLoading, handleRefresh, handleRetry } = useRefresh(refetch, isFetching)
 
   const handleTableChange = (
     page: number,
@@ -223,14 +225,15 @@ const User: React.FC = () => {
         open={state.visibleCreateModal}
         onSubmit={handleOk}
         roles={assignableRoles}
-        rolesLoading={isLoadingRoles}
+        rolesLoading={roleOptionsRefresh.isLoading || isLoadingRoles}
         rolesError={
           isRolesError ||
           (!isLoadingRoles && !roleResponse) ||
           (roleResponse?.statusCode ?? 200) >= 400 ||
           (!isLoadingRoles && assignableRoles.length === 0)
         }
-        onRetryRoles={() => void refetchRoles()}
+        onRetryRoles={roleOptionsRefresh.handleRetry}
+        rolesRetryLoading={roleOptionsRefresh.isLoading || isLoadingRoles}
         onCancel={() => updateState({ visibleCreateModal: false })}
       />
       <ConfirmModal
@@ -261,9 +264,10 @@ const User: React.FC = () => {
               },
             })}
             data={data?.data?.result || []}
-            loading={isLoadingData}
+            loading={isFetching}
             isError={isUsersError}
-            onRetry={() => void refetch()}
+            onRetry={handleRetry}
+            retryLoading={isFetching}
             total={data?.data?.meta?.total || 0}
             page={state.page}
             pageSize={state.pageSize}
